@@ -1,4 +1,0 @@
-endpoints:
-  billing:
-    summary: "Create transaction"
-    description: "Perform payment transaction"

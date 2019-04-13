@@ -110,17 +110,7 @@ functions:
           authorizer: aws_iam
           documentation: ${file(api-doc/notes.yml):endpoints.delete}
 
-# Billing Module API
-  billing:
-    handler: routes/billing/billing.main
-    events:
-      - http:
-          path: billing
-          method: post
-          cors: true
-          authorizer: aws_iam
-          documentation: ${file(api-doc/billing.yml):endpoints.billing}
-          
+         
 # Create our resources with separate CloudFormation templates
 resources:
   # API Gateway Errors
