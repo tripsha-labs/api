@@ -1,0 +1,17 @@
+endpoints:
+  create:
+    summary: "Create Note"
+    description: "Create new note and sends generated note id"
+  list:
+    summary: "List Notes"
+    description: "List all the notes for matching criteria"
+  get:
+    summary: "Get Note"
+    description: "Get single note by ID"
+  update:
+    summary: "Update Note"
+    description: "Updates a note by ID and content in the request"
+  delete:
+    summary: "Delete Note"
+    description: "Deletes a note by ID"
+    

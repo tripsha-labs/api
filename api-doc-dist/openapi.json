@@ -1,0 +1,56 @@
+{
+  "openapi": "3.0.0",
+  "components": {
+    "schemas": {},
+    "securitySchemes": {}
+  },
+  "info": {
+    "title": "Tripsha API Documentation",
+    "description": "Detailed API usage guideline",
+    "version": "1"
+  },
+  "paths": {
+    "/notes": {
+      "post": {
+        "operationId": "create",
+        "summary": "Create Note",
+        "description": "Create new note and sends generated note id",
+        "responses": {}
+      },
+      "get": {
+        "operationId": "list",
+        "summary": "List Notes",
+        "description": "List all the notes for matching criteria",
+        "responses": {}
+      }
+    },
+    "/notes/{id}": {
+      "get": {
+        "operationId": "get",
+        "summary": "Get Note",
+        "description": "Get single note by ID",
+        "responses": {}
+      },
+      "put": {
+        "operationId": "update",
+        "summary": "Update Note",
+        "description": "Updates a note by ID and content in the request",
+        "responses": {}
+      },
+      "delete": {
+        "operationId": "delete",
+        "summary": "Delete Note",
+        "description": "Deletes a note by ID",
+        "responses": {}
+      }
+    },
+    "/billing": {
+      "post": {
+        "operationId": "billing",
+        "summary": "Create transaction",
+        "description": "Perform payment transaction",
+        "responses": {}
+      }
+    }
+  }
+}
