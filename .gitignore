@@ -31,7 +31,7 @@ build/Release
 # Dependency directories
 node_modules
 jspm_packages
-
+.dynamodb
 # Optional npm cache directory
 .npm
 
