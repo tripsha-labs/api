@@ -63,7 +63,8 @@ provider:
       # Restrict our IAM role permissions to
       # the specific table for the stage
       Resource:
-        - "Fn::GetAtt": [ NotesTable, TripsTable, Arn ]
+        - "Fn::GetAtt": [ NotesTable, Arn ]
+        - "Fn::GetAtt": [ TripsTable, Arn ]
 
 functions:  
   - ${file(routes/notes/functions.yml)}

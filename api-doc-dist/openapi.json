@@ -42,9 +42,9 @@
     "securitySchemes": {}
   },
   "info": {
-    "title": "",
-    "description": "",
-    "version": "f2ba2fd0-eae7-4fc2-89e0-44234b6fa7c8"
+    "title": "Tripsha API documentation",
+    "description": "List of all the available API",
+    "version": "v1.0"
   },
   "paths": {
     "/notes": {
