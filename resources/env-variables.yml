@@ -1,0 +1,3 @@
+stripeSecretKey: ${self:custom.environment.stripeSecretKey}
+tbl_notes: ${self:custom.tbl_notes}
+tbl_trips: ${self:custom.tbl_trips}

@@ -1,0 +1,50 @@
+documentation:
+    api:
+      info:
+        version: 'v1.0'
+        title: Tripsha API documentation
+        description: List of all the available API
+        termsOfService: https://www.tripsha.com/terms
+        contact:
+          name: Sanjay Madane
+          url: https://www.serverless.com/framework
+          email: madanesanjayraj@gmail.com
+        license:
+          name: The license
+          url: https://www.tripsha.com/license
+    models:
+      -
+        name: NoteResponse
+        contentType: "application/json"
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+      -
+        name: NoteRequest
+        contentType: "application/json"
+        schema:
+          type: array
+          items:
+            type: string
+      -
+        name: TripRequest
+        contentType: "application/json"
+        schema:
+          type: object
+          properties:
+            result:
+              type: string
+            submittedItems:
+              type: number
+      -
+        name: TripResponse
+        contentType: "application/json"
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+            statusCode:
+              type: number

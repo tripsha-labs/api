@@ -1,0 +1,49 @@
+createTrip:
+  handler: routes/trips/create.main
+  events:
+    - http:
+        path: trips
+        method: post
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/trips/doc.yml):endpoints.create}
+
+getTrip:
+  handler: routes/trips/get.main
+  events:
+    - http:
+        path: trips/{id}
+        method: get
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/trips/doc.yml):endpoints.get}
+
+listTrips:
+  handler: routes/trips/list.main
+  events:
+    - http:
+        path: trips
+        method: get
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/trips/doc.yml):endpoints.list}
+
+updateTrip:
+  handler: routes/trips/update.main
+  events:
+    - http:
+        path: trips/{id}
+        method: put
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/trips/doc.yml):endpoints.update}
+
+deleteTrip:
+  handler: routes/trips/delete.main
+  events:
+    - http:
+        path: trips/{id}
+        method: delete
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/trips/doc.yml):endpoints.delete}

@@ -4,6 +4,8 @@
   "description": "A Node.js starter for the Serverless Framework with async/await and unit test support",
   "main": "handler.js",
   "scripts": {
+    "offline": "serverless offline",
+    "deploy": "serverless deploy --profile tripsha",
     "build-doc": "serverless openapi generate --format json --output ./api-doc-dist/openapi.json && aws s3 sync ./api-doc-dist/ s3://tripsha-api-doc",
     "test": "jest"
   },
@@ -22,9 +24,11 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-3": "^6.24.1",
     "jest": "^21.2.1",
+    "serverless-dynamodb-local": "^0.2.37",
     "serverless-offline": "^3.25.6",
     "serverless-openapi-documentation": "^0.4.0",
     "serverless-webpack": "^5.1.0",
+    "swagger-jsdoc": "^3.2.8",
     "webpack": "^4.16.2",
     "webpack-node-externals": "^1.6.0"
   },

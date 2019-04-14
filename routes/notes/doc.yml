@@ -1,0 +1,65 @@
+endpoints:
+  create:
+    summary: Create Note
+    tags:
+      - Notes
+    description: 
+      It will create new note.
+    queryParams:
+      -
+        name: content
+        description: The body of the note
+        required: true
+      -
+        name: name
+        description: The name of the note
+    methodResponses:
+      -
+        statusCode: '200'
+        responseModels:
+          "application/json": NoteResponse        
+  list:
+    summary: "List Notes"
+    description: "List all the notes for matching criteria"
+    tags: 
+      - "Notes"
+    consumes:
+      - "application/json"
+      - "application/xml"
+    produces:
+      - "application/xml"
+      - "application/json"
+  get:
+    summary: "Get Note"
+    description: "Get single note by ID"
+    tags: 
+      - "Notes"
+    consumes:
+      - "application/json"
+      - "application/xml"
+    produces:
+      - "application/xml"
+      - "application/json"
+  update:
+    summary: "Update Note"
+    description: "Updates a note by ID and content in the request"
+    tags: 
+      - "Notes"
+    consumes:
+      - "application/json"
+      - "application/xml"
+    produces:
+      - "application/xml"
+      - "application/json"
+  delete:
+    summary: "Delete Note"
+    description: "Deletes a note by ID"
+    tags: 
+      - "Notes"
+    consumes:
+      - "application/json"
+      - "application/xml"
+    produces:
+      - "application/xml"
+      - "application/json"
+    

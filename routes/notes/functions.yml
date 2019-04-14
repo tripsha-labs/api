@@ -1,0 +1,49 @@
+createNotes:
+  handler: routes/notes/create.main
+  events:
+    - http:
+        path: notes
+        method: post
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/notes/doc.yml):endpoints.create}
+
+getNote:
+  handler: routes/notes/get.main
+  events:
+    - http:
+        path: notes/{id}
+        method: get
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/notes/doc.yml):endpoints.get}
+
+listNotes:
+  handler: routes/notes/list.main
+  events:
+    - http:
+        path: notes
+        method: get
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/notes/doc.yml):endpoints.list}
+
+updateNote:
+  handler: routes/notes/update.main
+  events:
+    - http:
+        path: notes/{id}
+        method: put
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/notes/doc.yml):endpoints.update}
+
+deleteNote:
+  handler: routes/notes/delete.main
+  events:
+    - http:
+        path: notes/{id}
+        method: delete
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/notes/doc.yml):endpoints.delete}

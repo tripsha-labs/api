@@ -1,55 +1,214 @@
 {
   "openapi": "3.0.0",
   "components": {
-    "schemas": {},
+    "schemas": {
+      "NoteResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "NoteRequest": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "TripRequest": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string"
+          },
+          "submittedItems": {
+            "type": "number"
+          }
+        }
+      },
+      "TripResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "number"
+          }
+        }
+      }
+    },
     "securitySchemes": {}
   },
   "info": {
-    "title": "Tripsha API Documentation",
-    "description": "Detailed API usage guideline",
-    "version": "1"
+    "title": "",
+    "description": "",
+    "version": "f2ba2fd0-eae7-4fc2-89e0-44234b6fa7c8"
   },
   "paths": {
     "/notes": {
       "post": {
-        "operationId": "create",
+        "operationId": "createNotes",
         "summary": "Create Note",
-        "description": "Create new note and sends generated note id",
-        "responses": {}
+        "description": "It will create new note.",
+        "tags": [
+          "Notes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200 Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteResponse"
+                }
+              }
+            }
+          }
+        }
       },
       "get": {
-        "operationId": "list",
+        "operationId": "listNotes",
         "summary": "List Notes",
         "description": "List all the notes for matching criteria",
+        "tags": [
+          "Notes"
+        ],
         "responses": {}
       }
     },
     "/notes/{id}": {
       "get": {
-        "operationId": "get",
+        "operationId": "getNote",
         "summary": "Get Note",
         "description": "Get single note by ID",
+        "tags": [
+          "Notes"
+        ],
         "responses": {}
       },
       "put": {
-        "operationId": "update",
+        "operationId": "updateNote",
         "summary": "Update Note",
         "description": "Updates a note by ID and content in the request",
+        "tags": [
+          "Notes"
+        ],
         "responses": {}
       },
       "delete": {
-        "operationId": "delete",
+        "operationId": "deleteNote",
         "summary": "Delete Note",
         "description": "Deletes a note by ID",
+        "tags": [
+          "Notes"
+        ],
         "responses": {}
       }
     },
-    "/billing": {
+    "/trips": {
       "post": {
-        "operationId": "billing",
-        "summary": "Create transaction",
-        "description": "Perform payment transaction",
-        "responses": {}
+        "operationId": "createTrip",
+        "summary": "Create Trip",
+        "description": "Create new trip and sends generated trip id",
+        "tags": [
+          "Trip"
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200 Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "listTrips",
+        "summary": "List Trips",
+        "description": "List all the trips for matching criteria",
+        "tags": [
+          "Trip"
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200 Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/{id}": {
+      "get": {
+        "operationId": "getTrip",
+        "summary": "Get Trip",
+        "description": "Get single trip by ID",
+        "tags": [
+          "Trip"
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200 Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateTrip",
+        "summary": "Update Trip",
+        "description": "Updates a trip by ID and content in the request",
+        "tags": [
+          "Trip"
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200 Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteTrip",
+        "summary": "Delete Trip",
+        "description": "Deletes a trip by ID",
+        "tags": [
+          "Trip"
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200 Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResponse"
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

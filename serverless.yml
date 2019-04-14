@@ -4,16 +4,24 @@ service: tripsha-app-api
 plugins:
   - serverless-webpack
   - serverless-offline  
+  - serverless-dynamodb-local
   - serverless-openapi-documentation
 
 # serverless-webpack configuration
 # Enable auto-packing of external modules
-custom:
+custom: 
   # Our stage is based on what is passed in when running serverless
   # commands. Or fallsback to what we have set in the provider section.
   stage: ${opt:stage, self:provider.stage}
-  # Set the table name here so we can use it while testing locally
-  tbl_notes: ${self:custom.stage}-notes
+  # Start dynamodb locally
+  start:
+    port: 8000
+    inMemory: true
+    heapInitial: 200m
+    heapMax: 1g
+    migrate: true
+    seed: true
+    convertEmptyValues: true
   # Set our DynamoDB throughput for prod and all other non-prod stages.
   tableThroughputs:
     prod: 5
@@ -26,7 +34,9 @@ custom:
   # Load our secret environment variables based on the current stage.
   # Fallback to default if it is not in prod.
   environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
-  documentation: ${file(api-doc/index.yml):documentation}
+  documentation: ${file(api-doc.yml):documentation}
+  tbl_notes: ${self:custom.stage}-notes
+  tbl_trips: ${self:custom.stage}-trips
 
 provider:
   name: aws
@@ -38,9 +48,7 @@ provider:
   # In this case Lambda functions are granted with permissions to access DynamoDB.
   # These environment variables are made available to our functions
   # under process.env.
-  environment:
-    tbl_notes: ${self:custom.tbl_notes}
-    stripeSecretKey: ${self:custom.environment.stripeSecretKey}
+  environment: ${file(resources/env-variables.yml)}    
 
   iamRoleStatements:
     - Effect: Allow
@@ -55,61 +63,11 @@ provider:
       # Restrict our IAM role permissions to
       # the specific table for the stage
       Resource:
-        - "Fn::GetAtt": [ NotesTable, Arn ]
+        - "Fn::GetAtt": [ NotesTable, TripsTable, Arn ]
 
-functions:
-
-  # Notes Modules API
-  create:
-    handler: routes/notes/create.main
-    events:
-      - http:
-          path: notes
-          method: post
-          cors: true
-          authorizer: aws_iam
-          documentation: ${file(api-doc/notes.yml):endpoints.create}
-
-  get:
-    handler: routes/notes/get.main
-    events:
-      - http:
-          path: notes/{id}
-          method: get
-          cors: true
-          authorizer: aws_iam
-          documentation: ${file(api-doc/notes.yml):endpoints.get}
-
-  list:
-    handler: routes/notes/list.main
-    events:
-      - http:
-          path: notes
-          method: get
-          cors: true
-          authorizer: aws_iam
-          documentation: ${file(api-doc/notes.yml):endpoints.list}
-
-  update:
-    handler: routes/notes/update.main
-    events:
-      - http:
-          path: notes/{id}
-          method: put
-          cors: true
-          authorizer: aws_iam
-          documentation: ${file(api-doc/notes.yml):endpoints.update}
-
-  delete:
-    handler: routes/notes/delete.main
-    events:
-      - http:
-          path: notes/{id}
-          method: delete
-          cors: true
-          authorizer: aws_iam
-          documentation: ${file(api-doc/notes.yml):endpoints.delete}
-
+functions:  
+  - ${file(routes/notes/functions.yml)}
+  - ${file(routes/trips/functions.yml)}
          
 # Create our resources with separate CloudFormation templates
 resources:
