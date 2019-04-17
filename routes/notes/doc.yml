@@ -5,14 +5,18 @@ endpoints:
       - Notes
     description: 
       It will create new note.
-    queryParams:
+    requestBody:
+      description: "Request body description"
+    requestHeaders:
       -
-        name: content
-        description: The body of the note
-        required: true
+        name: "x-header"
+        description: "Header description"
       -
-        name: name
-        description: The name of the note
+        name: "Authorization"
+        description: "Auth Header description"
+    requestModels:
+      "application/json": "NoteRequest"
+    
     methodResponses:
       -
         statusCode: '200'
@@ -25,10 +29,13 @@ endpoints:
       - "Notes"
     consumes:
       - "application/json"
-      - "application/xml"
     produces:
-      - "application/xml"
       - "application/json"
+    methodResponses:
+      -
+        statusCode: '200'
+        responseModels:
+          "application/json": NoteResponse  
   get:
     summary: "Get Note"
     description: "Get single note by ID"

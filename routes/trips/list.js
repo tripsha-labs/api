@@ -5,10 +5,10 @@ export async function main(event, context) {
   const params = {
     TableName: process.env.tbl_trips,
     // 'KeyConditionExpression' defines the condition for the query
-    KeyConditionExpression: "owner = :owner",
+    KeyConditionExpression: "userId = :userId",
     // 'ExpressionAttributeValues' defines the value in the condition
     ExpressionAttributeValues: {
-        ":owner": event.requestContext.identity.cognitoIdentityId
+        ":userId": event.requestContext.identity.cognitoIdentityId
     }
   };
 

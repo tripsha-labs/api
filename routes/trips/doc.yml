@@ -3,7 +3,7 @@ endpoints:
     summary: "Create Trip"
     description: "Create new trip and sends generated trip id"
     tags:
-      - Trip
+      - Trips
     requestModels:
       "application/json": TripRequest
     methodResponses:
@@ -15,7 +15,7 @@ endpoints:
     summary: "List Trips"
     description: "List all the trips for matching criteria"
     tags:
-      - Trip
+      - Trips
     requestModels:
       "application/json": TripRequest
     methodResponses:
@@ -27,7 +27,7 @@ endpoints:
     summary: "Get Trip"
     description: "Get single trip by ID"
     tags:
-      - Trip
+      - Trips
     requestModels:
       "application/json": TripRequest
     methodResponses:
@@ -39,7 +39,7 @@ endpoints:
     summary: "Update Trip"
     description: "Updates a trip by ID and content in the request"
     tags:
-      - Trip
+      - Trips
     requestModels:
       "application/json": TripRequest
     methodResponses:
@@ -51,7 +51,7 @@ endpoints:
     summary: "Delete Trip"
     description: "Deletes a trip by ID"
     tags:
-      - Trip
+      - Trips
     requestModels:
       "application/json": TripRequest
     methodResponses:

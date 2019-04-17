@@ -1,16 +1,15 @@
 import * as dynamoDbLib from "../../libs/dynamodb-lib";
 import { success, failure } from "../../libs/response-lib";
 
-
 export async function main(event, context) {
   const data = JSON.parse(event.body);
   const params = {
 		TableName : process.env.tbl_trips,
-		 // 'Key' defines the partition key and sort key of the item to be updated
-         Key: {
-            owner: event.requestContext.identity.cognitoIdentityId,
-            id: event.pathParameters.id
-            },   
+		// 'Key' defines the partition key and sort key of the item to be updated
+    Key: {
+			userId: event.requestContext.identity.cognitoIdentityId,
+			id: event.pathParameters.id
+		},   
 		// 'UpdateExpression' defines the attributes to be updated
 		UpdateExpression : "SET date = :date, numberOfDays = :numberOfDays, budget = :budget, status = :status, description = :description, destinations = :destinations,  name = :name, matchCriteria = :matchCriteria, tripshers = :tripshers, interactions = :interactions ",
 		// 'ExpressionAttributeValues' defines the value in the update expression
@@ -33,7 +32,7 @@ export async function main(event, context) {
 	
 	
  try {
-    const result = await dynamoDbLib.call("update", params);
+    await dynamoDbLib.call("update", params);
     return success({ status: true });
   } catch (e) {
     return failure({ status: false });

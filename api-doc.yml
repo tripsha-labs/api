@@ -1,4 +1,5 @@
 documentation:    
+  info:  
     version: 'v1.0'
     title: Tripsha API documentation
     description: List of all the available API
@@ -10,39 +11,98 @@ documentation:
     license:
       name: The license
       url: https://www.tripsha.com/license
-    models:
-      -
-        name: NoteResponse
-        contentType: "application/json"
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-      -
-        name: NoteRequest
-        contentType: "application/json"
-        schema:
-          type: array
-          items:
+
+  models:
+    -
+      name: TripRequest
+      contentType: "application/json"
+      schema:
+        type: object
+        properties:
+          tripId:
             type: string
-      -
-        name: TripRequest
-        contentType: "application/json"
-        schema:
-          type: object
-          properties:
-            result:
+          title:
+            type: string
+          description:
+            type: string
+          startDate:
+            type: string
+            format: utc datetime
+          endDate:
+            type: string
+            format: utc datetime
+          langauges:
+            type: array
+            items:
               type: string
-            submittedItems:
-              type: number
-      -
-        name: TripResponse
-        contentType: "application/json"
-        schema:
-          type: object
-          properties:
-            message:
+          budgets:
+            type: array
+            items:
               type: string
-            statusCode:
-              type: number
+          destinations:
+            type: array
+            items:
+              type: object
+              properties:
+                endDate:
+                  type: string
+                  format: utc datetime
+                country:
+                  type: string
+                address:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                mapLocation:
+                  type: string
+                pictures:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                      url:
+                        type: string
+                startDate:
+                  type: string
+                  format: utc datetime
+          members:
+            type: array
+            items:
+              type: object
+              properties:
+                memberId:
+                  type: string
+                favorite:
+                  type: boolean
+                intrestType:
+                  type: string
+                  enum:
+                  - confirmed
+                  - unconfirmed
+          intrests:
+            type: array
+            items:
+              type: string
+          createdAt:
+            type: string
+            format: utc datetime
+          updatedAt:
+            type: string
+            format: utc datetime
+          userId:
+            type: string
+
+    -
+      name: TripResponse
+      contentType: "application/json"
+      schema:
+        type: object
+        properties:
+          message:
+            type: string
+          statusCode:
+            type: number

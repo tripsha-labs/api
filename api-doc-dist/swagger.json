@@ -1,0 +1,363 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "version" : "2019-04-14T07:46:10Z",
+    "title" : "dev-tripsha-app-api"
+  },
+  "host" : "iq9trgj4ch.execute-api.us-east-1.amazonaws.com",
+  "basePath" : "/dev",
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/notes" : {
+      "get" : {
+        "tags" : [ "Notes" ],
+        "summary" : "List Notes",
+        "description" : "List all the notes for matching criteria",
+        "responses" : { },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "Notes" ],
+        "summary" : "Create Note",
+        "description" : "It will create new note.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "x-header",
+          "in" : "header",
+          "description" : "Header description",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Auth Header description",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "NoteRequest",
+          "description" : "Request body description",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/NoteRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/NoteResponse"
+            }
+          }
+        },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "options" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Methods" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Credentials" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Headers" : {
+                "type" : "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notes/{id}" : {
+      "get" : {
+        "tags" : [ "Notes" ],
+        "summary" : "Get Note",
+        "description" : "Get single note by ID",
+        "responses" : { },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Notes" ],
+        "summary" : "Update Note",
+        "description" : "Updates a note by ID and content in the request",
+        "responses" : { },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "Notes" ],
+        "summary" : "Delete Note",
+        "description" : "Deletes a note by ID",
+        "responses" : { },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "options" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Methods" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Credentials" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Headers" : {
+                "type" : "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips" : {
+      "get" : {
+        "tags" : [ "Trips" ],
+        "summary" : "List Trips",
+        "description" : "List all the trips for matching criteria",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "TripRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/TripRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/TripResponse"
+            }
+          }
+        },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "Trips" ],
+        "summary" : "Create Trip",
+        "description" : "Create new trip and sends generated trip id",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "TripRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/TripRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/TripResponse"
+            }
+          }
+        },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "options" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Methods" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Credentials" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Headers" : {
+                "type" : "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/{id}" : {
+      "get" : {
+        "tags" : [ "Trips" ],
+        "summary" : "Get Trip",
+        "description" : "Get single trip by ID",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "TripRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/TripRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/TripResponse"
+            }
+          }
+        },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Trips" ],
+        "summary" : "Update Trip",
+        "description" : "Updates a trip by ID and content in the request",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "TripRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/TripRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/TripResponse"
+            }
+          }
+        },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "Trips" ],
+        "summary" : "Delete Trip",
+        "description" : "Deletes a trip by ID",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "TripRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/TripRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/TripResponse"
+            }
+          }
+        },
+        "security" : [ {
+          "sigv4" : [ ]
+        } ]
+      },
+      "options" : {
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Methods" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Credentials" : {
+                "type" : "string"
+              },
+              "Access-Control-Allow-Headers" : {
+                "type" : "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "sigv4" : {
+      "type" : "apiKey",
+      "name" : "Authorization",
+      "in" : "header",
+      "x-amazon-apigateway-authtype" : "awsSigv4"
+    }
+  },
+  "definitions" : {
+    "NoteResponse" : {
+      "type" : "object",
+      "properties" : {
+        "message" : {
+          "type" : "string"
+        }
+      }
+    },
+    "TripRequest" : {
+      "type" : "object",
+      "properties" : {
+        "result" : {
+          "type" : "string"
+        },
+        "submittedItems" : {
+          "type" : "number"
+        }
+      }
+    },
+    "TripResponse" : {
+      "type" : "object",
+      "properties" : {
+        "message" : {
+          "type" : "string"
+        },
+        "statusCode" : {
+          "type" : "number"
+        }
+      }
+    },
+    "NoteRequest" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    }
+  }
+}
