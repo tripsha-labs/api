@@ -1,0 +1,49 @@
+createUser:
+  handler: routes/users/create.main
+  events:
+    - http:
+        path: users
+        method: post
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/users/doc.yml):endpoints.create}
+
+getUser:
+  handler: routes/users/get.main
+  events:
+    - http:
+        path: users/{id}
+        method: get
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/users/doc.yml):endpoints.get}
+
+listUsers:
+  handler: routes/users/list.main
+  events:
+    - http:
+        path: users
+        method: get
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/users/doc.yml):endpoints.list}
+
+updateUser:
+  handler: routes/users/update.main
+  events:
+    - http:
+        path: users/{id}
+        method: put
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/users/doc.yml):endpoints.update}
+
+deleteUser:
+  handler: routes/users/delete.main
+  events:
+    - http:
+        path: users/{id}
+        method: delete
+        cors: true
+        authorizer: aws_iam
+        documentation: ${file(routes/users/doc.yml):endpoints.delete}

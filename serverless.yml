@@ -1,6 +1,5 @@
 service: tripsha-app-api
 
-# Use the serverless-webpack plugin to transpile ES6
 plugins:
   - serverless-webpack 
   - serverless-aws-documentation
@@ -8,30 +7,22 @@ plugins:
   - serverless-dynamodb-local
   - serverless-offline   
 
-# serverless-webpack configuration
-# Enable auto-packing of external modules
 custom: 
-  # Our stage is based on what is passed in when running serverless
-  # commands. Or fallsback to what we have set in the provider section.
   stage: ${opt:stage, self:provider.stage}
 
   dynamodb:
     start:
       migrate: true
-  # Set our DynamoDB throughput for prod and all other non-prod stages.
   tableThroughputs:
     prod: 5
     default: 1
   tableThroughput: ${self:custom.tableThroughputs.${self:custom.stage}, self:custom.tableThroughputs.default}
-  # Load our webpack config
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
-  # Load our secret environment variables based on the current stage.
-  # Fallback to default if it is not in prod.
   environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
   documentation: ${file(api-doc.yml):documentation}
-  tbl_notes: ${self:custom.stage}-notes
+  tbl_users: ${self:custom.stage}-users
   tbl_trips: ${self:custom.stage}-trips
 
 provider:
@@ -40,10 +31,6 @@ provider:
   stage: dev
   region: us-east-1
 
-  # 'iamRoleStatements' defines the permission policy for the Lambda function.
-  # In this case Lambda functions are granted with permissions to access DynamoDB.
-  # These environment variables are made available to our functions
-  # under process.env.
   environment: ${file(resources/env-variables.yml)}    
 
   iamRoleStatements:
@@ -56,17 +43,14 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      # Restrict our IAM role permissions to
-      # the specific table for the stage
       Resource:
-        - "Fn::GetAtt": [ NotesTable, Arn ]
+        - "Fn::GetAtt": [ UsersTable, Arn ]
         - "Fn::GetAtt": [ TripsTable, Arn ]
 
 functions:  
-  # - ${file(routes/notes/functions.yml)}
+  - ${file(routes/users/functions.yml)}
   - ${file(routes/trips/functions.yml)}
          
-# Create our resources with separate CloudFormation templates
 resources:
   # API Gateway Errors
   - ${file(resources/api-gateway-errors.yml)}

@@ -1,10 +1,10 @@
 endpoints:
   create:
-    summary: Create Note
+    summary: Create Users
     tags:
-      - Notes
+      - Users
     description: 
-      It will create new note.
+      It will create new user.
     requestBody:
       description: "Request body description"
     requestHeaders:
@@ -15,18 +15,18 @@ endpoints:
         name: "Authorization"
         description: "Auth Header description"
     requestModels:
-      "application/json": "NoteRequest"
+      "application/json": "UserRequest"
     
     methodResponses:
       -
         statusCode: '200'
         responseModels:
-          "application/json": NoteResponse        
+          "application/json": UserResponse        
   list:
-    summary: "List Notes"
-    description: "List all the notes for matching criteria"
+    summary: "List Users"
+    description: "List all the Users for matching criteria"
     tags: 
-      - "Notes"
+      - "Users"
     consumes:
       - "application/json"
     produces:
@@ -35,38 +35,32 @@ endpoints:
       -
         statusCode: '200'
         responseModels:
-          "application/json": NoteResponse  
+          "application/json": UserResponse  
   get:
-    summary: "Get Note"
-    description: "Get single note by ID"
+    summary: "Get user"
+    description: "Get single user by ID"
     tags: 
-      - "Notes"
+      - "Users"
     consumes:
       - "application/json"
-      - "application/xml"
     produces:
-      - "application/xml"
       - "application/json"
   update:
-    summary: "Update Note"
-    description: "Updates a note by ID and content in the request"
+    summary: "Update User"
+    description: "Updates a user by ID and content in the request"
     tags: 
-      - "Notes"
+      - "Users"
     consumes:
       - "application/json"
-      - "application/xml"
     produces:
-      - "application/xml"
       - "application/json"
   delete:
-    summary: "Delete Note"
-    description: "Deletes a note by ID"
+    summary: "Delete User"
+    description: "Deletes a user by ID"
     tags: 
-      - "Notes"
+      - "Users"
     consumes:
       - "application/json"
-      - "application/xml"
     produces:
-      - "application/xml"
       - "application/json"
     
