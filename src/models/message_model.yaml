@@ -1,0 +1,24 @@
+definitions:  
+  MessageModel:
+    type: object
+    properties:
+      to:
+        type: string
+        description: user id of reciever
+      from:
+        type: string
+        description: user id of sender
+      sent_on:
+        type: string
+        format: utc datetime
+      message:
+        type: string
+      type:
+        type: string
+        enum:
+        - text
+        - photo
+        - video
+        - audio
+        - pdf
+        - other

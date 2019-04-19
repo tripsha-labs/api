@@ -1,0 +1,200 @@
+paths:
+  /users:
+    get:
+      description: Returns list of users
+      operationId: listUsers
+      tags:
+        - Users
+      produces:
+        - application/json        
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to fetch
+          required: true
+          type: string
+      responses:
+        '200':
+          description: User response
+          schema:
+            $ref: '#/definitions/UserModel'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+    post:
+      description: Creates a user
+      operationId: createUser
+      tags:
+        - Users
+      produces:
+        - application/json        
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to fetch
+          required: true
+          type: string
+      responses:
+        '200':
+          description: User response
+          schema:
+            $ref: '#/definitions/UserModel'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+  /users/{userId}:
+    get:
+      description: Returns a user based on a user ID
+      operationId: findUserById
+      tags:
+        - Users
+      produces:
+        - application/json        
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to fetch
+          required: true
+          type: string
+      responses:
+        '200':
+          description: User response
+          schema:
+            $ref: '#/definitions/UserModel'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+    put:
+      description: updates a single user based on the ID supplied and data
+      operationId: updateUser
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to update
+          required: true
+          type: string
+      responses:
+        '204':
+          description: user deleted
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+    delete:
+      description: deletes a single user based on the ID supplied
+      operationId: deleteUser
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to delete
+          required: true
+          type: string
+      responses:
+        '204':
+          description: user deleted
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorModel'
+
+definitions:
+  pet:
+    type: object
+    required:
+      - id
+      - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      tag:
+        type: string
+  newPet:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      tag:
+        type: string
+
+
+# endpoints:
+#   create:
+#     summary: Create Users
+#     tags:
+#       - Users
+#     description: 
+#       It will create new user.
+#     requestBody:
+#       description: "Request body description"
+#     requestHeaders:
+#       -
+#         name: "x-header"
+#         description: "Header description"
+#       -
+#         name: "Authorization"
+#         description: "Auth Header description"
+#     requestModels:
+#       "application/json": "UserRequest"
+    
+#     methodResponses:
+#       -
+#         statusCode: '200'
+#         responseModels:
+#           "application/json": UserResponse        
+#   list:
+#     summary: "List Users"
+#     description: "List all the Users for matching criteria"
+#     tags: 
+#       - "Users"
+#     consumes:
+#       - "application/json"
+#     produces:
+#       - "application/json"
+#     methodResponses:
+#       -
+#         statusCode: '200'
+#         responseModels:
+#           "application/json": UserResponse  
+#   get:
+#     summary: "Get user"
+#     description: "Get single user by ID"
+#     tags: 
+#       - "Users"
+#     consumes:
+#       - "application/json"
+#     produces:
+#       - "application/json"
+#   update:
+#     summary: "Update User"
+#     description: "Updates a user by ID and content in the request"
+#     tags: 
+#       - "Users"
+#     consumes:
+#       - "application/json"
+#     produces:
+#       - "application/json"
+#   delete:
+#     summary: "Delete User"
+#     description: "Deletes a user by ID"
+#     tags: 
+#       - "Users"
+#     consumes:
+#       - "application/json"
+#     produces:
+#       - "application/json"
+    

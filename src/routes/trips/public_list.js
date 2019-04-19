@@ -1,5 +1,4 @@
-import * as dynamoDbLib from "../../libs/dynamodb-lib";
-import { success, failure } from "../../libs/response-lib";
+import { success, failure, executeQuery } from "../../libs";
 
 export async function main(event, context) {
   const params = {

@@ -6,7 +6,6 @@ createUser:
         method: post
         cors: true
         authorizer: aws_iam
-        documentation: ${file(routes/users/doc.yml):endpoints.create}
 
 getUser:
   handler: routes/users/get.main
@@ -16,7 +15,6 @@ getUser:
         method: get
         cors: true
         authorizer: aws_iam
-        documentation: ${file(routes/users/doc.yml):endpoints.get}
 
 listUsers:
   handler: routes/users/list.main
@@ -26,7 +24,6 @@ listUsers:
         method: get
         cors: true
         authorizer: aws_iam
-        documentation: ${file(routes/users/doc.yml):endpoints.list}
 
 updateUser:
   handler: routes/users/update.main
@@ -36,7 +33,6 @@ updateUser:
         method: put
         cors: true
         authorizer: aws_iam
-        documentation: ${file(routes/users/doc.yml):endpoints.update}
 
 deleteUser:
   handler: routes/users/delete.main
@@ -46,4 +42,3 @@ deleteUser:
         method: delete
         cors: true
         authorizer: aws_iam
-        documentation: ${file(routes/users/doc.yml):endpoints.delete}

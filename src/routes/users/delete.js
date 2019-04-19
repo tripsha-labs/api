@@ -1,5 +1,4 @@
-import * as dynamoDbLib from "../../libs/dynamodb-lib";
-import { success, failure } from "../../libs/response-lib";
+import { success, failure, executeQuery } from "../../libs";
 
 export async function main(event, context) {
   const params = {
@@ -10,7 +9,7 @@ export async function main(event, context) {
   };
 
   try {
-    await dynamoDbLib.call("delete", params);
+    await executeQuery("delete", params);
     return success({ status: true });
   } catch (e) {
     return failure({ status: false });

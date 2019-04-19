@@ -1,362 +1,832 @@
 {
-  "swagger" : "2.0",
-  "info" : {
-    "version" : "2019-04-14T07:46:10Z",
-    "title" : "dev-tripsha-app-api"
-  },
-  "host" : "iq9trgj4ch.execute-api.us-east-1.amazonaws.com",
-  "basePath" : "/dev",
-  "schemes" : [ "https" ],
-  "paths" : {
-    "/notes" : {
-      "get" : {
-        "tags" : [ "Notes" ],
-        "summary" : "List Notes",
-        "description" : "List all the notes for matching criteria",
-        "responses" : { },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "post" : {
-        "tags" : [ "Notes" ],
-        "summary" : "Create Note",
-        "description" : "It will create new note.",
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "parameters" : [ {
-          "name" : "x-header",
-          "in" : "header",
-          "description" : "Header description",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "name" : "Authorization",
-          "in" : "header",
-          "description" : "Auth Header description",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "in" : "body",
-          "name" : "NoteRequest",
-          "description" : "Request body description",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/NoteRequest"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "schema" : {
-              "$ref" : "#/definitions/NoteResponse"
-            }
-          }
+  "definitions": {
+    "ErrorModel": {
+      "type": "object",
+      "required": [
+        "status",
+        "result"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
         },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "options" : {
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "headers" : {
-              "Access-Control-Allow-Origin" : {
-                "type" : "string"
-              },
-              "Access-Control-Allow-Methods" : {
-                "type" : "string"
-              },
-              "Access-Control-Allow-Credentials" : {
-                "type" : "string"
-              },
-              "Access-Control-Allow-Headers" : {
-                "type" : "string"
-              }
-            }
-          }
+        "result": {
+          "type": "string"
         }
       }
     },
-    "/notes/{id}" : {
-      "get" : {
-        "tags" : [ "Notes" ],
-        "summary" : "Get Note",
-        "description" : "Get single note by ID",
-        "responses" : { },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "put" : {
-        "tags" : [ "Notes" ],
-        "summary" : "Update Note",
-        "description" : "Updates a note by ID and content in the request",
-        "responses" : { },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "delete" : {
-        "tags" : [ "Notes" ],
-        "summary" : "Delete Note",
-        "description" : "Deletes a note by ID",
-        "responses" : { },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "options" : {
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "headers" : {
-              "Access-Control-Allow-Origin" : {
-                "type" : "string"
-              },
-              "Access-Control-Allow-Methods" : {
-                "type" : "string"
-              },
-              "Access-Control-Allow-Credentials" : {
-                "type" : "string"
-              },
-              "Access-Control-Allow-Headers" : {
-                "type" : "string"
-              }
-            }
-          }
+    "MessageModel": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string"
         }
       }
     },
-    "/trips" : {
-      "get" : {
-        "tags" : [ "Trips" ],
-        "summary" : "List Trips",
-        "description" : "List all the trips for matching criteria",
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "TripRequest",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/TripRequest"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "schema" : {
-              "$ref" : "#/definitions/TripResponse"
-            }
+    "TripModel": {
+      "type": "object",
+      "properties": {
+        "tripId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "utc datetime"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "utc datetime"
+        },
+        "langauges": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "post" : {
-        "tags" : [ "Trips" ],
-        "summary" : "Create Trip",
-        "description" : "Create new trip and sends generated trip id",
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "TripRequest",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/TripRequest"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "schema" : {
-              "$ref" : "#/definitions/TripResponse"
-            }
+        "budgets": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "options" : {
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "headers" : {
-              "Access-Control-Allow-Origin" : {
-                "type" : "string"
+        "destinations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "endDate": {
+                "type": "string",
+                "format": "utc datetime"
               },
-              "Access-Control-Allow-Methods" : {
-                "type" : "string"
+              "country": {
+                "type": "string"
               },
-              "Access-Control-Allow-Credentials" : {
-                "type" : "string"
+              "address": {
+                "type": "string"
               },
-              "Access-Control-Allow-Headers" : {
-                "type" : "string"
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "mapLocation": {
+                "type": "string"
+              },
+              "pictures": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "startDate": {
+                "type": "string",
+                "format": "utc datetime"
               }
             }
           }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "memberId": {
+                "type": "string"
+              },
+              "favorite": {
+                "type": "boolean"
+              },
+              "intrestType": {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "unconfirmed"
+                ]
+              }
+            }
+          }
+        },
+        "intrests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "utc datetime"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "utc datetime"
+        },
+        "userId": {
+          "type": "string"
         }
       }
     },
-    "/trips/{id}" : {
-      "get" : {
-        "tags" : [ "Trips" ],
-        "summary" : "Get Trip",
-        "description" : "Get single trip by ID",
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "TripRequest",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/TripRequest"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "schema" : {
-              "$ref" : "#/definitions/TripResponse"
+    "UserModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "dob": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "home_address": {
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "zip_code": {
+              "type": "string"
             }
           }
         },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "put" : {
-        "tags" : [ "Trips" ],
-        "summary" : "Update Trip",
-        "description" : "Updates a trip by ID and content in the request",
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "TripRequest",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/TripRequest"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "schema" : {
-              "$ref" : "#/definitions/TripResponse"
-            }
+        "gender": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "languages_speak": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "delete" : {
-        "tags" : [ "Trips" ],
-        "summary" : "Delete Trip",
-        "description" : "Deletes a trip by ID",
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "TripRequest",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/TripRequest"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "schema" : {
-              "$ref" : "#/definitions/TripResponse"
-            }
+        "bio": {
+          "type": "string"
+        },
+        "looking_travel": {
+          "type": "boolean"
+        },
+        "profile_pic": {
+          "type": "string"
+        },
+        "connections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "details": {
+                "type": "string"
+              }
+            },
+            "description": "Social media connection object"
           }
         },
-        "security" : [ {
-          "sigv4" : [ ]
-        } ]
-      },
-      "options" : {
-        "consumes" : [ "application/json" ],
-        "produces" : [ "application/json" ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "headers" : {
-              "Access-Control-Allow-Origin" : {
-                "type" : "string"
+        "activity_intrests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "favorite_snaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
               },
-              "Access-Control-Allow-Methods" : {
-                "type" : "string"
+              "location": {
+                "type": "string"
               },
-              "Access-Control-Allow-Credentials" : {
-                "type" : "string"
+              "title": {
+                "type": "string"
               },
-              "Access-Control-Allow-Headers" : {
-                "type" : "string"
+              "url": {
+                "type": "string"
               }
             }
           }
+        },
+        "identity_verified": {
+          "type": "boolean"
+        },
+        "identities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "is_primary": {
+                "type": "boolean"
+              },
+              "media_type": {
+                "type": "string"
+              },
+              "verifid": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "media_path": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "plan_details": {
+          "type": "object",
+          "properties": {
+            "coupan_details": {
+              "type": "string"
+            },
+            "discount": {
+              "type": "string"
+            },
+            "renew_policy": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "price_unit": {
+              "type": "string"
+            },
+            "coupan_type": {
+              "type": "string"
+            },
+            "price": {
+              "type": "string"
+            },
+            "coupan_code": {
+              "type": "string"
+            },
+            "expire_on": {
+              "type": "string",
+              "format": "utc datetime"
+            },
+            "name": {
+              "type": "string"
+            },
+            "paid_amount": {
+              "type": "string"
+            },
+            "purchase_date": {
+              "type": "string",
+              "format": "utc datetime"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "new",
+                "renew",
+                "expire",
+                "trial"
+              ]
+            }
+          }
+        },
+        "billing_address": {
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "zip_code": {
+              "type": "string"
+            }
+          }
+        },
+        "billing_details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "expriry": {
+                "type": "string"
+              },
+              "cvv": {
+                "type": "string"
+              },
+              "card_number": {
+                "type": "string"
+              },
+              "is_prinary": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "master",
+                  "visa"
+                ]
+              },
+              "card_type": {
+                "type": "string",
+                "enum": [
+                  "credit",
+                  "debit"
+                ]
+              },
+              "name_on_card": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "contries_intrests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ratings": {
+          "type": "number"
+        }
+      }
+    },
+    "pet": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      }
+    },
+    "newPet": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
         }
       }
     }
   },
-  "securityDefinitions" : {
-    "sigv4" : {
-      "type" : "apiKey",
-      "name" : "Authorization",
-      "in" : "header",
-      "x-amazon-apigateway-authtype" : "awsSigv4"
+  "swagger": "2.0",
+  "info": {
+    "version": "v1.0",
+    "title": "Tripsha API documentation",
+    "description": "This is complete API documentation of all the API",
+    "termsOfService": "https://tripsha.com/terms/",
+    "contact": {
+      "name": "Tripsha API team",
+      "email": "madanesanjay@yahoo.com",
+      "url": "https://tripsha.com"
     }
   },
-  "definitions" : {
-    "NoteResponse" : {
-      "type" : "object",
-      "properties" : {
-        "message" : {
-          "type" : "string"
+  "host": "localhost:3000",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/public/trips": {
+      "get": {
+        "description": "Returns list of trips for anonymous user",
+        "operationId": "publicListTrips",
+        "tags": [
+          "Public Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to fetch",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User response",
+            "schema": {
+              "$ref": "#/definitions/TripModel"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
         }
       }
     },
-    "TripRequest" : {
-      "type" : "object",
-      "properties" : {
-        "result" : {
-          "type" : "string"
-        },
-        "submittedItems" : {
-          "type" : "number"
+    "/public/trips/{tripId}": {
+      "get": {
+        "description": "Returns single trip id for anonymous user",
+        "operationId": "publicGetTrips",
+        "tags": [
+          "Public Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to fetch",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User response",
+            "schema": {
+              "$ref": "#/definitions/TripModel"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
         }
       }
     },
-    "TripResponse" : {
-      "type" : "object",
-      "properties" : {
-        "message" : {
-          "type" : "string"
-        },
-        "statusCode" : {
-          "type" : "number"
+    "/trips": {
+      "get": {
+        "description": "Returns list of trips",
+        "operationId": "listTrips",
+        "tags": [
+          "Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to fetch",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User response",
+            "schema": {
+              "$ref": "#/definitions/TripModel"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a trip",
+        "operationId": "createTrip",
+        "tags": [
+          "Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to fetch",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip response",
+            "schema": {
+              "$ref": "#/definitions/TripModel"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
         }
       }
     },
-    "NoteRequest" : {
-      "type" : "array",
-      "items" : {
-        "type" : "string"
+    "/trips/{tripId}": {
+      "get": {
+        "description": "Returns a trip based on a trip ID",
+        "operationId": "findTripById",
+        "tags": [
+          "Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to fetch",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User response",
+            "schema": {
+              "$ref": "#/definitions/TripModel"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "updates a single trip based on the ID supplied and data",
+        "operationId": "updateTrip",
+        "tags": [
+          "Trips"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of trip to update",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Trip deleted"
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "deletes a single trip based on the ID supplied",
+        "operationId": "deleteTrip",
+        "tags": [
+          "Trips"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of trip to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Trip deleted"
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "description": "Returns list of users",
+        "operationId": "listUsers",
+        "tags": [
+          "Users"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to fetch",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User response",
+            "schema": {
+              "$ref": "#/definitions/UserModel"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a user",
+        "operationId": "createUser",
+        "tags": [
+          "Users"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to fetch",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User response",
+            "schema": {
+              "$ref": "#/definitions/UserModel"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "description": "Returns a user based on a user ID",
+        "operationId": "findUserById",
+        "tags": [
+          "Users"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to fetch",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User response",
+            "schema": {
+              "$ref": "#/definitions/UserModel"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "updates a single user based on the ID supplied and data",
+        "operationId": "updateUser",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to update",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "user deleted"
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "deletes a single user based on the ID supplied",
+        "operationId": "deleteUser",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "user deleted"
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
       }
     }
   }

@@ -2,7 +2,6 @@ service: tripsha-app-api
 
 plugins:
   - serverless-webpack 
-  - serverless-aws-documentation
   - serverless-reqvalidator-plugin  
   - serverless-dynamodb-local
   - serverless-offline   
@@ -21,7 +20,6 @@ custom:
     webpackConfig: ./webpack.config.js
     includeModules: true
   environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
-  documentation: ${file(api-doc.yml):documentation}
   tbl_users: ${self:custom.stage}-users
   tbl_trips: ${self:custom.stage}-trips
 
@@ -31,7 +29,7 @@ provider:
   stage: dev
   region: us-east-1
 
-  environment: ${file(resources/env-variables.yml)}    
+  environment: ${file(src/resources/env-variables.yml)}    
 
   iamRoleStatements:
     - Effect: Allow
@@ -48,16 +46,16 @@ provider:
         - "Fn::GetAtt": [ TripsTable, Arn ]
 
 functions:  
-  - ${file(routes/users/functions.yml)}
-  - ${file(routes/trips/functions.yml)}
+  - ${file(src/routes/users/functions.yml)}
+  - ${file(src/routes/trips/functions.yml)}
          
 resources:
   # API Gateway Errors
-  - ${file(resources/api-gateway-errors.yml)}
+  - ${file(src/resources/api-gateway-errors.yml)}
   # DynamoDB
-  - ${file(resources/dynamodb-table.yml)}
+  - ${file(src/resources/dynamodb-table.yml)}
   # S3
-  - ${file(resources/s3-bucket.yml)}
+  - ${file(src/resources/s3-bucket.yml)}
   # Cognito
-  - ${file(resources/cognito-user-pool.yml)}
-  - ${file(resources/cognito-identity-pool.yml)}
+  - ${file(src/resources/cognito-user-pool.yml)}
+  - ${file(src/resources/cognito-identity-pool.yml)}

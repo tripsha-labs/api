@@ -1,0 +1,165 @@
+definitions:    
+  UserModel:
+    type: object
+    properties:
+      id:
+        type: string
+      username:
+        type: string
+      email:
+        type: string
+      dob:
+        type: string
+        format: date-time
+      home_address:
+        type: object
+        properties:
+          country:
+            type: string
+          address:
+            type: string
+          city:
+            type: string
+          state:
+            type: string
+          zip_code:
+            type: string
+      gender:
+        type: string
+      phone:
+        type: string
+      languages_speak:
+        type: array
+        items:
+          type: string
+      bio:
+        type: string
+      looking_travel:
+        type: boolean
+      profile_pic:
+        type: string
+      connections:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            details:
+              type: string
+          description: Social media connection object
+      activity_intrests:
+        type: array
+        items:
+          type: string
+      favorite_snaps:
+        type: array
+        items:
+          type: object
+          properties:
+            description:
+              type: string
+            location:
+              type: string
+            title:
+              type: string
+            url:
+              type: string
+      identity_verified:
+        type: boolean
+      identities:
+        type: array
+        items:
+          type: object
+          properties:
+            is_primary:
+              type: boolean
+            media_type:
+              type: string
+            verifid:
+              type: string
+            type:
+              type: string
+            media_path:
+              type: string
+      plan_details:
+        type: object
+        properties:
+          coupan_details:
+            type: string
+          discount:
+            type: string
+          renew_policy:
+            type: string
+          type:
+            type: string
+          price_unit:
+            type: string
+          coupan_type:
+            type: string
+          price:
+            type: string
+          coupan_code:
+            type: string
+          expire_on:
+            type: string
+            format: utc datetime
+          name:
+            type: string
+          paid_amount:
+            type: string
+          purchase_date:
+            type: string
+            format: utc datetime
+          status:
+            type: string
+            enum:
+            - new
+            - renew
+            - expire
+            - trial
+      billing_address:
+        type: object
+        properties:
+          country:
+            type: string
+          address:
+            type: string
+          city:
+            type: string
+          state:
+            type: string
+          zip_code:
+            type: string
+      billing_details:
+        type: array
+        items:
+          type: object
+          properties:
+            expriry:
+              type: string
+            cvv:
+              type: string
+            card_number:
+              type: string
+            is_prinary:
+              type: boolean
+            type:
+              type: string
+              enum:
+              - master
+              - visa
+            card_type:
+              type: string
+              enum:
+              - credit
+              - debit
+            name_on_card:
+              type: string
+      contries_intrests:
+        type: array
+        items:
+          type: string
+      ratings:
+        type: number
+      

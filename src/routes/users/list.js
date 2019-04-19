@@ -1,5 +1,4 @@
-import * as dynamoDbLib from "../../libs/dynamodb-lib";
-import { success, failure } from "../../libs/response-lib";
+import { success, failure, executeQuery } from "../../libs";
 
 export async function main(event, context) {
   const params = {
@@ -11,7 +10,7 @@ export async function main(event, context) {
   };
 
   try {
-    const res = await dynamoDbLib.call("query", params)     
+    const res = await executeQuery("query", params)     
     return success({status: true, data: res});
     
   } catch (e) {
