@@ -1,6 +1,6 @@
 export function success(body) {
-    return buildResponse(200, {status: "success", result: body});
-  }
+  return buildResponse(200, {status: "success", result: body});
+}
   
 export function failure(body) {
   return buildResponse(500, body);
@@ -13,7 +13,7 @@ function buildResponse(statusCode, body) {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Credentials": true
     },
-    body: {status: "error", result: JSON.stringify(body)}
+    body: JSON.stringify(body)
   };
 }
   

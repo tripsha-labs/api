@@ -1,5 +1,5 @@
 createTrip:
-  handler: routes/trips/create.main
+  handler: src/routes/trips/create.main
   events:
     - http:
         path: trips
@@ -8,7 +8,7 @@ createTrip:
         authorizer: aws_iam
 
 getTrip:
-  handler: routes/trips/get.main
+  handler: src/routes/trips/get.main
   events:
     - http:
         path: trips/{id}
@@ -17,7 +17,7 @@ getTrip:
         authorizer: aws_iam
 
 listTrips:
-  handler: routes/trips/list.main
+  handler: src/routes/trips/list.main
   events:
     - http:
         path: trips
@@ -26,7 +26,7 @@ listTrips:
         authorizer: aws_iam
 
 getTripPublic:
-  handler: routes/trips/public_get.main
+  handler: src/routes/trips/public_get.main
   events:
     - http:
         path: public/trips/{id}
@@ -34,7 +34,7 @@ getTripPublic:
         cors: true
 
 listTripsPublic:
-  handler: routes/trips/public_list.main
+  handler: src/routes/trips/public_list.main
   events:
     - http:
         path: public/trips
@@ -42,7 +42,7 @@ listTripsPublic:
         cors: true
 
 updateTrip:
-  handler: routes/trips/update.main
+  handler: src/routes/trips/update.main
   events:
     - http:
         path: trips/{id}
@@ -51,7 +51,7 @@ updateTrip:
         authorizer: aws_iam
 
 deleteTrip:
-  handler: routes/trips/delete.main
+  handler: src/routes/trips/delete.main
   events:
     - http:
         path: trips/{id}

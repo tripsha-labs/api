@@ -2,6 +2,7 @@ import { success, failure, executeQuery } from "../../libs";
 
 export async function main(event, context) {
   const params = {
+    // eslint-disable-next-line no-undef
     TableName: process.env.tbl_users,
     KeyConditionExpression: "userId = :userId",
     ExpressionAttributeValues: {
@@ -11,9 +12,9 @@ export async function main(event, context) {
 
   try {
     const res = await executeQuery("query", params)     
-    return success({status: true, data: res});
-    
+    return success(res);    
   } catch (e) {
-    return failure({ status: false });
+    print(e)
+    return failure(r);
   }
 }

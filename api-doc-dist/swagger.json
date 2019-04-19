@@ -18,8 +18,31 @@
     "MessageModel": {
       "type": "object",
       "properties": {
-        "messageId": {
+        "to": {
+          "type": "string",
+          "description": "user id of reciever"
+        },
+        "from": {
+          "type": "string",
+          "description": "user id of sender"
+        },
+        "sent_on": {
+          "type": "string",
+          "format": "utc datetime"
+        },
+        "message": {
           "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "photo",
+            "video",
+            "audio",
+            "pdf",
+            "other"
+          ]
         }
       }
     },
@@ -267,7 +290,7 @@
         "plan_details": {
           "type": "object",
           "properties": {
-            "coupan_details": {
+            "coupon_details": {
               "type": "string"
             },
             "discount": {
@@ -282,13 +305,13 @@
             "price_unit": {
               "type": "string"
             },
-            "coupan_type": {
+            "coupon_type": {
               "type": "string"
             },
             "price": {
               "type": "string"
             },
-            "coupan_code": {
+            "coupon_code": {
               "type": "string"
             },
             "expire_on": {

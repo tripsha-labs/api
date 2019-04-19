@@ -1,8 +1,8 @@
 import { success, failure, executeQuery } from "../../libs";
 
-
 export async function main(event, context) {
   const params = {
+    // eslint-disable-next-line no-undef
     TableName: process.env.tbl_users,
     Key: {
       userId: event.requestContext.identity.cognitoIdentityId
@@ -14,9 +14,9 @@ export async function main(event, context) {
     if (result.Item) {   
       return success(result.Item);
     } else {
-      return failure({ status: false, error: "Item not found." });
+      return failure("Item not found.");
     }
   } catch (e) {
-    return failure({ status: false });
+    return failure(e);
   }
 }

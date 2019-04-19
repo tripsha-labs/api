@@ -85,7 +85,7 @@ definitions:
       plan_details:
         type: object
         properties:
-          coupan_details:
+          coupon_details:
             type: string
           discount:
             type: string
@@ -95,11 +95,11 @@ definitions:
             type: string
           price_unit:
             type: string
-          coupan_type:
+          coupon_type:
             type: string
           price:
             type: string
-          coupan_code:
+          coupon_code:
             type: string
           expire_on:
             type: string

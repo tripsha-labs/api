@@ -9,7 +9,7 @@
     "deploy": "sls deploy",
     "remove": "sls remove",
     "doc-gen": "node ./api-doc-dist/doc-gen.js",
-    "doc-deploy": "node ./api-doc-dist/doc-gen.js && aws s3 sync ./api-doc-dist/ s3://tripsha-api-doc",
+    "doc-deploy": "node ./api-doc-dist/doc-gen.js && aws s3 sync ./api-doc-dist/ s3://tripsha.api-doc",
     "test": "jest"
   },
   "author": "",

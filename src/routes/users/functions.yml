@@ -1,5 +1,5 @@
 createUser:
-  handler: routes/users/create.main
+  handler: src/routes/users/create.main
   events:
     - http:
         path: users
@@ -8,7 +8,7 @@ createUser:
         authorizer: aws_iam
 
 getUser:
-  handler: routes/users/get.main
+  handler: src/routes/users/get.main
   events:
     - http:
         path: users/{id}
@@ -17,7 +17,7 @@ getUser:
         authorizer: aws_iam
 
 listUsers:
-  handler: routes/users/list.main
+  handler: src/routes/users/list.main
   events:
     - http:
         path: users
@@ -26,7 +26,7 @@ listUsers:
         authorizer: aws_iam
 
 updateUser:
-  handler: routes/users/update.main
+  handler: src/routes/users/update.main
   events:
     - http:
         path: users/{id}
@@ -35,7 +35,7 @@ updateUser:
         authorizer: aws_iam
 
 deleteUser:
-  handler: routes/users/delete.main
+  handler: src/routes/users/delete.main
   events:
     - http:
         path: users/{id}

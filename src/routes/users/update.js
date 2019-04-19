@@ -3,6 +3,7 @@ import { success, failure, executeQuery } from "../../libs";
 export async function main(event, context) {
   const data = JSON.parse(event.body);
   const params = {
+    // eslint-disable-next-line no-undef
     TableName: process.env.tbl_users,
     Key: {
       userId: event.requestContext.identity.cognitoIdentityId
