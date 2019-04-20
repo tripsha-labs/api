@@ -6,12 +6,18 @@ definitions:
         type: string
       username:
         type: string
+        required: true
       email:
+        type: string
+        required: true
+      firstName: 
+        type: string
+      lastName:
         type: string
       dob:
         type: string
-        format: date-time
-      home_address:
+        format: "date"
+      homeAddress:
         type: object
         properties:
           country:
@@ -22,21 +28,26 @@ definitions:
             type: string
           state:
             type: string
-          zip_code:
+          zipCode:
             type: string
       gender:
         type: string
+        enum: 
+          - "male"
+          - "female"
+          - "other"
       phone:
         type: string
-      languages_speak:
+      spokenLanguages:
         type: array
+        description: "List of languages user can speak"
         items:
           type: string
       bio:
         type: string
-      looking_travel:
+      isLookingForTravel:
         type: boolean
-      profile_pic:
+      profilePic:
         type: string
       connections:
         type: array
@@ -48,11 +59,11 @@ definitions:
             details:
               type: string
           description: Social media connection object
-      activity_intrests:
+      intrests:
         type: array
         items:
           type: string
-      favorite_snaps:
+      favoriteSnaps:
         type: array
         items:
           type: object
@@ -65,50 +76,50 @@ definitions:
               type: string
             url:
               type: string
-      identity_verified:
+      isIdentityVerified:
         type: boolean
       identities:
         type: array
         items:
           type: object
           properties:
-            is_primary:
+            isPrimary:
               type: boolean
-            media_type:
+            mediaType:
               type: string
-            verifid:
-              type: string
+            idVerified:
+              type: boolean
             type:
               type: string
-            media_path:
+            mediaPath:
               type: string
-      plan_details:
+      planDetails:
         type: object
         properties:
-          coupon_details:
+          couponDetails:
             type: string
           discount:
-            type: string
-          renew_policy:
+            type: number
+          renewPolicy:
             type: string
           type:
             type: string
-          price_unit:
+          priceUnit:
             type: string
-          coupon_type:
+          couponType:
             type: string
           price:
             type: string
-          coupon_code:
+          couponCode:
             type: string
-          expire_on:
+          expireOn:
             type: string
             format: utc datetime
           name:
             type: string
-          paid_amount:
-            type: string
-          purchase_date:
+          paidAmount:
+            type: number
+          purchaseDate:
             type: string
             format: utc datetime
           status:
@@ -118,7 +129,7 @@ definitions:
             - renew
             - expire
             - trial
-      billing_address:
+      billingAddress:
         type: object
         properties:
           country:
@@ -129,9 +140,9 @@ definitions:
             type: string
           state:
             type: string
-          zip_code:
+          zipCode:
             type: string
-      billing_details:
+      billingDetails:
         type: array
         items:
           type: object
@@ -140,26 +151,34 @@ definitions:
               type: string
             cvv:
               type: string
-            card_number:
+            cardNumber:
               type: string
-            is_prinary:
+            isPrinary:
               type: boolean
             type:
               type: string
               enum:
               - master
               - visa
-            card_type:
+            cardType:
               type: string
               enum:
               - credit
               - debit
-            name_on_card:
+            nameOnCard:
               type: string
-      contries_intrests:
+      countryIntrests:
         type: array
         items:
           type: string
       ratings:
         type: number
+      isActive:
+        type: boolean
+      createdAt:
+        type: "string"
+        format: "utc date"
+      updatedAt:
+        type: "string"
+        format: "utc date"
       

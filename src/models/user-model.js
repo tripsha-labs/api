@@ -1,7 +1,10 @@
 import Validator from "fastest-validator";
+import * as moment from "moment";
 
 const userBaseSchema = {
   dob: { type: "string", optional: true, empty: false,},
+  firstName: {type: "string", empty: false, optional: true},
+  lastName: {type: "string", empty: false, optional: true},
   gender: { 
     type: "enum", 
     optional: true, 
@@ -68,9 +71,21 @@ const userBaseSchema = {
 };
 
 const createUserSchema = {
-  ...userBaseSchema,
   username: { type: "string", empty: false },
-  email: { type: "email", empty: false }
+  email: { type: "email", empty: false },
+  firstName: {type: "string", empty: false, optional: true},
+  lastName: {type: "string", empty: false, optional: true},
+}
+
+export const updateUserDefaultValues = {
+  updateAt: moment.utc()
+}
+
+export const createUserDefaultValues = {
+  isActive: true,
+  isLookingForTravel: false,
+  createdAt: moment.utc(),
+  ...updateUserDefaultValues
 }
 
 export const createUserValidation = (new Validator()).compile(createUserSchema);

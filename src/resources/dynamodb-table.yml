@@ -1,5 +1,5 @@
 Resources:
-  UsersTable:
+  Users:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: ${self:custom.tblUsers}
@@ -14,18 +14,14 @@ Resources:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
 
-  TripsTable:
+  Trips:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: ${self:custom.tblTrips}
       AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
         - AttributeName: id
           AttributeType: S
-      KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
+      KeySchema:       
         - AttributeName: id
           KeyType: HASH
       # Set the capacity based on the stage

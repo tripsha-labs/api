@@ -11,11 +11,9 @@ export const main = async (event, context) => {
 
   try {
     const result = await executeQuery("get", params);
-    if (result.Item) {   
-      return success(result.Item);
-    } else {
-      return failure("Item not found.");
-    }
+    if (!result.Item) 
+      throw "Item not found.";
+    return success(result.Item);
   } catch (error) {
     return failure(error);
   }

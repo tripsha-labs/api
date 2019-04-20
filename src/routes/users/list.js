@@ -3,7 +3,6 @@ import { TABLE_NAMES } from "../../constants";
 
 export const main = async (event, context) => {
   const params = {
-    // eslint-disable-next-line no-undef
     TableName: TABLE_NAMES.USER,
     KeyConditionExpression: "id = :id",
     ExpressionAttributeValues: {

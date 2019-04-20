@@ -3,7 +3,7 @@ export function success(body) {
 }
   
 export function failure(body) {
-  return buildResponse(500, body);
+  return buildResponse(500, {status: "error", result: body});
 }
 
 function buildResponse(statusCode, body) {

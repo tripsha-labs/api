@@ -28,7 +28,6 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: us-east-1
-
   environment: ${file(src/resources/env-variables.yml)}    
 
   iamRoleStatements:
@@ -44,7 +43,9 @@ provider:
       Resource:
         - "Fn::GetAtt": [ Users, Arn ]
         - "Fn::GetAtt": [ Trips, Arn ]
-
+package:
+  individually: true
+  
 functions:  
   - ${file(src/routes/users/functions.yml)}
   - ${file(src/routes/trips/functions.yml)}
