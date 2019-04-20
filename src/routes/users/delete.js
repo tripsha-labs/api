@@ -1,18 +1,18 @@
-import { success, failure, executeQuery } from "../../libs";
+import { success, failure, executeQuery } from "../../utils";
+import { TABLE_NAMES } from "../../constants";
 
-export async function main(event, context) {
+export const main = async (event, context) => {
   const params = {
-    // eslint-disable-next-line no-undef
-    TableName: process.env.tbl_users,
+    TableName: TABLE_NAMES.USER,
     Key: {
-      userId: event.requestContext.identity.cognitoIdentityId
+      id: event.requestContext.identity.cognitoIdentityId
     }
   };
 
   try {
     await executeQuery("delete", params);
     return success("success");
-  } catch (e) {
-    return failure(e);
+  } catch (error) {
+    return failure(error);
   }
 }

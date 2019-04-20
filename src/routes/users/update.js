@@ -1,14 +1,13 @@
-import { success, failure, executeQuery } from "../../libs";
+import { success, failure, executeQuery } from "../../utils";
+import { TABLE_NAMES } from "../../constants";
 
-export async function main(event, context) {
+export const main = async (event, context) => {
   const data = JSON.parse(event.body);
-  const params = {
-    // eslint-disable-next-line no-undef
-    TableName: process.env.tbl_users,
+  const params = {    
+    TableName: TABLE_NAMES.USER,
     Key: {
-      userId: event.requestContext.identity.cognitoIdentityId
+      id: event.requestContext.identity.cognitoIdentityId
     },
-
     UpdateExpression: "SET content = :username",
     ExpressionAttributeValues: {
       ":username": data.username || null
@@ -17,9 +16,9 @@ export async function main(event, context) {
   };
 
   try {
-    const result = await executeQuery("update", params);
-    return success({ status: true, result: result.Item});
-  } catch (e) {
-    return failure({ status: false });
+    const resUpdateUser = await executeQuery("update", params);
+    return success(resUpdateUser.Item);
+  } catch (error) {
+    return failure(error);
   }
 }

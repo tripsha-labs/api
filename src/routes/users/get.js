@@ -1,11 +1,11 @@
-import { success, failure, executeQuery } from "../../libs";
+import { success, failure, executeQuery } from "../../utils";
+import { TABLE_NAMES } from "../../constants";
 
-export async function main(event, context) {
+export const main = async (event, context) => {
   const params = {
-    // eslint-disable-next-line no-undef
-    TableName: process.env.tbl_users,
+    TableName: TABLE_NAMES.USER,
     Key: {
-      userId: event.requestContext.identity.cognitoIdentityId
+      id: event.requestContext.identity.cognitoIdentityId
     }
   };
 
@@ -16,7 +16,7 @@ export async function main(event, context) {
     } else {
       return failure("Item not found.");
     }
-  } catch (e) {
-    return failure(e);
+  } catch (error) {
+    return failure(error);
   }
 }

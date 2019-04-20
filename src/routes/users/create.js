@@ -1,24 +1,27 @@
-import { User } from "../../models";
-import { success, failure, executeQuery } from "../../libs";
+import { createUserValidation } from "../../models";
+import { TABLE_NAMES } from "../../constants";
+import { success, failure, executeQuery } from "../../utils";
 
-export async function main(event, context) {
-  const data = JSON.parse(event.body);   
-  const errors = User(data);
+export const main = async (event, context) => {
+  const data = JSON.parse(event.body);
+  
+  // Validate user fields against the strict schema
+  const errors = createUserValidation(data);
   if(errors != true)
     return failure(errors);
-  
-  data["userId"] = event.requestContext.identity.cognitoIdentityId;
-  
-  const params = {
-    // eslint-disable-next-line no-undef
-    TableName: process.env.tbl_users,
-    Item: data
+
+  const params = {   
+    TableName: TABLE_NAMES.USER,
+    Item: {
+      ...data,
+      id: event.requestContext.identity.cognitoIdentityId
+    }
   };
 
   try {
-    const res = await executeQuery("put", params);
-    return success(res);  
-  } catch (e) {
-    return failure(e);
+    const resCreateUser = await executeQuery("put", params);
+    return success(resCreateUser);  
+  } catch (error) {
+    return failure(error);
   }  
-}
+};

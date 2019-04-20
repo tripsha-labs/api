@@ -1,12 +1,11 @@
-import { success, failure, executeQuery } from "../../libs";
+import { success, failure, executeQuery } from "../../utils";
+import { TABLE_NAMES } from "../../constants";
 
-export async function main(event, context) {
+export const main = async (event, context) => {
   const data = JSON.parse(event.body);
   const params = {
-    // eslint-disable-next-line no-undef
-    TableName : process.env.tbl_trips,
+    TableName : TABLE_NAMES.TRIP,
     Key: {
-      userId: event.requestContext.identity.cognitoIdentityId,
       id: event.pathParameters.id
     },   
     UpdateExpression : "SET date = :date, numberOfDays = :numberOfDays, budget = :budget, status = :status, description = :description, destinations = :destinations,  name = :name, matchCriteria = :matchCriteria, tripshers = :tripshers, interactions = :interactions ",
@@ -28,8 +27,8 @@ export async function main(event, context) {
 	
   try {
     await executeQuery("update", params);
-    return success({ status: true });
-  } catch (e) {
-    return failure({ status: false });
+    return success("success");
+  } catch (error) {
+    return failure(error);
   }
 };

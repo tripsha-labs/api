@@ -1,11 +1,12 @@
 import uuid from "uuid";
-import { success, failure, executeQuery } from "../../libs";
+import { success, failure, executeQuery } from "../../utils";
+import { TABLE_NAMES } from "../../constants";
 
-export async function main(event, context) {
+export const main = async (event, context) => {
   const data = JSON.parse(event.body);
 
   const trip = {
-    tripId : uuid.v1(),
+    id : uuid.v1(),
     userId: event.requestContext.identity.cognitoIdentityId,
     createdAt: Date.now(),
     updatedAt: Date.now()
@@ -22,15 +23,14 @@ export async function main(event, context) {
   if(data.intrests)	trip["intrests"] = data.intrests;
   if(data.status)	trip["status"] = data.status;
   const params = {
-    // eslint-disable-next-line no-undef
-    TableName: process.env.tbl_trips,
+    TableName: TABLE_NAMES.TRIP,
     Item: trip 
   };
 
   try {
-    await executeQuery("put", params);
-    return success(params.Item);
-  } catch (e) {
-    return failure({ status: e });
+    const resCreateTrip = await executeQuery("put", params);
+    return success(resCreateTrip.Item);
+  } catch (error) {
+    return failure(error);
   }
 }

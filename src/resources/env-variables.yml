@@ -1,3 +1,3 @@
 stripeSecretKey: ${self:custom.environment.stripeSecretKey}
-tbl_users: ${self:custom.tbl_users}
-tbl_trips: ${self:custom.tbl_trips}
+tbl_users: ${self:custom.tblUsers}
+tbl_trips: ${self:custom.tblTrips}

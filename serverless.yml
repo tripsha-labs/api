@@ -20,8 +20,8 @@ custom:
     webpackConfig: ./webpack.config.js
     includeModules: true
   environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
-  tbl_users: ${self:custom.stage}-users
-  tbl_trips: ${self:custom.stage}-trips
+  tblUsers: ${self:custom.stage}-users
+  tblTrips: ${self:custom.stage}-trips
 
 provider:
   name: aws
@@ -42,8 +42,8 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - "Fn::GetAtt": [ UsersTable, Arn ]
-        - "Fn::GetAtt": [ TripsTable, Arn ]
+        - "Fn::GetAtt": [ Users, Arn ]
+        - "Fn::GetAtt": [ Trips, Arn ]
 
 functions:  
   - ${file(src/routes/users/functions.yml)}

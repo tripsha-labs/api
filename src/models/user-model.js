@@ -1,9 +1,6 @@
 import Validator from "fastest-validator";
 
-let v = new Validator();
-const schema = {
-  username: { type: "string", empty: false },
-  email: { type: "email", empty: false },
+const userBaseSchema = {
   dob: { type: "string", optional: true, empty: false,},
   gender: { 
     type: "enum", 
@@ -12,14 +9,14 @@ const schema = {
     values: ["male", "female", "other"] 
   },
   phone: { type: "number", optional: true, empty: false,},
-  languages_speak: { 
+  spokenLanguages: { 
     type: "array", 
     optional: true, 
     empty: false, 
     items: "string", 
     enum: [ "english", "hindi"]
   },
-  home_address: {
+  homeAddress: {
     type: "object",
     empty: false, 
     optional: true, 
@@ -31,8 +28,8 @@ const schema = {
     }
   },
   bio: {type: "string", optional: true, empty: false},
-  is_looking_travel: {type: "boolean", optional: true, empty: false, values:["true", "false"]},
-  profile_pic: {type: "url", optional: true, empty: false},
+  isLookingForTravel: {type: "boolean", optional: true, empty: false, values:["true", "false"]},
+  profilePic: {type: "url", optional: true, empty: false},
   connections: {
     type: "array",
     optional: true,
@@ -61,7 +58,7 @@ const schema = {
     empty: false,
     items: "string"
   },
-  country_intrests: {
+  countryIntrests: {
     type: "array",
     optional: true,
     empty: false,
@@ -70,4 +67,11 @@ const schema = {
   $$strict: true
 };
 
-export const User = v.compile(schema);
+const createUserSchema = {
+  ...userBaseSchema,
+  username: { type: "string", empty: false },
+  email: { type: "email", empty: false }
+}
+
+export const createUserValidation = (new Validator()).compile(createUserSchema);
+export const updateUserValidation = (new Validator()).compile(userBaseSchema);

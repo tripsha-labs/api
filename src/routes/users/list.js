@@ -1,20 +1,20 @@
-import { success, failure, executeQuery } from "../../libs";
+import { success, failure, executeQuery } from "../../utils";
+import { TABLE_NAMES } from "../../constants";
 
-export async function main(event, context) {
+export const main = async (event, context) => {
   const params = {
     // eslint-disable-next-line no-undef
-    TableName: process.env.tbl_users,
-    KeyConditionExpression: "userId = :userId",
+    TableName: TABLE_NAMES.USER,
+    KeyConditionExpression: "id = :id",
     ExpressionAttributeValues: {
-      ":userId": event.requestContext.identity.cognitoIdentityId
+      ":id": event.requestContext.identity.cognitoIdentityId
     }
   };
 
   try {
-    const res = await executeQuery("query", params)     
-    return success(res);    
-  } catch (e) {
-    print(e)
-    return failure(r);
+    const resUsers = await executeQuery("query", params)     
+    return success(resUsers);    
+  } catch (error) {
+    return failure(error);
   }
 }

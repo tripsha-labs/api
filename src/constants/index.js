@@ -1,2 +1,2 @@
 export * from './constants';
-export * from './error_codes';
+export * from './error-codes';
