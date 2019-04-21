@@ -1,92 +1,97 @@
-import Validator from "fastest-validator";
-import * as moment from "moment";
+import Validator from 'fastest-validator';
+import * as moment from 'moment';
 
 const userBaseSchema = {
-  dob: { type: "string", optional: true, empty: false,},
-  firstName: {type: "string", empty: false, optional: true},
-  lastName: {type: "string", empty: false, optional: true},
-  gender: { 
-    type: "enum", 
-    optional: true, 
-    empty: false, 
-    values: ["male", "female", "other"] 
+  dob: { type: 'string', optional: true, empty: false },
+  firstName: { type: 'string', empty: false, optional: true },
+  lastName: { type: 'string', empty: false, optional: true },
+  gender: {
+    type: 'enum',
+    optional: true,
+    empty: false,
+    values: ['male', 'female', 'other'],
   },
-  phone: { type: "number", optional: true, empty: false,},
-  spokenLanguages: { 
-    type: "array", 
-    optional: true, 
-    empty: false, 
-    items: "string", 
-    enum: [ "english", "hindi"]
+  phone: { type: 'number', optional: true, empty: false },
+  spokenLanguages: {
+    type: 'array',
+    optional: true,
+    empty: false,
+    items: 'string',
+    enum: ['english', 'hindi'],
   },
   homeAddress: {
-    type: "object",
-    empty: false, 
-    optional: true, 
+    type: 'object',
+    empty: false,
+    optional: true,
     props: {
-      country: { type: "string", empty: false, optional: true },
-      address: { type: "string", empty: false, optional: true },
-      city: { type: "string", empty: false, optional: true },
-      zip: { type: "number", empty: false, optional: true }
-    }
+      country: { type: 'string', empty: false, optional: true },
+      address: { type: 'string', empty: false, optional: true },
+      city: { type: 'string', empty: false, optional: true },
+      zip: { type: 'number', empty: false, optional: true },
+    },
   },
-  bio: {type: "string", optional: true, empty: false},
-  isLookingForTravel: {type: "boolean", optional: true, empty: false, values:["true", "false"]},
-  profilePic: {type: "url", optional: true, empty: false},
+  bio: { type: 'string', optional: true, empty: false },
+  isLookingForTravel: {
+    type: 'boolean',
+    optional: true,
+    empty: false,
+    values: ['true', 'false'],
+  },
+  profilePic: { type: 'url', optional: true, empty: false },
   connections: {
-    type: "array",
+    type: 'array',
     optional: true,
     empty: false,
     items: {
-      type: "string",
+      type: 'string',
       optional: true,
       empty: false,
       props: {
         name: {
-          type: "string",
+          type: 'string',
           optional: true,
-          empty: false
+          empty: false,
         },
         details: {
-          type: "string",
+          type: 'string',
           optional: true,
-          empty: false
-        }
-      }
-    } 
+          empty: false,
+        },
+      },
+    },
   },
-  intrests: {
-    type: "array",
+  interests: {
+    type: 'array',
     optional: true,
     empty: false,
-    items: "string"
+    items: 'string',
   },
-  countryIntrests: {
-    type: "array",
+  countryInterests: {
+    type: 'array',
     optional: true,
     empty: false,
-    items: "string"
+    items: 'string',
   },
-  $$strict: true
+  $$strict: true,
 };
 
 const createUserSchema = {
-  username: { type: "string", empty: false },
-  email: { type: "email", empty: false },
-  firstName: {type: "string", empty: false, optional: true},
-  lastName: {type: "string", empty: false, optional: true},
-}
+  username: { type: 'string', empty: false },
+  email: { type: 'email', empty: false },
+  firstName: { type: 'string', empty: false, optional: true },
+  lastName: { type: 'string', empty: false, optional: true },
+};
 
 export const updateUserDefaultValues = {
-  updateAt: moment.utc()
-}
+  updateAt: moment.utc(),
+};
 
 export const createUserDefaultValues = {
   isActive: true,
   isLookingForTravel: false,
   createdAt: moment.utc(),
-  ...updateUserDefaultValues
-}
+  ...updateUserDefaultValues,
+};
 
-export const createUserValidation = (new Validator()).compile(createUserSchema);
-export const updateUserValidation = (new Validator()).compile(userBaseSchema);
+export const createUserValidation = new Validator().compile(createUserSchema);
+export const updateUserValidation = new Validator().compile(userBaseSchema);

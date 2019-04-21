@@ -12,15 +12,9 @@
     }
   },
   "host": "localhost:3000",
-  "schemes": [
-    "https"
-  ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
   "definitions": {
     "MessageModel": {
       "type": "object",
@@ -42,14 +36,7 @@
         },
         "type": {
           "type": "string",
-          "enum": [
-            "text",
-            "photo",
-            "video",
-            "audio",
-            "pdf",
-            "other"
-          ]
+          "enum": ["text", "photo", "video", "audio", "pdf", "other"]
         }
       }
     },
@@ -143,15 +130,12 @@
               },
               "intrestType": {
                 "type": "string",
-                "enum": [
-                  "confirmed",
-                  "unconfirmed"
-                ]
+                "enum": ["confirmed", "unconfirmed"]
               }
             }
           }
         },
-        "intrests": {
+        "interests": {
           "type": "array",
           "items": {
             "type": "string"
@@ -209,18 +193,14 @@
             "state": {
               "type": "string"
             },
-            "zipCode": {
+            "zipcode": {
               "type": "string"
             }
           }
         },
         "gender": {
           "type": "string",
-          "enum": [
-            "male",
-            "female",
-            "other"
-          ]
+          "enum": ["male", "female", "other"]
         },
         "phone": {
           "type": "string"
@@ -256,7 +236,7 @@
             "description": "Social media connection object"
           }
         },
-        "intrests": {
+        "interests": {
           "type": "array",
           "items": {
             "type": "string"
@@ -351,12 +331,7 @@
             },
             "status": {
               "type": "string",
-              "enum": [
-                "new",
-                "renew",
-                "expire",
-                "trial"
-              ]
+              "enum": ["new", "renew", "expire", "trial"]
             }
           }
         },
@@ -375,7 +350,7 @@
             "state": {
               "type": "string"
             },
-            "zipCode": {
+            "zipcode": {
               "type": "string"
             }
           }
@@ -399,17 +374,11 @@
               },
               "type": {
                 "type": "string",
-                "enum": [
-                  "master",
-                  "visa"
-                ]
+                "enum": ["master", "visa"]
               },
               "cardType": {
                 "type": "string",
-                "enum": [
-                  "credit",
-                  "debit"
-                ]
+                "enum": ["credit", "debit"]
               },
               "nameOnCard": {
                 "type": "string"
@@ -417,7 +386,7 @@
             }
           }
         },
-        "countryIntrests": {
+        "countryInterests": {
           "type": "array",
           "items": {
             "type": "string"
@@ -488,18 +457,12 @@
         "in": "query",
         "description": "Sort order",
         "type": "number",
-        "enum": [
-          1,
-          -1
-        ],
+        "enum": [1, -1],
         "default": -1
       },
       "commonErrorFormat": {
         "type": "object",
-        "required": [
-          "status",
-          "result"
-        ],
+        "required": ["status", "result"],
         "properties": {
           "status": {
             "type": "string",
@@ -531,10 +494,7 @@
       },
       "commonGetSuccessFormat": {
         "type": "object",
-        "required": [
-          "status",
-          "result"
-        ],
+        "required": ["status", "result"],
         "properties": {
           "status": {
             "type": "string",
@@ -544,10 +504,7 @@
       },
       "commonUpdateSuccessFormat": {
         "type": "object",
-        "required": [
-          "status",
-          "result"
-        ],
+        "required": ["status", "result"],
         "properties": {
           "status": {
             "type": "string",
@@ -561,10 +518,7 @@
       },
       "commonListSuccessFormat": {
         "type": "object",
-        "required": [
-          "status",
-          "result"
-        ],
+        "required": ["status", "result"],
         "properties": {
           "status": {
             "type": "string",
@@ -629,18 +583,14 @@
               "state": {
                 "type": "string"
               },
-              "zipCode": {
+              "zipcode": {
                 "type": "string"
               }
             }
           },
           "gender": {
             "type": "string",
-            "enum": [
-              "male",
-              "female",
-              "other"
-            ]
+            "enum": ["male", "female", "other"]
           },
           "phone": {
             "type": "string"
@@ -676,7 +626,7 @@
               "description": "Social media connection object"
             }
           },
-          "intrests": {
+          "interests": {
             "type": "array",
             "items": {
               "type": "string"
@@ -771,12 +721,7 @@
               },
               "status": {
                 "type": "string",
-                "enum": [
-                  "new",
-                  "renew",
-                  "expire",
-                  "trial"
-                ]
+                "enum": ["new", "renew", "expire", "trial"]
               }
             }
           },
@@ -795,7 +740,7 @@
               "state": {
                 "type": "string"
               },
-              "zipCode": {
+              "zipcode": {
                 "type": "string"
               }
             }
@@ -819,17 +764,11 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": [
-                    "master",
-                    "visa"
-                  ]
+                  "enum": ["master", "visa"]
                 },
                 "cardType": {
                   "type": "string",
-                  "enum": [
-                    "credit",
-                    "debit"
-                  ]
+                  "enum": ["credit", "debit"]
                 },
                 "nameOnCard": {
                   "type": "string"
@@ -837,7 +776,7 @@
               }
             }
           },
-          "countryIntrests": {
+          "countryInterests": {
             "type": "array",
             "items": {
               "type": "string"
@@ -861,12 +800,8 @@
       "get": {
         "description": "Returns list of trips for anonymous user",
         "operationId": "publicListTrips",
-        "tags": [
-          "Public Trips"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Public Trips"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "name": "userId",
@@ -896,12 +831,8 @@
       "get": {
         "description": "Returns single trip id for anonymous user",
         "operationId": "publicGetTrips",
-        "tags": [
-          "Public Trips"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Public Trips"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "name": "userId",
@@ -931,12 +862,8 @@
       "get": {
         "description": "Returns list of trips",
         "operationId": "listTrips",
-        "tags": [
-          "Trips"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Trips"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "name": "userId",
@@ -964,12 +891,8 @@
       "post": {
         "description": "Creates a trip",
         "operationId": "createTrip",
-        "tags": [
-          "Trips"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Trips"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "name": "userId",
@@ -999,12 +922,8 @@
       "get": {
         "description": "Returns a trip based on a trip ID",
         "operationId": "findTripById",
-        "tags": [
-          "Trips"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Trips"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "name": "userId",
@@ -1032,9 +951,7 @@
       "put": {
         "description": "updates a single trip based on the ID supplied and data",
         "operationId": "updateTrip",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "name": "userId",
@@ -1059,9 +976,7 @@
       "delete": {
         "description": "deletes a single trip based on the ID supplied",
         "operationId": "deleteTrip",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "name": "userId",
@@ -1088,12 +1003,8 @@
       "get": {
         "description": "Returns list of users",
         "operationId": "listUsers",
-        "tags": [
-          "Users"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Users"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#components/schemas/queryUserId"
@@ -1116,10 +1027,7 @@
             "description": "User response",
             "schema": {
               "type": "object",
-              "required": [
-                "status",
-                "result"
-              ],
+              "required": ["status", "result"],
               "properties": {
                 "status": {
                   "type": "string",
@@ -1154,12 +1062,8 @@
       "post": {
         "description": "Creates a user",
         "operationId": "createUser",
-        "tags": [
-          "Users"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Users"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "in": "body",
@@ -1190,12 +1094,8 @@
       "get": {
         "description": "Returns a user based on a user ID",
         "operationId": "findUserById",
-        "tags": [
-          "Users"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "tags": ["Users"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#components/schemas/pathUserId"
@@ -1206,10 +1106,7 @@
             "description": "User response",
             "schema": {
               "type": "object",
-              "required": [
-                "status",
-                "result"
-              ],
+              "required": ["status", "result"],
               "properties": {
                 "status": {
                   "type": "string",
@@ -1232,9 +1129,7 @@
       "put": {
         "description": "updates a single user based on the ID supplied and data",
         "operationId": "updateUser",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "$ref": "#components/schemas/pathUserId"
@@ -1266,9 +1161,7 @@
       "delete": {
         "description": "deletes a single user based on the ID supplied",
         "operationId": "deleteUser",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "$ref": "#components/schemas/pathUserId"

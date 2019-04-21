@@ -21,7 +21,7 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
-      KeySchema:       
+      KeySchema:
         - AttributeName: id
           KeyType: HASH
       # Set the capacity based on the stage

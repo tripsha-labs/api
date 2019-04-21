@@ -1,8 +1,8 @@
 /**
- * 
+ *
  * This file is used to build dynamodb queries
  */
-import _ from "lodash";
+import _ from 'lodash';
 
 const _mapKeys = key => `${key}=:${key}`;
 /**
@@ -16,9 +16,9 @@ const _mapKeys = key => `${key}=:${key}`;
  * "firstName=:firstName,lastName=:lastName"
  */
 export const queryBuilder = objItem => {
-    if(!_.isObject(objItem)) return "";
-    _.join(_.flatMap(_.keys(objItem), _mapKeys), ",");
-}
+  if (!_.isObject(objItem)) return '';
+  _.join(_.flatMap(_.keys(objItem), _mapKeys), ',');
+};
 
 /**
  * This method will alter all the root level keys with alter value, default ":"
@@ -33,7 +33,7 @@ export const queryBuilder = objItem => {
  *      :lastName: "Doe"
  * }
  */
-export const keyPrefixAlterer = (objItem, prefix=":") => {
-    if(!_.isObject(objItem)) return {};
-    return _.mapKeys(objItem, (value, key) => `${prefix}${key}`);
-}
+export const keyPrefixAlterer = (objItem, prefix = ':') => {
+  if (!_.isObject(objItem)) return {};
+  return _.mapKeys(objItem, (value, key) => `${prefix}${key}`);
+};

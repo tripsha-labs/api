@@ -1,2 +1,2 @@
-export * from "./common";
-export * from "./query-mapper";
+export * from './common';
+export * from './query-mapper';

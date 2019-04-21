@@ -1,14 +1,14 @@
 components:
-  schemas:    
+  schemas:
     pathUserId:
-      name: "userId"
-      in: "path"
-      description: "Id of the user "
+      name: 'userId'
+      in: 'path'
+      description: 'Id of the user '
       required: true
-      type: "string" 
+      type: 'string'
     pathTripId:
-      name: "tripId"
-      in: "path"
-      description: "Id of the trip "
+      name: 'tripId'
+      in: 'path'
+      description: 'Id of the trip '
       required: true
-      type: "string" 
+      type: 'string'

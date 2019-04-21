@@ -6,13 +6,13 @@ paths:
       tags:
         - Users
       produces:
-        - application/json        
+        - application/json
       parameters:
-        - $ref: "#components/schemas/queryUserId"
-        - $ref: "#components/schemas/queryLimit"
-        - $ref: "#components/schemas/queryPage"
-        - $ref: "#components/schemas/querySortBy"
-        - $ref: "#components/schemas/querySortOrder"
+        - $ref: '#components/schemas/queryUserId'
+        - $ref: '#components/schemas/queryLimit'
+        - $ref: '#components/schemas/queryPage'
+        - $ref: '#components/schemas/querySortBy'
+        - $ref: '#components/schemas/querySortOrder'
       responses:
         '200':
           description: User response
@@ -24,17 +24,17 @@ paths:
             properties:
               status:
                 type: string
-                default: "success"     
+                default: 'success'
               result:
                 type: object
-                properties:            
+                properties:
                   total_count:
                     type: number
                     description: Total number of records
                   data:
                     type: array
                     items:
-                      $ref: '#/definitions/UserModel'              
+                      $ref: '#/definitions/UserModel'
         default:
           description: unexpected error
           schema:
@@ -45,13 +45,13 @@ paths:
       tags:
         - Users
       produces:
-        - application/json        
+        - application/json
       parameters:
         - in: body
           description: Create user payload
           required: true
           schema:
-            $ref: "#components/schemas/createUser"
+            $ref: '#components/schemas/createUser'
       responses:
         '200':
           description: User response
@@ -68,9 +68,9 @@ paths:
       tags:
         - Users
       produces:
-        - application/json        
+        - application/json
       parameters:
-        - $ref: "#components/schemas/pathUserId"
+        - $ref: '#components/schemas/pathUserId'
       responses:
         '200':
           description: User response
@@ -82,7 +82,7 @@ paths:
             properties:
               status:
                 type: string
-                default: "success"     
+                default: 'success'
               result:
                 $ref: '#/definitions/UserModel'
         default:
@@ -95,12 +95,12 @@ paths:
       tags:
         - Users
       parameters:
-        - $ref: "#components/schemas/pathUserId"
+        - $ref: '#components/schemas/pathUserId'
         - in: body
           description: Update user payload
           required: true
           schema:
-            $ref: "#components/schemas/updateUser"
+            $ref: '#components/schemas/updateUser'
       responses:
         '204':
           description: user deleted
@@ -116,7 +116,7 @@ paths:
       tags:
         - Users
       parameters:
-        - $ref: "#components/schemas/pathUserId"
+        - $ref: '#components/schemas/pathUserId'
       responses:
         '204':
           description: user deleted

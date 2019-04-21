@@ -6,7 +6,7 @@ paths:
       tags:
         - Public Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -29,7 +29,7 @@ paths:
       tags:
         - Public Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -52,7 +52,7 @@ paths:
       tags:
         - Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -74,7 +74,7 @@ paths:
       tags:
         - Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -97,7 +97,7 @@ paths:
       tags:
         - Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path

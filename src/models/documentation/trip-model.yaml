@@ -1,4 +1,4 @@
-definitions:    
+definitions:
   TripModel:
     type: object
     properties:
@@ -64,9 +64,9 @@ definitions:
             intrestType:
               type: string
               enum:
-              - confirmed
-              - unconfirmed
-      intrests:
+                - confirmed
+                - unconfirmed
+      interests:
         type: array
         items:
           type: string

@@ -1,4 +1,4 @@
-definitions:    
+definitions:
   UserModel:
     type: object
     properties:
@@ -10,13 +10,13 @@ definitions:
       email:
         type: string
         required: true
-      firstName: 
+      firstName:
         type: string
       lastName:
         type: string
       dob:
         type: string
-        format: "date"
+        format: 'date'
       homeAddress:
         type: object
         properties:
@@ -28,19 +28,19 @@ definitions:
             type: string
           state:
             type: string
-          zipCode:
+          zipcode:
             type: string
       gender:
         type: string
-        enum: 
-          - "male"
-          - "female"
-          - "other"
+        enum:
+          - 'male'
+          - 'female'
+          - 'other'
       phone:
         type: string
       spokenLanguages:
         type: array
-        description: "List of languages user can speak"
+        description: 'List of languages user can speak'
         items:
           type: string
       bio:
@@ -59,7 +59,7 @@ definitions:
             details:
               type: string
           description: Social media connection object
-      intrests:
+      interests:
         type: array
         items:
           type: string
@@ -125,10 +125,10 @@ definitions:
           status:
             type: string
             enum:
-            - new
-            - renew
-            - expire
-            - trial
+              - new
+              - renew
+              - expire
+              - trial
       billingAddress:
         type: object
         properties:
@@ -140,7 +140,7 @@ definitions:
             type: string
           state:
             type: string
-          zipCode:
+          zipcode:
             type: string
       billingDetails:
         type: array
@@ -158,16 +158,16 @@ definitions:
             type:
               type: string
               enum:
-              - master
-              - visa
+                - master
+                - visa
             cardType:
               type: string
               enum:
-              - credit
-              - debit
+                - credit
+                - debit
             nameOnCard:
               type: string
-      countryIntrests:
+      countryInterests:
         type: array
         items:
           type: string
@@ -176,9 +176,8 @@ definitions:
       isActive:
         type: boolean
       createdAt:
-        type: "string"
-        format: "utc date"
+        type: 'string'
+        format: 'utc date'
       updatedAt:
-        type: "string"
-        format: "utc date"
-      
+        type: 'string'
+        format: 'utc date'
