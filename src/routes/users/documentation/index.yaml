@@ -36,7 +36,7 @@ paths:
                     items:
                       $ref: '#/definitions/UserModel'
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
             $ref: '#/components/schemas/commonErrorFormat'
     post:
@@ -86,11 +86,11 @@ paths:
               result:
                 $ref: '#/definitions/UserModel'
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
             $ref: '#/components/schemas/commonErrorFormat'
     put:
-      description: updates a single user based on the ID supplied and data
+      description: Updates a single user based on the ID supplied and data
       operationId: updateUser
       tags:
         - Users
@@ -103,7 +103,7 @@ paths:
             $ref: '#components/schemas/updateUser'
       responses:
         '204':
-          description: user deleted
+          description: User deleted
           schema:
             $ref: '#/components/schemas/commonUpdateSuccessFormat'
         default:
@@ -111,7 +111,7 @@ paths:
           schema:
             $ref: '#/components/schemas/commonErrorFormat'
     delete:
-      description: deletes a single user based on the ID supplied
+      description: Deletes a single user based on the ID supplied
       operationId: deleteUser
       tags:
         - Users
@@ -119,10 +119,10 @@ paths:
         - $ref: '#components/schemas/pathUserId'
       responses:
         '204':
-          description: user deleted
+          description: User deleted
           schema:
             $ref: '#/components/schemas/commonUpdateSuccessFormat'
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
             $ref: '#/components/schemas/commonErrorFormat'

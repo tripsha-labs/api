@@ -1,7 +1,12 @@
+/**
+ * @name - update
+ * @description - Trip update handler (lambda function)
+ */
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES } from '../../constants';
 
-export const main = async (event, context) => {
+export const updateTrip = async (event, context) => {
+  // TODO
   const data = JSON.parse(event.body);
   const params = {
     TableName: TABLE_NAMES.TRIP,

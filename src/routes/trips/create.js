@@ -1,10 +1,14 @@
+/**
+ * @name - create
+ * @description - Trip create handler (lambda function)
+ */
 import uuid from 'uuid';
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES } from '../../constants';
 
-export const main = async (event, context) => {
+export const createTrip = async (event, context) => {
   const data = JSON.parse(event.body);
-
+  // TODO:
   const trip = {
     id: uuid.v1(),
     userId: event.requestContext.identity.cognitoIdentityId,

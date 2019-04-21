@@ -1,3 +1,7 @@
+/**
+ * @name - userModel
+ * @description - All the user module releted validation handled from here
+ */
 import Validator from 'fastest-validator';
 import * as moment from 'moment';
 

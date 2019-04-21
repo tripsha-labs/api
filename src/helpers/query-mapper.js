@@ -1,12 +1,12 @@
 /**
- *
- * This file is used to build dynamodb queries
+ * @name - queryMapper
+ * @description - This file is used to build helpers for dynamodb queries
  */
 import _ from 'lodash';
 
 const _mapKeys = key => `${key}=:${key}`;
 /**
- * This method will concat all the root level keys as key and placeholder string
+ * @description - This method will concat all the root level keys as key and placeholder string
  * Ex. Input
  * {
  *      firstName: "John",
@@ -21,7 +21,7 @@ export const queryBuilder = objItem => {
 };
 
 /**
- * This method will alter all the root level keys with alter value, default ":"
+ * @description - This method will alter all the root level keys with alter value, default ":"
  * Ex. Input
  * {
  *      firstName: "John",

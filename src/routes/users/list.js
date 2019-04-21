@@ -1,7 +1,11 @@
+/**
+ * @name - list
+ * @description - list user handler (lambda function)
+ */
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES } from '../../constants';
 
-export const main = async (event, context) => {
+export const listUsers = async (event, context) => {
   const params = {
     TableName: TABLE_NAMES.USER,
     KeyConditionExpression: 'id = :id',

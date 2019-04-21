@@ -1,7 +1,11 @@
+/**
+ * @name - delete
+ * @description - Trip delete handler (lambda function)
+ */
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES } from '../../constants';
 
-export const main = async (event, context) => {
+export const deleteTrip = async (event, context) => {
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Key: {

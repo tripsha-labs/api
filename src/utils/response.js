@@ -1,3 +1,13 @@
+/**
+ *
+ * @name - response
+ * @description - This file will handle all the responses for the api call
+ */
+
+/**
+ *
+ * @description - Internal helper function
+ */
 const _buildResponse = (statusCode, body) => {
   return {
     statusCode: statusCode,
