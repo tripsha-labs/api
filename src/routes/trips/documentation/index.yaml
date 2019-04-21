@@ -8,16 +8,32 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: userId
-          in: path
-          description: ID of user to fetch
-          required: true
-          type: string
+        - $ref: '#components/schemas/queryLimit'
+        - $ref: '#components/schemas/queryPage'
+        - $ref: '#components/schemas/querySortBy'
+        - $ref: '#components/schemas/querySortOrder'
       responses:
         '200':
-          description: User response
+          description: Trip response
           schema:
-            $ref: '#/definitions/TripModel'
+            type: object
+            required:
+              - status
+              - result
+            properties:
+              status:
+                type: string
+                default: 'success'
+              result:
+                type: object
+                properties:
+                  total_count:
+                    type: number
+                    description: Total number of records
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/TripModel'
         default:
           description: unexpected error
           schema:
@@ -31,16 +47,21 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: userId
-          in: path
-          description: ID of user to fetch
-          required: true
-          type: string
+        - $ref: '#components/schemas/pathTripId'
       responses:
         '200':
           description: User response
           schema:
-            $ref: '#/definitions/TripModel'
+            type: object
+            required:
+              - status
+              - result
+            properties:
+              status:
+                type: string
+                default: 'success'
+              result:
+                $ref: '#/definitions/TripModel'
         default:
           description: unexpected error
           schema:
@@ -54,18 +75,34 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: userId
-          in: path
-          description: ID of user to fetch
-          required: true
-          type: string
+        - $ref: '#components/schemas/queryLimit'
+        - $ref: '#components/schemas/queryPage'
+        - $ref: '#components/schemas/querySortBy'
+        - $ref: '#components/schemas/querySortOrder'
       responses:
         '200':
-          description: User response
+          description: Trip response
           schema:
-            $ref: '#/definitions/TripModel'
+            type: object
+            required:
+              - status
+              - result
+            properties:
+              status:
+                type: string
+                default: 'success'
+              result:
+                type: object
+                properties:
+                  total_count:
+                    type: number
+                    description: Total number of records
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/TripModel'
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
             $ref: '#/components/schemas/commonErrorFormat'
     post:
@@ -76,18 +113,18 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: userId
-          in: path
-          description: ID of user to fetch
+        - in: body
+          description: Create trip payload
           required: true
-          type: string
+          schema:
+            - $ref: '#components/schemas/createTrip'
       responses:
         '200':
           description: Trip response
           schema:
             $ref: '#/definitions/TripModel'
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
             $ref: '#/components/schemas/commonErrorFormat'
   /trips/{tripId}:
@@ -99,18 +136,23 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: userId
-          in: path
-          description: ID of user to fetch
-          required: true
-          type: string
+        - $ref: '#components/schemas/pathTripId'
       responses:
         '200':
-          description: User response
+          description: Trip response
           schema:
-            $ref: '#/definitions/TripModel'
+            type: object
+            required:
+              - status
+              - result
+            properties:
+              status:
+                type: string
+                default: 'success'
+              result:
+                $ref: '#/definitions/TripModel'
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
             $ref: '#/components/schemas/commonErrorFormat'
     put:
@@ -119,16 +161,19 @@ paths:
       tags:
         - Trips
       parameters:
-        - name: userId
-          in: path
-          description: ID of trip to update
+        - $ref: '#components/schemas/pathTripId'
+        - in: body
+          description: Update trip payload
           required: true
-          type: string
+          schema:
+            $ref: '#components/schemas/createTrip'
       responses:
         '204':
-          description: Trip deleted
+          description: Trip updated
+          schema:
+            $ref: '#/components/schemas/commonUpdateSuccessFormat'
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
             $ref: '#/components/schemas/commonErrorFormat'
     delete:
@@ -137,15 +182,13 @@ paths:
       tags:
         - Trips
       parameters:
-        - name: userId
-          in: path
-          description: ID of trip to delete
-          required: true
-          type: string
+        - $ref: '#components/schemas/pathTripId'
       responses:
         '204':
           description: Trip deleted
+          schema:
+            $ref: '#/components/schemas/commonUpdateSuccessFormat'
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
             $ref: '#/components/schemas/commonErrorFormat'

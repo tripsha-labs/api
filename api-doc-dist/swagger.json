@@ -12,9 +12,15 @@
     }
   },
   "host": "localhost:3000",
-  "schemes": ["https"],
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "definitions": {
     "MessageModel": {
       "type": "object",
@@ -36,14 +42,21 @@
         },
         "type": {
           "type": "string",
-          "enum": ["text", "photo", "video", "audio", "pdf", "other"]
+          "enum": [
+            "text",
+            "photo",
+            "video",
+            "audio",
+            "pdf",
+            "other"
+          ]
         }
       }
     },
     "TripModel": {
       "type": "object",
       "properties": {
-        "tripId": {
+        "id": {
           "type": "string"
         },
         "title": {
@@ -63,7 +76,10 @@
         "langauges": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "english"
+            ]
           }
         },
         "budgets": {
@@ -104,6 +120,9 @@
                     "description": {
                       "type": "string"
                     },
+                    "type": {
+                      "type": "string"
+                    },
                     "url": {
                       "type": "string"
                     }
@@ -130,7 +149,10 @@
               },
               "intrestType": {
                 "type": "string",
-                "enum": ["confirmed", "unconfirmed"]
+                "enum": [
+                  "confirmed",
+                  "unconfirmed"
+                ]
               }
             }
           }
@@ -200,7 +222,11 @@
         },
         "gender": {
           "type": "string",
-          "enum": ["male", "female", "other"]
+          "enum": [
+            "male",
+            "female",
+            "other"
+          ]
         },
         "phone": {
           "type": "string"
@@ -297,9 +323,6 @@
             "discount": {
               "type": "number"
             },
-            "renewPolicy": {
-              "type": "string"
-            },
             "type": {
               "type": "string"
             },
@@ -331,7 +354,12 @@
             },
             "status": {
               "type": "string",
-              "enum": ["new", "renew", "expire", "trial"]
+              "enum": [
+                "new",
+                "renew",
+                "expire",
+                "trial"
+              ]
             }
           }
         },
@@ -360,7 +388,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "expriry": {
+              "expiry": {
                 "type": "string"
               },
               "cvv": {
@@ -369,16 +397,22 @@
               "cardNumber": {
                 "type": "string"
               },
-              "isPrinary": {
+              "isPrimary": {
                 "type": "boolean"
               },
               "type": {
                 "type": "string",
-                "enum": ["master", "visa"]
+                "enum": [
+                  "master",
+                  "visa"
+                ]
               },
               "cardType": {
                 "type": "string",
-                "enum": ["credit", "debit"]
+                "enum": [
+                  "credit",
+                  "debit"
+                ]
               },
               "nameOnCard": {
                 "type": "string"
@@ -457,12 +491,18 @@
         "in": "query",
         "description": "Sort order",
         "type": "number",
-        "enum": [1, -1],
+        "enum": [
+          1,
+          -1
+        ],
         "default": -1
       },
       "commonErrorFormat": {
         "type": "object",
-        "required": ["status", "result"],
+        "required": [
+          "status",
+          "result"
+        ],
         "properties": {
           "status": {
             "type": "string",
@@ -494,7 +534,10 @@
       },
       "commonGetSuccessFormat": {
         "type": "object",
-        "required": ["status", "result"],
+        "required": [
+          "status",
+          "result"
+        ],
         "properties": {
           "status": {
             "type": "string",
@@ -504,7 +547,10 @@
       },
       "commonUpdateSuccessFormat": {
         "type": "object",
-        "required": ["status", "result"],
+        "required": [
+          "status",
+          "result"
+        ],
         "properties": {
           "status": {
             "type": "string",
@@ -518,7 +564,10 @@
       },
       "commonListSuccessFormat": {
         "type": "object",
-        "required": ["status", "result"],
+        "required": [
+          "status",
+          "result"
+        ],
         "properties": {
           "status": {
             "type": "string",
@@ -533,6 +582,117 @@
               }
             }
           }
+        }
+      },
+      "createTrip": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "utc datetime"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "utc datetime"
+          },
+          "langauges": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "english"
+              ]
+            }
+          },
+          "budgets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "destinations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "endDate": {
+                  "type": "string",
+                  "format": "utc datetime"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "mapLocation": {
+                  "type": "string"
+                },
+                "pictures": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "utc datetime"
+                }
+              }
+            }
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "memberId": {
+                  "type": "string"
+                },
+                "favorite": {
+                  "type": "boolean"
+                },
+                "intrestType": {
+                  "type": "string",
+                  "enum": [
+                    "confirmed",
+                    "unconfirmed"
+                  ]
+                }
+              }
+            }
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "xml": {
+          "name": "createTrip"
         }
       },
       "createUser": {
@@ -590,7 +750,11 @@
           },
           "gender": {
             "type": "string",
-            "enum": ["male", "female", "other"]
+            "enum": [
+              "male",
+              "female",
+              "other"
+            ]
           },
           "phone": {
             "type": "string"
@@ -721,7 +885,12 @@
               },
               "status": {
                 "type": "string",
-                "enum": ["new", "renew", "expire", "trial"]
+                "enum": [
+                  "new",
+                  "renew",
+                  "expire",
+                  "trial"
+                ]
               }
             }
           },
@@ -764,11 +933,17 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["master", "visa"]
+                  "enum": [
+                    "master",
+                    "visa"
+                  ]
                 },
                 "cardType": {
                   "type": "string",
-                  "enum": ["credit", "debit"]
+                  "enum": [
+                    "credit",
+                    "debit"
+                  ]
                 },
                 "nameOnCard": {
                   "type": "string"
@@ -800,22 +975,56 @@
       "get": {
         "description": "Returns list of trips for anonymous user",
         "operationId": "publicListTrips",
-        "tags": ["Public Trips"],
-        "produces": ["application/json"],
+        "tags": [
+          "Public Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "description": "ID of user to fetch",
-            "required": true,
-            "type": "string"
+            "$ref": "#components/schemas/queryLimit"
+          },
+          {
+            "$ref": "#components/schemas/queryPage"
+          },
+          {
+            "$ref": "#components/schemas/querySortBy"
+          },
+          {
+            "$ref": "#components/schemas/querySortOrder"
           }
         ],
         "responses": {
           "200": {
-            "description": "User response",
+            "description": "Trip response",
             "schema": {
-              "$ref": "#/definitions/TripModel"
+              "type": "object",
+              "required": [
+                "status",
+                "result"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "total_count": {
+                      "type": "number",
+                      "description": "Total number of records"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/TripModel"
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
           "default": {
@@ -831,22 +1040,35 @@
       "get": {
         "description": "Returns single trip id for anonymous user",
         "operationId": "publicGetTrips",
-        "tags": ["Public Trips"],
-        "produces": ["application/json"],
+        "tags": [
+          "Public Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "description": "ID of user to fetch",
-            "required": true,
-            "type": "string"
+            "$ref": "#components/schemas/pathTripId"
           }
         ],
         "responses": {
           "200": {
             "description": "User response",
             "schema": {
-              "$ref": "#/definitions/TripModel"
+              "type": "object",
+              "required": [
+                "status",
+                "result"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "result": {
+                  "$ref": "#/definitions/TripModel"
+                }
+              }
             }
           },
           "default": {
@@ -862,26 +1084,60 @@
       "get": {
         "description": "Returns list of trips",
         "operationId": "listTrips",
-        "tags": ["Trips"],
-        "produces": ["application/json"],
+        "tags": [
+          "Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "description": "ID of user to fetch",
-            "required": true,
-            "type": "string"
+            "$ref": "#components/schemas/queryLimit"
+          },
+          {
+            "$ref": "#components/schemas/queryPage"
+          },
+          {
+            "$ref": "#components/schemas/querySortBy"
+          },
+          {
+            "$ref": "#components/schemas/querySortOrder"
           }
         ],
         "responses": {
           "200": {
-            "description": "User response",
+            "description": "Trip response",
             "schema": {
-              "$ref": "#/definitions/TripModel"
+              "type": "object",
+              "required": [
+                "status",
+                "result"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "total_count": {
+                      "type": "number",
+                      "description": "Total number of records"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/TripModel"
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
           "default": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "schema": {
               "$ref": "#/components/schemas/commonErrorFormat"
             }
@@ -891,15 +1147,22 @@
       "post": {
         "description": "Creates a trip",
         "operationId": "createTrip",
-        "tags": ["Trips"],
-        "produces": ["application/json"],
+        "tags": [
+          "Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "description": "ID of user to fetch",
+            "in": "body",
+            "description": "Create trip payload",
             "required": true,
-            "type": "string"
+            "schema": [
+              {
+                "$ref": "#components/schemas/createTrip"
+              }
+            ]
           }
         ],
         "responses": {
@@ -910,7 +1173,7 @@
             }
           },
           "default": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "schema": {
               "$ref": "#/components/schemas/commonErrorFormat"
             }
@@ -922,26 +1185,39 @@
       "get": {
         "description": "Returns a trip based on a trip ID",
         "operationId": "findTripById",
-        "tags": ["Trips"],
-        "produces": ["application/json"],
+        "tags": [
+          "Trips"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "description": "ID of user to fetch",
-            "required": true,
-            "type": "string"
+            "$ref": "#components/schemas/pathTripId"
           }
         ],
         "responses": {
           "200": {
-            "description": "User response",
+            "description": "Trip response",
             "schema": {
-              "$ref": "#/definitions/TripModel"
+              "type": "object",
+              "required": [
+                "status",
+                "result"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "default": "success"
+                },
+                "result": {
+                  "$ref": "#/definitions/TripModel"
+                }
+              }
             }
           },
           "default": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "schema": {
               "$ref": "#/components/schemas/commonErrorFormat"
             }
@@ -951,22 +1227,31 @@
       "put": {
         "description": "updates a single trip based on the ID supplied and data",
         "operationId": "updateTrip",
-        "tags": ["Trips"],
+        "tags": [
+          "Trips"
+        ],
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "description": "ID of trip to update",
+            "$ref": "#components/schemas/pathTripId"
+          },
+          {
+            "in": "body",
+            "description": "Update trip payload",
             "required": true,
-            "type": "string"
+            "schema": {
+              "$ref": "#components/schemas/createTrip"
+            }
           }
         ],
         "responses": {
           "204": {
-            "description": "Trip deleted"
+            "description": "Trip updated",
+            "schema": {
+              "$ref": "#/components/schemas/commonUpdateSuccessFormat"
+            }
           },
           "default": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "schema": {
               "$ref": "#/components/schemas/commonErrorFormat"
             }
@@ -976,22 +1261,23 @@
       "delete": {
         "description": "deletes a single trip based on the ID supplied",
         "operationId": "deleteTrip",
-        "tags": ["Trips"],
+        "tags": [
+          "Trips"
+        ],
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "description": "ID of trip to delete",
-            "required": true,
-            "type": "string"
+            "$ref": "#components/schemas/pathTripId"
           }
         ],
         "responses": {
           "204": {
-            "description": "Trip deleted"
+            "description": "Trip deleted",
+            "schema": {
+              "$ref": "#/components/schemas/commonUpdateSuccessFormat"
+            }
           },
           "default": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "schema": {
               "$ref": "#/components/schemas/commonErrorFormat"
             }
@@ -1003,12 +1289,13 @@
       "get": {
         "description": "Returns list of users",
         "operationId": "listUsers",
-        "tags": ["Users"],
-        "produces": ["application/json"],
+        "tags": [
+          "Users"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
-          {
-            "$ref": "#components/schemas/queryUserId"
-          },
           {
             "$ref": "#components/schemas/queryLimit"
           },
@@ -1027,7 +1314,10 @@
             "description": "User response",
             "schema": {
               "type": "object",
-              "required": ["status", "result"],
+              "required": [
+                "status",
+                "result"
+              ],
               "properties": {
                 "status": {
                   "type": "string",
@@ -1052,7 +1342,7 @@
             }
           },
           "default": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "schema": {
               "$ref": "#/components/schemas/commonErrorFormat"
             }
@@ -1062,8 +1352,12 @@
       "post": {
         "description": "Creates a user",
         "operationId": "createUser",
-        "tags": ["Users"],
-        "produces": ["application/json"],
+        "tags": [
+          "Users"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -1094,8 +1388,12 @@
       "get": {
         "description": "Returns a user based on a user ID",
         "operationId": "findUserById",
-        "tags": ["Users"],
-        "produces": ["application/json"],
+        "tags": [
+          "Users"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "$ref": "#components/schemas/pathUserId"
@@ -1106,7 +1404,10 @@
             "description": "User response",
             "schema": {
               "type": "object",
-              "required": ["status", "result"],
+              "required": [
+                "status",
+                "result"
+              ],
               "properties": {
                 "status": {
                   "type": "string",
@@ -1119,7 +1420,7 @@
             }
           },
           "default": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "schema": {
               "$ref": "#/components/schemas/commonErrorFormat"
             }
@@ -1127,9 +1428,11 @@
         }
       },
       "put": {
-        "description": "updates a single user based on the ID supplied and data",
+        "description": "Updates a single user based on the ID supplied and data",
         "operationId": "updateUser",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "parameters": [
           {
             "$ref": "#components/schemas/pathUserId"
@@ -1145,7 +1448,7 @@
         ],
         "responses": {
           "204": {
-            "description": "user deleted",
+            "description": "User deleted",
             "schema": {
               "$ref": "#/components/schemas/commonUpdateSuccessFormat"
             }
@@ -1159,9 +1462,11 @@
         }
       },
       "delete": {
-        "description": "deletes a single user based on the ID supplied",
+        "description": "Deletes a single user based on the ID supplied",
         "operationId": "deleteUser",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "parameters": [
           {
             "$ref": "#components/schemas/pathUserId"
@@ -1169,13 +1474,13 @@
         ],
         "responses": {
           "204": {
-            "description": "user deleted",
+            "description": "User deleted",
             "schema": {
               "$ref": "#/components/schemas/commonUpdateSuccessFormat"
             }
           },
           "default": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "schema": {
               "$ref": "#/components/schemas/commonErrorFormat"
             }
