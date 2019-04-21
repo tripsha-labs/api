@@ -20,11 +20,12 @@ export const createTrip = async (event, context) => {
       ...createTripDefaultValues, // default values
       userId: event.requestContext.identity.cognitoIdentityId,
     },
+    ReturnValues: 'ALL_OLD',
   };
 
   try {
-    const resCreateTrip = await executeQuery('put', params);
-    return success(resCreateTrip.Item);
+    await executeQuery('put', params);
+    return success(params.Item);
   } catch (error) {
     return failure(error);
   }

@@ -87,13 +87,13 @@ const createUserSchema = {
 };
 
 export const updateUserDefaultValues = {
-  updateAt: moment.utc(),
+  updateAt: moment.utc().format(),
 };
 
 export const createUserDefaultValues = {
   isActive: true,
   isLookingForTravel: false,
-  createdAt: moment.utc(),
+  createdAt: moment.utc().format(),
   ...updateUserDefaultValues,
 };
 

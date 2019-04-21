@@ -15,16 +15,16 @@ export const updateTrip = async (event, context) => {
   if (errors != true) return failure(errors);
 
   // update data object with default fields and values ex. updatedAt
-  data = { ...data, ...updateTripDefaultValues };
-
+  const trip = { ...data, ...updateTripDefaultValues };
+  console.log(trip);
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Key: {
       // userId: event.requestContext.identity.cognitoIdentityId,
       id: event.pathParameters.id,
     },
-    UpdateExpression: 'SET ' + queryBuilder(data),
-    ExpressionAttributeValues: keyPrefixAlterer(data),
+    UpdateExpression: 'SET ' + queryBuilder(trip),
+    ExpressionAttributeValues: keyPrefixAlterer(trip),
     ReturnValues: 'ALL_NEW',
   };
 

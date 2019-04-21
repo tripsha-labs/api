@@ -84,13 +84,13 @@ const createTripSchema = {
 };
 
 export const updateTripDefaultValues = {
-  updateAt: moment.utc(),
+  updateAt: moment.utc().format(),
 };
 
 export const createTripDefaultValues = {
   isActive: true,
   id: uuid.v1(),
-  createdAt: moment.utc(),
+  createdAt: moment.utc().format(),
   ...updateTripDefaultValues,
 };
 
