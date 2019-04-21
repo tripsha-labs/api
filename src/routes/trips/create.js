@@ -2,34 +2,24 @@
  * @name - create
  * @description - Trip create handler (lambda function)
  */
-import uuid from 'uuid';
-import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES } from '../../constants';
+import { success, failure, executeQuery } from '../../utils';
+import { createTripValidation, createTripDefaultValues } from '../../models';
 
 export const createTrip = async (event, context) => {
   const data = JSON.parse(event.body);
-  // TODO:
-  const trip = {
-    id: uuid.v1(),
-    userId: event.requestContext.identity.cognitoIdentityId,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  };
 
-  if (data.title) trip['title'] = data.title;
-  if (data.members) trip['members'] = data.members;
-  if (data.startDate) trip['startDate'] = data.startDate;
-  if (data.endDate) trip['endDate'] = data.endDate;
-  if (data.description) trip['description'] = data.description;
-  if (data.langauges) trip['langauges'] = data.langauges;
-  if (data.budgets) trip['budgets'] = data.budgets;
-  if (data.destinations) trip['destinations'] = data.destinations;
-  if (data.interests) trip['interests'] = data.interests;
-  if (data.status) trip['status'] = data.status;
+  // Validate trip fields against the strict schema
+  const errors = createTripValidation(data);
+  if (errors != true) return failure(errors);
 
   const params = {
     TableName: TABLE_NAMES.TRIP,
-    Item: trip,
+    Item: {
+      ...data, // validated data
+      ...createTripDefaultValues, // default values
+      userId: event.requestContext.identity.cognitoIdentityId,
+    },
   };
 
   try {

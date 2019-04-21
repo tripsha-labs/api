@@ -9,6 +9,7 @@ export const deleteTrip = async (event, context) => {
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Key: {
+      // userId: event.requestContext.identity.cognitoIdentityId,
       id: event.pathParameters.id,
     },
   };

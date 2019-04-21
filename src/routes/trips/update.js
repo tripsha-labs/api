@@ -4,30 +4,27 @@
  */
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES } from '../../constants';
+import { updateTripValidation, updateTripDefaultValues } from '../../models';
+import { queryBuilder, keyPrefixAlterer } from '../../helpers';
 
 export const updateTrip = async (event, context) => {
-  // TODO
   const data = JSON.parse(event.body);
+
+  // Validate trip fields against the strict schema
+  const errors = updateTripValidation(data);
+  if (errors != true) return failure(errors);
+
+  // update data object with default fields and values ex. updatedAt
+  data = { ...data, ...updateTripDefaultValues };
+
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Key: {
+      // userId: event.requestContext.identity.cognitoIdentityId,
       id: event.pathParameters.id,
     },
-    UpdateExpression:
-      'SET date = :date, numberOfDays = :numberOfDays, budget = :budget, status = :status, description = :description, destinations = :destinations,  name = :name, matchCriteria = :matchCriteria, tripshers = :tripshers, interactions = :interactions ',
-
-    ExpressionAttributeValues: {
-      ':date': data.date || null,
-      ':numberOfDays': data.numberOfDays || null,
-      ':budget': data.budget || null,
-      ':status': data.status || null,
-      ':description': data.description || null,
-      destinations: data.destinations || null,
-      ':name': data.name || null,
-      matchCriteria: data.matchCriteria || null,
-      tripshers: data.tripshers || null,
-      interactions: data.interactions || null,
-    },
+    UpdateExpression: 'SET ' + queryBuilder(data),
+    ExpressionAttributeValues: keyPrefixAlterer(data),
     ReturnValues: 'ALL_NEW',
   };
 

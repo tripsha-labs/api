@@ -2,7 +2,7 @@ definitions:
   TripModel:
     type: object
     properties:
-      tripId:
+      id:
         type: string
       title:
         type: string
@@ -18,6 +18,8 @@ definitions:
         type: array
         items:
           type: string
+          enum:
+            - english
       budgets:
         type: array
         items:
@@ -46,6 +48,8 @@ definitions:
                 type: object
                 properties:
                   description:
+                    type: string
+                  type:
                     type: string
                   url:
                     type: string
