@@ -100,8 +100,6 @@ definitions:
             type: string
           discount:
             type: number
-          renewPolicy:
-            type: string
           type:
             type: string
           priceUnit:
@@ -147,13 +145,13 @@ definitions:
         items:
           type: object
           properties:
-            expriry:
+            expiry:
               type: string
             cvv:
               type: string
             cardNumber:
               type: string
-            isPrinary:
+            isPrimary:
               type: boolean
             type:
               type: string
