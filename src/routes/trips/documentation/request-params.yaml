@@ -63,7 +63,7 @@ components:
                 type: string
               favorite:
                 type: boolean
-              intrestType:
+              interestType:
                 type: string
                 enum:
                   - confirmed
