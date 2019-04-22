@@ -1,4 +1,4 @@
-definitions:  
+definitions:
   MessageModel:
     type: object
     properties:
@@ -16,9 +16,9 @@ definitions:
       type:
         type: string
         enum:
-        - text
-        - photo
-        - video
-        - audio
-        - pdf
-        - other
+          - text
+          - photo
+          - video
+          - audio
+          - pdf
+          - other

@@ -1,11 +1,11 @@
 /**
- * @name - get
- * @description - Trip get handler (lambda function)
+ * @name - publicGet
+ * @description - Public trip get handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES } from '../../constants';
 
-export const getTrip = async (event, context) => {
+export const getPublicTrip = async (event, context) => {
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Key: {

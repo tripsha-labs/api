@@ -1,17 +1,22 @@
-import { success, failure, executeQuery } from "../../libs";
+/**
+ * @name - delete
+ * @description - delete user handler (lambda function)
+ */
+import { success, failure, executeQuery } from '../../utils';
+import { TABLE_NAMES } from '../../constants';
 
-export async function main(event, context) {
+export const deleteUser = async (event, context) => {
   const params = {
-    TableName: process.env.tbl_users,
+    TableName: TABLE_NAMES.USER,
     Key: {
-      userId: event.requestContext.identity.cognitoIdentityId
-    }
+      id: event.requestContext.identity.cognitoIdentityId,
+    },
   };
 
   try {
-    await executeQuery("delete", params);
-    return success({ status: true });
-  } catch (e) {
-    return failure({ status: false });
+    await executeQuery('delete', params);
+    return success('success');
+  } catch (error) {
+    return failure(error);
   }
-}
+};

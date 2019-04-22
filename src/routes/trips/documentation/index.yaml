@@ -6,7 +6,7 @@ paths:
       tags:
         - Public Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -21,7 +21,7 @@ paths:
         default:
           description: unexpected error
           schema:
-            $ref: '#/definitions/ErrorModel'
+            $ref: '#/components/schemas/commonErrorFormat'
   /public/trips/{tripId}:
     get:
       description: Returns single trip id for anonymous user
@@ -29,7 +29,7 @@ paths:
       tags:
         - Public Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -44,7 +44,7 @@ paths:
         default:
           description: unexpected error
           schema:
-            $ref: '#/definitions/ErrorModel'
+            $ref: '#/components/schemas/commonErrorFormat'
   /trips:
     get:
       description: Returns list of trips
@@ -52,7 +52,7 @@ paths:
       tags:
         - Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -67,14 +67,14 @@ paths:
         default:
           description: unexpected error
           schema:
-            $ref: '#/definitions/ErrorModel'
+            $ref: '#/components/schemas/commonErrorFormat'
     post:
       description: Creates a trip
       operationId: createTrip
       tags:
         - Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -89,7 +89,7 @@ paths:
         default:
           description: unexpected error
           schema:
-            $ref: '#/definitions/ErrorModel'
+            $ref: '#/components/schemas/commonErrorFormat'
   /trips/{tripId}:
     get:
       description: Returns a trip based on a trip ID
@@ -97,7 +97,7 @@ paths:
       tags:
         - Trips
       produces:
-        - application/json        
+        - application/json
       parameters:
         - name: userId
           in: path
@@ -112,7 +112,7 @@ paths:
         default:
           description: unexpected error
           schema:
-            $ref: '#/definitions/ErrorModel'
+            $ref: '#/components/schemas/commonErrorFormat'
     put:
       description: updates a single trip based on the ID supplied and data
       operationId: updateTrip
@@ -130,7 +130,7 @@ paths:
         default:
           description: unexpected error
           schema:
-            $ref: '#/definitions/ErrorModel'
+            $ref: '#/components/schemas/commonErrorFormat'
     delete:
       description: deletes a single trip based on the ID supplied
       operationId: deleteTrip
@@ -148,31 +148,4 @@ paths:
         default:
           description: unexpected error
           schema:
-            $ref: '#/definitions/ErrorModel'
-
-definitions:
-  pet:
-    type: object
-    required:
-      - id
-      - name
-    properties:
-      id:
-        type: integer
-        format: int64
-      name:
-        type: string
-      tag:
-        type: string
-  newPet:
-    type: object
-    required:
-      - name
-    properties:
-      id:
-        type: integer
-        format: int64
-      name:
-        type: string
-      tag:
-        type: string
+            $ref: '#/components/schemas/commonErrorFormat'

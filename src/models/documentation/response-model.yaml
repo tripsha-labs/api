@@ -1,0 +1,64 @@
+components:
+  schemas:
+    commonErrorFormat:
+      type: object
+      required:
+        - status
+        - result
+      properties:
+        status:
+          type: string
+          default: 'error'
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              error_code:
+                type: string
+                description: Error code to handle internationlization(i18)
+                require: true
+              message:
+                type: string
+                description: Error message in english
+                required: true
+              field:
+                type: string
+                description: Error field name
+    commonGetSuccessFormat:
+      type: object
+      required:
+        - status
+        - result
+      properties:
+        status:
+          type: string
+          default: 'success'
+
+    commonUpdateSuccessFormat:
+      type: object
+      required:
+        - status
+        - result
+      properties:
+        status:
+          type: string
+          default: 'success'
+        result:
+          type: string
+          default: 'success'
+    commonListSuccessFormat:
+      type: object
+      required:
+        - status
+        - result
+      properties:
+        status:
+          type: string
+          default: 'success'
+        result:
+          type: object
+          properties:
+            total_count:
+              type: number
+              description: Total number of records

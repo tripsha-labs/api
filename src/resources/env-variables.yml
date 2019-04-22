@@ -1,3 +1,4 @@
+# Application Environment variables defined here
 stripeSecretKey: ${self:custom.environment.stripeSecretKey}
-tbl_users: ${self:custom.tbl_users}
-tbl_trips: ${self:custom.tbl_trips}
+tblUsers: ${self:custom.tblUsers}
+tblTrips: ${self:custom.tblTrips}

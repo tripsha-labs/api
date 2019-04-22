@@ -1,24 +1,36 @@
-import { success, failure, executeQuery } from "../../libs";
+/**
+ * @name - update
+ * @description - update user handler (lambda function)
+ */
+import { success, failure, executeQuery } from '../../utils';
+import { TABLE_NAMES } from '../../constants';
+import { updateUserValidation, updateUserDefaultValues } from '../../models';
+import { queryBuilder, keyPrefixAlterer } from '../../helpers';
 
-export async function main(event, context) {
+export const updateUser = async (event, context) => {
   const data = JSON.parse(event.body);
-  const params = {
-    TableName: process.env.tbl_users,
-    Key: {
-      userId: event.requestContext.identity.cognitoIdentityId
-    },
 
-    UpdateExpression: "SET content = :username",
-    ExpressionAttributeValues: {
-      ":username": data.username || null
+  // Validate user fields against the strict schema
+  const errors = updateUserValidation(data);
+  if (errors != true) return failure(errors);
+
+  // update data object with default fields and values ex. updatedAt
+  data = { ...data, ...updateUserDefaultValues };
+
+  const params = {
+    TableName: TABLE_NAMES.USER,
+    Key: {
+      id: event.requestContext.identity.cognitoIdentityId,
     },
-    ReturnValues: "ALL_NEW"
+    UpdateExpression: 'SET ' + queryBuilder(data),
+    ExpressionAttributeValues: keyPrefixAlterer(data),
+    ReturnValues: 'ALL_NEW',
   };
 
   try {
-    const result = await executeQuery("update", params);
-    return success({ status: true, result: result.Item});
-  } catch (e) {
-    return failure({ status: false });
+    const resUpdateUser = await executeQuery('update', params);
+    return success(resUpdateUser.Item);
+  } catch (error) {
+    return failure([error]);
   }
-}
+};

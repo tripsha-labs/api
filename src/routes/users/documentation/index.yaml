@@ -1,0 +1,128 @@
+paths:
+  /users:
+    get:
+      description: Returns list of users
+      operationId: listUsers
+      tags:
+        - Users
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#components/schemas/queryUserId'
+        - $ref: '#components/schemas/queryLimit'
+        - $ref: '#components/schemas/queryPage'
+        - $ref: '#components/schemas/querySortBy'
+        - $ref: '#components/schemas/querySortOrder'
+      responses:
+        '200':
+          description: User response
+          schema:
+            type: object
+            required:
+              - status
+              - result
+            properties:
+              status:
+                type: string
+                default: 'success'
+              result:
+                type: object
+                properties:
+                  total_count:
+                    type: number
+                    description: Total number of records
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/UserModel'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/components/schemas/commonErrorFormat'
+    post:
+      description: Creates a user
+      operationId: createUser
+      tags:
+        - Users
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          description: Create user payload
+          required: true
+          schema:
+            $ref: '#components/schemas/createUser'
+      responses:
+        '200':
+          description: User response
+          schema:
+            $ref: '#/definitions/UserModel'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/components/schemas/commonErrorFormat'
+  /users/{userId}:
+    get:
+      description: Returns a user based on a user ID
+      operationId: findUserById
+      tags:
+        - Users
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#components/schemas/pathUserId'
+      responses:
+        '200':
+          description: User response
+          schema:
+            type: object
+            required:
+              - status
+              - result
+            properties:
+              status:
+                type: string
+                default: 'success'
+              result:
+                $ref: '#/definitions/UserModel'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/components/schemas/commonErrorFormat'
+    put:
+      description: Updates a single user based on the ID supplied and data
+      operationId: updateUser
+      tags:
+        - Users
+      parameters:
+        - $ref: '#components/schemas/pathUserId'
+        - in: body
+          description: Update user payload
+          required: true
+          schema:
+            $ref: '#components/schemas/updateUser'
+      responses:
+        '204':
+          description: User deleted
+          schema:
+            $ref: '#/components/schemas/commonUpdateSuccessFormat'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/components/schemas/commonErrorFormat'
+    delete:
+      description: Deletes a single user based on the ID supplied
+      operationId: deleteUser
+      tags:
+        - Users
+      parameters:
+        - $ref: '#components/schemas/pathUserId'
+      responses:
+        '204':
+          description: User deleted
+          schema:
+            $ref: '#/components/schemas/commonUpdateSuccessFormat'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/components/schemas/commonErrorFormat'

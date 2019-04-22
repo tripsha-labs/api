@@ -1,18 +1,22 @@
-import { success, failure, executeQuery } from "../../libs";
+/**
+ * @name - delete
+ * @description - Trip delete handler (lambda function)
+ */
+import { success, failure, executeQuery } from '../../utils';
+import { TABLE_NAMES } from '../../constants';
 
-export async function main(event, context) {
+export const deleteTrip = async (event, context) => {
   const params = {
-    TableName: process.env.tbl_trips,
+    TableName: TABLE_NAMES.TRIP,
     Key: {
-        userId: event.requestContext.identity.cognitoIdentityId,
-        id: event.pathParameters.id
-    }
+      id: event.pathParameters.id,
+    },
   };
 
   try {
-    const result = await executeQuery("delete", params);
-    return success({ status: true });
-  } catch (e) {
-    return failure({ status: false });
+    await executeQuery('delete', params);
+    return success('success');
+  } catch (error) {
+    return failure(error);
   }
-}
+};

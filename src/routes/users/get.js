@@ -1,22 +1,23 @@
-import { success, failure, executeQuery } from "../../libs";
+/**
+ * @name - get
+ * @description - get user handler (lambda function)
+ */
+import { success, failure, executeQuery } from '../../utils';
+import { TABLE_NAMES } from '../../constants';
 
-
-export async function main(event, context) {
+export const getUser = async (event, context) => {
   const params = {
-    TableName: process.env.tbl_users,
+    TableName: TABLE_NAMES.USER,
     Key: {
-      userId: event.requestContext.identity.cognitoIdentityId
-    }
+      id: event.requestContext.identity.cognitoIdentityId,
+    },
   };
 
   try {
-    const result = await executeQuery("get", params);
-    if (result.Item) {   
-      return success(result.Item);
-    } else {
-      return failure({ status: false, error: "Item not found." });
-    }
-  } catch (e) {
-    return failure({ status: false });
+    const result = await executeQuery('get', params);
+    if (!result.Item) throw 'Item not found.';
+    return success(result.Item);
+  } catch (error) {
+    return failure(error);
   }
-}
+};
