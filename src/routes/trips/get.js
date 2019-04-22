@@ -16,11 +16,8 @@ export const getTrip = async (event, context) => {
 
   try {
     const resTrip = await executeQuery('get', params);
-    if (resTrip.Item) {
-      return success(resTrip.Item);
-    } else {
-      return failure('Item not found.');
-    }
+    if (!resTrip.Item) throw 'Item not found.';
+    return success(resTrip.Item);
   } catch (error) {
     return failure(error);
   }

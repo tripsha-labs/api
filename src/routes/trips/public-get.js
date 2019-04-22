@@ -9,18 +9,14 @@ export const getPublicTrip = async (event, context) => {
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Key: {
-      userId: event.requestContext.identity.cognitoIdentityId,
       id: event.pathParameters.id,
     },
   };
 
   try {
     const resTrip = await executeQuery('get', params);
-    if (resTrip.Item) {
-      return success(resTrip.Item);
-    } else {
-      return failure('Item not found.');
-    }
+    if (!resTrip.Item) throw 'Item not found.';
+    return success(resTrip.Item);
   } catch (error) {
     return failure(error);
   }

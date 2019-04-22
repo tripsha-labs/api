@@ -15,15 +15,15 @@ export const updateUser = async (event, context) => {
   if (errors != true) return failure(errors);
 
   // update data object with default fields and values ex. updatedAt
-  data = { ...data, ...updateUserDefaultValues };
+  const user = { ...data, ...updateUserDefaultValues };
 
   const params = {
     TableName: TABLE_NAMES.USER,
     Key: {
       id: event.requestContext.identity.cognitoIdentityId,
     },
-    UpdateExpression: 'SET ' + queryBuilder(data),
-    ExpressionAttributeValues: keyPrefixAlterer(data),
+    UpdateExpression: 'SET ' + queryBuilder(user),
+    ExpressionAttributeValues: keyPrefixAlterer(user),
     ReturnValues: 'ALL_NEW',
   };
 

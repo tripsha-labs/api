@@ -70,12 +70,103 @@ const userBaseSchema = {
     empty: false,
     items: 'string',
   },
+  favoriteSnaps: {
+    type: 'array',
+    optional: true,
+    empty: false,
+    items: {
+      type: 'object',
+      props: {
+        description: { type: 'string', optional: true, empty: false },
+        location: { type: 'string', optional: true, empty: false },
+        title: { type: 'string', optional: true, empty: false },
+        url: { type: 'string', optional: true, empty: false },
+      },
+    },
+  },
+  isIdentityVerified: { type: 'boolean', optional: true, empty: false },
+  identities: {
+    type: 'array',
+    optional: true,
+    empty: false,
+    items: {
+      type: 'object',
+      props: {
+        isPrimary: { type: 'boolean', optional: true, empty: false },
+        mediaType: { type: 'string', optional: true, empty: false },
+        idVerified: { type: 'boolean', optional: true, empty: false },
+        type: { type: 'string', optional: true, empty: false },
+        mediaPath: { type: 'string', optional: true, empty: false },
+      },
+    },
+  },
+  planDetails: {
+    type: 'object',
+    props: {
+      couponDetails: { type: 'string', optional: true, empty: false },
+      discount: { type: 'number', optional: true, empty: false },
+      type: { type: 'string', optional: true, empty: false },
+      priceUnit: { type: 'string', optional: true, empty: false },
+      couponType: { type: 'string', optional: true, empty: false },
+      price: { type: 'number', optional: true, empty: false },
+      couponCode: { type: 'string', optional: true, empty: false },
+      expireOn: { type: 'string', optional: true, empty: false },
+      name: { type: 'string', optional: true, empty: false },
+      paidAmount: { type: 'number', optional: true, empty: false },
+      purchaseDate: { type: 'date', optional: true, empty: false },
+      status: {
+        type: 'enum',
+        optional: true,
+        empty: false,
+        enum: ['new', 'renew', 'expired', 'trial'],
+      },
+    },
+  },
+  billingAddress: {
+    type: 'object',
+    empty: false,
+    optional: true,
+    props: {
+      country: { type: 'string', empty: false, optional: true },
+      address: { type: 'string', empty: false, optional: true },
+      city: { type: 'string', empty: false, optional: true },
+      zip: { type: 'number', empty: false, optional: true },
+    },
+  },
+  billingDetails: {
+    type: 'array',
+    optional: true,
+    empty: false,
+    items: {
+      type: 'object',
+      props: {
+        expiry: { type: 'string', optional: true, empty: false },
+        cvv: { type: 'string', optional: true, empty: false },
+        cardNumber: { type: 'string', optional: true, empty: false },
+        isPrimary: { type: 'boolean', optional: true, empty: false },
+        type: {
+          type: 'enum',
+          optional: true,
+          empty: false,
+          enum: ['master', 'visa'],
+        },
+        cardType: {
+          type: 'enum',
+          optional: true,
+          empty: false,
+          enum: ['credit', 'debit'],
+        },
+        nameOnCard: { type: 'string', optional: true, empty: false },
+      },
+    },
+  },
   countryInterests: {
     type: 'array',
     optional: true,
     empty: false,
     items: 'string',
   },
+  isActive: { type: 'boolean', optional: true, empty: false },
   $$strict: true,
 };
 
@@ -87,13 +178,13 @@ const createUserSchema = {
 };
 
 export const updateUserDefaultValues = {
-  updateAt: moment.utc(),
+  updateAt: moment.utc().format(),
 };
 
 export const createUserDefaultValues = {
   isActive: true,
   isLookingForTravel: false,
-  createdAt: moment.utc(),
+  createdAt: moment.utc().format(),
   ...updateUserDefaultValues,
 };
 

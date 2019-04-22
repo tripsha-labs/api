@@ -17,7 +17,7 @@ const _mapKeys = key => `${key}=:${key}`;
  */
 export const queryBuilder = objItem => {
   if (!_.isObject(objItem)) return '';
-  _.join(_.flatMap(_.keys(objItem), _mapKeys), ',');
+  return _.join(_.flatMap(_.keys(objItem), _mapKeys), ',');
 };
 
 /**

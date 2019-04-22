@@ -8,7 +8,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: '#components/schemas/queryUserId'
         - $ref: '#components/schemas/queryLimit'
         - $ref: '#components/schemas/queryPage'
         - $ref: '#components/schemas/querySortBy'
@@ -28,7 +27,7 @@ paths:
               result:
                 type: object
                 properties:
-                  total_count:
+                  totalCount:
                     type: number
                     description: Total number of records
                   data:
