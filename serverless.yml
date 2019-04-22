@@ -1,12 +1,12 @@
 service: tripsha-app-api
 
 plugins:
-  - serverless-webpack 
-  - serverless-reqvalidator-plugin  
+  - serverless-webpack
+  - serverless-reqvalidator-plugin
   - serverless-dynamodb-local
-  - serverless-offline   
+  - serverless-offline
 
-custom: 
+custom:
   stage: ${opt:stage, self:provider.stage}
 
   dynamodb:
@@ -28,7 +28,7 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: us-east-1
-  environment: ${file(src/resources/env-variables.yml)}    
+  environment: ${file(src/resources/env-variables.yml)}
 
   iamRoleStatements:
     - Effect: Allow
@@ -41,15 +41,15 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - "Fn::GetAtt": [ Users, Arn ]
-        - "Fn::GetAtt": [ Trips, Arn ]
+        - 'Fn::GetAtt': [Users, Arn]
+        - 'Fn::GetAtt': [Trips, Arn]
 package:
   individually: true
-  
-functions:  
+
+functions:
   - ${file(src/routes/users/functions.yml)}
   - ${file(src/routes/trips/functions.yml)}
-         
+
 resources:
   # API Gateway Errors
   - ${file(src/resources/api-gateway-errors.yml)}
