@@ -27,7 +27,7 @@ export const listTrips = async (event, context) => {
     const resTrips = await executeQuery('scan', params);
     return success({
       data: resTrips.Items,
-      total_count: resTrips.ScannedCount,
+      totalCount: resTrips.ScannedCount,
       current_count: resTrips.Count,
     });
   } catch (error) {

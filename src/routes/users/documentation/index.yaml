@@ -27,7 +27,7 @@ paths:
               result:
                 type: object
                 properties:
-                  total_count:
+                  totalCount:
                     type: number
                     description: Total number of records
                   data:

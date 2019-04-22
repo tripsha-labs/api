@@ -18,8 +18,8 @@ export const listUsers = async (event, context) => {
     const resUsers = await executeQuery('scan', params);
     return success({
       data: resUsers.Items,
-      total_count: resUsers.ScannedCount,
-      current_count: resUsers.Count,
+      totalCount: resUsers.ScannedCount,
+      currentCount: resUsers.Count,
     });
   } catch (error) {
     return failure(error);
