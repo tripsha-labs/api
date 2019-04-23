@@ -5,8 +5,6 @@ paths:
       operationId: listUsers
       tags:
         - Users
-      produces:
-        - application/json
       parameters:
         - $ref: '#/components/parameters/queryLimit'
         - $ref: '#/components/parameters/queryPage'
@@ -28,14 +26,15 @@ paths:
                     default: 'success'
                   result:
                     type: object
+                    required:
+                      - totalCount
+                      - data
                     properties:
                       totalCount:
                         type: number
-                        required: true
                         description: Total number of records
                       data:
                         type: array
-                        required: true
                         items:
                           $ref: '#/components/schemas/UserModel'
         default:
@@ -49,8 +48,6 @@ paths:
       operationId: createUser
       tags:
         - Users
-      produces:
-        - application/json
       parameters:
         - $ref: '#/components/parameters/createUser'
       responses:
@@ -82,8 +79,6 @@ paths:
       operationId: findUserById
       tags:
         - Users
-      produces:
-        - application/json
       parameters:
         - $ref: '#/components/parameters/pathUserId'
       responses:

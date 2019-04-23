@@ -2,15 +2,16 @@ components:
   schemas:
     UserModel:
       type: object
+      required:
+        - username
+        - email
       properties:
         id:
           type: string
         username:
           type: string
-          required: true
         email:
           type: string
-          required: true
         firstName:
           type: string
         lastName:

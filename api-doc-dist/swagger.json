@@ -60,16 +60,15 @@
             "type": "array",
             "items": {
               "type": "object",
+              "required": ["errorCode", "message"],
               "properties": {
-                "error_code": {
+                "errorCode": {
                   "type": "string",
-                  "description": "Error code to handle internationalization(i18)",
-                  "require": true
+                  "description": "Error code to handle internationalization(i18)"
                 },
                 "message": {
                   "type": "string",
-                  "description": "Error message in english",
-                  "required": true
+                  "description": "Error message in english"
                 },
                 "field": {
                   "type": "string",
@@ -214,17 +213,16 @@
       },
       "UserModel": {
         "type": "object",
+        "required": ["username", "email"],
         "properties": {
           "id": {
             "type": "string"
           },
           "username": {
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "email": {
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "firstName": {
             "type": "string"
@@ -572,8 +570,8 @@
         "name": "userId",
         "in": "path",
         "description": "Id of the user",
+        "required": true,
         "schema": {
-          "required": true,
           "type": "string"
         }
       },
@@ -581,8 +579,8 @@
         "name": "tripId",
         "in": "path",
         "description": "Id of the trip",
+        "required": true,
         "schema": {
-          "required": true,
           "type": "string"
         }
       },
@@ -633,6 +631,7 @@
       },
       "createTrip": {
         "in": "body",
+        "name": "Create trip body",
         "description": "Create trip payload",
         "required": true,
         "schema": {
@@ -641,6 +640,7 @@
       },
       "updateTrip": {
         "in": "body",
+        "name": "Update trip body",
         "description": "Update trip payload",
         "required": true,
         "schema": {
@@ -649,17 +649,16 @@
       },
       "createUser": {
         "in": "body",
+        "name": "Create user body",
         "description": "Create user payload",
         "required": true,
         "schema": {
           "properties": {
             "username": {
-              "type": "string",
-              "required": true
+              "type": "string"
             },
             "email": {
-              "type": "string",
-              "required": true
+              "type": "string"
             },
             "firstName": {
               "type": "string"
@@ -672,6 +671,7 @@
       },
       "updateUser": {
         "in": "body",
+        "name": "Update user body",
         "description": "Update user payload",
         "required": true,
         "schema": {
@@ -924,7 +924,6 @@
         "description": "Returns list of trips for anonymous user",
         "operationId": "publicListTrips",
         "tags": ["Public Trips"],
-        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#/components/parameters/queryLimit"
@@ -990,7 +989,6 @@
         "description": "Returns single trip id for anonymous user",
         "operationId": "publicGetTrips",
         "tags": ["Public Trips"],
-        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathTripId"
@@ -1035,7 +1033,6 @@
         "description": "Returns list of trips",
         "operationId": "listTrips",
         "tags": ["Trips"],
-        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#/components/parameters/queryLimit"
@@ -1099,7 +1096,6 @@
         "description": "Creates a trip",
         "operationId": "createTrip",
         "tags": ["Trips"],
-        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#/components/parameters/createTrip"
@@ -1142,7 +1138,6 @@
         "description": "Returns a trip based on a trip ID",
         "operationId": "findTripById",
         "tags": ["Trips"],
-        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathTripId"
@@ -1254,7 +1249,6 @@
         "description": "Returns list of users",
         "operationId": "listUsers",
         "tags": ["Users"],
-        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#/components/parameters/queryLimit"
@@ -1284,15 +1278,14 @@
                     },
                     "result": {
                       "type": "object",
+                      "required": ["totalCount", "data"],
                       "properties": {
                         "totalCount": {
                           "type": "number",
-                          "required": true,
                           "description": "Total number of records"
                         },
                         "data": {
                           "type": "array",
-                          "required": true,
                           "items": {
                             "$ref": "#/components/schemas/UserModel"
                           }
@@ -1320,7 +1313,6 @@
         "description": "Creates a user",
         "operationId": "createUser",
         "tags": ["Users"],
-        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#/components/parameters/createUser"
@@ -1366,7 +1358,6 @@
         "description": "Returns a user based on a user ID",
         "operationId": "findUserById",
         "tags": ["Users"],
-        "produces": ["application/json"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathUserId"

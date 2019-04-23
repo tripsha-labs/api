@@ -2,22 +2,22 @@ components:
   parameters:
     createUser:
       in: body
+      name: Create user body
       description: Create user payload
       required: true
       schema:
         properties:
           username:
             type: string
-            required: true
           email:
             type: string
-            required: true
           firstName:
             type: string
           lastName:
             type: string
     updateUser:
       in: body
+      name: Update user body
       description: Update user payload
       required: true
       schema:

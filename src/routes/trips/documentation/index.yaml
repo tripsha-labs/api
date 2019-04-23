@@ -5,8 +5,6 @@ paths:
       operationId: publicListTrips
       tags:
         - Public Trips
-      produces:
-        - application/json
       parameters:
         - $ref: '#/components/parameters/queryLimit'
         - $ref: '#/components/parameters/queryPage'
@@ -48,8 +46,6 @@ paths:
       operationId: publicGetTrips
       tags:
         - Public Trips
-      produces:
-        - application/json
       parameters:
         - $ref: '#/components/parameters/pathTripId'
       responses:
@@ -80,8 +76,6 @@ paths:
       operationId: listTrips
       tags:
         - Trips
-      produces:
-        - application/json
       parameters:
         - $ref: '#/components/parameters/queryLimit'
         - $ref: '#/components/parameters/queryPage'
@@ -122,8 +116,6 @@ paths:
       operationId: createTrip
       tags:
         - Trips
-      produces:
-        - application/json
       parameters:
         - $ref: '#/components/parameters/createTrip'
       responses:
@@ -150,8 +142,6 @@ paths:
       operationId: findTripById
       tags:
         - Trips
-      produces:
-        - application/json
       parameters:
         - $ref: '#/components/parameters/pathTripId'
       responses:

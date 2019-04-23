@@ -13,15 +13,16 @@ components:
           type: array
           items:
             type: object
+            required:
+              - errorCode
+              - message
             properties:
-              error_code:
+              errorCode:
                 type: string
                 description: Error code to handle internationalization(i18)
-                require: true
               message:
                 type: string
                 description: Error message in english
-                required: true
               field:
                 type: string
                 description: Error field name
