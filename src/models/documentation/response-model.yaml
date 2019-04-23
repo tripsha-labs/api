@@ -1,6 +1,6 @@
 components:
   schemas:
-    commonErrorFormat:
+    CommonErrorFormat:
       type: object
       required:
         - status
@@ -16,7 +16,7 @@ components:
             properties:
               error_code:
                 type: string
-                description: Error code to handle internationlization(i18)
+                description: Error code to handle internationalization(i18)
                 require: true
               message:
                 type: string
@@ -25,17 +25,7 @@ components:
               field:
                 type: string
                 description: Error field name
-    commonGetSuccessFormat:
-      type: object
-      required:
-        - status
-        - result
-      properties:
-        status:
-          type: string
-          default: 'success'
-
-    commonUpdateSuccessFormat:
+    CommonSuccessFormat:
       type: object
       required:
         - status
@@ -47,18 +37,3 @@ components:
         result:
           type: string
           default: 'success'
-    commonListSuccessFormat:
-      type: object
-      required:
-        - status
-        - result
-      properties:
-        status:
-          type: string
-          default: 'success'
-        result:
-          type: object
-          properties:
-            totalCount:
-              type: number
-              description: Total number of records

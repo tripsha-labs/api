@@ -1,34 +1,39 @@
 components:
-  schemas:
+  parameters:
     queryUserId:
       name: 'userId'
       in: 'query'
-      description: 'Id of the user '
-      type: 'string'
+      description: 'Id of the user'
+      schema:
+        type: 'string'
     queryLimit:
       name: 'limit'
       in: 'query'
       description: 'No of records per page'
-      type: 'string'
-      default: 25
+      schema:
+        type: 'string'
+        default: 25
     queryPage:
       name: 'page'
       in: 'query'
       description: 'Page number'
-      type: 'string'
-      default: 1
+      schema:
+        type: 'string'
+        default: 1
     querySortBy:
       name: 'sortBy'
       in: 'query'
       description: 'Name of the field to sort'
-      type: 'string'
-      default: 'firstName'
+      schema:
+        type: 'string'
+        default: 'firstName'
     querySortOrder:
       name: 'sortOrder'
       in: 'query'
       description: 'Sort order'
-      type: 'number'
-      enum:
-        - 1
-        - -1
-      default: -1
+      schema:
+        type: 'number'
+        enum:
+          - 1
+          - -1
+        default: -1

@@ -8,36 +8,40 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: '#components/schemas/queryLimit'
-        - $ref: '#components/schemas/queryPage'
-        - $ref: '#components/schemas/querySortBy'
-        - $ref: '#components/schemas/querySortOrder'
+        - $ref: '#/components/parameters/queryLimit'
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/querySortBy'
+        - $ref: '#/components/parameters/querySortOrder'
       responses:
         '200':
           description: Trip response
-          schema:
-            type: object
-            required:
-              - status
-              - result
-            properties:
-              status:
-                type: string
-                default: 'success'
-              result:
+          content:
+            application/json:
+              schema:
                 type: object
+                required:
+                  - status
+                  - result
                 properties:
-                  totalCount:
-                    type: number
-                    description: Total number of records
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/definitions/TripModel'
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      totalCount:
+                        type: number
+                        description: Total number of records
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TripModel'
         default:
-          description: unexpected error
-          schema:
-            $ref: '#/components/schemas/commonErrorFormat'
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
   /public/trips/{tripId}:
     get:
       description: Returns single trip id for anonymous user
@@ -47,25 +51,29 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: '#components/schemas/pathTripId'
+        - $ref: '#/components/parameters/pathTripId'
       responses:
         '200':
           description: User response
-          schema:
-            type: object
-            required:
-              - status
-              - result
-            properties:
-              status:
-                type: string
-                default: 'success'
-              result:
-                $ref: '#/definitions/TripModel'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    $ref: '#/components/schemas/TripModel'
         default:
-          description: unexpected error
-          schema:
-            $ref: '#/components/schemas/commonErrorFormat'
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
   /trips:
     get:
       description: Returns list of trips
@@ -75,36 +83,40 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: '#components/schemas/queryLimit'
-        - $ref: '#components/schemas/queryPage'
-        - $ref: '#components/schemas/querySortBy'
-        - $ref: '#components/schemas/querySortOrder'
+        - $ref: '#/components/parameters/queryLimit'
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/querySortBy'
+        - $ref: '#/components/parameters/querySortOrder'
       responses:
         '200':
           description: Trip response
-          schema:
-            type: object
-            required:
-              - status
-              - result
-            properties:
-              status:
-                type: string
-                default: 'success'
-              result:
+          content:
+            application/json:
+              schema:
                 type: object
+                required:
+                  - status
+                  - result
                 properties:
-                  totalCount:
-                    type: number
-                    description: Total number of records
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/definitions/TripModel'
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      totalCount:
+                        type: number
+                        description: Total number of records
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TripModel'
         default:
-          description: Unexpected error
-          schema:
-            $ref: '#/components/schemas/commonErrorFormat'
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
     post:
       description: Creates a trip
       operationId: createTrip
@@ -113,20 +125,25 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          description: Create trip payload
-          required: true
-          schema:
-            - $ref: '#components/schemas/createTrip'
+        - $ref: '#/components/parameters/createTrip'
       responses:
         '200':
           description: Trip response
-          schema:
-            $ref: '#/definitions/TripModel'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                  result:
+                    type: string
+                    description: Trip id
         default:
-          description: Unexpected error
-          schema:
-            $ref: '#/components/schemas/commonErrorFormat'
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
   /trips/{tripId}:
     get:
       description: Returns a trip based on a trip ID
@@ -136,59 +153,67 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: '#components/schemas/pathTripId'
+        - $ref: '#/components/parameters/pathTripId'
       responses:
         '200':
           description: Trip response
-          schema:
-            type: object
-            required:
-              - status
-              - result
-            properties:
-              status:
-                type: string
-                default: 'success'
-              result:
-                $ref: '#/definitions/TripModel'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    $ref: '#/components/schemas/TripModel'
         default:
-          description: Unexpected error
-          schema:
-            $ref: '#/components/schemas/commonErrorFormat'
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
     put:
-      description: updates a single trip based on the ID supplied and data
+      description: Updates a single trip based on the ID supplied and data
       operationId: updateTrip
       tags:
         - Trips
       parameters:
-        - $ref: '#components/schemas/pathTripId'
-        - in: body
-          description: Update trip payload
-          required: true
-          schema:
-            $ref: '#components/schemas/createTrip'
+        - $ref: '#/components/parameters/pathTripId'
+        - $ref: '#/components/parameters/updateTrip'
       responses:
         '204':
           description: Trip updated
-          schema:
-            $ref: '#/components/schemas/commonUpdateSuccessFormat'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonSuccessFormat'
         default:
-          description: Unexpected error
-          schema:
-            $ref: '#/components/schemas/commonErrorFormat'
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
     delete:
       description: deletes a single trip based on the ID supplied
       operationId: deleteTrip
       tags:
         - Trips
       parameters:
-        - $ref: '#components/schemas/pathTripId'
+        - $ref: '#/components/parameters/pathTripId'
       responses:
         '204':
           description: Trip deleted
-          schema:
-            $ref: '#/components/schemas/commonUpdateSuccessFormat'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonSuccessFormat'
         default:
-          description: Unexpected error
-          schema:
-            $ref: '#/components/schemas/commonErrorFormat'
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'

@@ -1,18 +1,14 @@
-swagger: '2.0'
+openapi: '3.0.0'
 info:
   version: 'v1.0'
   title: Tripsha API documentation
   description: This is complete API documentation of all the API
   termsOfService: https://tripsha.com/terms/
   contact:
-    name: Tripsha API team
+    name: Tripsha API Team
     email: madanesanjay@yahoo.com
     url: https://tripsha.com
-host: localhost:3000
-# basePath: /dev
-schemes:
-  - https
-consumes:
-  - application/json
-produces:
-  - application/json
+servers:
+  - url: https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/dev
+  - url: https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/staging
+  - url: https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/production
