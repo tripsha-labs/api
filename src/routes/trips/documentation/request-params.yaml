@@ -1,6 +1,6 @@
 components:
   schemas:
-    createTrip:
+    CreateUpdateTrip:
       properties:
         title:
           type: string
@@ -12,7 +12,7 @@ components:
         endDate:
           type: string
           format: utc datetime
-        langauges:
+        languages:
           type: array
           items:
             type: string
@@ -72,5 +72,18 @@ components:
           type: array
           items:
             type: string
-      xml:
-        name: 'createTrip'
+  parameters:
+    createTrip:
+      in: body
+      name: Create trip body
+      description: Create trip payload
+      required: true
+      schema:
+        $ref: '#/components/schemas/CreateUpdateTrip'
+    updateTrip:
+      in: body
+      name: Update trip body
+      description: Update trip payload
+      required: true
+      schema:
+        $ref: '#/components/schemas/CreateUpdateTrip'
