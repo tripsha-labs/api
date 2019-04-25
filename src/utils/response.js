@@ -23,6 +23,6 @@ export const success = body => {
   return _buildResponse(200, { status: 'success', result: body });
 };
 
-export const failure = body => {
-  return _buildResponse(500, { status: 'error', result: body });
+export const failure = (body, httpCode = 500) => {
+  return _buildResponse(httpCode, { status: 'error', result: body });
 };

@@ -3,8 +3,8 @@
  * @description - Public trip list handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
-import { TABLE_NAMES } from '../../constants';
-import { queryBuilder, keyPrefixAlterer } from '../../helpers';
+import { TABLE_NAMES, ERROR_CODES } from '../../constants';
+import { queryBuilder, keyPrefixAlterer, errorSanitizer } from '../../helpers';
 
 export const listPublicTrips = async (event, context) => {
   // const data = {
@@ -30,6 +30,6 @@ export const listPublicTrips = async (event, context) => {
       currentCount: resTrips.Count,
     });
   } catch (error) {
-    return failure(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

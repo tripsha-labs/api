@@ -3,7 +3,8 @@
  * @description - list user handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
-import { TABLE_NAMES } from '../../constants';
+import { TABLE_NAMES, ERROR_CODES } from '../../constants';
+import { errorSanitizer } from '../../helpers';
 
 export const listUsers = async (event, context) => {
   const params = {
@@ -22,6 +23,6 @@ export const listUsers = async (event, context) => {
       currentCount: resUsers.Count,
     });
   } catch (error) {
-    return failure(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

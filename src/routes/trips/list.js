@@ -3,8 +3,8 @@
  * @description - Trip list handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
-import { TABLE_NAMES } from '../../constants';
-import { queryBuilder, keyPrefixAlterer } from '../../helpers';
+import { TABLE_NAMES, ERROR_CODES } from '../../constants';
+import { errorSanitizer } from '../../helpers';
 
 export const listTrips = async (event, context) => {
   const data = {
@@ -31,6 +31,6 @@ export const listTrips = async (event, context) => {
       current_count: resTrips.Count,
     });
   } catch (error) {
-    return failure(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

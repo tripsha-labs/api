@@ -3,7 +3,8 @@
  * @description - Trip delete handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
-import { TABLE_NAMES } from '../../constants';
+import { TABLE_NAMES, ERROR_CODES } from '../../constants';
+import { errorSanitizer } from '../../helpers';
 
 export const deleteTrip = async (event, context) => {
   const params = {
@@ -18,6 +19,6 @@ export const deleteTrip = async (event, context) => {
     await executeQuery('delete', params);
     return success('success');
   } catch (error) {
-    return failure(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

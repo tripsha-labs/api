@@ -3,7 +3,7 @@
  * @description - User create handler (lambda function)
  */
 
-import { TABLE_NAMES } from '../../constants';
+import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { success, failure, executeQuery } from '../../utils';
 import { createUserValidation, createUserDefaultValues } from '../../models';
 
@@ -26,6 +26,6 @@ export const createUser = async (event, context) => {
     await executeQuery('put', params);
     return success(params.Item);
   } catch (error) {
-    return failure(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };
