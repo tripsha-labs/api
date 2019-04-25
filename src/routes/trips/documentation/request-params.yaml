@@ -75,14 +75,14 @@ components:
   parameters:
     createTrip:
       in: body
-      name: Create trip body
+      name: body
       description: Create trip payload
       required: true
       schema:
         $ref: '#/components/schemas/CreateUpdateTrip'
     updateTrip:
       in: body
-      name: Update trip body
+      name: body
       description: Update trip payload
       required: true
       schema:

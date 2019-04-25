@@ -15,7 +15,7 @@ const userBaseSchema = {
     empty: false,
     values: ['male', 'female', 'other'],
   },
-  phone: { type: 'number', optional: true, empty: false },
+  phone: { type: 'string', optional: true, empty: false },
   spokenLanguages: {
     type: 'array',
     optional: true,
@@ -41,13 +41,13 @@ const userBaseSchema = {
     empty: false,
     values: ['true', 'false'],
   },
-  profilePic: { type: 'url', optional: true, empty: false },
+  profilePic: { type: 'string', optional: true, empty: false },
   connections: {
     type: 'array',
     optional: true,
     empty: false,
     items: {
-      type: 'string',
+      type: 'object',
       optional: true,
       empty: false,
       props: {
@@ -113,7 +113,7 @@ const userBaseSchema = {
       expireOn: { type: 'string', optional: true, empty: false },
       name: { type: 'string', optional: true, empty: false },
       paidAmount: { type: 'number', optional: true, empty: false },
-      purchaseDate: { type: 'date', optional: true, empty: false },
+      purchaseDate: { type: 'string', optional: true, empty: false },
       status: {
         type: 'enum',
         optional: true,
@@ -165,6 +165,11 @@ const userBaseSchema = {
     optional: true,
     empty: false,
     items: 'string',
+  },
+  ratings: {
+    type: 'number',
+    optional: true,
+    empty: false,
   },
   isActive: { type: 'boolean', optional: true, empty: false },
   $$strict: true,

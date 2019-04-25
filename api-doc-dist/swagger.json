@@ -16,7 +16,7 @@
       "url": "https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/dev"
     },
     {
-      "url": "https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/staging"
+      "url": "http://localhost:3000"
     },
     {
       "url": "https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/production"
@@ -631,7 +631,7 @@
       },
       "createTrip": {
         "in": "body",
-        "name": "Create trip body",
+        "name": "body",
         "description": "Create trip payload",
         "required": true,
         "schema": {
@@ -640,7 +640,7 @@
       },
       "updateTrip": {
         "in": "body",
-        "name": "Update trip body",
+        "name": "body",
         "description": "Update trip payload",
         "required": true,
         "schema": {
