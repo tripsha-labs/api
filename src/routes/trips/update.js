@@ -3,20 +3,19 @@
  * @description - Trip update handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
-import { TABLE_NAMES } from '../../constants';
+import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { updateTripValidation, updateTripDefaultValues } from '../../models';
-import { queryBuilder, keyPrefixAlterer } from '../../helpers';
+import { queryBuilder, keyPrefixAlterer, errorSanitizer } from '../../helpers';
 
 export const updateTrip = async (event, context) => {
   const data = JSON.parse(event.body);
 
   // Validate trip fields against the strict schema
   const errors = updateTripValidation(data);
-  if (errors != true) return failure(errors);
+  if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
 
   // update data object with default fields and values ex. updatedAt
   const trip = { ...data, ...updateTripDefaultValues };
-  console.log(trip);
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Key: {
@@ -32,6 +31,6 @@ export const updateTrip = async (event, context) => {
     await executeQuery('update', params);
     return success('success');
   } catch (error) {
-    return failure(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

@@ -3,7 +3,8 @@
  * @description - get user handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
-import { TABLE_NAMES } from '../../constants';
+import { TABLE_NAMES, ERROR_CODES } from '../../constants';
+import { errorSanitizer } from '../../helpers';
 
 export const getUser = async (event, context) => {
   const params = {
@@ -18,6 +19,6 @@ export const getUser = async (event, context) => {
     if (!result.Item) throw 'Item not found.';
     return success(result.Item);
   } catch (error) {
-    return failure(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

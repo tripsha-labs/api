@@ -4,13 +4,12 @@
  */
 import Validator from 'fastest-validator';
 import * as moment from 'moment';
-import uuid from 'uuid';
 
 const tripBaseSchema = {
   title: { type: 'string', empty: false },
   description: { type: 'string', optional: true, empty: false },
-  startDate: { type: 'date', optional: true, empty: false },
-  endDate: { type: 'date', optional: true, empty: false },
+  startDate: { type: 'string', optional: true, empty: false },
+  endDate: { type: 'string', optional: true, empty: false },
   languages: {
     type: 'array',
     optional: true,
@@ -31,8 +30,8 @@ const tripBaseSchema = {
     empty: false,
     items: 'object',
     props: {
-      startDate: { type: 'date', optional: true, empty: false },
-      endDate: { type: 'date', optional: true, empty: false },
+      startDate: { type: 'string', optional: true, empty: false },
+      endDate: { type: 'string', optional: true, empty: false },
       country: { type: 'string', optional: true, empty: false },
       address: { type: 'string', optional: true, empty: false },
       name: { type: 'string', optional: true, empty: false },
@@ -70,7 +69,7 @@ const tripBaseSchema = {
       },
     },
   },
-  members: {
+  interests: {
     type: 'array',
     optional: true,
     empty: false,
@@ -89,7 +88,6 @@ export const updateTripDefaultValues = {
 
 export const createTripDefaultValues = {
   isActive: true,
-  id: uuid.v1(),
   createdAt: moment.utc().format(),
   ...updateTripDefaultValues,
 };

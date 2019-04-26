@@ -2,7 +2,7 @@ components:
   parameters:
     createUser:
       in: body
-      name: Create user body
+      name: body
       description: Create user payload
       required: true
       schema:
@@ -17,7 +17,7 @@ components:
             type: string
     updateUser:
       in: body
-      name: Update user body
+      name: body
       description: Update user payload
       required: true
       schema:
