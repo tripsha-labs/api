@@ -649,7 +649,7 @@
       },
       "createUser": {
         "in": "body",
-        "name": "Create user body",
+        "name": "body",
         "description": "Create user payload",
         "required": true,
         "schema": {
@@ -671,7 +671,7 @@
       },
       "updateUser": {
         "in": "body",
-        "name": "Update user body",
+        "name": "body",
         "description": "Update user payload",
         "required": true,
         "schema": {
@@ -916,6 +916,18 @@
         "name": "api_key",
         "in": "header"
       }
+    },
+    "examples": {
+      "trip-error": {
+        "status": "error",
+        "result": [
+          {
+            "type": "required",
+            "message": "Title field is required",
+            "field": "title"
+          }
+        ]
+      }
     }
   },
   "paths": {
@@ -966,6 +978,18 @@
                         }
                       }
                     }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "error-examples": {
+                    "$ref": "#/components/examples/trip-error"
                   }
                 }
               }
