@@ -65,7 +65,7 @@ const sendMessageToAllConnected = event => {
 const getConnectionIds = async () => {
   const params = {
     TableName: TABLE_NAMES.CONNECTIONS,
-    ProjectionExpression: 'id',
+    ProjectionExpression: 'connectionId',
   };
   try {
     return await executeQuery('scan', params);
