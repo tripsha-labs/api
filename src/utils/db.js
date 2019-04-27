@@ -9,3 +9,9 @@ export const executeQuery = (action, params) => {
 
   return dynamoDb[action](params).promise();
 };
+
+export const batchQuery = (action, params) => {
+  const dynamoDb = new AWS.DynamoDB();
+
+  return dynamoDb[action](params).promise();
+};

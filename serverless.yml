@@ -2,7 +2,6 @@ service: tripsha-app-api
 
 plugins:
   - serverless-webpack
-  - serverless-reqvalidator-plugin
   - serverless-dynamodb-local
   - serverless-offline
 
@@ -22,6 +21,10 @@ custom:
   environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
   tblUsers: ${self:custom.stage}-users
   tblTrips: ${self:custom.stage}-trips
+  tblTags: ${self:custom.stage}-tags
+  tblConnections: ${self:custom.stage}-connections
+  tblMessages: ${self:custom.stage}-messages
+  tblGroupMessages: ${self:custom.stage}-group-messages
 
 provider:
   name: aws
@@ -43,12 +46,22 @@ provider:
       Resource:
         - 'Fn::GetAtt': [Users, Arn]
         - 'Fn::GetAtt': [Trips, Arn]
+        - 'Fn::GetAtt': [Tags, Arn]
+        - 'Fn::GetAtt': [Connections, Arn]
+        - 'Fn::GetAtt': [Messages, Arn]
+        - 'Fn::GetAtt': [GroupMessages, Arn]
+    - Effect: Allow
+      Action:
+        - 'execute-api:ManageConnections'
+      Resource:
+        - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
   individually: true
 
 functions:
   - ${file(src/routes/users/functions.yml)}
   - ${file(src/routes/trips/functions.yml)}
+  - ${file(src/routes/interactions/functions.yml)}
 
 resources:
   # API Gateway Errors

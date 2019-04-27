@@ -57,6 +57,7 @@
     "dynamodb": "^1.2.0",
     "extendify": "^1.0.0",
     "fastest-validator": "^0.6.17",
+    "serverless-websockets-plugin": "^1.0.0",
     "glob": "^6.0.4",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
