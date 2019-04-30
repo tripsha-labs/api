@@ -1,0 +1,18 @@
+components:
+  schemas:
+    MyTripModel:
+      type: object
+      properties:
+        tripId:
+          type: string
+        userId:
+          type: string
+        createdAt:
+          type: string
+          format: utc datetime
+        isFavorite:
+          type: boolean
+        isMember:
+          type: boolean
+        memberStatus:
+          type: string

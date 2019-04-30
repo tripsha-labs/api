@@ -1,0 +1,7 @@
+getCountries:
+  handler: src/routes/countries/list.getCountries
+  events:
+    - http:
+        path: countries
+        method: get
+        cors: true

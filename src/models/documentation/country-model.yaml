@@ -1,0 +1,10 @@
+components:
+  schemas:
+    CountryModel:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+          description: Name of country

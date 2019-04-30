@@ -11,6 +11,14 @@ custom:
   dynamodb:
     start:
       migrate: true
+      seed: true
+    seed:
+      domain:
+        sources:
+          - table: ${self:custom.tblTags}
+            sources: [./src/seeds/tags.json]
+          - table: ${self:custom.tblCountries}
+            sources: [./src/seeds/countries.json]
   tableThroughputs:
     prod: 5
     default: 1
@@ -24,7 +32,7 @@ custom:
   tblTags: ${self:custom.stage}-tags
   tblConnections: ${self:custom.stage}-connections
   tblMessages: ${self:custom.stage}-messages
-  tblGroupMessages: ${self:custom.stage}-group-messages
+  tblCountries: ${self:custom.stage}-countries
 
 provider:
   name: aws
@@ -49,7 +57,7 @@ provider:
         - 'Fn::GetAtt': [Tags, Arn]
         - 'Fn::GetAtt': [Connections, Arn]
         - 'Fn::GetAtt': [Messages, Arn]
-        - 'Fn::GetAtt': [GroupMessages, Arn]
+        - 'Fn::GetAtt': [Countries, Arn]
     - Effect: Allow
       Action:
         - 'execute-api:ManageConnections'
@@ -61,7 +69,9 @@ package:
 functions:
   - ${file(src/routes/users/functions.yml)}
   - ${file(src/routes/trips/functions.yml)}
-  - ${file(src/routes/interactions/functions.yml)}
+  - ${file(src/routes/tags/functions.yml)}
+  - ${file(src/routes/messages/functions.yml)}
+  - ${file(src/routes/countries/functions.yml)}
 
 resources:
   # API Gateway Errors

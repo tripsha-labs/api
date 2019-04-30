@@ -47,36 +47,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommonErrorFormat'
-  /public/trips/{tripId}:
-    get:
-      description: Returns single trip id for anonymous user
-      operationId: publicGetTrips
-      tags:
-        - Public Trips
-      parameters:
-        - $ref: '#/components/parameters/pathTripId'
-      responses:
-        '200':
-          description: User response
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - status
-                  - result
-                properties:
-                  status:
-                    type: string
-                    default: 'success'
-                  result:
-                    $ref: '#/components/schemas/TripModel'
-        default:
-          description: Error Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CommonErrorFormat'
   /trips:
     get:
       description: Returns list of trips

@@ -29,39 +29,31 @@ components:
           dob:
             type: string
             format: 'date'
-          homeAddress:
-            type: object
-            properties:
-              country:
-                type: string
-              address:
-                type: string
-              city:
-                type: string
-              state:
-                type: string
-              zipcode:
-                type: string
+          currentCity:
+            type: string
           gender:
             type: string
             enum:
               - 'male'
               - 'female'
               - 'other'
-          phone:
-            type: string
           spokenLanguages:
             type: array
             description: 'List of languages user can speak'
             items:
-              type: string
+              type: object
+              properties:
+                name:
+                  type: 'string'
+                level:
+                  type: 'string'
           bio:
             type: string
           isLookingForTravel:
             type: boolean
-          profilePic:
+          avatarUrl:
             type: string
-          connections:
+          socialConnections:
             type: array
             items:
               type: object
@@ -75,115 +67,9 @@ components:
             type: array
             items:
               type: string
-          favoriteSnaps:
-            type: array
-            items:
-              type: object
-              properties:
-                description:
-                  type: string
-                location:
-                  type: string
-                title:
-                  type: string
-                url:
-                  type: string
-          isIdentityVerified:
-            type: boolean
-          identities:
-            type: array
-            items:
-              type: object
-              properties:
-                isPrimary:
-                  type: boolean
-                mediaType:
-                  type: string
-                idVerified:
-                  type: boolean
-                type:
-                  type: string
-                mediaPath:
-                  type: string
-          planDetails:
-            type: object
-            properties:
-              couponDetails:
-                type: string
-              discount:
-                type: number
-              renewPolicy:
-                type: string
-              type:
-                type: string
-              priceUnit:
-                type: string
-              couponType:
-                type: string
-              price:
-                type: string
-              couponCode:
-                type: string
-              expireOn:
-                type: string
-                format: utc datetime
-              name:
-                type: string
-              paidAmount:
-                type: number
-              purchaseDate:
-                type: string
-                format: utc datetime
-              status:
-                type: string
-                enum:
-                  - new
-                  - renew
-                  - expire
-                  - trial
-          billingAddress:
-            type: object
-            properties:
-              country:
-                type: string
-              address:
-                type: string
-              city:
-                type: string
-              state:
-                type: string
-              zipcode:
-                type: string
-          billingDetails:
-            type: array
-            items:
-              type: object
-              properties:
-                expiry:
-                  type: string
-                cvv:
-                  type: string
-                cardNumber:
-                  type: string
-                isPrimary:
-                  type: boolean
-                type:
-                  type: string
-                  enum:
-                    - master
-                    - visa
-                cardType:
-                  type: string
-                  enum:
-                    - credit
-                    - debit
-                nameOnCard:
-                  type: string
           countryInterests:
             type: array
             items:
               type: string
-          ratings:
-            type: number
           isActive:
             type: boolean

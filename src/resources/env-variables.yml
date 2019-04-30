@@ -5,4 +5,4 @@ tblTrips: ${self:custom.tblTrips}
 tblTags: ${self:custom.tblTags}
 tblConnections: ${self:custom.tblConnections}
 tblMessages: ${self:custom.tblMessages}
-tblGroupMessages: ${self:custom.tblGroupMessages}
+tblCountries: ${self:custom.tblCountries}

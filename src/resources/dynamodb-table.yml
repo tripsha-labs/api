@@ -34,19 +34,16 @@ Resources:
     Properties:
       TableName: ${self:custom.tblTags}
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-        - AttributeName: tagName
+        - AttributeName: name
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: name
           KeyType: HASH
-        - AttributeName: tagName
-          KeyType: RANGE
       # Set the capacity based on the stage
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
+
   Connections:
     Type: 'AWS::DynamoDB::Table'
     Properties:
@@ -58,6 +55,7 @@ Resources:
           KeyType: 'HASH'
       BillingMode: PAY_PER_REQUEST
       TableName: ${self:custom.tblConnections}
+
   Messages:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -72,15 +70,16 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
-  GroupMessages:
+
+  Countries:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: ${self:custom.tblGroupMessages}
+      TableName: ${self:custom.tblCountries}
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: code
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: code
           KeyType: HASH
       # Set the capacity based on the stage
       ProvisionedThroughput:

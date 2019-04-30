@@ -1,0 +1,10 @@
+components:
+  schemas:
+    TagModel:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of tag
+        isVerified:
+          type: boolean

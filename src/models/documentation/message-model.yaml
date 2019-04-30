@@ -3,13 +3,15 @@ components:
     MessageModel:
       type: object
       properties:
-        to:
+        id:
+          type: string
+        toMemberId:
           type: string
           description: user id of receiver
-        from:
+        fromMemberId:
           type: string
           description: user id of sender
-        sent_on:
+        sentOn:
           type: string
           format: utc datetime
         message:
@@ -18,8 +20,3 @@ components:
           type: string
           enum:
             - text
-            - photo
-            - video
-            - audio
-            - pdf
-            - other
