@@ -1,1 +1,5 @@
-[{ "name": "trip", "isVerified": true }]
+[
+  { "name": "water-sports", "isVerified": true },
+  { "name": "scuba-diving", "isVerified": true },
+  { "name": "hiking", "isVerified": true }
+]

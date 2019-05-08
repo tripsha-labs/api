@@ -2,23 +2,30 @@ service: tripsha-app-api
 
 plugins:
   - serverless-webpack
+  - serverless-dynamodb-fixtures
   - serverless-dynamodb-local
   - serverless-offline
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-
+  fixtures:
+    - table: ${self:custom.tblTags}
+      sources:
+        - ./src/seeds/tags.json
+    - table: ${self:custom.tblCountries}
+      sources:
+        - ./src/seeds/countries.json
   dynamodb:
     start:
       migrate: true
-      seed: true
-    seed:
-      domain:
-        sources:
-          - table: ${self:custom.tblTags}
-            sources: [./src/seeds/tags.json]
-          - table: ${self:custom.tblCountries}
-            sources: [./src/seeds/countries.json]
+    seed: true
+  seed:
+    domain:
+      sources:
+        - table: ${self:custom.tblTags}
+          sources: [./src/seeds/tags.json]
+        - table: ${self:custom.tblCountries}
+          sources: [./src/seeds/countries.json]
   tableThroughputs:
     prod: 5
     default: 1
