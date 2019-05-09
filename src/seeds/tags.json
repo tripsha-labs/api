@@ -1,5 +1,490 @@
 [
-  { "name": "water-sports", "isVerified": true },
-  { "name": "scuba-diving", "isVerified": true },
-  { "name": "hiking", "isVerified": true }
+  {
+    "name": "4x4",
+    "isVerified": true
+  },
+  {
+    "name": "abseiling",
+    "isVerified": true
+  },
+  {
+    "name": "abstract art",
+    "isVerified": true
+  },
+  {
+    "name": "aquarium",
+    "isVerified": true
+  },
+  {
+    "name": "architecture",
+    "isVerified": true
+  },
+  {
+    "name": "astrology",
+    "isVerified": true
+  },
+  {
+    "name": "backpacking",
+    "isVerified": true
+  },
+  {
+    "name": "baking",
+    "isVerified": true
+  },
+  {
+    "name": "ballet",
+    "isVerified": true
+  },
+  {
+    "name": "baseball",
+    "isVerified": true
+  },
+  {
+    "name": "basketball",
+    "isVerified": true
+  },
+  {
+    "name": "bbq",
+    "isVerified": true
+  },
+  {
+    "name": "beaches",
+    "isVerified": true
+  },
+  {
+    "name": "Broadway",
+    "isVerified": true
+  },
+  {
+    "name": "bubble tea",
+    "isVerified": true
+  },
+  {
+    "name": "bungee jumping",
+    "isVerified": true
+  },
+  {
+    "name": "camping",
+    "isVerified": true
+  },
+  {
+    "name": "canyoning",
+    "isVerified": true
+  },
+  {
+    "name": "carnivore",
+    "isVerified": true
+  },
+  {
+    "name": "casinos",
+    "isVerified": true
+  },
+  {
+    "name": "cat café",
+    "isVerified": true
+  },
+  {
+    "name": "clubbing",
+    "isVerified": true
+  },
+  {
+    "name": "cocktails",
+    "isVerified": true
+  },
+  {
+    "name": "concerts",
+    "isVerified": true
+  },
+  {
+    "name": "cooking",
+    "isVerified": true
+  },
+  {
+    "name": "couples",
+    "isVerified": true
+  },
+  {
+    "name": "craft beer",
+    "isVerified": true
+  },
+  {
+    "name": "cruise",
+    "isVerified": true
+  },
+  {
+    "name": "culture",
+    "isVerified": true
+  },
+  {
+    "name": "cycling",
+    "isVerified": true
+  },
+  {
+    "name": "dancing",
+    "isVerified": true
+  },
+  {
+    "name": "desert",
+    "isVerified": true
+  },
+  {
+    "name": "digital nomad",
+    "isVerified": true
+  },
+  {
+    "name": "disney",
+    "isVerified": true
+  },
+  {
+    "name": "dogs",
+    "isVerified": true
+  },
+  {
+    "name": "emojis",
+    "isVerified": true
+  },
+  {
+    "name": "family travel",
+    "isVerified": true
+  },
+  {
+    "name": "foodie",
+    "isVerified": true
+  },
+  {
+    "name": "football",
+    "isVerified": true
+  },
+  {
+    "name": "fossicking",
+    "isVerified": true
+  },
+  {
+    "name": "FrequentFlyer",
+    "isVerified": true
+  },
+  {
+    "name": "futurist",
+    "isVerified": true
+  },
+  {
+    "name": "galleries",
+    "isVerified": true
+  },
+  {
+    "name": "glamping",
+    "isVerified": true
+  },
+  {
+    "name": "gliding",
+    "isVerified": true
+  },
+  {
+    "name": "gopro",
+    "isVerified": true
+  },
+  {
+    "name": "GOT",
+    "isVerified": true
+  },
+  {
+    "name": "harry potter",
+    "isVerified": true
+  },
+  {
+    "name": "high tea",
+    "isVerified": true
+  },
+  {
+    "name": "hiking",
+    "isVerified": true
+  },
+  {
+    "name": "hitchhiking",
+    "isVerified": true
+  },
+  {
+    "name": "hockey",
+    "isVerified": true
+  },
+  {
+    "name": "horseback riding",
+    "isVerified": true
+  },
+  {
+    "name": "icebergs",
+    "isVerified": true
+  },
+  {
+    "name": "intersectionality",
+    "isVerified": true
+  },
+  {
+    "name": "jet skis",
+    "isVerified": true
+  },
+  {
+    "name": "kayaking",
+    "isVerified": true
+  },
+  {
+    "name": "kite surfing",
+    "isVerified": true
+  },
+  {
+    "name": "lakes",
+    "isVerified": true
+  },
+  {
+    "name": "learning languages",
+    "isVerified": true
+  },
+  {
+    "name": "LOTR",
+    "isVerified": true
+  },
+  {
+    "name": "luxury",
+    "isVerified": true
+  },
+  {
+    "name": "marathons",
+    "isVerified": true
+  },
+  {
+    "name": "massage",
+    "isVerified": true
+  },
+  {
+    "name": "meditation",
+    "isVerified": true
+  },
+  {
+    "name": "modernism",
+    "isVerified": true
+  },
+  {
+    "name": "molecular gastronomy",
+    "isVerified": true
+  },
+  {
+    "name": "mountain biking",
+    "isVerified": true
+  },
+  {
+    "name": "mountains",
+    "isVerified": true
+  },
+  {
+    "name": "museums",
+    "isVerified": true
+  },
+  {
+    "name": "music festival",
+    "isVerified": true
+  },
+  {
+    "name": "musicals",
+    "isVerified": true
+  },
+  {
+    "name": "New York Times",
+    "isVerified": true
+  },
+  {
+    "name": "night market",
+    "isVerified": true
+  },
+  {
+    "name": "omakase",
+    "isVerified": true
+  },
+  {
+    "name": "opera",
+    "isVerified": true
+  },
+  {
+    "name": "outdoor shakespeare",
+    "isVerified": true
+  },
+  {
+    "name": "parades",
+    "isVerified": true
+  },
+  {
+    "name": "pescetarian",
+    "isVerified": true
+  },
+  {
+    "name": "photography",
+    "isVerified": true
+  },
+  {
+    "name": "physics",
+    "isVerified": true
+  },
+  {
+    "name": "picnics",
+    "isVerified": true
+  },
+  {
+    "name": "pub crawl",
+    "isVerified": true
+  },
+  {
+    "name": "R&R",
+    "isVerified": true
+  },
+  {
+    "name": "raves",
+    "isVerified": true
+  },
+  {
+    "name": "reiki",
+    "isVerified": true
+  },
+  {
+    "name": "retreat",
+    "isVerified": true
+  },
+  {
+    "name": "rock climbing",
+    "isVerified": true
+  },
+  {
+    "name": "safari",
+    "isVerified": true
+  },
+  {
+    "name": "sailing",
+    "isVerified": true
+  },
+  {
+    "name": "scuba diving",
+    "isVerified": true
+  },
+  {
+    "name": "shopping",
+    "isVerified": true
+  },
+  {
+    "name": "sightseeing",
+    "isVerified": true
+  },
+  {
+    "name": "skiing",
+    "isVerified": true
+  },
+  {
+    "name": "sky diving",
+    "isVerified": true
+  },
+  {
+    "name": "SkyHi",
+    "isVerified": true
+  },
+  {
+    "name": "snorkeling",
+    "isVerified": true
+  },
+  {
+    "name": "snowboarding",
+    "isVerified": true
+  },
+  {
+    "name": "spa",
+    "isVerified": true
+  },
+  {
+    "name": "spelunking",
+    "isVerified": true
+  },
+  {
+    "name": "standup comedy",
+    "isVerified": true
+  },
+  {
+    "name": "stargazing",
+    "isVerified": true
+  },
+  {
+    "name": "startups",
+    "isVerified": true
+  },
+  {
+    "name": "sun bathing",
+    "isVerified": true
+  },
+  {
+    "name": "sunrises",
+    "isVerified": true
+  },
+  {
+    "name": "sunsets",
+    "isVerified": true
+  },
+  {
+    "name": "surfing",
+    "isVerified": true
+  },
+  {
+    "name": "swimming",
+    "isVerified": true
+  },
+  {
+    "name": "tech",
+    "isVerified": true
+  },
+  {
+    "name": "theatre",
+    "isVerified": true
+  },
+  {
+    "name": "traditional arts",
+    "isVerified": true
+  },
+  {
+    "name": "vegan",
+    "isVerified": true
+  },
+  {
+    "name": "vegetarian",
+    "isVerified": true
+  },
+  {
+    "name": "vintage clothing",
+    "isVerified": true
+  },
+  {
+    "name": "volunteering",
+    "isVerified": true
+  },
+  {
+    "name": "waterfalls",
+    "isVerified": true
+  },
+  {
+    "name": "wellness",
+    "isVerified": true
+  },
+  {
+    "name": "wildlife",
+    "isVerified": true
+  },
+  {
+    "name": "wine tasting",
+    "isVerified": true
+  },
+  {
+    "name": "WSJ",
+    "isVerified": true
+  },
+  {
+    "name": "yoga",
+    "isVerified": true
+  },
+  {
+    "name": "yurts",
+    "isVerified": true
+  }
 ]
