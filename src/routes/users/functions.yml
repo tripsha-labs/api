@@ -16,15 +16,6 @@ getUser:
         cors: true
         authorizer: aws_iam
 
-listUsers:
-  handler: src/routes/users/list.listUsers
-  events:
-    - http:
-        path: users
-        method: get
-        cors: true
-        authorizer: aws_iam
-
 updateUser:
   handler: src/routes/users/update.updateUser
   events:

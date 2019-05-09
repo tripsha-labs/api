@@ -7,19 +7,8 @@ import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { queryBuilder, keyPrefixAlterer, errorSanitizer } from '../../helpers';
 
 export const listPublicTrips = async (event, context) => {
-  // const data = {
-  //   userId: event.requestContext.identity.cognitoIdentityId,
-  // };
   const params = {
     TableName: TABLE_NAMES.TRIP,
-    // ProjectionExpression: 'title, createdAt',
-    // FilterExpression: '#userId=:userId',
-    // ExpressionAttributeNames: {
-    //   '#userId': 'userId',
-    // },
-    // ExpressionAttributeValues: {
-    //   ':userId': event.requestContext.identity.cognitoIdentityId,
-    // },
   };
 
   try {

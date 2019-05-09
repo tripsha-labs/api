@@ -1,48 +1,48 @@
 paths:
-  /users:
-    get:
-      description: Returns list of users
-      operationId: listUsers
-      tags:
-        - Users
-      parameters:
-        - $ref: '#/components/parameters/queryLimit'
-        - $ref: '#/components/parameters/queryPage'
-        - $ref: '#/components/parameters/querySortBy'
-        - $ref: '#/components/parameters/querySortOrder'
-      responses:
-        '200':
-          description: User response
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - status
-                  - result
-                properties:
-                  status:
-                    type: string
-                    default: 'success'
-                  result:
-                    type: object
-                    required:
-                      - totalCount
-                      - data
-                    properties:
-                      totalCount:
-                        type: number
-                        description: Total number of records
-                      data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/UserModel'
-        default:
-          description: Error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CommonErrorFormat'
+  # /users:
+  #   get:
+  #     description: Returns list of users
+  #     operationId: listUsers
+  #     tags:
+  #       - Users
+  #     parameters:
+  #       - $ref: '#/components/parameters/queryLimit'
+  #       - $ref: '#/components/parameters/queryPage'
+  #       - $ref: '#/components/parameters/querySortBy'
+  #       - $ref: '#/components/parameters/querySortOrder'
+  #     responses:
+  #       '200':
+  #         description: User response
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               required:
+  #                 - status
+  #                 - result
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   default: 'success'
+  #                 result:
+  #                   type: object
+  #                   required:
+  #                     - totalCount
+  #                     - data
+  #                   properties:
+  #                     totalCount:
+  #                       type: number
+  #                       description: Total number of records
+  #                     data:
+  #                       type: array
+  #                       items:
+  #                         $ref: '#/components/schemas/UserModel'
+  #       default:
+  #         description: Error response
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/CommonErrorFormat'
     post:
       description: Creates a user
       operationId: createUser

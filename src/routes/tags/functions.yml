@@ -1,0 +1,7 @@
+getTags:
+  handler: src/routes/tags/list.get
+  events:
+    - http:
+        path: tags
+        method: get
+        cors: true

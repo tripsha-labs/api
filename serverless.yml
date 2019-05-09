@@ -2,16 +2,34 @@ service: tripsha-app-api
 
 plugins:
   - serverless-webpack
-  - serverless-reqvalidator-plugin
+  - serverless-hooks-plugin
+  - serverless-dynamodb-fixtures
   - serverless-dynamodb-local
   - serverless-offline
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-
+  fixtures:
+    - table: ${self:custom.tblTags}
+      sources:
+        - ./src/seeds/tags.json
+    - table: ${self:custom.tblCountries}
+      sources:
+        - ./src/seeds/countries.json
+  hooks:
+    after:command:lifecycleEvent:
+      - sls fixtures
   dynamodb:
     start:
       migrate: true
+    seed: true
+  seed:
+    domain:
+      sources:
+        - table: ${self:custom.tblTags}
+          sources: [./src/seeds/tags.json]
+        - table: ${self:custom.tblCountries}
+          sources: [./src/seeds/countries.json]
   tableThroughputs:
     prod: 5
     default: 1
@@ -22,6 +40,10 @@ custom:
   environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
   tblUsers: ${self:custom.stage}-users
   tblTrips: ${self:custom.stage}-trips
+  tblTags: ${self:custom.stage}-tags
+  tblConnections: ${self:custom.stage}-connections
+  tblMessages: ${self:custom.stage}-messages
+  tblCountries: ${self:custom.stage}-countries
 
 provider:
   name: aws
@@ -43,12 +65,24 @@ provider:
       Resource:
         - 'Fn::GetAtt': [Users, Arn]
         - 'Fn::GetAtt': [Trips, Arn]
+        - 'Fn::GetAtt': [Tags, Arn]
+        - 'Fn::GetAtt': [Connections, Arn]
+        - 'Fn::GetAtt': [Messages, Arn]
+        - 'Fn::GetAtt': [Countries, Arn]
+    - Effect: Allow
+      Action:
+        - 'execute-api:ManageConnections'
+      Resource:
+        - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
   individually: true
 
 functions:
   - ${file(src/routes/users/functions.yml)}
   - ${file(src/routes/trips/functions.yml)}
+  - ${file(src/routes/tags/functions.yml)}
+  - ${file(src/routes/messages/functions.yml)}
+  - ${file(src/routes/countries/functions.yml)}
 
 resources:
   # API Gateway Errors

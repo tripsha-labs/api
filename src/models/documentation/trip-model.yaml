@@ -25,52 +25,8 @@ components:
           type: array
           items:
             type: string
-        destinations:
-          type: array
-          items:
-            type: object
-            properties:
-              endDate:
-                type: string
-                format: utc datetime
-              country:
-                type: string
-              address:
-                type: string
-              name:
-                type: string
-              description:
-                type: string
-              mapLocation:
-                type: string
-              pictures:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    description:
-                      type: string
-                    type:
-                      type: string
-                    url:
-                      type: string
-              startDate:
-                type: string
-                format: utc datetime
-        members:
-          type: array
-          items:
-            type: object
-            properties:
-              memberId:
-                type: string
-              favorite:
-                type: boolean
-              interestType:
-                type: string
-                enum:
-                  - confirmed
-                  - unconfirmed
+        groupSize:
+          type: integer
         interests:
           type: array
           items:
@@ -83,3 +39,7 @@ components:
           format: utc datetime
         userId:
           type: string
+        isActive:
+          type: boolean
+        isArchived:
+          type: boolean

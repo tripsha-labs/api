@@ -24,56 +24,26 @@ const tripBaseSchema = {
     items: 'string',
     enum: ['$', '$$', '$$$', '$$$$', '$$$$$'],
   },
-  destinations: {
-    type: 'array',
-    optional: true,
-    empty: false,
-    items: 'object',
-    props: {
-      startDate: { type: 'string', optional: true, empty: false },
-      endDate: { type: 'string', optional: true, empty: false },
-      country: { type: 'string', optional: true, empty: false },
-      address: { type: 'string', optional: true, empty: false },
-      name: { type: 'string', optional: true, empty: false },
-      description: { type: 'string', optional: true, empty: false },
-      mapLocation: { type: 'string', optional: true, empty: false },
-      pictures: {
-        type: 'array',
-        optional: true,
-        empty: false,
-        items: {
-          type: 'object',
-          props: {
-            url: { type: 'string', optional: true },
-            type: { type: 'string', optional: true },
-            description: { type: 'string', optional: true },
-          },
-        },
-      },
-    },
-  },
-  members: {
-    type: 'array',
-    optional: true,
-    empty: false,
-    items: {
-      type: 'object',
-      props: {
-        memberId: { type: 'string', optional: true },
-        favorite: { type: 'boolean', optional: true },
-        interestType: {
-          type: 'enum',
-          optional: true,
-          enum: ['confirmed', 'unconfirmed'],
-        },
-      },
-    },
-  },
   interests: {
     type: 'array',
     optional: true,
     empty: false,
     items: 'string',
+  },
+  groupSize: {
+    type: 'number',
+    optional: true,
+    empty: false,
+  },
+  isActive: {
+    type: 'boolean',
+    optional: true,
+    empty: false,
+  },
+  isArchived: {
+    type: 'boolean',
+    optional: true,
+    empty: false,
   },
   $$strict: true,
 };
