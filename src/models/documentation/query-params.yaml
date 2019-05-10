@@ -37,3 +37,9 @@ components:
           - 1
           - -1
         default: -1
+    querySearch:
+      name: 'search'
+      in: 'query'
+      description: 'Search filter'
+      schema:
+        type: 'string'
