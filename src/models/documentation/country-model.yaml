@@ -5,6 +5,7 @@ components:
       properties:
         code:
           type: string
+          description: Code of the country
         name:
           type: string
           description: Name of country
