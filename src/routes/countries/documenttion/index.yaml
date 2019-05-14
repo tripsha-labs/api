@@ -28,3 +28,9 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/CountryModel'
+                      nextPageToken:
+                        type: string
+                        description: "End of the result this will not come, It will used to retrive next page data"
+                      count:
+                        type: number
+                        description: Count of the current records

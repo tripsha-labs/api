@@ -4,7 +4,7 @@
   "description": "A Node.js starter for the Serverless Framework with async/await and unit test support",
   "main": "handler.js",
   "scripts": {
-    "offline": "export AWS_REGION='us-east-1' && sls offline start --debugOffline --noAuth",
+    "offline": "sls offline start --debugOffline --noAuth",
     "install-dynamodb": "sls dynamodb install",
     "deploy": "sls deploy",
     "remove": "sls remove",

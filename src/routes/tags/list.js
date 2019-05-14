@@ -10,6 +10,7 @@ import _ from 'lodash';
 export const get = async (event, context) => {
   let params = {
     TableName: TABLE_NAMES.TAGS,
+    Limit: 25,
   };
 
   if (event.queryStringParameters && event.queryStringParameters.search) {
@@ -25,14 +26,36 @@ export const get = async (event, context) => {
         ':nameLower': nameLower,
         ':nameUpperFirst': _.upperFirst(nameLower),
       },
+      Limit: 100,
+    };
+  }
+  if (event.queryStringParameters.nextPageToken) {
+    params = {
+      ...params,
+      ExclusiveStartKey: JSON.parse(
+        Buffer.from(
+          event.queryStringParameters.nextPageToken,
+          'base64'
+        ).toString('ascii')
+      ),
     };
   }
 
   try {
     const resTags = await executeQuery('scan', params);
-    return success({
+    let result = {
       data: resTags.Items,
-    });
+      count: resTags.Count,
+    };
+    if (resTags.LastEvaluatedKey) {
+      result = {
+        ...result,
+        nextPageToken: Buffer.from(
+          JSON.stringify(resTags.LastEvaluatedKey)
+        ).toString('base64'),
+      };
+    }
+    return success(result);
   } catch (error) {
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
