@@ -2,6 +2,6 @@ getTags:
   handler: src/routes/tags/list.get
   events:
     - http:
-        path: tags
+        path: public/tags
         method: get
         cors: true
