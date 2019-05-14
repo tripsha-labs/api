@@ -13,13 +13,10 @@
   },
   "servers": [
     {
-      "url": "https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/dev"
+      "url": "https://toavs4nqf6.execute-api.us-east-1.amazonaws.com/dev"
     },
     {
       "url": "http://localhost:3000"
-    },
-    {
-      "url": "https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/production"
     }
   ],
   "components": {
@@ -590,48 +587,14 @@
                           "items": {
                             "$ref": "#/components/schemas/CountryModel"
                           }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/messages": {
-      "get": {
-        "description": "Return list of messages",
-        "operationId": "listMessages",
-        "tags": ["Messages"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/querySearch"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Messages response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": ["status", "result"],
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "default": "success"
-                    },
-                    "result": {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/MessageModel"
-                          }
+                        },
+                        "nextPageToken": {
+                          "type": "string",
+                          "description": "End of the result this will not come, It will used to retrive next page data"
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Count of the current records"
                         }
                       }
                     }
@@ -674,6 +637,14 @@
                           "items": {
                             "$ref": "#/components/schemas/TagModel"
                           }
+                        },
+                        "nextPageToken": {
+                          "type": "string",
+                          "description": "End of the result this will not come, It will used to retrive next page data"
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Count of the current records"
                         }
                       }
                     }

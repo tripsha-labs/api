@@ -9,6 +9,5 @@ info:
     email: madanesanjay@yahoo.com
     url: https://tripsha.com
 servers:
-  - url: https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/dev
+  - url: https://toavs4nqf6.execute-api.us-east-1.amazonaws.com/dev
   - url: http://localhost:3000
-  - url: https://sbf9mc8idb.execute-api.us-east-1.amazonaws.com/production
