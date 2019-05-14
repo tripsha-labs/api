@@ -12,7 +12,19 @@
     "isVerified": true
   },
   {
-    "name": "aquarium",
+    "name": "acting",
+    "isVerified": true
+  },
+  {
+    "name": "afrotech",
+    "isVerified": true
+  },
+  {
+    "name": "antiques",
+    "isVerified": true
+  },
+  {
+    "name": "aquariums",
     "isVerified": true
   },
   {
@@ -21,6 +33,14 @@
   },
   {
     "name": "astrology",
+    "isVerified": true
+  },
+  {
+    "name": "astronomy",
+    "isVerified": true
+  },
+  {
+    "name": "ATV",
     "isVerified": true
   },
   {
@@ -33,6 +53,10 @@
   },
   {
     "name": "ballet",
+    "isVerified": true
+  },
+  {
+    "name": "base jumping",
     "isVerified": true
   },
   {
@@ -52,7 +76,27 @@
     "isVerified": true
   },
   {
+    "name": "birdwatching",
+    "isVerified": true
+  },
+  {
+    "name": "board games",
+    "isVerified": true
+  },
+  {
+    "name": "botanic gardens",
+    "isVerified": true
+  },
+  {
+    "name": "bowling",
+    "isVerified": true
+  },
+  {
     "name": "Broadway",
+    "isVerified": true
+  },
+  {
+    "name": "brunch",
     "isVerified": true
   },
   {
@@ -68,11 +112,11 @@
     "isVerified": true
   },
   {
-    "name": "canyoning",
+    "name": "canoeing",
     "isVerified": true
   },
   {
-    "name": "carnivore",
+    "name": "canyoning",
     "isVerified": true
   },
   {
@@ -80,7 +124,7 @@
     "isVerified": true
   },
   {
-    "name": "cat café",
+    "name": "Church",
     "isVerified": true
   },
   {
@@ -100,11 +144,19 @@
     "isVerified": true
   },
   {
-    "name": "couples",
+    "name": "cosplay",
+    "isVerified": true
+  },
+  {
+    "name": "couple travel",
     "isVerified": true
   },
   {
     "name": "craft beer",
+    "isVerified": true
+  },
+  {
+    "name": "crafts",
     "isVerified": true
   },
   {
@@ -128,15 +180,23 @@
     "isVerified": true
   },
   {
+    "name": "dessers",
+    "isVerified": true
+  },
+  {
     "name": "digital nomad",
     "isVerified": true
   },
   {
-    "name": "disney",
+    "name": "Disney",
     "isVerified": true
   },
   {
     "name": "dogs",
+    "isVerified": true
+  },
+  {
+    "name": "drawing",
     "isVerified": true
   },
   {
@@ -148,15 +208,23 @@
     "isVerified": true
   },
   {
+    "name": "film",
+    "isVerified": true
+  },
+  {
+    "name": "fine dining",
+    "isVerified": true
+  },
+  {
+    "name": "fishing",
+    "isVerified": true
+  },
+  {
     "name": "foodie",
     "isVerified": true
   },
   {
     "name": "football",
-    "isVerified": true
-  },
-  {
-    "name": "fossicking",
     "isVerified": true
   },
   {
@@ -172,11 +240,27 @@
     "isVerified": true
   },
   {
+    "name": "geocaching",
+    "isVerified": true
+  },
+  {
+    "name": "ghost tours",
+    "isVerified": true
+  },
+  {
     "name": "glamping",
     "isVerified": true
   },
   {
     "name": "gliding",
+    "isVerified": true
+  },
+  {
+    "name": "gokarts",
+    "isVerified": true
+  },
+  {
+    "name": "golf",
     "isVerified": true
   },
   {
@@ -188,7 +272,7 @@
     "isVerified": true
   },
   {
-    "name": "harry potter",
+    "name": "Harry Potter",
     "isVerified": true
   },
   {
@@ -197,6 +281,10 @@
   },
   {
     "name": "hiking",
+    "isVerified": true
+  },
+  {
+    "name": "hip hop",
     "isVerified": true
   },
   {
@@ -212,7 +300,31 @@
     "isVerified": true
   },
   {
+    "name": "hot air balloons",
+    "isVerified": true
+  },
+  {
+    "name": "hunting",
+    "isVerified": true
+  },
+  {
     "name": "icebergs",
+    "isVerified": true
+  },
+  {
+    "name": "iceskating",
+    "isVerified": true
+  },
+  {
+    "name": "impersonations",
+    "isVerified": true
+  },
+  {
+    "name": "Instagram",
+    "isVerified": true
+  },
+  {
+    "name": "installation art",
     "isVerified": true
   },
   {
@@ -228,7 +340,23 @@
     "isVerified": true
   },
   {
+    "name": "kickboxing",
+    "isVerified": true
+  },
+  {
     "name": "kite surfing",
+    "isVerified": true
+  },
+  {
+    "name": "kite flying",
+    "isVerified": true
+  },
+  {
+    "name": "kitsch",
+    "isVerified": true
+  },
+  {
+    "name": "lacrosse",
     "isVerified": true
   },
   {
@@ -237,6 +365,10 @@
   },
   {
     "name": "learning languages",
+    "isVerified": true
+  },
+  {
+    "name": "live music",
     "isVerified": true
   },
   {
@@ -252,7 +384,15 @@
     "isVerified": true
   },
   {
+    "name": "martial arts",
+    "isVerified": true
+  },
+  {
     "name": "massage",
+    "isVerified": true
+  },
+  {
+    "name": "meat lover",
     "isVerified": true
   },
   {
@@ -272,7 +412,11 @@
     "isVerified": true
   },
   {
-    "name": "mountains",
+    "name": "mountain climbing",
+    "isVerified": true
+  },
+  {
+    "name": "mountain views",
     "isVerified": true
   },
   {
@@ -296,7 +440,7 @@
     "isVerified": true
   },
   {
-    "name": "omakase",
+    "name": "omakase sushi",
     "isVerified": true
   },
   {
@@ -304,7 +448,15 @@
     "isVerified": true
   },
   {
+    "name": "orchestra",
+    "isVerified": true
+  },
+  {
     "name": "outdoor shakespeare",
+    "isVerified": true
+  },
+  {
+    "name": "paintball",
     "isVerified": true
   },
   {
@@ -312,7 +464,19 @@
     "isVerified": true
   },
   {
+    "name": "parkour",
+    "isVerified": true
+  },
+  {
+    "name": "people watching",
+    "isVerified": true
+  },
+  {
     "name": "pescetarian",
+    "isVerified": true
+  },
+  {
+    "name": "pet cafe",
     "isVerified": true
   },
   {
@@ -328,11 +492,35 @@
     "isVerified": true
   },
   {
+    "name": "podcasts",
+    "isVerified": true
+  },
+  {
+    "name": "poker",
+    "isVerified": true
+  },
+  {
+    "name": "polo",
+    "isVerified": true
+  },
+  {
+    "name": "pop-ups",
+    "isVerified": true
+  },
+  {
+    "name": "pottery",
+    "isVerified": true
+  },
+  {
     "name": "pub crawl",
     "isVerified": true
   },
   {
     "name": "R&R",
+    "isVerified": true
+  },
+  {
+    "name": "rafting",
     "isVerified": true
   },
   {
@@ -344,11 +532,23 @@
     "isVerified": true
   },
   {
+    "name": "Renaissance Faire",
+    "isVerified": true
+  },
+  {
     "name": "retreat",
     "isVerified": true
   },
   {
     "name": "rock climbing",
+    "isVerified": true
+  },
+  {
+    "name": "rollerblading",
+    "isVerified": true
+  },
+  {
+    "name": "running",
     "isVerified": true
   },
   {
@@ -360,6 +560,14 @@
     "isVerified": true
   },
   {
+    "name": "salsa dancing",
+    "isVerified": true
+  },
+  {
+    "name": "scavenger hunt",
+    "isVerified": true
+  },
+  {
     "name": "scuba diving",
     "isVerified": true
   },
@@ -368,7 +576,19 @@
     "isVerified": true
   },
   {
+    "name": "shrines",
+    "isVerified": true
+  },
+  {
     "name": "sightseeing",
+    "isVerified": true
+  },
+  {
+    "name": "singing",
+    "isVerified": true
+  },
+  {
+    "name": "skateboarding",
     "isVerified": true
   },
   {
@@ -400,6 +620,10 @@
     "isVerified": true
   },
   {
+    "name": "spicy food",
+    "isVerified": true
+  },
+  {
     "name": "standup comedy",
     "isVerified": true
   },
@@ -409,6 +633,22 @@
   },
   {
     "name": "startups",
+    "isVerified": true
+  },
+  {
+    "name": "stormchasing",
+    "isVerified": true
+  },
+  {
+    "name": "storytelling",
+    "isVerified": true
+  },
+  {
+    "name": "street art",
+    "isVerified": true
+  },
+  {
+    "name": "Studio Ghibli",
     "isVerified": true
   },
   {
@@ -440,7 +680,31 @@
     "isVerified": true
   },
   {
+    "name": "tide pools",
+    "isVerified": true
+  },
+  {
+    "name": "tours",
+    "isVerified": true
+  },
+  {
     "name": "traditional arts",
+    "isVerified": true
+  },
+  {
+    "name": "trainspotting",
+    "isVerified": true
+  },
+  {
+    "name": "ultimate frisbee",
+    "isVerified": true
+  },
+  {
+    "name": "urban exploration",
+    "isVerified": true
+  },
+  {
+    "name": "vaping",
     "isVerified": true
   },
   {
@@ -449,6 +713,10 @@
   },
   {
     "name": "vegetarian",
+    "isVerified": true
+  },
+  {
+    "name": "video games",
     "isVerified": true
   },
   {
@@ -469,6 +737,14 @@
   },
   {
     "name": "wildlife",
+    "isVerified": true
+  },
+  {
+    "name": "windsurfing",
+    "isVerified": true
+  },
+  {
+    "name": "wine making",
     "isVerified": true
   },
   {

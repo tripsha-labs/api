@@ -1,0 +1,36 @@
+paths:
+  /public/countries:
+    get:
+      description: Return list of matching countries
+      operationId: listCountries
+      tags:
+        - Countries
+      parameters:
+        - $ref: '#/components/parameters/querySearch'
+      responses:
+        '200':
+          description: Countries response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CountryModel'
+                      nextPageToken:
+                        type: string
+                        description: "End of the result this will not come, It will used to retrive next page data"
+                      count:
+                        type: number
+                        description: Count of the current records
