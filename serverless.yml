@@ -3,6 +3,7 @@ service: tripsha-app-api
 plugins:
   - serverless-webpack
   - serverless-hooks-plugin
+  - serverless-domain-manager
   - serverless-dynamodb-fixtures
   - serverless-dynamodb-local
   - serverless-offline
@@ -16,6 +17,11 @@ custom:
     - table: ${self:custom.tblCountries}
       sources:
         - ./src/seeds/countries.json
+  customDomain:
+    domainName: ${self:provider.stage}-api.tripsha.com
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
   hooks:
     after:command:lifecycleEvent:
       - sls fixtures
@@ -37,7 +43,7 @@ custom:
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
-  environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
+  # environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
   tblUsers: ${self:custom.stage}-users
   tblTrips: ${self:custom.stage}-trips
   tblTags: ${self:custom.stage}-tags
