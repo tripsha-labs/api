@@ -12,7 +12,9 @@
     "doc-gen": "node ./api-doc-dist/doc-gen.js",
     "doc-deploy": "node ./api-doc-dist/doc-gen.js && aws s3 sync ./api-doc-dist/ s3://tripsha.api-doc",
     "test": "mocha --require babel-polyfill --compilers js:babel-register",
-    "pretty": "prettier --write --tab-width 2 \"src/**/*.js\""
+    "pretty": "prettier --write --tab-width 2 \"src/**/*.js\"",
+    "create-domain": "sls create_domain",
+    "delete-domain": "sls delete_domain"
   },
   "lint-staged": {
     "*.{js,json}": [
@@ -34,6 +36,7 @@
     "lint-staged": "^8.1.5",
     "mocha": "^6.1.4",
     "prettier": "^1.17.0",
+    "serverless-domain-manager": "^3.2.1",
     "serverless-dynamodb-local": "^0.2.37",
     "serverless-offline": "^3.25.6",
     "serverless-webpack": "^5.3.0",
