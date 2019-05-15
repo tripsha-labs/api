@@ -32,7 +32,10 @@ export const getCountries = async (event, context) => {
     };
   }
 
-  if (event.queryStringParameters.nextPageToken) {
+  if (
+    event.queryStringParameters &&
+    event.queryStringParameters.nextPageToken
+  ) {
     params = {
       ...params,
       ExclusiveStartKey: JSON.parse(

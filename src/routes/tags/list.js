@@ -29,7 +29,10 @@ export const get = async (event, context) => {
       Limit: 100,
     };
   }
-  if (event.queryStringParameters.nextPageToken) {
+  if (
+    event.queryStringParameters &&
+    event.queryStringParameters.nextPageToken
+  ) {
     params = {
       ...params,
       ExclusiveStartKey: JSON.parse(
