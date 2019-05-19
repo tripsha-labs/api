@@ -11,6 +11,7 @@ export const get = async (event, context) => {
   let params = {
     TableName: TABLE_NAMES.TAGS,
     Limit: 25,
+    ScanIndexForward: true,
   };
 
   if (event.queryStringParameters && event.queryStringParameters.search) {

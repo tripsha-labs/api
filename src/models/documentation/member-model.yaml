@@ -1,0 +1,31 @@
+components:
+  schemas:
+    MemberModel:
+      type: object
+      properties:
+        tripId:
+          type: string
+        memberId:
+          type: string
+        memberDetails:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            avatarUrl:
+              type: string
+            connectionId:
+              type: string
+            isOnline:
+              type: boolean
+        status:
+          type: string
+        isFavotite:
+          type: boolean
+        isOwner:
+          type: boolean
+        addedAt:
+          type: number
+          format: Unix timestamp

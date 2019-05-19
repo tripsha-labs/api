@@ -8,8 +8,14 @@ import * as moment from 'moment';
 const tripBaseSchema = {
   title: { type: 'string', empty: false },
   description: { type: 'string', optional: true, empty: false },
-  startDate: { type: 'string', optional: true, empty: false },
-  endDate: { type: 'string', optional: true, empty: false },
+  startDate: { type: 'number', optional: true, empty: false },
+  endDate: { type: 'number', optional: true, empty: false },
+  destinations: {
+    type: 'array',
+    optional: true,
+    empty: false,
+    items: 'string',
+  },
   languages: {
     type: 'array',
     optional: true,
@@ -30,8 +36,18 @@ const tripBaseSchema = {
     empty: false,
     items: 'string',
   },
-  groupSize: {
+  minGroupSize: {
     type: 'number',
+    optional: true,
+    empty: false,
+  },
+  maxGroupSize: {
+    type: 'number',
+    optional: true,
+    empty: false,
+  },
+  isPublic: {
+    type: 'boolean',
     optional: true,
     empty: false,
   },
@@ -53,12 +69,12 @@ const createTripSchema = {
 };
 
 export const updateTripDefaultValues = {
-  updateAt: moment.utc().format(),
+  updateAt: moment().unix(),
 };
 
 export const createTripDefaultValues = {
   isActive: true,
-  createdAt: moment.utc().format(),
+  createdAt: moment().unix(),
   ...updateTripDefaultValues,
 };
 

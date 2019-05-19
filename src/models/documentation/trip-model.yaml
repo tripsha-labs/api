@@ -9,12 +9,16 @@ components:
           type: string
         description:
           type: string
+        destinations:
+          type: array
+          items:
+            type: string
         startDate:
-          type: string
-          format: utc datetime
+          type: number
+          format: unix timestamp
         endDate:
-          type: string
-          format: utc datetime
+          type: number
+          format: unix timestamp
         languages:
           type: array
           items:
@@ -27,19 +31,36 @@ components:
             type: string
         groupSize:
           type: integer
+        minGroupSize:
+          type: integer
+        maxGroupSize:
+          type: integer
         interests:
           type: array
           items:
             type: string
-        createdAt:
+        ownerId:
           type: string
-          format: utc datetime
-        updatedAt:
-          type: string
-          format: utc datetime
-        userId:
-          type: string
+        isPublic:
+          type: boolean
         isActive:
           type: boolean
         isArchived:
           type: boolean
+        createdAt:
+          type: number
+          format: unix timestamp
+        updatedAt:
+          type: string
+          format: unix timestamp
+        createdBy:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            avatarUrl:
+              type: string
+            gender:
+              type: string

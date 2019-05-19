@@ -3,6 +3,6 @@
 tblUsers: ${self:custom.tblUsers}
 tblTrips: ${self:custom.tblTrips}
 tblTags: ${self:custom.tblTags}
-tblConnections: ${self:custom.tblConnections}
+tblMembers: ${self:custom.tblMembers}
 tblMessages: ${self:custom.tblMessages}
 tblCountries: ${self:custom.tblCountries}
