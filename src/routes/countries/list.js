@@ -13,30 +13,36 @@ export const getCountries = async (event, context) => {
     event.queryStringParameters && event.queryStringParameters.search
       ? event.queryStringParameters.search
       : '';
-  // Convert to lowercase and uppercase format
-  const nameLower = _.lowerCase(searchText);
-  const nameUpper = _.upperCase(searchText);
   // Build attribute values
   const expressionAttributeValues =
     searchText != ''
       ? {
-          ':nameLower': nameLower,
-          ':nameUpperFirst': _.upperFirst(nameLower),
-          ':nameUpper': nameUpper,
+          ExpressionAttributeValues: {
+            ':nameLower': _.lowerCase(searchText),
+            // ':code': _.upperCase(searchText),
+            ':pKey': 1,
+          },
         }
-      : {};
+      : { ExpressionAttributeValues: { ':pKey': 1 } };
   // Build attribute names
   const expressionAttributeNames =
     searchText != ''
       ? {
+          KeyConditionExpression:
+            '#pKey=:pKey and begins_with(#nameLower, :nameLower)',
           ExpressionAttributeNames: {
-            '#name': 'name',
-            '#code': 'code',
+            // '#code': 'code',
+            '#nameLower': 'nameLower',
+            '#pKey': 'pKey',
           },
-          FilterExpression:
-            'begins_with(#name, :nameLower) or begins_with(#name, :nameUpperFirst) or begins_with(#code, :nameUpper)',
+          // FilterExpression: 'begins_with(#code, :code)',
         }
-      : {};
+      : {
+          ExpressionAttributeNames: {
+            '#pKey': 'pKey',
+          },
+          KeyConditionExpression: '#pKey=:pKey',
+        };
   // Build nextpage token
   const exclusiveStartKey =
     event.queryStringParameters && event.queryStringParameters.nextPageToken
@@ -51,14 +57,10 @@ export const getCountries = async (event, context) => {
       : {};
   const params = {
     TableName: TABLE_NAMES.COUNTRIES,
-    KeyConditionExpression: 'pKey = :value',
     ...expressionAttributeNames,
-    ExpressionAttributeValues: {
-      ':value': 1,
-      ...expressionAttributeValues,
-    },
+    ...expressionAttributeValues,
     ScanIndexForward: true,
-    Limit: 25,
+    Limit: 500,
     ...exclusiveStartKey,
   };
 

@@ -14,11 +14,11 @@ components:
           items:
             type: string
         startDate:
-          type: number
-          format: unix timestamp
+          type: date
+          format: 'MM/DD/YYYY'
         endDate:
-          type: number
-          format: unix timestamp
+          type: date
+          format: 'MM/DD/YYYY'
         languages:
           type: array
           items:
@@ -29,6 +29,15 @@ components:
           type: array
           items:
             type: string
+            enum: ['$', '$$', '$$$', '$$$$', '$$$$$']
+        connections:
+          type: array
+          items:
+            type: string
+        spotFilledRank:
+          type: integer
+        tripLength:
+          type: integer
         groupSize:
           type: integer
         minGroupSize:
@@ -39,20 +48,28 @@ components:
           type: array
           items:
             type: string
-        ownerId:
-          type: string
+        pictureUrls:
+          type: array
+          items:
+            type: string
         isPublic:
           type: boolean
         isActive:
           type: boolean
+        isFull:
+          type: boolean
+          desciption: groupsize=maxGroupSize
         isArchived:
           type: boolean
+          description: Trip is expired, startDate less than todays date.
         createdAt:
           type: number
           format: unix timestamp
         updatedAt:
           type: string
           format: unix timestamp
+        ownerId:
+          type: string
         createdBy:
           type: object
           properties:

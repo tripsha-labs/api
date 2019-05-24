@@ -4,16 +4,11 @@ Resources:
     Properties:
       TableName: ${self:custom.tblUsers}
       AttributeDefinitions:
-        - AttributeName: isActive
-          AttributeType: B
-        - AttributeName: username
-          AttributeType: S
+        - AttributeName: id
+          AttributeType: 'S'
       KeySchema:
-        - AttributeName: isActive
+        - AttributeName: id
           KeyType: HASH
-        - AttributeName: username
-          KeyType: RANGE
-      # Set the capacity based on the stage
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
@@ -23,16 +18,11 @@ Resources:
     Properties:
       TableName: ${self:custom.tblTrips}
       AttributeDefinitions:
-        - AttributeName: isActive
-          AttributeType: B
-        - AttributeName: title
-          AttributeType: S
+        - AttributeName: id
+          AttributeType: 'S'
       KeySchema:
-        - AttributeName: isActive
+        - AttributeName: id
           KeyType: HASH
-        - AttributeName: title
-          KeyType: RANGE
-      # Set the capacity based on the stage
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
@@ -42,52 +32,15 @@ Resources:
     Properties:
       TableName: ${self:custom.tblTags}
       AttributeDefinitions:
-        - AttributeName: isVerified
-          AttributeType: 'B'
-        - AttributeName: name
-          AttributeType: S
-      KeySchema:
-        - AttributeName: isVerified
-          KeyType: HASH
-        - AttributeName: name
-          KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: ${self:custom.tableThroughput}
-        WriteCapacityUnits: ${self:custom.tableThroughput}
-
-  Members:
-    Type: 'AWS::DynamoDB::Table'
-    Properties:
-      TableName: ${self:custom.tblMembers}
-      AttributeDefinitions:
-        - AttributeName: memberId
-          AttributeType: S
-        - AttributeName: tripId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: memberId
-          KeyType: HASH
-        - AttributeName: tripId
-          KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: ${self:custom.tableThroughput}
-        WriteCapacityUnits: ${self:custom.tableThroughput}
-
-  Messages:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: ${self:custom.tblMessages}
-      AttributeDefinitions:
-        - AttributeName: toMemberId
-          AttributeType: S
-        - AttributeName: sentOn
+        - AttributeName: pKey
           AttributeType: 'N'
+        - AttributeName: nameLower
+          AttributeType: 'S'
       KeySchema:
-        - AttributeName: toMemberId
+        - AttributeName: pKey
           KeyType: HASH
-        - AttributeName: sentOn
+        - AttributeName: nameLower
           KeyType: RANGE
-      # Set the capacity based on the stage
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
@@ -99,14 +52,49 @@ Resources:
       AttributeDefinitions:
         - AttributeName: pKey
           AttributeType: 'N'
-        - AttributeName: name
-          AttributeType: S
+        - AttributeName: nameLower
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: pKey
           KeyType: HASH
-        - AttributeName: name
+        - AttributeName: nameLower
           KeyType: RANGE
-      # Set the capacity based on the stage
+      ProvisionedThroughput:
+        ReadCapacityUnits: ${self:custom.tableThroughput}
+        WriteCapacityUnits: ${self:custom.tableThroughput}
+
+  Messages:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.tblMessages}
+      AttributeDefinitions:
+        - AttributeName: toMemberId
+          AttributeType: 'S'
+        - AttributeName: sentOn
+          AttributeType: 'N'
+      KeySchema:
+        - AttributeName: toMemberId
+          KeyType: HASH
+        - AttributeName: sentOn
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: ${self:custom.tableThroughput}
+        WriteCapacityUnits: ${self:custom.tableThroughput}
+
+  Members:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: ${self:custom.tblMembers}
+      AttributeDefinitions:
+        - AttributeName: memberId
+          AttributeType: 'S'
+        - AttributeName: tripId
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: memberId
+          KeyType: HASH
+        - AttributeName: tripId
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}

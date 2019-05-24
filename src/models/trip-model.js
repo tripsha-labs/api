@@ -4,12 +4,14 @@
  */
 import Validator from 'fastest-validator';
 import * as moment from 'moment';
+import uuid from 'uuid';
+import { DATE_FORMAT } from '../constants/constants';
 
 const tripBaseSchema = {
   title: { type: 'string', empty: false },
-  description: { type: 'string', optional: true, empty: false },
-  startDate: { type: 'number', optional: true, empty: false },
-  endDate: { type: 'number', optional: true, empty: false },
+  description: { type: 'string', empty: false },
+  startDate: { type: 'string', empty: false },
+  endDate: { type: 'string', empty: false },
   destinations: {
     type: 'array',
     optional: true,
@@ -21,7 +23,7 @@ const tripBaseSchema = {
     optional: true,
     empty: false,
     items: 'string',
-    enum: ['english'],
+    enum: ['english', 'hindi', 'spanish', 'french'],
   },
   budgets: {
     type: 'array',
@@ -29,6 +31,18 @@ const tripBaseSchema = {
     empty: false,
     items: 'string',
     enum: ['$', '$$', '$$$', '$$$$', '$$$$$'],
+  },
+  connections: {
+    type: 'array',
+    optional: true,
+    empty: false,
+    items: 'string',
+  },
+  pictureUrls: {
+    type: 'array',
+    optional: true,
+    empty: false,
+    items: 'string',
   },
   interests: {
     type: 'array',
@@ -38,12 +52,10 @@ const tripBaseSchema = {
   },
   minGroupSize: {
     type: 'number',
-    optional: true,
     empty: false,
   },
   maxGroupSize: {
     type: 'number',
-    optional: true,
     empty: false,
   },
   isPublic: {
@@ -56,11 +68,6 @@ const tripBaseSchema = {
     optional: true,
     empty: false,
   },
-  isArchived: {
-    type: 'boolean',
-    optional: true,
-    empty: false,
-  },
   $$strict: true,
 };
 
@@ -68,12 +75,26 @@ const createTripSchema = {
   ...tripBaseSchema,
 };
 
+export const validateTripLength = (startDate, endDate) => {
+  try {
+    startDate = moment(startDate, DATE_FORMAT);
+    endDate = moment(endDate, DATE_FORMAT);
+    return endDate.diff(startDate, 'days');
+  } catch (err) {
+    return -1;
+  }
+};
 export const updateTripDefaultValues = {
-  updateAt: moment().unix(),
+  updatedAt: moment().unix(),
 };
 
 export const createTripDefaultValues = {
   isActive: true,
+  isFull: false,
+  isArchived: false,
+  groupSize: 1,
+  isPublic: true,
+  id: uuid.v1(),
   createdAt: moment().unix(),
   ...updateTripDefaultValues,
 };

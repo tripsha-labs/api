@@ -34,6 +34,47 @@
           }
         }
       },
+      "MemberModel": {
+        "type": "object",
+        "properties": {
+          "tripId": {
+            "type": "string"
+          },
+          "memberId": {
+            "type": "string"
+          },
+          "memberDetails": {
+            "type": "object",
+            "properties": {
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "avatarUrl": {
+                "type": "string"
+              }
+            }
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "isMember": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isOwner": {
+            "type": "boolean"
+          },
+          "addedAt": {
+            "type": "number",
+            "format": "Unix timestamp"
+          }
+        }
+      },
       "MessageModel": {
         "type": "object",
         "properties": {
@@ -67,7 +108,7 @@
           "tripId": {
             "type": "string"
           },
-          "userId": {
+          "memberId": {
             "type": "string"
           },
           "createdAt": {
@@ -77,7 +118,7 @@
           "isFavorite": {
             "type": "boolean"
           },
-          "isMember": {
+          "isOwner": {
             "type": "boolean"
           },
           "memberStatus": {
@@ -154,13 +195,19 @@
           "description": {
             "type": "string"
           },
+          "destinations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "startDate": {
-            "type": "string",
-            "format": "utc datetime"
+            "type": "date",
+            "format": "MM/DD/YYYY"
           },
           "endDate": {
-            "type": "string",
-            "format": "utc datetime"
+            "type": "date",
+            "format": "MM/DD/YYYY"
           },
           "languages": {
             "type": "array",
@@ -172,10 +219,29 @@
           "budgets": {
             "type": "array",
             "items": {
+              "type": "string",
+              "enum": ["$", "$$", "$$$", "$$$$", "$$$$$"]
+            }
+          },
+          "connections": {
+            "type": "array",
+            "items": {
               "type": "string"
             }
           },
+          "spotFilledRank": {
+            "type": "integer"
+          },
+          "tripLength": {
+            "type": "integer"
+          },
           "groupSize": {
+            "type": "integer"
+          },
+          "minGroupSize": {
+            "type": "integer"
+          },
+          "maxGroupSize": {
             "type": "integer"
           },
           "interests": {
@@ -184,22 +250,53 @@
               "type": "string"
             }
           },
-          "createdAt": {
-            "type": "string",
-            "format": "utc datetime"
+          "pictureUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
-          "updatedAt": {
-            "type": "string",
-            "format": "utc datetime"
-          },
-          "userId": {
-            "type": "string"
+          "isPublic": {
+            "type": "boolean"
           },
           "isActive": {
             "type": "boolean"
           },
+          "isFull": {
+            "type": "boolean",
+            "desciption": "groupsize=maxGroupSize"
+          },
           "isArchived": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Trip is expired, startDate less than todays date."
+          },
+          "createdAt": {
+            "type": "number",
+            "format": "unix timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "unix timestamp"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "object",
+            "properties": {
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "avatarUrl": {
+                "type": "string"
+              },
+              "gender": {
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -226,7 +323,7 @@
             "type": "string",
             "format": "date"
           },
-          "currentCity": {
+          "livesIn": {
             "type": "string"
           },
           "gender": {
@@ -234,19 +331,7 @@
             "enum": ["male", "female", "other"]
           },
           "spokenLanguages": {
-            "type": "array",
-            "description": "List of languages user can speak",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "level": {
-                  "type": "string"
-                }
-              }
-            }
+            "type": "string"
           },
           "bio": {
             "type": "string"
@@ -257,19 +342,10 @@
           "avatarUrl": {
             "type": "string"
           },
-          "socialConnections": {
+          "connections": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "details": {
-                  "type": "string"
-                }
-              },
-              "description": "Social media connection object"
+              "type": "string"
             }
           },
           "interests": {
@@ -278,52 +354,78 @@
               "type": "string"
             }
           },
-          "countryInterests": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "bucketList": {
+            "type": "string",
+            "desciption": "List of interested countries"
           },
           "isActive": {
             "type": "boolean"
           },
           "createdAt": {
-            "type": "string",
-            "format": "utc date"
+            "type": "number",
+            "format": "unix timestamp"
           },
           "updatedAt": {
-            "type": "string",
-            "format": "utc date"
+            "type": "number",
+            "format": "unix timestamp"
           }
         }
       },
       "CreateUpdateTrip": {
         "properties": {
           "title": {
-            "type": "string"
+            "type": "string",
+            "required": true
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "required": true
           },
-          "groupSize": {
-            "type": "number"
+          "destinations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "minGroupSize": {
+            "type": "number",
+            "required": true
+          },
+          "maxGroupSize": {
+            "type": "number",
+            "required": true
           },
           "startDate": {
             "type": "string",
-            "format": "utc datetime"
+            "format": "MM/DD/YYYY",
+            "required": true
           },
           "endDate": {
             "type": "string",
-            "format": "utc datetime"
+            "format": "MM/DD/YYYY",
+            "required": true
           },
           "languages": {
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["english"]
+              "enum": ["english", "hindi", "spanish", "french"]
             }
           },
           "budgets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["$", "$$", "$$$", "$$$$", "$$$$$"]
+            }
+          },
+          "connections": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pictureUrls": {
             "type": "array",
             "items": {
               "type": "string"
@@ -335,7 +437,7 @@
               "type": "string"
             }
           },
-          "isActive": {
+          "isPublic": {
             "type": "boolean"
           }
         }
@@ -649,83 +751,6 @@
                       }
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/public/trips": {
-      "get": {
-        "description": "Returns list of trips for anonymous user",
-        "operationId": "publicListTrips",
-        "tags": ["Public Trips"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/queryLimit"
-          },
-          {
-            "$ref": "#/components/parameters/queryPage"
-          },
-          {
-            "$ref": "#/components/parameters/querySortBy"
-          },
-          {
-            "$ref": "#/components/parameters/querySortOrder"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Trip response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": ["status", "result"],
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "default": "success"
-                    },
-                    "result": {
-                      "type": "object",
-                      "properties": {
-                        "totalCount": {
-                          "type": "number",
-                          "description": "Total number of records"
-                        },
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/TripModel"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "examples": {
-                  "error-examples": {
-                    "$ref": "#/components/examples/trip-error"
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Error Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommonErrorFormat"
                 }
               }
             }

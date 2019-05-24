@@ -38,13 +38,7 @@ components:
         connections:
           type: array
           items:
-            type: object
-            properties:
-              name:
-                type: string
-              details:
-                type: string
-            description: Social media connection object
+            type: string
         interests:
           type: array
           items:

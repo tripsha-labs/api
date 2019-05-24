@@ -16,3 +16,7 @@ export const idValidation = new Validator().compile(idSchema);
  */
 export * from './user-model';
 export * from './trip-model';
+export * from './country-model';
+export * from './member-model';
+export * from './tag-model';
+export * from './message-model';

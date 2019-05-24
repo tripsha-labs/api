@@ -5,3 +5,5 @@
  */
 export * from './common';
 export * from './query-mapper';
+export * from './trip';
+export * from './user';

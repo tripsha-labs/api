@@ -4,23 +4,52 @@ components:
       properties:
         title:
           type: string
+          required: true
         description:
           type: string
-        groupSize:
+          required: true
+        destinations:
+          type: array
+          items:
+            type: string
+        minGroupSize:
           type: number
+          required: true
+        maxGroupSize:
+          type: number
+          required: true
         startDate:
           type: string
-          format: utc datetime
+          format: 'MM/DD/YYYY'
+          required: true
         endDate:
           type: string
-          format: utc datetime
+          format: 'MM/DD/YYYY'
+          required: true
         languages:
           type: array
           items:
             type: string
             enum:
               - english
+              - hindi
+              - spanish
+              - french
         budgets:
+          type: array
+          items:
+            type: string
+            enum:
+              - $
+              - $$
+              - $$$
+              - $$$$
+              - $$$$$
+        connections:
+          type: array
+          items:
+            type: string
+        pictureUrls:
           type: array
           items:
             type: string
@@ -28,7 +57,7 @@ components:
           type: array
           items:
             type: string
-        isActive:
+        isPublic:
           type: boolean
   parameters:
     createTrip:
