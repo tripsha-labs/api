@@ -6,10 +6,18 @@ paths:
       tags:
         - Trips
       parameters:
-        - $ref: '#/components/parameters/queryLimit'
-        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryNextPageToken'
         - $ref: '#/components/parameters/querySortBy'
         - $ref: '#/components/parameters/querySortOrder'
+        - $ref: '#/components/parameters/queryBudgets'
+        - $ref: '#/components/parameters/queryMinGroupSize'
+        - $ref: '#/components/parameters/queryMaxGroupSize'
+        - $ref: '#/components/parameters/queryMinStartDate'
+        - $ref: '#/components/parameters/queryMaxEndDate'
+        - $ref: '#/components/parameters/queryMinTripLength'
+        - $ref: '#/components/parameters/queryMaxTripLength'
+        - $ref: '#/components/parameters/queryInterests'
+        - $ref: '#/components/parameters/queryDestinations'
       responses:
         '200':
           description: Trip response
@@ -30,6 +38,9 @@ paths:
                       totalCount:
                         type: number
                         description: Total number of records
+                      nextPageToken:
+                        type: string
+                        description: Next page token, available if more record exists. On last page it will not come.
                       data:
                         type: array
                         items:

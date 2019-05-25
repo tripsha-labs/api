@@ -18,15 +18,45 @@ Resources:
     Properties:
       TableName: ${self:custom.tblTrips}
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: 'S'
+        - AttributeName: isArchived
+          AttributeType: 'N'
+        - AttributeName: createdAt
+          AttributeType: 'N'
+        - AttributeName: spotFilledRank
+          AttributeType: 'N'
+        - AttributeName: startDate
+          AttributeType: 'N'
       KeySchema:
-        - AttributeName: id
+        - AttributeName: isArchived
           KeyType: HASH
+        - AttributeName: createdAt
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
-
+      GlobalSecondaryIndexes:
+        - IndexName: 'SpotsFilledIndex'
+          KeySchema:
+            - AttributeName: isArchived
+              KeyType: HASH
+            - AttributeName: spotFilledRank
+              KeyType: RANGE
+          Projection:
+            ProjectionType: 'ALL'
+          ProvisionedThroughput:
+            ReadCapacityUnits: ${self:custom.tableThroughput}
+            WriteCapacityUnits: ${self:custom.tableThroughput}
+        - IndexName: 'StartDateIndex'
+          KeySchema:
+            - AttributeName: isArchived
+              KeyType: HASH
+            - AttributeName: startDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: 'ALL'
+          ProvisionedThroughput:
+            ReadCapacityUnits: ${self:custom.tableThroughput}
+            WriteCapacityUnits: ${self:custom.tableThroughput}
   Tags:
     Type: AWS::DynamoDB::Table
     Properties:

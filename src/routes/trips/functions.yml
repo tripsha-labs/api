@@ -25,14 +25,6 @@ listTrips:
         cors: true
         authorizer: aws_iam
 
-listTripsPublic:
-  handler: src/routes/trips/public-list.listPublicTrips
-  events:
-    - http:
-        path: public/trips
-        method: get
-        cors: true
-
 updateTrip:
   handler: src/routes/trips/update.updateTrip
   events:

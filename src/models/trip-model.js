@@ -84,16 +84,14 @@ export const validateTripLength = (startDate, endDate) => {
     return -1;
   }
 };
+
 export const updateTripDefaultValues = {
   updatedAt: moment().unix(),
 };
 
 export const createTripDefaultValues = {
   isActive: true,
-  isFull: false,
-  isArchived: false,
-  groupSize: 1,
-  isPublic: true,
+  isArchived: 0,
   id: uuid.v1(),
   createdAt: moment().unix(),
   ...updateTripDefaultValues,

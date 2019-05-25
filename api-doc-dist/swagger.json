@@ -13,7 +13,7 @@
   },
   "servers": [
     {
-      "url": "https://toavs4nqf6.execute-api.us-east-1.amazonaws.com/dev"
+      "url": "https://dev-api.tripsha.com"
     },
     {
       "url": "http://localhost:3000"
@@ -203,11 +203,11 @@
           },
           "startDate": {
             "type": "date",
-            "format": "MM/DD/YYYY"
+            "format": "YYYYMMDD"
           },
           "endDate": {
             "type": "date",
-            "format": "MM/DD/YYYY"
+            "format": "YYYYMMDD"
           },
           "languages": {
             "type": "array",
@@ -221,12 +221,6 @@
             "items": {
               "type": "string",
               "enum": ["$", "$$", "$$$", "$$$$", "$$$$$"]
-            }
-          },
-          "connections": {
-            "type": "array",
-            "items": {
-              "type": "string"
             }
           },
           "spotFilledRank": {
@@ -267,15 +261,16 @@
             "desciption": "groupsize=maxGroupSize"
           },
           "isArchived": {
-            "type": "boolean",
-            "description": "Trip is expired, startDate less than todays date."
+            "type": "number",
+            "description": "Trip is expired, startDate less than todays date.",
+            "enum": [1, 0]
           },
           "createdAt": {
             "type": "number",
             "format": "unix timestamp"
           },
           "updatedAt": {
-            "type": "string",
+            "type": "number",
             "format": "unix timestamp"
           },
           "ownerId": {
@@ -291,9 +286,6 @@
                 "type": "string"
               },
               "avatarUrl": {
-                "type": "string"
-              },
-              "gender": {
                 "type": "string"
               }
             }
@@ -320,8 +312,8 @@
             "type": "string"
           },
           "dob": {
-            "type": "string",
-            "format": "date"
+            "type": "date",
+            "format": "YYYY-MM-DD"
           },
           "livesIn": {
             "type": "string"
@@ -470,47 +462,112 @@
           "type": "string"
         }
       },
-      "queryLimit": {
-        "name": "limit",
+      "queryNextPageToken": {
+        "name": "nextPageToken",
         "in": "query",
-        "description": "No of records per page",
+        "description": "Next Page token",
         "schema": {
-          "type": "string",
-          "default": 25
-        }
-      },
-      "queryPage": {
-        "name": "page",
-        "in": "query",
-        "description": "Page number",
-        "schema": {
-          "type": "string",
-          "default": 1
+          "type": "string"
         }
       },
       "querySortBy": {
         "name": "sortBy",
         "in": "query",
-        "description": "Name of the field to sort",
+        "description": "Sort by key",
         "schema": {
           "type": "string",
-          "default": "firstName"
+          "default": "newestTrips",
+          "enum": ["newestTrips", "earliestDeparture", "mostSpotsFilled"]
         }
       },
       "querySortOrder": {
         "name": "sortOrder",
         "in": "query",
-        "description": "Sort order",
+        "description": "Sort order applied on `sortBy`",
         "schema": {
-          "type": "number",
-          "enum": [1, -1],
-          "default": -1
+          "type": "boolean",
+          "enum": [true, false],
+          "default": false
         }
       },
       "querySearch": {
         "name": "search",
         "in": "query",
         "description": "Search filter",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "queryBudgets": {
+        "name": "budgets",
+        "in": "query",
+        "description": "Search budgets filter, comma separated values. $,$$",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "queryMinGroupSize": {
+        "name": "minGroupSize",
+        "in": "query",
+        "description": "Search for minGroupSize",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "queryMaxGroupSize": {
+        "name": "maxGroupSize",
+        "in": "query",
+        "description": "Search for maxGroupSize",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "queryMinStartDate": {
+        "name": "minStartDate",
+        "in": "query",
+        "description": "Search for minStartDate. Format: `YYYYMMDD`",
+        "schema": {
+          "type": "date",
+          "format": "YYYYMMDD"
+        }
+      },
+      "queryMaxEndDate": {
+        "name": "maxEndDate",
+        "in": "query",
+        "description": "Search for maxEndDate. Format: `YYYYMMDD`",
+        "schema": {
+          "type": "date",
+          "format": "YYYYMMDD"
+        }
+      },
+      "queryMinTripLength": {
+        "name": "minTripLength",
+        "in": "query",
+        "description": "Search for minTripLength",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "queryMaxTripLength": {
+        "name": "maxTripLength",
+        "in": "query",
+        "description": "Search for maxTripLength",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "queryInterests": {
+        "name": "interests",
+        "in": "query",
+        "description": "Search for interests, comma separated values. Ex. value1,value2",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "queryDestinations": {
+        "name": "destinations",
+        "in": "query",
+        "description": "Search for destinations, comma separated values. Ex. value1,value2",
         "schema": {
           "type": "string"
         }
@@ -569,10 +626,10 @@
               "type": "string"
             },
             "dob": {
-              "type": "string",
-              "format": "date"
+              "type": "date",
+              "format": "MM/DD/YYYY"
             },
-            "currentCity": {
+            "livesIn": {
               "type": "string"
             },
             "gender": {
@@ -580,19 +637,8 @@
               "enum": ["male", "female", "other"]
             },
             "spokenLanguages": {
-              "type": "array",
-              "description": "List of languages user can speak",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "level": {
-                    "type": "string"
-                  }
-                }
-              }
+              "type": "string",
+              "description": "List of languages user can speak separated by comma"
             },
             "bio": {
               "type": "string"
@@ -603,19 +649,10 @@
             "avatarUrl": {
               "type": "string"
             },
-            "socialConnections": {
+            "connections": {
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "details": {
-                    "type": "string"
-                  }
-                },
-                "description": "Social media connection object"
+                "type": "string"
               }
             },
             "interests": {
@@ -624,7 +661,7 @@
                 "type": "string"
               }
             },
-            "countryInterests": {
+            "bucketList": {
               "type": "array",
               "items": {
                 "type": "string"
@@ -765,16 +802,40 @@
         "tags": ["Trips"],
         "parameters": [
           {
-            "$ref": "#/components/parameters/queryLimit"
-          },
-          {
-            "$ref": "#/components/parameters/queryPage"
+            "$ref": "#/components/parameters/queryNextPageToken"
           },
           {
             "$ref": "#/components/parameters/querySortBy"
           },
           {
             "$ref": "#/components/parameters/querySortOrder"
+          },
+          {
+            "$ref": "#/components/parameters/queryBudgets"
+          },
+          {
+            "$ref": "#/components/parameters/queryMinGroupSize"
+          },
+          {
+            "$ref": "#/components/parameters/queryMaxGroupSize"
+          },
+          {
+            "$ref": "#/components/parameters/queryMinStartDate"
+          },
+          {
+            "$ref": "#/components/parameters/queryMaxEndDate"
+          },
+          {
+            "$ref": "#/components/parameters/queryMinTripLength"
+          },
+          {
+            "$ref": "#/components/parameters/queryMaxTripLength"
+          },
+          {
+            "$ref": "#/components/parameters/queryInterests"
+          },
+          {
+            "$ref": "#/components/parameters/queryDestinations"
           }
         ],
         "responses": {
@@ -796,6 +857,10 @@
                         "totalCount": {
                           "type": "number",
                           "description": "Total number of records"
+                        },
+                        "nextPageToken": {
+                          "type": "string",
+                          "description": "Next page token, available if more record exists. On last page it will not come."
                         },
                         "data": {
                           "type": "array",

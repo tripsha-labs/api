@@ -24,19 +24,27 @@ export const createTrip = async (event, context) => {
     const user = await getUserById(
       event.requestContext.identity.cognitoIdentityId
     );
+    if (!user) throw 'UserNotFound';
     data['createdBy'] = {
       firstName: user['firstName'] || '',
       lastName: user['lastName'] || '',
       avatarUrl: user['avatarUrl'] || '',
-      gender: user['gender'] || '',
     };
   } catch (error) {
     return failure(ERROR_KEYS.ITEM_NOT_FOUND, ERROR_CODES.RESOURCE_NOT_FOUND);
   }
   const tripLength = validateTripLength(data['startDate'], data['endDate']);
-  if (tripLength <= 0 || tripLength > 365)
+  if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength)) {
     return failure(ERROR_KEYS.INVALID_DATES, ERROR_CODES.VALIDATION_ERROR);
+  }
+  data['startDate'] = parseInt(data['startDate']);
+  data['endDate'] = parseInt(data['endDate']);
+  data['groupSize'] = 1;
   data['tripLength'] = tripLength;
+  data['spotFilledRank'] = Math.round(
+    (data['groupSize'] / data['maxGroupSize']) * 100
+  );
+  data['isFull'] = data['spotFilledRank'] == 100;
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Item: {
@@ -46,7 +54,7 @@ export const createTrip = async (event, context) => {
     },
     ReturnValues: 'ALL_OLD',
   };
-
+  console.log(params);
   try {
     await executeQuery('put', params);
     return success(params.Item.id);

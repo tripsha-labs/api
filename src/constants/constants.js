@@ -14,4 +14,4 @@ export const TABLE_NAMES = {
 export const APP_CONSTANTS = {
   TAG_LIST_LIMIT: 20,
 };
-export const DATE_FORMAT = 'MM/DD/YYYY';
+export const DATE_FORMAT = 'YYYYMMDD';

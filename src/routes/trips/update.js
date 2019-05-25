@@ -19,11 +19,26 @@ export const updateTrip = async (event, context) => {
   if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
   // update data object with default fields and values ex. updatedAt
   const trip = { ...data, ...updateTripDefaultValues };
+  try {
+    const user = await getUserById(
+      event.requestContext.identity.cognitoIdentityId
+    );
+    if (!user) throw 'UserNotFound';
+    data['createdBy'] = {
+      firstName: user['firstName'] || '',
+      lastName: user['lastName'] || '',
+      avatarUrl: user['avatarUrl'] || '',
+    };
+  } catch (error) {
+    return failure(ERROR_KEYS.ITEM_NOT_FOUND, ERROR_CODES.RESOURCE_NOT_FOUND);
+  }
   if (data['startDate'] || data['endDate']) {
     const tripLength = validateTripLength(data['startDate'], data['endDate']);
-    if (tripLength <= 0 || tripLength > 365)
+    if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
       return failure(ERROR_KEYS.INVALID_DATES, ERROR_CODES.VALIDATION_ERROR);
     data['tripLength'] = tripLength;
+    data['startDate'] = parseInt(data['startDate']);
+    data['endDate'] = parseInt(data['endDate']);
   }
   const params = {
     TableName: TABLE_NAMES.TRIP,
