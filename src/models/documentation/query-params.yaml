@@ -12,6 +12,15 @@ components:
       description: 'Next Page token'
       schema:
         type: 'string'
+    querySortByUsername:
+      name: 'sortBy'
+      in: 'query'
+      description: 'Sort by username'
+      schema:
+        type: 'string'
+        default: username
+        enum:
+          - username
     querySortBy:
       name: 'sortBy'
       in: 'query'

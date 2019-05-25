@@ -10,7 +10,7 @@ const userBaseSchema = {
   firstName: { type: 'string', empty: false, optional: true },
   lastName: { type: 'string', empty: false, optional: true },
   gender: {
-    type: 'enum',
+    type: 'string',
     optional: true,
     empty: false,
     values: ['male', 'female', 'other'],
@@ -40,21 +40,9 @@ const userBaseSchema = {
     optional: true,
     empty: false,
     items: {
-      type: 'object',
+      type: 'string',
       optional: true,
       empty: false,
-      props: {
-        name: {
-          type: 'string',
-          optional: true,
-          empty: false,
-        },
-        details: {
-          type: 'string',
-          optional: true,
-          empty: false,
-        },
-      },
     },
   },
   interests: {
@@ -78,6 +66,7 @@ const createUserSchema = {
   email: { type: 'email', empty: false, optional: true },
   firstName: { type: 'string', empty: false, optional: true },
   lastName: { type: 'string', empty: false, optional: true },
+  $$strict: true,
 };
 
 export const updateUserDefaultValues = {
@@ -85,7 +74,7 @@ export const updateUserDefaultValues = {
 };
 
 export const createUserDefaultValues = {
-  isActive: true,
+  isActive: 1,
   isLookingForTravel: false,
   createdAt: moment().unix(),
   ...updateUserDefaultValues,

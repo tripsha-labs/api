@@ -17,8 +17,8 @@ components:
         lastName:
           type: string
         dob:
-          type: string
-          format: 'date'
+          type: date
+          format: 'YYYYMMDD'
         livesIn:
           type: string
         gender:

@@ -23,12 +23,14 @@ export const updateTrip = async (event, context) => {
     const user = await getUserById(
       event.requestContext.identity.cognitoIdentityId
     );
-    if (!user) throw 'UserNotFound';
-    data['createdBy'] = {
-      firstName: user['firstName'] || '',
-      lastName: user['lastName'] || '',
-      avatarUrl: user['avatarUrl'] || '',
-    };
+    if (!user || !user.Item) throw 'UserNotFound';
+    const memberInfo = {};
+    if (user.Item['firstName'])
+      memberInfo['firstName'] = user.Item['firstName'];
+    if (user.Item['lastName']) memberInfo['lastName'] = user.Item['lastName'];
+    if (user.Item['avatarUrl'])
+      memberInfo['avatarUrl'] = user.Item['avatarUrl'];
+    data['createdBy'] = memberInfo;
   } catch (error) {
     return failure(ERROR_KEYS.ITEM_NOT_FOUND, ERROR_CODES.RESOURCE_NOT_FOUND);
   }

@@ -17,6 +17,7 @@ export const listTrips = async (event, context) => {
   ];
   const filter = {
     KeyConditionExpression: 'isArchived=:isArchived',
+    IndexName: 'newestTrips',
     ScanIndexForward: event.queryStringParameters.sortOrder
       ? event.queryStringParameters.sortOrder
       : false,

@@ -6,18 +6,41 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: 'S'
+        - AttributeName: isActive
+          AttributeType: 'N'
+        - AttributeName: username
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: id
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
+      GlobalSecondaryIndexes:
+        - IndexName: 'SortByUsername'
+          KeySchema:
+            - AttributeName: isActive
+              KeyType: HASH
+            - AttributeName: username
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes:
+              - firstName
+              - lastName
+              - avatarUrl
+              - email
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: ${self:custom.tableThroughput}
+            WriteCapacityUnits: ${self:custom.tableThroughput}
 
   Trips:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: ${self:custom.tblTrips}
       AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: 'S'
         - AttributeName: isArchived
           AttributeType: 'N'
         - AttributeName: createdAt
@@ -27,14 +50,23 @@ Resources:
         - AttributeName: startDate
           AttributeType: 'N'
       KeySchema:
-        - AttributeName: isArchived
+        - AttributeName: id
           KeyType: HASH
-        - AttributeName: createdAt
-          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
       GlobalSecondaryIndexes:
+        - IndexName: 'newestTrips'
+          KeySchema:
+            - AttributeName: isArchived
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: 'ALL'
+          ProvisionedThroughput:
+            ReadCapacityUnits: ${self:custom.tableThroughput}
+            WriteCapacityUnits: ${self:custom.tableThroughput}
         - IndexName: 'SpotsFilledIndex'
           KeySchema:
             - AttributeName: isArchived
