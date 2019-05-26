@@ -588,9 +588,12 @@
               "type": "string",
               "required": true
             },
-            "memberId": {
-              "type": "string",
-              "required": true
+            "memberIds": {
+              "type": "array",
+              "required": true,
+              "items": {
+                "type": "string"
+              }
             },
             "action": {
               "type": "string",
@@ -1009,16 +1012,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "Error Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommonErrorFormat"
-                }
-              }
-            }
           }
         }
       },
@@ -1044,6 +1037,116 @@
                     "result": {
                       "type": "string",
                       "description": "Trip id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mytrips": {
+      "get": {
+        "description": "Returns list of my trips",
+        "operationId": "myTrips",
+        "tags": ["Trips"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryNextPageToken"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "totalCount": {
+                          "type": "number",
+                          "description": "Total number of records"
+                        },
+                        "nextPageToken": {
+                          "type": "string",
+                          "description": "Next page token, available if more record exists. On last page it will not come."
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TripModel"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/saved-trips": {
+      "get": {
+        "description": "Returns list of saved trips",
+        "operationId": "savedTrips",
+        "tags": ["Trips"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryNextPageToken"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "totalCount": {
+                          "type": "number",
+                          "description": "Total number of records"
+                        },
+                        "nextPageToken": {
+                          "type": "string",
+                          "description": "Next page token, available if more record exists. On last page it will not come."
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TripModel"
+                          }
+                        }
+                      }
                     }
                   }
                 }

@@ -6,6 +6,23 @@ createTrip:
         method: post
         cors: true
         authorizer: aws_iam
+myTripList:
+  handler: src/routes/trips/mytrips.myTrips
+  events:
+    - http:
+        path: mytrips
+        method: get
+        cors: true
+        authorizer: aws_iam
+
+savedTripList:
+  handler: src/routes/trips/saved-trips.savedTrips
+  events:
+    - http:
+        path: saved-trips
+        method: get
+        cors: true
+        authorizer: aws_iam
 
 getTrip:
   handler: src/routes/trips/get.getTrip
@@ -23,7 +40,6 @@ listTrips:
         path: trips
         method: get
         cors: true
-        authorizer: aws_iam
 
 updateTrip:
   handler: src/routes/trips/update.updateTrip

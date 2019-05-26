@@ -2,7 +2,7 @@ memberAction:
   handler: src/routes/members/action.memberAction
   events:
     - http:
-        path: member/actions
+        path: members/action
         method: post
         cors: true
         authorizer: aws_iam

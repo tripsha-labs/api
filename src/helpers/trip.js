@@ -27,6 +27,40 @@ export const getTripMembers = tripId => {
   return executeQuery('query', getMemberList);
 };
 
+export const getMyTrips = memberId => {
+  const getMemberList = {
+    TableName: TABLE_NAMES.MEMBERS,
+    ScanIndexForward: true,
+    Limit: 1000,
+    ExpressionAttributeNames: {
+      '#memberId': 'memberId',
+      '#isActive': 'isActive',
+    },
+    KeyConditionExpression: '#memberId=:memberId',
+    ExpressionAttributeValues: { ':memberId': memberId, ':isActive': true },
+    FilterExpression: '#isActive=:isActive',
+  };
+
+  return executeQuery('query', getMemberList);
+};
+
+export const getSavedTrips = memberId => {
+  const getMemberList = {
+    TableName: TABLE_NAMES.MEMBERS,
+    ScanIndexForward: true,
+    Limit: 1000,
+    ExpressionAttributeNames: {
+      '#memberId': 'memberId',
+      '#isFavorite': 'isFavorite',
+    },
+    KeyConditionExpression: '#memberId=:memberId',
+    ExpressionAttributeValues: { ':memberId': memberId, ':isFavorite': true },
+    FilterExpression: '#isFavorite=:isFavorite',
+  };
+
+  return executeQuery('query', getMemberList);
+};
+
 export const addMember = (tripId, memberId) => {
   const addMemberItem = {
     TableName: TABLE_NAMES.MEMBERS,

@@ -6,7 +6,7 @@ import Validator from 'fastest-validator';
 
 const memberSchema = {
   tripId: { type: 'string', empty: false },
-  memberId: { type: 'string', empty: false },
+  memberIds: { type: 'array', items: 'string', empty: false },
   action: {
     type: 'string',
     empty: false,

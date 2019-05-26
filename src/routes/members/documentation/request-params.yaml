@@ -10,9 +10,11 @@ components:
           tripId:
             type: string
             required: true
-          memberId:
-            type: string
+          memberIds:
+            type: array
             required: true
+            items:
+              type: string
           action:
             type: string
             required: true

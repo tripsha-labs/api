@@ -5,14 +5,14 @@ components:
       properties:
         tripId:
           type: string
-        userId:
+        memberId:
           type: string
         createdAt:
           type: string
           format: utc datetime
         isFavorite:
           type: boolean
-        isMember:
+        isOwner:
           type: boolean
         memberStatus:
           type: string
