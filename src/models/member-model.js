@@ -7,9 +7,11 @@ import Validator from 'fastest-validator';
 const memberSchema = {
   tripId: { type: 'string', empty: false },
   memberId: { type: 'string', empty: false },
-  status: { type: 'string', optional: true, empty: false },
-  isFavorite: { type: 'boolean', optional: true, empty: false },
-  addedAt: { type: 'number', optional: true, empty: false },
+  action: {
+    type: 'string',
+    empty: false,
+    enum: ['addMember', 'makeFavorite', 'removeMember', 'makeUnFavorite'],
+  },
   $$strict: true,
 };
 

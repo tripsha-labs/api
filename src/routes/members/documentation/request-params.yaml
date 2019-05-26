@@ -1,0 +1,23 @@
+components:
+  parameters:
+    MemberAction:
+      in: body
+      name: body
+      description: Perform Member Actions
+      required: true
+      schema:
+        properties:
+          tripId:
+            type: string
+            required: true
+          memberId:
+            type: string
+            required: true
+          action:
+            type: string
+            required: true
+            enum:
+              - addMember
+              - makeFavorite
+              - removeMember
+              - makeUnFavorite

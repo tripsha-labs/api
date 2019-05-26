@@ -5,7 +5,7 @@
 
 import { TABLE_NAMES, ERROR_CODES, ERROR_KEYS } from '../../constants';
 import { success, failure, executeQuery } from '../../utils';
-import { getUserById } from '../../helpers';
+import { getUserById, addMember } from '../../helpers';
 import {
   createTripValidation,
   createTripDefaultValues,
@@ -57,7 +57,11 @@ export const createTrip = async (event, context) => {
     ReturnValues: 'ALL_OLD',
   };
   try {
-    await executeQuery('put', params);
+    const resTrip = await executeQuery('put', params);
+    const resMember = await addMember(
+      params.Item.id,
+      event.requestContext.identity.cognitoIdentityId
+    );
     return success(params.Item.id);
   } catch (error) {
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);

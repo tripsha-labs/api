@@ -32,12 +32,6 @@ const tripBaseSchema = {
     items: 'string',
     enum: ['$', '$$', '$$$', '$$$$', '$$$$$'],
   },
-  connections: {
-    type: 'array',
-    optional: true,
-    empty: false,
-    items: 'string',
-  },
   pictureUrls: {
     type: 'array',
     optional: true,

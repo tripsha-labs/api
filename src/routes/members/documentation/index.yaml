@@ -1,0 +1,73 @@
+paths:
+  /trips/{tripId}/members:
+    get:
+      description: Returns list of trip members
+      operationId: listMembers
+      tags:
+        - Trips
+      parameters:
+        - $ref: '#/components/parameters/pathTripId'
+      responses:
+        '200':
+          description: Members response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    required:
+                      - totalCount
+                      - data
+                    properties:
+                      totalCount:
+                        type: number
+                        description: Total number of records                      
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MemberModel'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+  /member/actions:
+    post:
+      description: Perform various operations on a member
+      operationId: memberActions
+      tags:
+        - Members
+      parameters:
+        - $ref: '#/components/parameters/MemberAction'
+      responses:
+        '200':
+          description: Members response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: string
+                    default: 'success'                    
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'

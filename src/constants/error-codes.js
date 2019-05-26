@@ -9,6 +9,10 @@ export const ERROR_CODES = {
 export const ERROR_KEYS = {
   ITEM_NOT_FOUND: { type: 'itemNotFound', message: 'Requested item not found' },
   BAD_REQUEST: { type: 'badRequest', message: 'Bad Request' },
+  MISSING_FIELD: {
+    type: 'required',
+    message: "The '{ field }' field is required!",
+  },
   INVALID_DATES: {
     type: 'invalidDates',
     message: 'startDate and/or endDate invalid',
