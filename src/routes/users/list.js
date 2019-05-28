@@ -1,13 +1,13 @@
 /**
  * @name - list
- * @description - Tag list handler (lambda function)
+ * @description - get user list handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { errorSanitizer } from '../../helpers';
 import _ from 'lodash';
 
-export const get = async (event, context) => {
+export const listUser = async (event, context) => {
   // Get search string from queryparams
   const searchText =
     event.queryStringParameters && event.queryStringParameters.search
@@ -18,27 +18,26 @@ export const get = async (event, context) => {
     searchText != ''
       ? {
           ExpressionAttributeValues: {
-            ':nameLower': _.lowerCase(searchText),
-            ':pKey': 1,
+            ':username': _.lowerCase(searchText),
+            ':isActive': 1,
           },
         }
-      : { ExpressionAttributeValues: { ':pKey': 1 } };
-  // Build attribute names
+      : { ExpressionAttributeValues: { ':isActive': 1 } };
   const expressionAttributeNames =
     searchText != ''
       ? {
           ExpressionAttributeNames: {
-            '#nameLower': 'nameLower',
-            '#pKey': 'pKey',
+            '#username': 'username',
+            '#isActive': 'isActive',
           },
           KeyConditionExpression:
-            '#pKey=:pKey and begins_with(#nameLower, :nameLower)',
+            '#isActive=:isActive and begins_with(#username, :username)',
         }
       : {
           ExpressionAttributeNames: {
-            '#pKey': 'pKey',
+            '#isActive': 'isActive',
           },
-          KeyConditionExpression: '#pKey=:pKey',
+          KeyConditionExpression: '#isActive=:isActive',
         };
   // Build nextpage token
   const exclusiveStartKey =
@@ -53,27 +52,27 @@ export const get = async (event, context) => {
         }
       : {};
   const params = {
-    TableName: TABLE_NAMES.TAGS,
-    ...expressionAttributeNames,
-    ...expressionAttributeValues,
+    TableName: TABLE_NAMES.USER,
+    IndexName: 'SortByUsername',
     ScanIndexForward: true,
     Limit: 500,
+    ...expressionAttributeNames,
+    ...expressionAttributeValues,
     ...exclusiveStartKey,
   };
-
   try {
-    const resTags = await executeQuery('query', params);
+    const resUsers = await executeQuery('query', params);
     const lastEvaluatedKey =
-      resTags && resTags.LastEvaluatedKey
+      resUsers && resUsers.LastEvaluatedKey
         ? {
             nextPageToken: Buffer.from(
-              JSON.stringify(resTags.LastEvaluatedKey)
+              JSON.stringify(resUsers.LastEvaluatedKey)
             ).toString('base64'),
           }
         : {};
-    let result = {
-      data: resTags.Items,
-      count: resTags.Count,
+    const result = {
+      data: resUsers.Items,
+      count: resUsers.Count,
       ...lastEvaluatedKey,
     };
     return success(result);

@@ -47,7 +47,7 @@ custom:
   tblUsers: ${self:custom.stage}-users
   tblTrips: ${self:custom.stage}-trips
   tblTags: ${self:custom.stage}-tags
-  tblConnections: ${self:custom.stage}-connections
+  tblMembers: ${self:custom.stage}-members
   tblMessages: ${self:custom.stage}-messages
   tblCountries: ${self:custom.stage}-countries
 
@@ -72,7 +72,7 @@ provider:
         - 'Fn::GetAtt': [Users, Arn]
         - 'Fn::GetAtt': [Trips, Arn]
         - 'Fn::GetAtt': [Tags, Arn]
-        - 'Fn::GetAtt': [Connections, Arn]
+        - 'Fn::GetAtt': [Members, Arn]
         - 'Fn::GetAtt': [Messages, Arn]
         - 'Fn::GetAtt': [Countries, Arn]
     - Effect: Allow

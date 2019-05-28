@@ -9,12 +9,16 @@ components:
           type: string
         description:
           type: string
+        destinations:
+          type: array
+          items:
+            type: string
         startDate:
-          type: string
-          format: utc datetime
+          type: date
+          format: 'YYYYMMDD'
         endDate:
-          type: string
-          format: utc datetime
+          type: date
+          format: 'YYYYMMDD'
         languages:
           type: array
           items:
@@ -25,21 +29,50 @@ components:
           type: array
           items:
             type: string
+            enum: ['$', '$$', '$$$', '$$$$', '$$$$$']
+        spotFilledRank:
+          type: integer
+        tripLength:
+          type: integer
         groupSize:
+          type: integer
+        minGroupSize:
+          type: integer
+        maxGroupSize:
           type: integer
         interests:
           type: array
           items:
             type: string
-        createdAt:
-          type: string
-          format: utc datetime
-        updatedAt:
-          type: string
-          format: utc datetime
-        userId:
-          type: string
+        pictureUrls:
+          type: array
+          items:
+            type: string
+        isPublic:
+          type: boolean
         isActive:
           type: boolean
-        isArchived:
+        isFull:
           type: boolean
+          desciption: groupsize=maxGroupSize
+        isArchived:
+          type: number
+          description: Trip is expired, startDate less than todays date.
+          enum: [1, 0]
+        createdAt:
+          type: number
+          format: unix timestamp
+        updatedAt:
+          type: number
+          format: unix timestamp
+        ownerId:
+          type: string
+        createdBy:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            avatarUrl:
+              type: string

@@ -5,14 +5,34 @@ Resources:
       TableName: ${self:custom.tblUsers}
       AttributeDefinitions:
         - AttributeName: id
-          AttributeType: S
+          AttributeType: 'S'
+        - AttributeName: isActive
+          AttributeType: 'N'
+        - AttributeName: username
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: id
           KeyType: HASH
-      # Set the capacity based on the stage
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
+      GlobalSecondaryIndexes:
+        - IndexName: 'SortByUsername'
+          KeySchema:
+            - AttributeName: isActive
+              KeyType: HASH
+            - AttributeName: username
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes:
+              - firstName
+              - lastName
+              - avatarUrl
+              - email
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: ${self:custom.tableThroughput}
+            WriteCapacityUnits: ${self:custom.tableThroughput}
 
   Trips:
     Type: AWS::DynamoDB::Table
@@ -20,53 +40,69 @@ Resources:
       TableName: ${self:custom.tblTrips}
       AttributeDefinitions:
         - AttributeName: id
-          AttributeType: S
+          AttributeType: 'S'
+        - AttributeName: isArchived
+          AttributeType: 'N'
+        - AttributeName: createdAt
+          AttributeType: 'N'
+        - AttributeName: spotFilledRank
+          AttributeType: 'N'
+        - AttributeName: startDate
+          AttributeType: 'N'
       KeySchema:
         - AttributeName: id
           KeyType: HASH
-      # Set the capacity based on the stage
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
-
+      GlobalSecondaryIndexes:
+        - IndexName: 'newestTrips'
+          KeySchema:
+            - AttributeName: isArchived
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: 'ALL'
+          ProvisionedThroughput:
+            ReadCapacityUnits: ${self:custom.tableThroughput}
+            WriteCapacityUnits: ${self:custom.tableThroughput}
+        - IndexName: 'SpotsFilledIndex'
+          KeySchema:
+            - AttributeName: isArchived
+              KeyType: HASH
+            - AttributeName: spotFilledRank
+              KeyType: RANGE
+          Projection:
+            ProjectionType: 'ALL'
+          ProvisionedThroughput:
+            ReadCapacityUnits: ${self:custom.tableThroughput}
+            WriteCapacityUnits: ${self:custom.tableThroughput}
+        - IndexName: 'StartDateIndex'
+          KeySchema:
+            - AttributeName: isArchived
+              KeyType: HASH
+            - AttributeName: startDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: 'ALL'
+          ProvisionedThroughput:
+            ReadCapacityUnits: ${self:custom.tableThroughput}
+            WriteCapacityUnits: ${self:custom.tableThroughput}
   Tags:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: ${self:custom.tblTags}
       AttributeDefinitions:
-        - AttributeName: name
-          AttributeType: S
-      KeySchema:
-        - AttributeName: name
-          KeyType: HASH
-      # Set the capacity based on the stage
-      ProvisionedThroughput:
-        ReadCapacityUnits: ${self:custom.tableThroughput}
-        WriteCapacityUnits: ${self:custom.tableThroughput}
-
-  Connections:
-    Type: 'AWS::DynamoDB::Table'
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: 'connectionId'
+        - AttributeName: pKey
+          AttributeType: 'N'
+        - AttributeName: nameLower
           AttributeType: 'S'
       KeySchema:
-        - AttributeName: 'connectionId'
-          KeyType: 'HASH'
-      BillingMode: PAY_PER_REQUEST
-      TableName: ${self:custom.tblConnections}
-
-  Messages:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: ${self:custom.tblMessages}
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
+        - AttributeName: pKey
           KeyType: HASH
-      # Set the capacity based on the stage
+        - AttributeName: nameLower
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
@@ -76,12 +112,51 @@ Resources:
     Properties:
       TableName: ${self:custom.tblCountries}
       AttributeDefinitions:
-        - AttributeName: code
-          AttributeType: S
+        - AttributeName: pKey
+          AttributeType: 'N'
+        - AttributeName: nameLower
+          AttributeType: 'S'
       KeySchema:
-        - AttributeName: code
+        - AttributeName: pKey
           KeyType: HASH
-      # Set the capacity based on the stage
+        - AttributeName: nameLower
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: ${self:custom.tableThroughput}
+        WriteCapacityUnits: ${self:custom.tableThroughput}
+
+  Messages:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.tblMessages}
+      AttributeDefinitions:
+        - AttributeName: toMemberId
+          AttributeType: 'S'
+        - AttributeName: sentOn
+          AttributeType: 'N'
+      KeySchema:
+        - AttributeName: toMemberId
+          KeyType: HASH
+        - AttributeName: sentOn
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: ${self:custom.tableThroughput}
+        WriteCapacityUnits: ${self:custom.tableThroughput}
+
+  Members:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: ${self:custom.tblMembers}
+      AttributeDefinitions:
+        - AttributeName: memberId
+          AttributeType: 'S'
+        - AttributeName: tripId
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: memberId
+          KeyType: HASH
+        - AttributeName: tripId
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}

@@ -1,3 +1,11 @@
+listUser:
+  handler: src/routes/users/list.listUser
+  events:
+    - http:
+        path: users
+        method: get
+        cors: true
+        authorizer: aws_iam
 createUser:
   handler: src/routes/users/create.createUser
   events:

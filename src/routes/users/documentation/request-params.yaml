@@ -27,9 +27,9 @@ components:
           lastName:
             type: string
           dob:
-            type: string
-            format: 'date'
-          currentCity:
+            type: date
+            format: 'MM/DD/YYYY'
+          livesIn:
             type: string
           gender:
             type: string
@@ -38,36 +38,23 @@ components:
               - 'female'
               - 'other'
           spokenLanguages:
-            type: array
-            description: 'List of languages user can speak'
-            items:
-              type: object
-              properties:
-                name:
-                  type: 'string'
-                level:
-                  type: 'string'
+            type: string
+            description: 'List of languages user can speak separated by comma'
           bio:
             type: string
           isLookingForTravel:
             type: boolean
           avatarUrl:
             type: string
-          socialConnections:
+          connections:
             type: array
             items:
-              type: object
-              properties:
-                name:
-                  type: string
-                details:
-                  type: string
-              description: Social media connection object
+              type: string
           interests:
             type: array
             items:
               type: string
-          countryInterests:
+          bucketList:
             type: array
             items:
               type: string

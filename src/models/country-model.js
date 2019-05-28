@@ -1,13 +1,12 @@
-import { TABLE_NAMES } from '../constants';
-export const addCountryTags = tags => {
-  const params = {
-    TableName: TABLE_NAMES.TRIP,
-    Item: {
-      ...data, // validated data
-      ...createTripDefaultValues, // default values
-      userId: event.requestContext.identity.cognitoIdentityId,
-      id: uuid.v1(),
-    },
-    ReturnValues: 'ALL_OLD',
-  };
+/**
+ * @name - countryModel
+ * @description - All the schema validation for country handled from here
+ */
+import Validator from 'fastest-validator';
+
+export const countrySchema = {
+  code: { type: 'string', empty: false },
+  name: { type: 'string', empty: false },
 };
+
+export const countryValidation = new Validator().compile(countrySchema);

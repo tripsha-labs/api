@@ -10,29 +10,24 @@ const userBaseSchema = {
   firstName: { type: 'string', empty: false, optional: true },
   lastName: { type: 'string', empty: false, optional: true },
   gender: {
-    type: 'enum',
+    type: 'string',
     optional: true,
     empty: false,
     values: ['male', 'female', 'other'],
   },
   spokenLanguages: {
-    type: 'array',
+    type: 'string',
     optional: true,
     empty: false,
-    items: {
-      type: 'object',
-      props: {
-        name: 'string',
-        level: 'string',
-      },
-    },
+    max: 30,
   },
-  currentCity: {
+  livesIn: {
     type: 'string',
     empty: false,
     optional: true,
+    max: 30,
   },
-  bio: { type: 'string', optional: true, empty: false },
+  bio: { type: 'string', optional: true, empty: false, max: 300 },
   isLookingForTravel: {
     type: 'boolean',
     optional: true,
@@ -45,21 +40,9 @@ const userBaseSchema = {
     optional: true,
     empty: false,
     items: {
-      type: 'object',
+      type: 'string',
       optional: true,
       empty: false,
-      props: {
-        name: {
-          type: 'string',
-          optional: true,
-          empty: false,
-        },
-        details: {
-          type: 'string',
-          optional: true,
-          empty: false,
-        },
-      },
     },
   },
   interests: {
@@ -68,11 +51,11 @@ const userBaseSchema = {
     empty: false,
     items: 'string',
   },
-  countryInterests: {
-    type: 'array',
+  bucketList: {
+    type: 'string',
     optional: true,
     empty: false,
-    items: 'string',
+    max: 100,
   },
   isActive: { type: 'boolean', optional: true, empty: false },
   $$strict: true,
@@ -80,19 +63,20 @@ const userBaseSchema = {
 
 const createUserSchema = {
   username: { type: 'string', empty: false },
-  email: { type: 'email', empty: false },
+  email: { type: 'email', empty: false, optional: true },
   firstName: { type: 'string', empty: false, optional: true },
   lastName: { type: 'string', empty: false, optional: true },
+  $$strict: true,
 };
 
 export const updateUserDefaultValues = {
-  updateAt: moment.utc().format(),
+  updateAt: moment().unix(),
 };
 
 export const createUserDefaultValues = {
-  isActive: true,
+  isActive: 1,
   isLookingForTravel: false,
-  createdAt: moment.utc().format(),
+  createdAt: moment().unix(),
   ...updateUserDefaultValues,
 };
 

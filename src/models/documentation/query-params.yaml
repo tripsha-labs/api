@@ -6,40 +6,101 @@ components:
       description: 'Id of the user'
       schema:
         type: 'string'
-    queryLimit:
-      name: 'limit'
+    queryNextPageToken:
+      name: 'nextPageToken'
       in: 'query'
-      description: 'No of records per page'
+      description: 'Next Page token'
       schema:
         type: 'string'
-        default: 25
-    queryPage:
-      name: 'page'
+    querySortByUsername:
+      name: 'sortBy'
       in: 'query'
-      description: 'Page number'
+      description: 'Sort by username'
       schema:
         type: 'string'
-        default: 1
+        default: username
+        enum:
+          - username
     querySortBy:
       name: 'sortBy'
       in: 'query'
-      description: 'Name of the field to sort'
+      description: 'Sort by key'
       schema:
         type: 'string'
-        default: 'firstName'
+        default: 'newestTrips'
+        enum:
+          - 'newestTrips'
+          - 'earliestDeparture'
+          - 'mostSpotsFilled'
     querySortOrder:
       name: 'sortOrder'
       in: 'query'
-      description: 'Sort order'
+      description: 'Sort order applied on `sortBy`'
       schema:
-        type: 'number'
+        type: 'boolean'
         enum:
-          - 1
-          - -1
-        default: -1
+          - true
+          - false
+        default: false
     querySearch:
       name: 'search'
       in: 'query'
       description: 'Search filter'
+      schema:
+        type: 'string'
+    queryBudgets:
+      name: 'budgets'
+      in: 'query'
+      description: 'Search budgets filter, comma separated values. $,$$'
+      schema:
+        type: 'string'
+    queryMinGroupSize:
+      name: 'minGroupSize'
+      in: 'query'
+      description: 'Search for minGroupSize'
+      schema:
+        type: 'number'
+    queryMaxGroupSize:
+      name: 'maxGroupSize'
+      in: 'query'
+      description: 'Search for maxGroupSize'
+      schema:
+        type: 'number'
+    queryMinStartDate:
+      name: 'minStartDate'
+      in: 'query'
+      description: 'Search for minStartDate. Format: `YYYYMMDD`'
+      schema:
+        type: 'date'
+        format: 'YYYYMMDD'
+    queryMaxEndDate:
+      name: 'maxEndDate'
+      in: 'query'
+      description: 'Search for maxEndDate. Format: `YYYYMMDD`'
+      schema:
+        type: 'date'
+        format: 'YYYYMMDD'
+    queryMinTripLength:
+      name: 'minTripLength'
+      in: 'query'
+      description: 'Search for minTripLength'
+      schema:
+        type: 'number'
+    queryMaxTripLength:
+      name: 'maxTripLength'
+      in: 'query'
+      description: 'Search for maxTripLength'
+      schema:
+        type: 'number'
+    queryInterests:
+      name: 'interests'
+      in: 'query'
+      description: 'Search for interests, comma separated values. Ex. value1,value2'
+      schema:
+        type: 'string'
+    queryDestinations:
+      name: 'destinations'
+      in: 'query'
+      description: 'Search for destinations, comma separated values. Ex. value1,value2'
       schema:
         type: 'string'
