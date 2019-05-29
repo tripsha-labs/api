@@ -10,7 +10,7 @@ const userBaseSchema = {
   firstName: { type: 'string', empty: false, optional: true },
   lastName: { type: 'string', empty: false, optional: true },
   gender: {
-    type: 'string',
+    type: 'enum',
     optional: true,
     empty: false,
     values: ['male', 'female', 'other'],
