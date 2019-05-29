@@ -11,9 +11,9 @@ const messageSchema = {
   sentOn: { type: 'number', empty: false },
   message: { type: 'string', empty: false },
   type: {
-    type: 'string',
+    type: 'enum',
     empty: false,
-    enum: ['text'],
+    values: ['text'],
   },
   $$strict: true,
 };

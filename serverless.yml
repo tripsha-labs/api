@@ -50,6 +50,7 @@ custom:
   tblMembers: ${self:custom.stage}-members
   tblMessages: ${self:custom.stage}-messages
   tblCountries: ${self:custom.stage}-countries
+  tblConnectionInfo: ${self:custom.stage}-connections
 
 provider:
   name: aws
@@ -75,6 +76,7 @@ provider:
         - 'Fn::GetAtt': [Members, Arn]
         - 'Fn::GetAtt': [Messages, Arn]
         - 'Fn::GetAtt': [Countries, Arn]
+        - 'Fn::GetAtt': [ConnectionInfo, Arn]
     - Effect: Allow
       Action:
         - 'execute-api:ManageConnections'

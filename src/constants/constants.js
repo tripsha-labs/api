@@ -9,6 +9,7 @@ export const TABLE_NAMES = {
   MEMBERS: process.env.tblMembers,
   MESSAGES: process.env.tblMessages,
   COUNTRIES: process.env.tblCountries,
+  CONNECTIONS: process.env.tblConnectionInfo,
 };
 
 export const APP_CONSTANTS = {

@@ -6,3 +6,21 @@ listMessages:
         method: get
         cors: true
         authorizer: aws_iam
+
+connectionHandler:
+  handler: src/routes/messages/handler.connectionHandler
+  events:
+    - websocket:
+        route: $connect
+    - websocket:
+        route: $disconnect
+defaultHandler:
+  handler: src/routes/messages/handler.defaultHandler
+  events:
+    - websocket:
+        route: $default
+sendMessageHandler:
+  handler: src/routes/messages/handler.sendMessageHandler
+  events:
+    - websocket:
+        route: sendMessage
