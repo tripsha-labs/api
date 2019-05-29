@@ -89,6 +89,7 @@ functions:
   - ${file(src/routes/tags/functions.yml)}
   - ${file(src/routes/messages/functions.yml)}
   - ${file(src/routes/countries/functions.yml)}
+  - ${file(src/routes/members/functions.yml)}
 
 resources:
   # API Gateway Errors

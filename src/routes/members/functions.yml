@@ -1,0 +1,17 @@
+memberAction:
+  handler: src/routes/members/action.memberAction
+  events:
+    - http:
+        path: members/action
+        method: post
+        cors: true
+        authorizer: aws_iam
+
+memberList:
+  handler: src/routes/members/list.memberList
+  events:
+    - http:
+        path: trips/{id}/members
+        method: get
+        cors: true
+        authorizer: aws_iam

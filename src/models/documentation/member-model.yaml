@@ -7,25 +7,31 @@ components:
           type: string
         memberId:
           type: string
-        memberDetails:
-          type: object
-          properties:
-            firstName:
-              type: string
-            lastName:
-              type: string
-            avatarUrl:
-              type: string
-            connectionId:
-              type: string
-            isOnline:
-              type: boolean
-        status:
-          type: string
-        isFavotite:
+        isFavorite:
           type: boolean
+          description: If `true`, the user has saved this trip for future reference
+          enum:
+            - true
+            - false
+        isMember:
+          type: boolean
+          description: Is member of the trip, if `true` then counted as active member of the trip
+          enum:
+            - true
+            - false
+        isActive:
+          type: boolean
+          description: If `isMember=true` then this value applies
+          enum:
+            - true
+            - false
         isOwner:
           type: boolean
-        addedAt:
+          description: Member is owner of the trip or not
+          enum:
+            - true
+            - false
+        updatedAt:
           type: number
           format: Unix timestamp
+          description: The last time user interacted with the trip

@@ -45,12 +45,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/TripModel'
-        default:
-          description: Error Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CommonErrorFormat'
     post:
       description: Creates a trip
       operationId: createTrip
@@ -76,6 +70,83 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommonErrorFormat'
+  /mytrips:
+    get:
+      description: Returns list of my trips
+      operationId: myTrips
+      tags:
+        - Trips
+      parameters:
+        - $ref: '#/components/parameters/queryNextPageToken'
+      responses:
+        '200':
+          description: Trip response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      totalCount:
+                        type: number
+                        description: Total number of records
+                      nextPageToken:
+                        type: string
+                        description: Next page token, available if more record exists. On last page it will not come.
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TripModel'
+  /saved-trips:
+    get:
+      description: Returns list of saved trips
+      operationId: savedTrips
+      tags:
+        - Trips
+      parameters:
+        - $ref: '#/components/parameters/queryNextPageToken'
+      responses:
+        '200':
+          description: Trip response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      totalCount:
+                        type: number
+                        description: Total number of records
+                      nextPageToken:
+                        type: string
+                        description: Next page token, available if more record exists. On last page it will not come.
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TripModel'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+
   /trips/{tripId}:
     get:
       description: Returns a trip based on a trip ID
