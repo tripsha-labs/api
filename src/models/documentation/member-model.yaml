@@ -9,7 +9,7 @@ components:
           type: string
         isFavorite:
           type: boolean
-          description: if `true` then User has saved this trip for later approach
+          description: If `true`, the user has saved this trip for future reference
           enum:
             - true
             - false
@@ -34,4 +34,4 @@ components:
         updatedAt:
           type: number
           format: Unix timestamp
-          description: when last time user interacted with the trip
+          description: The last time user interacted with the trip
