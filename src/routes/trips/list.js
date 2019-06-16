@@ -18,11 +18,12 @@ export const listTrips = async (event, context) => {
   const filter = {
     KeyConditionExpression: 'isArchived=:isArchived',
     IndexName: 'newestTrips',
-    ScanIndexForward: event.queryStringParameters.sortOrder
-      ? event.queryStringParameters.sortOrder
-      : false,
+    ScanIndexForward: false,
   };
   if (event.queryStringParameters) {
+    filter['ScanIndexForward'] = event.queryStringParameters.sortOrder
+      ? event.queryStringParameters.sortOrder
+      : false;
     // Sort by earliest departure
     if (event.queryStringParameters.sortBy == 'earliestDeparture') {
       filter['IndexName'] = 'StartDateIndex';

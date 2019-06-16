@@ -9,18 +9,14 @@ import { errorSanitizer } from '../../helpers';
 export const get = async (event, context) => {
   const params = {
     TableName: TABLE_NAMES.MESSAGES,
-    KeyConditionExpression: '#userId=:userId',
-    ExpressionAttributeNames: {
-      '#userId': 'userId',
-    },
     ExpressionAttributeValues: {
       ':userId': event.requestContext.identity.cognitoIdentityId,
     },
-    ScanIndexForward: false,
+    FilterExpression: 'toMemberId=:userId or fromMemberId=:userId',
   };
 
   try {
-    const resMessages = await executeQuery('query', params);
+    const resMessages = await executeQuery('scan', params);
     return success({
       data: resMessages.Items,
       totalCount: resMessages.Count,
