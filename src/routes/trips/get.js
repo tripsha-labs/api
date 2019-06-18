@@ -7,6 +7,12 @@ import { TABLE_NAMES, ERROR_CODES, ERROR_KEYS } from '../../constants';
 import { errorSanitizer } from '../../helpers';
 
 export const getTrip = async (event, context) => {
+  if (!(event.pathParameters && event.pathParameters.id)) {
+    return failure(
+      { ...ERROR_KEYS.MISSING_FIELD, field: 'id' },
+      ERROR_CODES.VALIDATION_ERROR
+    );
+  }
   const params = {
     TableName: TABLE_NAMES.TRIP,
     Key: {

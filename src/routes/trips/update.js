@@ -13,7 +13,12 @@ import { queryBuilder, keyPrefixAlterer, errorSanitizer } from '../../helpers';
 
 export const updateTrip = async (event, context) => {
   const data = JSON.parse(event.body) || {};
-
+  if (!(event.pathParameters && event.pathParameters.id)) {
+    return failure(
+      { ...ERROR_KEYS.MISSING_FIELD, field: 'id' },
+      ERROR_CODES.VALIDATION_ERROR
+    );
+  }
   // Validate trip fields against the strict schema
   const errors = updateTripValidation(data);
   if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
