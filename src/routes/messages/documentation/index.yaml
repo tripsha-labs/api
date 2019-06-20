@@ -27,7 +27,7 @@ paths:
                     properties:
                       totalCount:
                         type: number
-                        description: Total number of records                      
+                        description: Total number of records
                       data:
                         type: array
                         items:
