@@ -2,15 +2,12 @@
  * @name - create
  * @description - Trip create handler (lambda function)
  */
-
+import * as moment from 'moment';
+import uuid from 'uuid';
 import { TABLE_NAMES, ERROR_CODES, ERROR_KEYS } from '../../constants';
 import { success, failure, executeQuery } from '../../utils';
 import { getUserById, addMember } from '../../helpers';
-import {
-  createTripValidation,
-  createTripDefaultValues,
-  validateTripLength,
-} from '../../models';
+import { createTripValidation, validateTripLength } from '../../models';
 import { errorSanitizer } from '../../helpers';
 
 export const createTrip = async (event, context) => {
@@ -51,7 +48,11 @@ export const createTrip = async (event, context) => {
     TableName: TABLE_NAMES.TRIP,
     Item: {
       ...data, // validated data
-      ...createTripDefaultValues, // default values
+      isActive: true,
+      isArchived: 0,
+      id: uuid.v1(),
+      createdAt: moment().unix(),
+      updatedAt: moment().unix(),
       ownerId: event.requestContext.identity.cognitoIdentityId,
     },
     ReturnValues: 'ALL_OLD',

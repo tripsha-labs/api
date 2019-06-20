@@ -2,13 +2,10 @@
  * @name - update
  * @description - Trip update handler (lambda function)
  */
+import * as moment from 'moment';
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
-import {
-  updateTripValidation,
-  updateTripDefaultValues,
-  validateTripLength,
-} from '../../models';
+import { updateTripValidation, validateTripLength } from '../../models';
 import { queryBuilder, keyPrefixAlterer, errorSanitizer } from '../../helpers';
 
 export const updateTrip = async (event, context) => {
@@ -23,7 +20,7 @@ export const updateTrip = async (event, context) => {
   const errors = updateTripValidation(data);
   if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
   // update data object with default fields and values ex. updatedAt
-  const trip = { ...data, ...updateTripDefaultValues };
+  const trip = { ...data, updatedAt: moment().unix() };
   try {
     const user = await getUserById(
       event.requestContext.identity.cognitoIdentityId
