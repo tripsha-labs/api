@@ -4,7 +4,6 @@
  */
 import Validator from 'fastest-validator';
 import * as moment from 'moment';
-import uuid from 'uuid';
 import { DATE_FORMAT } from '../constants/constants';
 
 const tripBaseSchema = {
@@ -83,18 +82,6 @@ export const validateTripLength = (startDate, endDate) => {
   } catch (err) {
     return -1;
   }
-};
-
-export const updateTripDefaultValues = {
-  updatedAt: moment().unix(),
-};
-
-export const createTripDefaultValues = {
-  isActive: true,
-  isArchived: 0,
-  id: uuid.v1(),
-  createdAt: moment().unix(),
-  ...updateTripDefaultValues,
 };
 
 export const createTripValidation = new Validator().compile(createTripSchema);
