@@ -44,6 +44,12 @@ const tripBaseSchema = {
     empty: false,
     items: 'string',
   },
+  connections: {
+    type: 'array',
+    optional: true,
+    empty: false,
+    items: 'string',
+  },
   minGroupSize: {
     type: 'number',
     empty: false,

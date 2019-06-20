@@ -20,11 +20,11 @@ components:
           required: true
         startDate:
           type: string
-          format: 'MM/DD/YYYY'
+          format: 'YYYYMMDD'
           required: true
         endDate:
           type: string
-          format: 'MM/DD/YYYY'
+          format: 'YYYYMMDD'
           required: true
         languages:
           type: array

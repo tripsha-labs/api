@@ -1,0 +1,40 @@
+paths:
+  /messages:
+    get:
+      description: Returns list of user messages
+      operationId: listMessages
+      tags:
+        - Messages
+      responses:
+        '200':
+          description: Messages response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    required:
+                      - totalCount
+                      - data
+                    properties:
+                      totalCount:
+                        type: number
+                        description: Total number of records
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MessageModel'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'

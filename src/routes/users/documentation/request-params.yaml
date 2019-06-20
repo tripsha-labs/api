@@ -28,7 +28,7 @@ components:
             type: string
           dob:
             type: date
-            format: 'MM/DD/YYYY'
+            format: 'YYYYMMDD'
           livesIn:
             type: string
           gender:

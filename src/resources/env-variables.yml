@@ -6,3 +6,4 @@ tblTags: ${self:custom.tblTags}
 tblMembers: ${self:custom.tblMembers}
 tblMessages: ${self:custom.tblMessages}
 tblCountries: ${self:custom.tblCountries}
+tblConnectionInfo: ${self:custom.tblConnectionInfo}

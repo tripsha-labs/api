@@ -12,8 +12,8 @@ components:
           type: string
           description: user id of sender
         sentOn:
-          type: string
-          format: utc datetime
+          type: number
+          format: unix timestamp
         message:
           type: string
         type:

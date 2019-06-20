@@ -14,7 +14,16 @@ import {
 
 export const updateUser = async (event, context) => {
   const data = JSON.parse(event.body);
-
+  if (!(event.pathParameters && event.pathParameters.id)) {
+    return failure(
+      { ...ERROR_KEYS.MISSING_FIELD, field: 'id' },
+      ERROR_CODES.VALIDATION_ERROR
+    );
+  }
+  const userId =
+    event.pathParameters.id == 'me'
+      ? event.requestContext.identity.cognitoIdentityId
+      : event.pathParameters.id;
   // Validate user fields against the strict schema
   const errors = updateUserValidation(data);
   if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
@@ -26,13 +35,12 @@ export const updateUser = async (event, context) => {
   const params = {
     TableName: TABLE_NAMES.USER,
     Key: {
-      id: event.requestContext.identity.cognitoIdentityId,
+      id: userId,
     },
     UpdateExpression: 'SET ' + queryBuilder(user),
     ExpressionAttributeValues: keyPrefixAlterer(user),
     ReturnValues: 'ALL_NEW',
   };
-  console.log(params);
   try {
     const resUpdateUser = await executeQuery('update', params);
     if (data['firstName'] || data['lastName'] || data['avatarUrl']) {
