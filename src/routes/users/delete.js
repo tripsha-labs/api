@@ -14,9 +14,9 @@ export const deleteUser = async (event, context) => {
     );
   }
   const userId =
-    event.queryStringParameters.id == 'me'
+    event.pathParameters.id == 'me'
       ? event.requestContext.identity.cognitoIdentityId
-      : event.queryStringParameters.id;
+      : event.pathParameters.id;
   const params = {
     TableName: TABLE_NAMES.USER,
     Key: {

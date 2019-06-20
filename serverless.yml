@@ -77,6 +77,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - dynamodb:BatchGetItem
       Resource:
         'arn:aws:dynamodb:${self:provider.region}:*:*'
         # - 'Fn::GetAtt': [Users, Arn]

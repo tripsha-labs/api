@@ -1,3 +1,7 @@
+/**
+ * @name - Websocket handler
+ * @description - Websocket handler for messaging
+ */
 import {
   success,
   failure,
@@ -10,80 +14,25 @@ import * as moment from 'moment';
 import uuid from 'uuid';
 import https from 'https';
 const jose = require('node-jose');
-import AWS from 'aws-sdk';
-const region = 'us-east-1';
-const userpool_id = 'us-east-1_lEqTeltlS';
-const app_client_id = 'qkfn5rti2ht4sj6jdneh2tu97';
-const keys_url =
-  'https://cognito-idp.' +
-  region +
-  '.amazonaws.com/' +
-  userpool_id +
-  '/.well-known/jwks.json';
-const { Service, apiLoader } = AWS;
-apiLoader.services['apigatewaymanagementapi'] = {};
-
-const model = {
-  metadata: {
-    apiVersion: '2018-11-29',
-    endpointPrefix: 'execute-api',
-    signingName: 'execute-api',
-    serviceFullName: 'AmazonApiGatewayManagementApi',
-    serviceId: 'ApiGatewayManagementApi',
-    protocol: 'rest-json',
-    jsonVersion: '1.1',
-    uid: 'apigatewaymanagementapi-2018-11-29',
-    signatureVersion: 'v4',
-  },
-  operations: {
-    PostToConnection: {
-      http: {
-        requestUri: '/@connections/{connectionId}',
-        responseCode: 200,
-      },
-      input: {
-        type: 'structure',
-        members: {
-          Data: {
-            type: 'blob',
-          },
-          ConnectionId: {
-            location: 'uri',
-            locationName: 'connectionId',
-          },
-        },
-        required: ['ConnectionId', 'Data'],
-        payload: 'Data',
-      },
-    },
-  },
-  paginators: {},
-  shapes: {},
-};
-
-AWS.ApiGatewayManagementApi = Service.defineService('apigatewaymanagementapi', [
-  '2018-11-29',
-]);
-
-Object.defineProperty(
-  apiLoader.services['apigatewaymanagementapi'],
-  '2018-11-29',
-  {
-    // eslint-disable-next-line
-    get: function get() {
-      return model;
-    },
-    enumerable: true,
-    configurable: true,
-  }
-);
 
 export const auth = (event, context, callback) => {
-  const token = event.queryStringParameters.Auth;
+  if (!event.queryStringParameters) {
+    console.log('region, userpoolId, appClientId, auth must be required');
+    return callback('region, userpoolId, appClientId, auth must be required');
+  }
+  const region = event.queryStringParameters.region;
+  const userpoolId = event.queryStringParameters.userpoolId;
+  const appClientId = event.queryStringParameters.appClientId;
+  const keys_url =
+    'https://cognito-idp.' +
+    region +
+    '.amazonaws.com/' +
+    userpoolId +
+    '/.well-known/jwks.json';
+  const token = event.queryStringParameters.auth;
   const sections = token.split('.');
   // get the kid from the headers prior to verification
-  let header = jose.util.base64url.decode(sections[0]);
-  header = JSON.parse(header);
+  const header = JSON.parse(jose.util.base64url.decode(sections[0]));
   const kid = header.kid;
   // download the public keys
   https.get(keys_url, response => {
@@ -91,19 +40,19 @@ export const auth = (event, context, callback) => {
       response.on('data', body => {
         const keys = JSON.parse(body)['keys'];
         // search for the kid in the downloaded public keys
-        let key_index = -1;
+        let keyIndex = -1;
         for (let i = 0; i < keys.length; i++) {
           if (kid == keys[i].kid) {
-            key_index = i;
+            keyIndex = i;
             break;
           }
         }
-        if (key_index == -1) {
+        if (keyIndex == -1) {
           console.log('Public key not found in jwks.json');
-          callback('Public key not found in jwks.json');
+          return callback('Public key not found in jwks.json');
         }
         // construct the public key
-        jose.JWK.asKey(keys[key_index]).then(result => {
+        jose.JWK.asKey(keys[keyIndex]).then(result => {
           // verify the signature
           jose.JWS.createVerify(result)
             .verify(token)
@@ -111,18 +60,18 @@ export const auth = (event, context, callback) => {
               // now we can use the claims
               const claims = JSON.parse(result.payload);
               // additionally we can verify the token expiration
-              const current_ts = Math.floor(new Date() / 1000);
-              if (current_ts > claims.exp) {
-                callback('Token is expired');
+              const currentTS = Math.floor(new Date() / 1000);
+              if (currentTS > claims.exp) {
+                return callback('Token is expired');
               }
               // and the Audience (use claims.client_id if verifying an access token)
-              if (claims.client_id != app_client_id) {
-                callback('Token was not issued for this audience');
+              if (claims.client_id != appClientId) {
+                return callback('Token was not issued for this audience');
               }
-              callback(null, generateAllow(claims, event.methodArn));
+              return callback(null, generateAllow(claims, event.methodArn));
             })
             .catch(() => {
-              callback('Signature verification failed');
+              return callback('Signature verification failed');
             });
         });
       });
@@ -168,10 +117,13 @@ export const connectionHandler = async (event, context) => {
     } else if (event.requestContext.eventType === 'DISCONNECT') {
       await deleteConnection(event.requestContext.connectionId);
     }
+    console.info('Connection added/removed');
     return success({
       data: 'success',
     });
   } catch (error) {
+    console.error('Failed to esablish/remove connection');
+    console.error(error);
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };
@@ -186,22 +138,23 @@ export const sendMessageHandler = async (event, context) => {
   try {
     const message = await storeMessage(event);
     await sendMessageToAllConnected(event, message);
+    console.info('Message sent!');
     return success({
       data: 'success',
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };
 
-const sendMessageToAllConnected = (event, message) => {
-  console.log(message);
-  return getConnectionIds(event, message).then(connectionData => {
-    return connectionData.Items.map(connectionId => {
-      return send(event, connectionId.connectionId, message);
-    });
+const sendMessageToAllConnected = async (event, message) => {
+  const connectionData = await getConnectionIds(event, message);
+  const promises = [];
+  connectionData.Items.map(connectionId => {
+    promises.push(send(event, connectionId.connectionId, message));
   });
+  return Promise.all(promises);
 };
 
 const storeMessage = async event => {
@@ -225,11 +178,12 @@ const storeMessage = async event => {
   if (userlist && userlist.Items && userlist.Items.length > 0) {
     params.Item['fromMemberId'] = userlist.Items[0].id;
   }
-  console.log(params);
   try {
     await executeQuery('put', params);
+    console.info('Message stored!');
     return params.Item;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
@@ -255,7 +209,6 @@ const getConnectionIds = (event, message) => {
     },
     FilterExpression: 'userId=:userId',
   };
-  console.log(params);
 
   return executeQuery('scan', params);
 };

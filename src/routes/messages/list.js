@@ -22,6 +22,8 @@ export const get = async (event, context) => {
       totalCount: resMessages.Count,
     });
   } catch (error) {
+    console.error('Failed to list messages');
+    console.error(error);
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

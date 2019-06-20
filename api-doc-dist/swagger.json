@@ -45,7 +45,7 @@
           },
           "isFavorite": {
             "type": "boolean",
-            "description": "if `true` then User has saved this trip for later approach",
+            "description": "If `true`, the user has saved this trip for future reference",
             "enum": [true, false]
           },
           "isMember": {
@@ -66,7 +66,7 @@
           "updatedAt": {
             "type": "number",
             "format": "Unix timestamp",
-            "description": "when last time user interacted with the trip"
+            "description": "The last time user interacted with the trip"
           }
         }
       },
@@ -85,8 +85,8 @@
             "description": "user id of sender"
           },
           "sentOn": {
-            "type": "string",
-            "format": "utc datetime"
+            "type": "number",
+            "format": "unix timestamp"
           },
           "message": {
             "type": "string"
@@ -864,6 +864,58 @@
                     "result": {
                       "type": "string",
                       "default": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages": {
+      "get": {
+        "description": "Returns list of user messages",
+        "operationId": "listMessages",
+        "tags": ["Messages"],
+        "responses": {
+          "200": {
+            "description": "Messages response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "required": ["totalCount", "data"],
+                      "properties": {
+                        "totalCount": {
+                          "type": "number",
+                          "description": "Total number of records"
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/MessageModel"
+                          }
+                        }
+                      }
                     }
                   }
                 }

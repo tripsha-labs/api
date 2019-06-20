@@ -21,9 +21,9 @@ export const updateUser = async (event, context) => {
     );
   }
   const userId =
-    event.queryStringParameters.id == 'me'
+    event.pathParameters.id == 'me'
       ? event.requestContext.identity.cognitoIdentityId
-      : event.queryStringParameters.id;
+      : event.pathParameters.id;
   // Validate user fields against the strict schema
   const errors = updateUserValidation(data);
   if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
