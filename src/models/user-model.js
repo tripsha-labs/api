@@ -3,7 +3,7 @@
  * @description - All the user module releted validation handled from here
  */
 import Validator from 'fastest-validator';
-import * as moment from 'moment';
+import moment from 'moment';
 
 const userBaseSchema = {
   dob: { type: 'string', optional: true, empty: false },

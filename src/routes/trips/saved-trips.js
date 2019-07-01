@@ -2,8 +2,8 @@
  * @name - saved trips
  * @description - saved trips handler (lambda function)
  */
-import { ERROR_CODES } from '../../constants';
-import { success, failure } from '../../utils';
+import { TABLE_NAMES, ERROR_CODES } from '../../constants';
+import { success, failure, executeQuery } from '../../utils';
 import { errorSanitizer, getSavedTrips } from '../../helpers';
 import _ from 'lodash';
 

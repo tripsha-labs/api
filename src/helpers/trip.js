@@ -9,7 +9,7 @@ export const updateBulkTrip = user => {
   return true;
 };
 
-export const getTripMembers = tripId => {
+export const getTripMembers = async tripId => {
   const getMemberList = {
     TableName: TABLE_NAMES.MEMBERS,
     IndexName: 'tripMembers',
@@ -23,8 +23,28 @@ export const getTripMembers = tripId => {
     ExpressionAttributeValues: { ':tripId': tripId, ':isMember': true },
     FilterExpression: '#isMember=:isMember',
   };
-
-  return executeQuery('query', getMemberList);
+  try {
+    const members = await executeQuery('query', getMemberList);
+    const promises = [];
+    members.Items.map(member => {
+      promises.push(
+        new Promise(async res => {
+          const params = {
+            TableName: TABLE_NAMES.USER,
+            Key: {
+              id: member.memberId,
+            },
+          };
+          const user = await executeQuery('get', params);
+          return res({ ...member, ...user.Item });
+        })
+      );
+    });
+    return Promise.all(promises);
+  } catch (error) {
+    console.log(error);
+    return Promise.all([]);
+  }
 };
 
 export const getMyTrips = memberId => {

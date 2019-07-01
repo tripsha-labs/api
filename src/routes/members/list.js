@@ -16,8 +16,8 @@ export const memberList = async (event, context) => {
   try {
     const resMembers = await getTripMembers(event.pathParameters.id);
     const result = {
-      data: resMembers.Items,
-      count: resMembers.Count,
+      data: resMembers,
+      count: resMembers.length,
     };
     return success(result);
   } catch (error) {
