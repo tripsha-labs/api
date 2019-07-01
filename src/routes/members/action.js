@@ -167,10 +167,10 @@ export const memberAction = async (event, context) => {
     await Promise.all(promises);
     const members = await getTripMembers(data['tripId']);
     const trip = {
-      groupSize: members.Count,
-      isFull: members.Count >= info['tripDetails']['maxGroupSize'],
+      groupSize: members.length,
+      isFull: members.length >= info['tripDetails']['maxGroupSize'],
       spotFilledRank: Math.round(
-        (members.Count / info['tripDetails']['maxGroupSize']) * 100
+        (members.length / info['tripDetails']['maxGroupSize']) * 100
       ),
     };
     const updateTripParams = {

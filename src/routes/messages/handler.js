@@ -29,7 +29,7 @@ export const auth = (event, context, callback) => {
     '.amazonaws.com/' +
     userpoolId +
     '/.well-known/jwks.json';
-  const token = event.queryStringParameters.auth;
+  const token = event.queryStringParameters.Auth;
   const sections = token.split('.');
   // get the kid from the headers prior to verification
   const header = JSON.parse(jose.util.base64url.decode(sections[0]));
