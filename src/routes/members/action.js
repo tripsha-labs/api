@@ -159,7 +159,7 @@ export const memberAction = async (event, context) => {
       }
     }),
   ];
-  // console.log(promises);
+
   try {
     if (promises.length == 0) {
       return failure(ERROR_KEYS.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
