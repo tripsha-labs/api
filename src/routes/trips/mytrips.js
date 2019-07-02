@@ -4,7 +4,7 @@
  */
 import { ERROR_CODES, TABLE_NAMES } from '../../constants';
 import { success, failure, executeQuery } from '../../utils';
-import { errorSanitizer, getMyTrips } from '../../helpers';
+import { errorSanitizer, getMyTrips, injectUserDetails } from '../../helpers';
 import _ from 'lodash';
 
 export const myTrips = async (event, context) => {
@@ -21,19 +21,22 @@ export const myTrips = async (event, context) => {
       count: resMembers.Count,
     };
     if (tripKeys.length > 0) {
-      const tripPrams = {
+      const tripParams = {
         RequestItems: {
           [TABLE_NAMES.TRIP]: {
             Keys: tripKeys,
           },
         },
       };
-      const resTrips = await executeQuery('batchGet', tripPrams);
-      result['data'] = resTrips.Responses[TABLE_NAMES.TRIP];
+      const resTrips = await executeQuery('batchGet', tripParams);
+      result['data'] = await injectUserDetails(
+        resTrips.Responses[TABLE_NAMES.TRIP]
+      );
     }
 
     return success(result);
   } catch (error) {
+    console.log(error);
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

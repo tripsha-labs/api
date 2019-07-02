@@ -4,7 +4,11 @@
  */
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { success, failure, executeQuery } from '../../utils';
-import { errorSanitizer, getSavedTrips } from '../../helpers';
+import {
+  errorSanitizer,
+  getSavedTrips,
+  injectUserDetails,
+} from '../../helpers';
 import _ from 'lodash';
 
 export const savedTrips = async (event, context) => {
@@ -29,7 +33,9 @@ export const savedTrips = async (event, context) => {
         },
       };
       const resTrips = await executeQuery('batchGet', tripPrams);
-      result['data'] = resTrips.Responses[TABLE_NAMES.TRIP];
+      result['data'] = await injectUserDetails(
+        resTrips.Responses[TABLE_NAMES.TRIP]
+      );
     }
     return success(result);
   } catch (error) {
