@@ -5,6 +5,7 @@
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { errorSanitizer } from '../../helpers';
+import { injectUserDetails } from '../../helpers';
 import _ from 'lodash';
 
 export const listTrips = async (event, context) => {
@@ -149,8 +150,9 @@ export const listTrips = async (event, context) => {
             ).toString('base64'),
           }
         : {};
+    const trips = await injectUserDetails(resTrips.Items);
     const result = {
-      data: resTrips.Items,
+      data: trips,
       count: resTrips.Count,
       ...lastEvaluatedKey,
     };

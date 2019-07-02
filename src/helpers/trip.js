@@ -98,3 +98,27 @@ export const addMember = (tripId, memberId) => {
 
   return executeQuery('put', addMemberItem);
 };
+
+export const injectUserDetails = trips => {
+  const promises = [];
+  trips.forEach(trip => {
+    promises.push(
+      new Promise(async res => {
+        const params = {
+          TableName: TABLE_NAMES.USER,
+          Key: {
+            id: trip.ownerId,
+          },
+        };
+        try {
+          const result = await executeQuery('get', params);
+          trip.createdBy = result.Item;
+        } catch (error) {
+          console.log(error);
+        }
+        return res(trip);
+      })
+    );
+  });
+  return Promise.all(promises);
+};
