@@ -1,5 +1,11 @@
 components:
   parameters:
+    queryMemberId:
+      name: 'memberId'
+      in: 'query'
+      description: 'Id of the user'
+      schema:
+        type: 'string'
     queryUserId:
       name: 'userId'
       in: 'query'
