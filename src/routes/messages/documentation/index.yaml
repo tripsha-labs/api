@@ -5,6 +5,8 @@ paths:
       operationId: listMessages
       tags:
         - Messages
+      parameters:
+        - $ref: '#/components/parameters/queryMemberId'
       responses:
         '200':
           description: Messages response
