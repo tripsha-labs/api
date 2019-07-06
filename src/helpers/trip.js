@@ -99,6 +99,33 @@ export const addMember = (tripId, memberId) => {
   return executeQuery('put', addMemberItem);
 };
 
+export const injectFavoriteDetails = (trips, userId) => {
+  const promises = [];
+  trips.forEach(trip => {
+    promises.push(
+      new Promise(async res => {
+        const params = {
+          TableName: TABLE_NAMES.MEMBERS,
+          Key: {
+            memberId: userId,
+            tripId: trip.id,
+          },
+        };
+        try {
+          const result = await executeQuery('get', params);
+          trip.isFavorite =
+            result && result.Item && result.Item.isFavorite ? true : false;
+        } catch (error) {
+          trip.isFavorite = false;
+          console.log(error);
+        }
+        return res(trip);
+      })
+    );
+  });
+  return Promise.all(promises);
+};
+
 export const injectUserDetails = trips => {
   const promises = [];
   trips.forEach(trip => {

@@ -8,6 +8,7 @@ import {
   errorSanitizer,
   getSavedTrips,
   injectUserDetails,
+  injectFavoriteDetails,
 } from '../../helpers';
 import _ from 'lodash';
 
@@ -33,8 +34,14 @@ export const savedTrips = async (event, context) => {
         },
       };
       const resTrips = await executeQuery('batchGet', tripPrams);
+
       result['data'] = await injectUserDetails(
         resTrips.Responses[TABLE_NAMES.TRIP]
+      );
+
+      result['data'] = await injectFavoriteDetails(
+        result['data'],
+        event.requestContext.identity.cognitoIdentityId
       );
     }
     return success(result);

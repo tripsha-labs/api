@@ -5,7 +5,7 @@
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { errorSanitizer } from '../../helpers';
-import { injectUserDetails } from '../../helpers';
+import { injectUserDetails, injectFavoriteDetails } from '../../helpers';
 import _ from 'lodash';
 
 export const listTrips = async (event, context) => {
@@ -150,9 +150,13 @@ export const listTrips = async (event, context) => {
             ).toString('base64'),
           }
         : {};
-    const trips = await injectUserDetails(resTrips.Items);
+    const userInjectedTrips = await injectUserDetails(resTrips.Items);
+    const favoriteInjected = await injectFavoriteDetails(
+      userInjectedTrips,
+      event.requestContext.identity.cognitoIdentityId
+    );
     const result = {
-      data: trips,
+      data: favoriteInjected,
       count: resTrips.Count,
       ...lastEvaluatedKey,
     };
