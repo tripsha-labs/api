@@ -29,8 +29,13 @@ export const myTrips = async (event, context) => {
         },
       };
       const resTrips = await executeQuery('batchGet', tripParams);
+
       result['data'] = await injectUserDetails(
         resTrips.Responses[TABLE_NAMES.TRIP]
+      );
+      result['data'] = await injectFavoriteDetails(
+        result['data'],
+        event.requestContext.identity.cognitoIdentityId
       );
     }
 
