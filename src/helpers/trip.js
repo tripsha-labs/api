@@ -104,6 +104,10 @@ export const injectFavoriteDetails = (trips, userId) => {
   trips.forEach(trip => {
     promises.push(
       new Promise(async res => {
+        if (!userId) {
+          trip.isFavorite = false;
+          return res(trip);
+        }
         const params = {
           TableName: TABLE_NAMES.MEMBERS,
           Key: {
