@@ -4,7 +4,12 @@
  */
 import { ERROR_CODES, TABLE_NAMES } from '../../constants';
 import { success, failure, executeQuery } from '../../utils';
-import { errorSanitizer, getMyTrips, injectUserDetails } from '../../helpers';
+import {
+  errorSanitizer,
+  getMyTrips,
+  injectUserDetails,
+  injectFavoriteDetails,
+} from '../../helpers';
 import _ from 'lodash';
 
 export const myTrips = async (event, context) => {
