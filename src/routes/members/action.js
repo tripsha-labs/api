@@ -35,8 +35,32 @@ export const memberAction = async (event, context) => {
     console.log('Trip not found.');
     return failure(ERROR_KEYS.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
   }
+
   const promises = [
     data['memberIds'].map(async memberId => {
+      if (data['action'] == 'addMember') {
+        const getMemberDetails = {
+          TableName: TABLE_NAMES.USER,
+          ExpressionAttributeNames: {
+            '#email': 'email',
+          },
+          ExpressionAttributeValues: { ':email': memberId },
+          FilterExpression: '#email=:email',
+        };
+        try {
+          const memberDetails = await executeQuery('scan', getMemberDetails);
+          if (
+            memberDetails &&
+            memberDetails.Items &&
+            memberDetails.Items.length > 0
+          ) {
+            memberId = memberDetails.Items[0].id;
+          } else return;
+        } catch (error) {
+          console.log(error);
+          return;
+        }
+      }
       const getMembershipParams = {
         TableName: TABLE_NAMES.MEMBERS,
         Key: {
