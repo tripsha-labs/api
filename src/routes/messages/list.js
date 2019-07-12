@@ -39,7 +39,7 @@ export const get = async (event, context) => {
     Limit: 1000,
     ...exclusiveStartKey,
   };
-  console.log(params);
+
   try {
     const resMessages = await executeQuery('query', params);
     const lastEvaluatedKey =

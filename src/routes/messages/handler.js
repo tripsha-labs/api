@@ -167,7 +167,7 @@ const storeMessage = async event => {
   const params = {
     TableName: TABLE_NAMES.MESSAGES,
     Item: {
-      groupId: postData.groupId ? postData.userId : '1',
+      groupId: postData.groupId ? postData.groupId : '1',
       toMemberId: postData.userId,
       message: postData.message,
       sentOn: moment().unix(),
