@@ -449,6 +449,14 @@
           "type": "string"
         }
       },
+      "queryMemberId": {
+        "name": "memberId",
+        "in": "query",
+        "description": "Id of the user",
+        "schema": {
+          "type": "string"
+        }
+      },
       "queryUserId": {
         "name": "userId",
         "in": "query",
@@ -888,6 +896,11 @@
         "description": "Returns list of user messages",
         "operationId": "listMessages",
         "tags": ["Messages"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryMemberId"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Messages response",

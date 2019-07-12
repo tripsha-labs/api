@@ -130,12 +130,12 @@ Resources:
     Properties:
       TableName: ${self:custom.tblMessages}
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: groupId
           AttributeType: 'S'
         - AttributeName: sentOn
           AttributeType: 'N'
       KeySchema:
-        - AttributeName: id
+        - AttributeName: groupId
           KeyType: HASH
         - AttributeName: sentOn
           KeyType: RANGE
