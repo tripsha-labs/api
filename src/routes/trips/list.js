@@ -75,7 +75,7 @@ export const listTrips = async (event, context) => {
       filterAttributeValues.push({
         ':maxEndDate': parseInt(event.queryStringParameters.maxEndDate),
       });
-      filterExpressions.push('endDate <= :maxEndDate');
+      filterExpressions.push('startDate <= :maxEndDate');
     }
     // minTripLength
     if (event.queryStringParameters.minTripLength) {
