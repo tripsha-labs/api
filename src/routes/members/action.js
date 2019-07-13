@@ -9,7 +9,8 @@ import {
   queryBuilder,
   keyPrefixAlterer,
   errorSanitizer,
-  getTripMembers,
+  getTripMembersCount,
+  getMemberIdByEmail,
 } from '../../helpers';
 import * as moment from 'moment';
 
@@ -39,28 +40,22 @@ export const memberAction = async (event, context) => {
   const promises = [
     data['memberIds'].map(async memberId => {
       if (data['action'] == 'addMember') {
-        const getMemberDetails = {
-          TableName: TABLE_NAMES.USER,
-          ExpressionAttributeNames: {
-            '#email': 'email',
-          },
-          ExpressionAttributeValues: { ':email': memberId },
-          FilterExpression: '#email=:email',
-        };
         try {
-          const memberDetails = await executeQuery('scan', getMemberDetails);
+          const resMemberDetails = await getMemberIdByEmail(memberId);
+          console.log(resMemberDetails);
           if (
-            memberDetails &&
-            memberDetails.Items &&
-            memberDetails.Items.length > 0
+            resMemberDetails &&
+            resMemberDetails.Items &&
+            resMemberDetails.Items.length > 0
           ) {
-            memberId = memberDetails.Items[0].id;
-          } else return;
+            memberId = resMemberDetails.Items[0].id;
+            info['memberFound'] = true;
+          } else info['memberFound'] = false;
         } catch (error) {
           console.log(error);
-          return;
+          info['memberFound'] = false;
         }
-      }
+      } else info['memberFound'] = true;
       const getMembershipParams = {
         TableName: TABLE_NAMES.MEMBERS,
         Key: {
@@ -176,9 +171,10 @@ export const memberAction = async (event, context) => {
           break;
 
         default:
+          info['action'] = false;
           break;
       }
-      if (info['action'] !== false) {
+      if (info['action'] !== false && info['memberFound']) {
         return executeQuery(info['action'], membershipParams);
       }
     }),
@@ -189,7 +185,7 @@ export const memberAction = async (event, context) => {
       return failure(ERROR_KEYS.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
     }
     await Promise.all(promises);
-    const members = await getTripMembers(data['tripId']);
+    const members = await getTripMembersCount(data['tripId']);
     const trip = {
       groupSize: members.length,
       isFull: members.length >= info['tripDetails']['maxGroupSize'],
@@ -205,7 +201,6 @@ export const memberAction = async (event, context) => {
       UpdateExpression: 'SET ' + queryBuilder(trip),
       ExpressionAttributeValues: keyPrefixAlterer(trip),
     };
-    console.log(updateTripParams);
     await executeQuery('update', updateTripParams);
     return success('success');
   } catch (error) {

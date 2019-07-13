@@ -2,13 +2,6 @@ import { TABLE_NAMES } from '../constants';
 import { executeQuery } from '../utils';
 import * as moment from 'moment';
 
-export const updateBulkTrip = user => {
-  // TODO: Update trips for owner info changed
-  if (user) {
-  }
-  return true;
-};
-
 export const getTripMembers = async tripId => {
   const getMemberList = {
     TableName: TABLE_NAMES.MEMBERS,
@@ -44,6 +37,29 @@ export const getTripMembers = async tripId => {
   } catch (error) {
     console.log(error);
     return Promise.all([]);
+  }
+};
+
+export const getTripMembersCount = async tripId => {
+  const getMemberList = {
+    TableName: TABLE_NAMES.MEMBERS,
+    IndexName: 'tripMembers',
+    ScanIndexForward: true,
+    Limit: 1000,
+    ExpressionAttributeNames: {
+      '#tripId': 'tripId',
+      '#isMember': 'isMember',
+    },
+    KeyConditionExpression: '#tripId=:tripId',
+    ExpressionAttributeValues: { ':tripId': tripId, ':isMember': true },
+    FilterExpression: '#isMember=:isMember',
+  };
+  try {
+    const members = await executeQuery('query', getMemberList);
+    return members.Items;
+  } catch (error) {
+    console.log(error);
+    return [];
   }
 };
 
@@ -152,4 +168,17 @@ export const injectUserDetails = trips => {
     );
   });
   return Promise.all(promises);
+};
+
+export const getMemberIdByEmail = email => {
+  const getMemberDetails = {
+    TableName: TABLE_NAMES.USER,
+    ExpressionAttributeNames: {
+      '#email': 'email',
+    },
+    ExpressionAttributeValues: { ':email': email },
+    FilterExpression: '#email=:email',
+  };
+
+  return executeQuery('scan', getMemberDetails);
 };
