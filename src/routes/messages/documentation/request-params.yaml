@@ -1,0 +1,22 @@
+components:
+  schemas:
+    SendMessage:
+      properties:
+        toMemberId:
+          type: string
+          required: true
+        message:
+          type: string
+          required: true
+        messsageType:
+          type: string
+          enum:
+            - text
+  parameters:
+    SendMessage:
+      in: body
+      name: body
+      description: Create trip payload
+      required: true
+      schema:
+        $ref: '#/components/schemas/SendMessage'

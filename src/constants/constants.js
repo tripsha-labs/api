@@ -8,6 +8,7 @@ export const TABLE_NAMES = {
   TAGS: process.env.tblTags,
   MEMBERS: process.env.tblMembers,
   MESSAGES: process.env.tblMessages,
+  CONVERSATIONS: process.env.tblConversations,
   COUNTRIES: process.env.tblCountries,
   CONNECTIONS: process.env.tblConnectionInfo,
 };

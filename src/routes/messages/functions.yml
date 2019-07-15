@@ -7,6 +7,24 @@ listMessages:
         cors: true
         authorizer: aws_iam
 
+listConversations:
+  handler: src/routes/messages/conversations.get
+  events:
+    - http:
+        path: conversations
+        method: get
+        cors: true
+        authorizer: aws_iam
+
+sendMessages:
+  handler: src/routes/messages/sendmessage.sendMessage
+  events:
+    - http:
+        path: send-message
+        method: post
+        cors: true
+        authorizer: aws_iam
+
 connectionHandler:
   handler: src/routes/messages/handler.connectionHandler
   events:

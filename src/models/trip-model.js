@@ -20,7 +20,6 @@ const tripBaseSchema = {
     type: 'array',
     optional: true,
     items: 'string',
-    enum: ['english', 'hindi', 'spanish', 'french'],
   },
   budgets: {
     type: 'array',

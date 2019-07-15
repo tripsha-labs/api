@@ -40,3 +40,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommonErrorFormat'
+
+  /conversations:
+    get:
+      description: Returns list of conversations
+      operationId: listConversations
+      tags:
+        - Messages
+      responses:
+        '200':
+          description: Conversations response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    required:
+                      - totalCount
+                      - data
+                    properties:
+                      totalCount:
+                        type: number
+                        description: Total number of records
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/UserModel'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+
+  /send-message:
+    post:
+      description: Send message
+      operationId: sendmessage
+      tags:
+        - Messages
+      parameters:
+        - $ref: '#/components/parameters/SendMessage'
+      responses:
+        '200':
+          description: Message response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'

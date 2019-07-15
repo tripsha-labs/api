@@ -143,6 +143,24 @@ Resources:
         ReadCapacityUnits: ${self:custom.tableThroughput}
         WriteCapacityUnits: ${self:custom.tableThroughput}
 
+  Converstions:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.tblConversations}
+      AttributeDefinitions:
+        - AttributeName: groupId
+          AttributeType: 'S'
+        - AttributeName: sentOn
+          AttributeType: 'N'
+      KeySchema:
+        - AttributeName: groupId
+          KeyType: HASH
+        - AttributeName: sentOn
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: ${self:custom.tableThroughput}
+        WriteCapacityUnits: ${self:custom.tableThroughput}
+
   Members:
     Type: 'AWS::DynamoDB::Table'
     Properties:

@@ -30,11 +30,6 @@ components:
           type: array
           items:
             type: string
-            enum:
-              - english
-              - hindi
-              - spanish
-              - french
         budgets:
           type: array
           items:
