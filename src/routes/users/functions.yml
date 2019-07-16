@@ -41,3 +41,11 @@ deleteUser:
         method: delete
         cors: true
         authorizer: aws_iam
+
+checkExists:
+  handler: src/routes/users/checkExists.checkExist
+  events:
+    - http:
+        path: users/check-exists
+        method: get
+        cors: true

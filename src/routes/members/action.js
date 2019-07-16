@@ -10,7 +10,7 @@ import {
   keyPrefixAlterer,
   errorSanitizer,
   getTripMembersCount,
-  getMemberIdByEmail,
+  getMemberIdByUsername,
 } from '../../helpers';
 import * as moment from 'moment';
 
@@ -43,8 +43,7 @@ export const memberAction = async (event, context) => {
       new Promise(async (resolve, reject) => {
         if (data['action'] == 'addMember') {
           try {
-            const resMemberDetails = await getMemberIdByEmail(memberId);
-            console.log(resMemberDetails);
+            const resMemberDetails = await getMemberIdByUsername(memberId);
             if (
               resMemberDetails &&
               resMemberDetails.Items &&
