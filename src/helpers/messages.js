@@ -10,29 +10,19 @@ export const updateConversation = async (params, findParams, key) => {
     FilterExpression:
       '(toMemberId=:userId and fromMemberId=:memberId) or (toMemberId=:memberId and fromMemberId=:userId)',
   };
-  const updateParams = {
-    TableName: TABLE_NAMES.CONVERSATIONS,
-  };
+
   try {
     const conversations = await executeQuery('query', findParam);
     if (
-      conversations &&
-      conversations.Items &&
-      conversations.Items.length > 0
+      !(conversations && conversations.Items && conversations.Items.length > 0)
     ) {
-      updateParams['Key'] = {
-        groupId: key,
+      const createParams = {
+        TableName: TABLE_NAMES.CONVERSATIONS,
+        Item: params,
       };
-      params['id'] = conversations.Items[0].id;
-      updateParams['ExpressionAttributeValues'] = keyPrefixAlterer(params);
-      updateParams['UpdateExpression'] = 'SET ' + queryBuilder(params);
-
-      updateParams['ConditionExpression'] = 'id=:id';
-      return executeQuery('update', updateParams);
+      return executeQuery('put', createParams);
     }
   } catch (error) {
     console.log(error);
   }
-  updateParams['Item'] = params;
-  return executeQuery('put', updateParams);
 };
