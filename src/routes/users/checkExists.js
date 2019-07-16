@@ -3,25 +3,23 @@
  * @description - checkExists handler (lambda function)
  */
 import { success, failure, executeQuery } from '../../utils';
-import { TABLE_NAMES, ERROR_CODES } from '../../constants';
+import { TABLE_NAMES, ERROR_CODES, ERROR_KEYS } from '../../constants';
 import { errorSanitizer } from '../../helpers';
 
 export const checkExist = async (event, context) => {
-  if (!(event.pathParameters && event.pathParameters.userId)) {
+  const data = JSON.parse(event.body);
+  if (!(data && data.userId)) {
     return failure(
       { ...ERROR_KEYS.MISSING_FIELD, field: 'userId' },
       ERROR_CODES.VALIDATION_ERROR
     );
   }
-  const userId =
-    event.pathParameters.id == 'me'
-      ? event.requestContext.identity.cognitoIdentityId
-      : event.pathParameters.id;
+
   const params = {
     TableName: TABLE_NAMES.USER,
     FilterExpression: 'userId=:userId',
     ExpressionAttributeValues: {
-      ':userId': userId,
+      ':userId': data.userId,
     },
   };
 

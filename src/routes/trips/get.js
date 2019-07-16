@@ -22,7 +22,16 @@ export const getTrip = async (event, context) => {
   try {
     const resTrip = await executeQuery('get', params);
     if (!resTrip.Item) throw ERROR_KEYS.ITEM_NOT_FOUND;
-    return success(resTrip.Item);
+    const userParams = {
+      TableName: TABLE_NAMES.USER,
+      Key: {
+        id: resTrip.Item.ownerId,
+      },
+    };
+    const resUser = await executeQuery('get', userParams);
+    const trip = resTrip.Item;
+    trip['createdBy'] = resUser.Item;
+    return success(trip);
   } catch (error) {
     return failure(errorSanitizer(error), ERROR_CODES.RESOURCE_NOT_FOUND);
   }
