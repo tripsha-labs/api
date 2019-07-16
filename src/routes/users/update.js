@@ -5,7 +5,12 @@
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { updateUserValidation, updateUserDefaultValues } from '../../models';
-import { queryBuilder, keyPrefixAlterer, errorSanitizer } from '../../helpers';
+import {
+  queryBuilder,
+  keyPrefixAlterer,
+  errorSanitizer,
+  getUserByUserID,
+} from '../../helpers';
 
 export const updateUser = async (event, context) => {
   const data = JSON.parse(event.body);
@@ -22,7 +27,17 @@ export const updateUser = async (event, context) => {
   // Validate user fields against the strict schema
   const errors = updateUserValidation(data);
   if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
-
+  // Check user already exists
+  if (data.userId) {
+    try {
+      const user = await getUserByUserID(data.userId);
+      if (user && user.Items && user.Items.length > 0) {
+        throw 'UserIdAlreadyExists';
+      }
+    } catch (error) {
+      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    }
+  }
   // update data object with default fields and values ex. updatedAt
   const user = { ...data, ...updateUserDefaultValues };
   if (user.hasOwnProperty('isActive'))
