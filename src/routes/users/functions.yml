@@ -46,6 +46,6 @@ checkExists:
   handler: src/routes/users/checkExists.checkExist
   events:
     - http:
-        path: users/check-exists
-        method: get
+        path: users/check-user-exists
+        method: post
         cors: true

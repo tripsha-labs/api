@@ -28,7 +28,7 @@ export const checkExist = async (event, context) => {
   try {
     const result = await executeQuery('scan', params);
     return success({
-      exists: result && result.Items && result.Items.length > 0,
+      userExists: result && result.Items && result.Items.length > 0,
     });
   } catch (error) {
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
