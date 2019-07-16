@@ -57,6 +57,7 @@ custom:
   tblTags: ${self:custom.stage}-tags
   tblMembers: ${self:custom.stage}-members
   tblMessages: ${self:custom.stage}-messages
+  tblConversations: ${self:custom.stage}-conversations
   tblCountries: ${self:custom.stage}-countries
   tblConnectionInfo: ${self:custom.stage}-connections
 
@@ -78,15 +79,8 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:BatchGetItem
-      Resource:
-        'arn:aws:dynamodb:${self:provider.region}:*:*'
-        # - 'Fn::GetAtt': [Users, Arn]
-        # - 'Fn::GetAtt': [Trips, Arn]
-        # - 'Fn::GetAtt': [Tags, Arn]
-        # - 'Fn::GetAtt': [Members, Arn]
-        # - 'Fn::GetAtt': [Messages, Arn]
-        # - 'Fn::GetAtt': [Countries, Arn]
-        # - 'Fn::GetAtt': [ConnectionInfo, Arn]
+      Resource: 'arn:aws:dynamodb:${self:provider.region}:*:*'
+
     - Effect: Allow
       Action:
         - 'execute-api:ManageConnections'

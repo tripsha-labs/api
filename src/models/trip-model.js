@@ -7,46 +7,39 @@ import * as moment from 'moment';
 import { DATE_FORMAT } from '../constants/constants';
 
 const tripBaseSchema = {
-  title: { type: 'string', empty: false },
-  description: { type: 'string', empty: false },
-  startDate: { type: 'string', empty: false },
-  endDate: { type: 'string', empty: false },
+  title: { type: 'string', empty: false, optional: true },
+  description: { type: 'string', empty: false, optional: true },
+  startDate: { type: 'string', empty: false, optional: true },
+  endDate: { type: 'string', empty: false, optional: true },
   destinations: {
     type: 'array',
     optional: true,
-    empty: false,
     items: 'string',
   },
   languages: {
     type: 'array',
     optional: true,
-    empty: false,
     items: 'string',
-    enum: ['english', 'hindi', 'spanish', 'french'],
   },
   budgets: {
     type: 'array',
     optional: true,
-    empty: false,
     items: 'string',
     enum: ['$', '$$', '$$$', '$$$$', '$$$$$'],
   },
   pictureUrls: {
     type: 'array',
     optional: true,
-    empty: false,
     items: 'string',
   },
   interests: {
     type: 'array',
     optional: true,
-    empty: false,
     items: 'string',
   },
   connections: {
     type: 'array',
     optional: true,
-    empty: false,
     items: 'string',
   },
   minGroupSize: {
@@ -61,17 +54,24 @@ const tripBaseSchema = {
     type: 'boolean',
     optional: true,
     empty: false,
+    values: ['true', 'false'],
   },
   isActive: {
     type: 'boolean',
     optional: true,
     empty: false,
+    values: ['true', 'false'],
   },
   $$strict: true,
 };
 
 const createTripSchema = {
   ...tripBaseSchema,
+  title: { type: 'string', empty: false },
+  startDate: { type: 'string', empty: false },
+  endDate: { type: 'string', empty: false },
+  minGroupSize: { type: 'number', empty: false },
+  maxGroupSize: { type: 'number', empty: false },
 };
 
 export const validateTripLength = (startDate, endDate) => {

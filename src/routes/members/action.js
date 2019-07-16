@@ -9,7 +9,8 @@ import {
   queryBuilder,
   keyPrefixAlterer,
   errorSanitizer,
-  getTripMembers,
+  getTripMembersCount,
+  getMemberIdByEmail,
 } from '../../helpers';
 import * as moment from 'moment';
 
@@ -36,178 +37,182 @@ export const memberAction = async (event, context) => {
     return failure(ERROR_KEYS.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
   }
 
-  const promises = [
-    data['memberIds'].map(async memberId => {
-      if (data['action'] == 'addMember') {
-        const getMemberDetails = {
-          TableName: TABLE_NAMES.USER,
-          ExpressionAttributeNames: {
-            '#email': 'email',
+  const promises = [];
+  data['memberIds'].map(memberId => {
+    promises.push(
+      new Promise(async (resolve, reject) => {
+        if (data['action'] == 'addMember') {
+          try {
+            const resMemberDetails = await getMemberIdByEmail(memberId);
+            console.log(resMemberDetails);
+            if (
+              resMemberDetails &&
+              resMemberDetails.Items &&
+              resMemberDetails.Items.length > 0
+            ) {
+              memberId = resMemberDetails.Items[0].id;
+            } else return reject('MemberNotFound');
+          } catch (error) {
+            console.log(error);
+            return reject('MemberNotFound');
+          }
+        }
+        const getMembershipParams = {
+          TableName: TABLE_NAMES.MEMBERS,
+          Key: {
+            memberId: memberId,
+            tripId: data['tripId'],
           },
-          ExpressionAttributeValues: { ':email': memberId },
-          FilterExpression: '#email=:email',
         };
         try {
-          const memberDetails = await executeQuery('scan', getMemberDetails);
-          if (
-            memberDetails &&
-            memberDetails.Items &&
-            memberDetails.Items.length > 0
-          ) {
-            memberId = memberDetails.Items[0].id;
-          } else return;
+          const resMember = await executeQuery('get', getMembershipParams);
+          if (!resMember.Item) throw 'MEMBER_NOT_FOUND';
+          info['memberDetails'] = resMember.Item;
+          info['memberExists'] = true;
         } catch (error) {
+          info['memberExists'] = false;
           console.log(error);
-          return;
+          console.log('Member not exists.');
         }
-      }
-      const getMembershipParams = {
-        TableName: TABLE_NAMES.MEMBERS,
-        Key: {
-          memberId: memberId,
-          tripId: data['tripId'],
-        },
-      };
-      try {
-        const resMember = await executeQuery('get', getMembershipParams);
-        if (!resMember.Item) throw 'MEMBER_NOT_FOUND';
-        info['memberDetails'] = resMember.Item;
-        info['memberExists'] = true;
-      } catch (error) {
-        info['memberExists'] = false;
-        console.log(error);
-        console.log('Member not exists.');
-      }
 
-      let membershipParams = {
-        TableName: TABLE_NAMES.MEMBERS,
-        Item: {
-          memberId: memberId,
-          tripId: data['tripId'],
-          isActive: false,
-          isOwner: false,
-          updatedAt: moment().unix(),
-        },
-      };
-      info['action'] = false;
-      switch (data['action']) {
-        case 'addMember':
-          if (
-            info['tripDetails'] &&
-            (info['tripDetails']['isArchived'] || info['tripDetails']['isFull'])
-          ) {
-            break;
-          }
-          info['tripUpdateRequired'] = true;
-          if (info['memberExists']) {
-            membershipParams = { ...getMembershipParams };
-            const updateQuery = { isMember: true, isActive: true };
-            membershipParams['UpdateExpression'] =
-              'SET ' + queryBuilder(updateQuery);
-            membershipParams['ExpressionAttributeValues'] = keyPrefixAlterer(
-              updateQuery
-            );
-            info['action'] = 'update';
-          } else {
-            info['action'] = 'put';
-            membershipParams['Item'] = {
-              ...membershipParams['Item'],
-              isMember: true,
-              isFavorite: false,
-              isActive: true,
-            };
-          }
-          break;
-        case 'makeFavorite':
-          if (info['memberExists']) {
-            info['action'] = 'update';
-            membershipParams = { ...getMembershipParams };
-            const updateQuery = { isFavorite: true };
-            membershipParams['UpdateExpression'] =
-              'SET ' + queryBuilder(updateQuery);
-            membershipParams['ExpressionAttributeValues'] = keyPrefixAlterer(
-              updateQuery
-            );
-          } else {
-            info['action'] = 'put';
-            membershipParams['Item'] = {
-              ...membershipParams['Item'],
-              isFavorite: true,
-              isMember: false,
-            };
-          }
-          break;
-        case 'removeMember':
-          if (info['memberExists']) {
-            membershipParams = { ...getMembershipParams };
+        let membershipParams = {
+          TableName: TABLE_NAMES.MEMBERS,
+          Item: {
+            memberId: memberId,
+            tripId: data['tripId'],
+            isActive: false,
+            isOwner: false,
+            updatedAt: moment().unix(),
+          },
+        };
+        info['action'] = false;
+        switch (data['action']) {
+          case 'addMember':
             if (
-              info['memberDetails']['isFavorite'] ||
-              (info['tripDetails'] && info['tripDetails']['isArchived'])
+              info['tripDetails'] &&
+              (info['tripDetails']['isArchived'] ||
+                info['tripDetails']['isFull'])
             ) {
+              break;
+            }
+            info['tripUpdateRequired'] = true;
+            if (info['memberExists']) {
+              membershipParams = { ...getMembershipParams };
+              const updateQuery = { isMember: true, isActive: true };
+              membershipParams['UpdateExpression'] =
+                'SET ' + queryBuilder(updateQuery);
+              membershipParams['ExpressionAttributeValues'] = keyPrefixAlterer(
+                updateQuery
+              );
               info['action'] = 'update';
-              const updateQuery = { isActive: false };
+            } else {
+              info['action'] = 'put';
+              membershipParams['Item'] = {
+                ...membershipParams['Item'],
+                isMember: true,
+                isFavorite: false,
+                isActive: true,
+              };
+            }
+            break;
+          case 'makeFavorite':
+            if (info['memberExists']) {
+              info['action'] = 'update';
+              membershipParams = { ...getMembershipParams };
+              const updateQuery = { isFavorite: true };
               membershipParams['UpdateExpression'] =
                 'SET ' + queryBuilder(updateQuery);
               membershipParams['ExpressionAttributeValues'] = keyPrefixAlterer(
                 updateQuery
               );
             } else {
-              info['action'] = 'delete';
-              info['tripUpdateRequired'] = true;
+              info['action'] = 'put';
+              membershipParams['Item'] = {
+                ...membershipParams['Item'],
+                isFavorite: true,
+                isMember: false,
+              };
             }
-          }
-          break;
-
-        case 'makeUnFavorite':
-          if (info['memberExists']) {
-            membershipParams = { ...getMembershipParams };
-            if (info['memberDetails']['isMember']) {
-              info['action'] = 'update';
-              const updateQuery = { isFavorite: false };
-              membershipParams['UpdateExpression'] =
-                'SET ' + queryBuilder(updateQuery);
-              membershipParams['ExpressionAttributeValues'] = keyPrefixAlterer(
-                updateQuery
-              );
-            } else {
-              info['action'] = 'delete';
+            break;
+          case 'removeMember':
+            if (info['memberExists']) {
+              membershipParams = { ...getMembershipParams };
+              if (
+                info['memberDetails']['isFavorite'] ||
+                (info['tripDetails'] && info['tripDetails']['isArchived'])
+              ) {
+                info['action'] = 'update';
+                const updateQuery = { isActive: false };
+                membershipParams['UpdateExpression'] =
+                  'SET ' + queryBuilder(updateQuery);
+                membershipParams[
+                  'ExpressionAttributeValues'
+                ] = keyPrefixAlterer(updateQuery);
+              } else {
+                info['action'] = 'delete';
+                info['tripUpdateRequired'] = true;
+              }
             }
-          }
-          break;
+            break;
 
-        default:
-          break;
-      }
-      if (info['action'] !== false) {
-        return executeQuery(info['action'], membershipParams);
-      }
-    }),
-  ];
+          case 'makeUnFavorite':
+            if (info['memberExists']) {
+              membershipParams = { ...getMembershipParams };
+              if (info['memberDetails']['isMember']) {
+                info['action'] = 'update';
+                const updateQuery = { isFavorite: false };
+                membershipParams['UpdateExpression'] =
+                  'SET ' + queryBuilder(updateQuery);
+                membershipParams[
+                  'ExpressionAttributeValues'
+                ] = keyPrefixAlterer(updateQuery);
+              } else {
+                info['action'] = 'delete';
+              }
+            }
+            break;
+
+          default:
+            info['action'] = false;
+            break;
+        }
+        if (info['action'] !== false) {
+          await executeQuery(info['action'], membershipParams);
+          return resolve('Success');
+        }
+      })
+    );
+  });
 
   try {
     if (promises.length == 0) {
       return failure(ERROR_KEYS.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
     }
-    await Promise.all(promises);
-    const members = await getTripMembers(data['tripId']);
-    const trip = {
-      groupSize: members.length,
-      isFull: members.length >= info['tripDetails']['maxGroupSize'],
-      spotFilledRank: Math.round(
-        (members.length / info['tripDetails']['maxGroupSize']) * 100
-      ),
-    };
-    const updateTripParams = {
-      TableName: TABLE_NAMES.TRIP,
-      Key: {
-        id: data['tripId'],
-      },
-      UpdateExpression: 'SET ' + queryBuilder(trip),
-      ExpressionAttributeValues: keyPrefixAlterer(trip),
-    };
-    console.log(updateTripParams);
-    await executeQuery('update', updateTripParams);
-    return success('success');
+    return Promise.all(promises)
+      .then(async res => {
+        const members = await getTripMembersCount(data['tripId']);
+        const trip = {
+          groupSize: members.length,
+          isFull: members.length >= info['tripDetails']['maxGroupSize'],
+          spotFilledRank: Math.round(
+            (members.length / info['tripDetails']['maxGroupSize']) * 100
+          ),
+        };
+        const updateTripParams = {
+          TableName: TABLE_NAMES.TRIP,
+          Key: {
+            id: data['tripId'],
+          },
+          UpdateExpression: 'SET ' + queryBuilder(trip),
+          ExpressionAttributeValues: keyPrefixAlterer(trip),
+        };
+        await executeQuery('update', updateTripParams);
+        return success('success');
+      })
+      .catch(err => {
+        console.log(err);
+        return failure(errorSanitizer(err), ERROR_CODES.VALIDATION_ERROR);
+      });
   } catch (error) {
     console.log(error);
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);

@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import uuid from 'uuid';
 import { TABLE_NAMES, ERROR_CODES, ERROR_KEYS } from '../../constants';
 import { success, failure, executeQuery } from '../../utils';
-import { getUserById, addMember } from '../../helpers';
+import { addMember } from '../../helpers';
 import { createTripValidation, validateTripLength } from '../../models';
 import { errorSanitizer } from '../../helpers';
 
@@ -17,21 +17,7 @@ export const createTrip = async (event, context) => {
   if (errors != true) {
     return failure(errors, ERROR_CODES.VALIDATION_ERROR);
   }
-  try {
-    const user = await getUserById(
-      event.requestContext.identity.cognitoIdentityId
-    );
-    if (!user || !user.Item) throw 'UserNotFound';
-    const memberInfo = {};
-    if (user.Item['firstName'])
-      memberInfo['firstName'] = user.Item['firstName'];
-    if (user.Item['lastName']) memberInfo['lastName'] = user.Item['lastName'];
-    if (user.Item['avatarUrl'])
-      memberInfo['avatarUrl'] = user.Item['avatarUrl'];
-    data['createdBy'] = memberInfo;
-  } catch (error) {
-    return failure(ERROR_KEYS.ITEM_NOT_FOUND, ERROR_CODES.RESOURCE_NOT_FOUND);
-  }
+
   const tripLength = validateTripLength(data['startDate'], data['endDate']);
   if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength)) {
     return failure(ERROR_KEYS.INVALID_DATES, ERROR_CODES.VALIDATION_ERROR);
@@ -58,8 +44,8 @@ export const createTrip = async (event, context) => {
     ReturnValues: 'ALL_OLD',
   };
   try {
-    const resTrip = await executeQuery('put', params);
-    const resMember = await addMember(
+    await executeQuery('put', params);
+    await addMember(
       params.Item.id,
       event.requestContext.identity.cognitoIdentityId
     );

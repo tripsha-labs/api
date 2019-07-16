@@ -5,12 +5,7 @@
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { updateUserValidation, updateUserDefaultValues } from '../../models';
-import {
-  queryBuilder,
-  keyPrefixAlterer,
-  errorSanitizer,
-  updateBulkTrip,
-} from '../../helpers';
+import { queryBuilder, keyPrefixAlterer, errorSanitizer } from '../../helpers';
 
 export const updateUser = async (event, context) => {
   const data = JSON.parse(event.body);
@@ -43,9 +38,6 @@ export const updateUser = async (event, context) => {
   };
   try {
     const resUpdateUser = await executeQuery('update', params);
-    if (data['firstName'] || data['lastName'] || data['avatarUrl']) {
-      updateBulkTrip(resUpdateUser);
-    }
     return success('success');
   } catch (error) {
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);

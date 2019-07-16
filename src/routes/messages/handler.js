@@ -9,7 +9,7 @@ import {
   apigwManagementApi,
 } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
-import { errorSanitizer } from '../../helpers';
+import { errorSanitizer, updateConversation } from '../../helpers';
 import * as moment from 'moment';
 import uuid from 'uuid';
 import https from 'https';
@@ -171,7 +171,7 @@ const storeMessage = async event => {
       toMemberId: postData.userId,
       message: postData.message,
       sentOn: moment().unix(),
-      type: 'text',
+      messageType: 'text',
       id: uuid.v1(),
     },
   };
@@ -181,6 +181,15 @@ const storeMessage = async event => {
   }
   try {
     await executeQuery('put', params);
+    await updateConversation(
+      params.Item,
+      {
+        ':userId': params.Item['fromMemberId'],
+        ':memberId': params.Item['toMemberId'],
+        ':groupId': params.Item['groupId'],
+      },
+      params.Item['groupId']
+    );
     console.info('Message stored!');
     return params.Item;
   } catch (error) {
