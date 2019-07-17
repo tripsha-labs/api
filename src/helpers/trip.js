@@ -182,3 +182,14 @@ export const getMemberIdByUsername = userId => {
 
   return executeQuery('scan', getMemberDetails);
 };
+
+export const getTripById = tripId => {
+  const getMemberDetails = {
+    TableName: TABLE_NAMES.TRIP,
+    Key: {
+      id: tripId,
+    },
+  };
+
+  return executeQuery('get', getMemberDetails);
+};
