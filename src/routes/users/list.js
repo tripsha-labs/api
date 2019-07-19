@@ -18,7 +18,7 @@ export const listUser = async (event, context) => {
     searchText != ''
       ? {
           ExpressionAttributeValues: {
-            ':email': _.lowerCase(searchText),
+            ':userId': _.lowerCase(searchText),
             ':isActive': 1,
           },
         }
@@ -27,11 +27,13 @@ export const listUser = async (event, context) => {
     searchText != ''
       ? {
           ExpressionAttributeNames: {
+            '#userId': 'userId',
             '#email': 'email',
             '#isActive': 'isActive',
           },
           KeyConditionExpression: '#isActive=:isActive',
-          FilterExpression: 'begins_with(#email, :email)',
+          FilterExpression:
+            'begins_with(#userId, :userId) or begins_with(#email, :userId)',
         }
       : {
           ExpressionAttributeNames: {

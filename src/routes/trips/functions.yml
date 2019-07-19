@@ -31,7 +31,6 @@ getTrip:
         path: trips/{id}
         method: get
         cors: true
-        authorizer: aws_iam
 
 listTrips:
   handler: src/routes/trips/list.listTrips

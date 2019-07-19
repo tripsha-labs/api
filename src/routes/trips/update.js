@@ -6,7 +6,12 @@ import * as moment from 'moment';
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES, ERROR_KEYS } from '../../constants';
 import { updateTripValidation, validateTripLength } from '../../models';
-import { queryBuilder, keyPrefixAlterer, errorSanitizer } from '../../helpers';
+import {
+  queryBuilder,
+  keyPrefixAlterer,
+  errorSanitizer,
+  getTripById,
+} from '../../helpers';
 
 export const updateTrip = async (event, context) => {
   const data = JSON.parse(event.body) || {};
@@ -30,6 +35,18 @@ export const updateTrip = async (event, context) => {
     trip['tripLength'] = tripLength;
     trip['startDate'] = parseInt(data['startDate']);
     trip['endDate'] = parseInt(data['endDate']);
+  }
+  if (trip['maxGroupSize']) {
+    try {
+      const tripDetails = await getTripById(event.pathParameters.id);
+      if (!(tripDetails && tripDetails.Item)) throw 'TripNotFound';
+      trip['spotFilledRank'] = Math.round(
+        (tripDetails.Item['groupSize'] / trip['maxGroupSize']) * 100
+      );
+      trip['isFull'] = trip['spotFilledRank'] == 100;
+    } catch (error) {
+      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    }
   }
 
   const params = {

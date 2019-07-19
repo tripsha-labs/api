@@ -665,7 +665,7 @@
         "required": true,
         "schema": {
           "properties": {
-            "username": {
+            "userId": {
               "type": "string"
             },
             "email": {
@@ -691,6 +691,9 @@
               "type": "string"
             },
             "lastName": {
+              "type": "string"
+            },
+            "userId": {
               "type": "string"
             },
             "dob": {
@@ -737,6 +740,19 @@
             },
             "isActive": {
               "type": "boolean"
+            }
+          }
+        }
+      },
+      "checkUserExists": {
+        "in": "body",
+        "name": "body",
+        "description": "Check user exists payload",
+        "required": true,
+        "schema": {
+          "properties": {
+            "userId": {
+              "type": "string"
             }
           }
         }
@@ -1576,6 +1592,53 @@
                     "result": {
                       "type": "string",
                       "default": "User id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/check-user-exists": {
+      "post": {
+        "description": "Check username exists",
+        "operationId": "checkExists",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/checkUserExists"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "userExists": {
+                          "type": "boolean",
+                          "description": "User exists"
+                        }
+                      }
                     }
                   }
                 }

@@ -170,15 +170,26 @@ export const injectUserDetails = trips => {
   return Promise.all(promises);
 };
 
-export const getMemberIdByEmail = email => {
+export const getMemberIdByUsername = userId => {
   const getMemberDetails = {
     TableName: TABLE_NAMES.USER,
     ExpressionAttributeNames: {
-      '#email': 'email',
+      '#userId': 'userId',
     },
-    ExpressionAttributeValues: { ':email': email },
-    FilterExpression: '#email=:email',
+    ExpressionAttributeValues: { ':userId': userId },
+    FilterExpression: '#userId=:userId',
   };
 
   return executeQuery('scan', getMemberDetails);
+};
+
+export const getTripById = tripId => {
+  const getMemberDetails = {
+    TableName: TABLE_NAMES.TRIP,
+    Key: {
+      id: tripId,
+    },
+  };
+
+  return executeQuery('get', getMemberDetails);
 };
