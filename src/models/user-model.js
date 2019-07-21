@@ -57,8 +57,8 @@ const userBaseSchema = {
 const createUserSchema = {
   userId: { type: 'string', empty: false },
   email: { type: 'email', empty: false },
-  firstName: { type: 'string', empty: false },
-  lastName: { type: 'string', empty: false },
+  firstName: { type: 'string', empty: false, optional: true },
+  lastName: { type: 'string', empty: false, optional: true },
   $$strict: true,
 };
 
