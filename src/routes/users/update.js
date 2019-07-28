@@ -51,10 +51,12 @@ export const updateUser = async (event, context) => {
     ExpressionAttributeValues: keyPrefixAlterer(user),
     ReturnValues: 'ALL_NEW',
   };
+  console.log(params);
   try {
     const resUpdateUser = await executeQuery('update', params);
     return success('success');
   } catch (error) {
+    console.log(error);
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };
