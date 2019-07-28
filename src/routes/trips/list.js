@@ -42,12 +42,15 @@ export const listTrips = async (event, context) => {
     // Budgets
     if (event.queryStringParameters.budgets) {
       const budgets = event.queryStringParameters.budgets.split(',');
+      const budgetFilter = [];
       _.forEach(budgets, (value, key) => {
         filterAttributeValues.push({
           [':budgets' + key]: value,
         });
-        filterExpressions.push('contains(budgets, :budgets' + key + ')');
+        budgetFilter.push('contains(budgets, :budgets' + key + ')');
       });
+      budgetFilter.length > 0 &&
+        filterExpressions.push('(' + budgetFilter.join(' or ') + ')');
     }
     // minGroupSize
     if (event.queryStringParameters.minGroupSize) {
@@ -94,24 +97,30 @@ export const listTrips = async (event, context) => {
     // interests
     if (event.queryStringParameters.interests) {
       const interests = event.queryStringParameters.interests.split(',');
+      const interestFilter = [];
       _.forEach(interests, (value, key) => {
         filterAttributeValues.push({
           [':interests' + key]: value,
         });
-        filterExpressions.push('contains(interests, :interests' + key + ')');
+        interestFilter.push('contains(interests, :interests' + key + ')');
       });
+      interestFilter.length > 0 &&
+        filterExpressions.push('(' + interestFilter.join(' or ') + ')');
     }
     // destinations
     if (event.queryStringParameters.destinations) {
       const destinations = event.queryStringParameters.destinations.split(',');
+      const destinationsFilter = [];
       _.forEach(destinations, (value, key) => {
         filterAttributeValues.push({
           [':destinations' + key]: value,
         });
-        filterExpressions.push(
+        destinationsFilter.push(
           'contains(destinations, :destinations' + key + ')'
         );
       });
+      destinationsFilter.length > 0 &&
+        filterExpressions.push('(' + destinationsFilter.join(' or ') + ')');
     }
   }
   let filterAttributes = {};
@@ -122,6 +131,7 @@ export const listTrips = async (event, context) => {
   if (filterExpressions.length > 0)
     filter['FilterExpression'] = filterExpressions.join(' and ');
   filter['ExpressionAttributeValues'] = filterAttributes;
+  console.log(filter);
   // Build nextpage token
   const exclusiveStartKey =
     event.queryStringParameters && event.queryStringParameters.nextPageToken

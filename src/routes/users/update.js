@@ -32,7 +32,7 @@ export const updateUser = async (event, context) => {
     try {
       const user = await getUserByUserID(data.userId);
       if (user && user.Items && user.Items.length > 0) {
-        throw 'UserIdAlreadyExists';
+        if (user.Items[0].id !== userId) throw 'UserIdAlreadyExists';
       }
     } catch (error) {
       return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
