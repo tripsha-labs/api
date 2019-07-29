@@ -160,25 +160,20 @@ const sendMessageToAllConnected = async (event, message) => {
 const storeMessage = async event => {
   const body = JSON.parse(event.body);
   const postData = JSON.parse(body.data);
-  const username = event.requestContext.authorizer
-    ? event.requestContext.authorizer.username
-    : '';
 
   const params = {
     TableName: TABLE_NAMES.MESSAGES,
     Item: {
       groupId: postData.groupId ? postData.groupId : '1',
       toMemberId: postData.userId,
+      fromMemberId: postData.fromMemberId,
       message: postData.message,
       sentOn: moment().unix(),
       messageType: 'text',
       id: uuid.v1(),
     },
   };
-  const userlist = await getUserId(username);
-  if (userlist && userlist.Items && userlist.Items.length > 0) {
-    params.Item['fromMemberId'] = userlist.Items[0].id;
-  }
+
   try {
     await executeQuery('put', params);
     await updateConversation(

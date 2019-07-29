@@ -1,6 +1,5 @@
 import { executeQuery } from '../utils';
 import { TABLE_NAMES } from '../constants';
-import { queryBuilder, keyPrefixAlterer } from '../helpers';
 
 export const updateConversation = async (params, findParams, key) => {
   const findParam = {

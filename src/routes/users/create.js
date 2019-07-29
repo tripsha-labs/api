@@ -6,7 +6,7 @@
 import { TABLE_NAMES, ERROR_CODES } from '../../constants';
 import { success, failure, executeQuery } from '../../utils';
 import { createUserValidation, createUserDefaultValues } from '../../models';
-import { errorSanitizer, getUserByUserID } from '../../helpers';
+import { errorSanitizer } from '../../helpers';
 
 export const createUser = async (event, context) => {
   const data = JSON.parse(event.body);
@@ -15,14 +15,6 @@ export const createUser = async (event, context) => {
   const errors = createUserValidation(data);
   if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
   // Check user already exists
-  try {
-    const user = await getUserByUserID(data.userId);
-    if (user && user.Items && user.Items.length > 0) {
-      throw 'UserIdAlreadyExists';
-    }
-  } catch (error) {
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-  }
   const params = {
     TableName: TABLE_NAMES.USER,
     Item: {
@@ -35,6 +27,7 @@ export const createUser = async (event, context) => {
     await executeQuery('put', params);
     return success(params.Item.id);
   } catch (error) {
+    console.log(error);
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
   }
 };

@@ -15,6 +15,15 @@ createUser:
         cors: true
         authorizer: aws_iam
 
+searchUser:
+  handler: src/routes/users/search-user.searchUser
+  events:
+    - http:
+        path: search-users
+        method: get
+        cors: true
+        authorizer: aws_iam
+
 getUser:
   handler: src/routes/users/get.getUser
   events:

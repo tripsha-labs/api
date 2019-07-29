@@ -116,8 +116,9 @@ export const addMember = (tripId, memberId) => {
 };
 
 export const injectFavoriteDetails = (trips, userId) => {
+  console.log(userId);
   const promises = [];
-  trips.forEach(trip => {
+  trips.map(trip => {
     promises.push(
       new Promise(async res => {
         if (!userId) {
@@ -133,6 +134,7 @@ export const injectFavoriteDetails = (trips, userId) => {
         };
         try {
           const result = await executeQuery('get', params);
+          console.log(result);
           trip.isFavorite =
             result && result.Item && result.Item.isFavorite ? true : false;
         } catch (error) {

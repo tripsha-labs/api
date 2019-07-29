@@ -30,7 +30,7 @@
     "pKey": 1
   },
   {
-    "name": "AndorrA",
+    "name": "Andorra",
     "nameLower": "andorra",
     "code": "AD",
     "pKey": 1
@@ -1266,8 +1266,8 @@
     "pKey": 1
   },
   {
-    "name": "Taiwan, Province of China",
-    "nameLower": "taiwan, province of china",
+    "name": "Taiwan",
+    "nameLower": "taiwan",
     "code": "TW",
     "pKey": 1
   },
