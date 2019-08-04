@@ -4,7 +4,7 @@
  */
 import { success, failure, executeQuery } from '../../utils';
 import { TABLE_NAMES, ERROR_CODES, ERROR_KEYS } from '../../constants';
-import { errorSanitizer } from '../../helpers';
+import { errorSanitizer, getFavoriteDetails } from '../../helpers';
 
 export const getTrip = async (event, context) => {
   if (!(event.pathParameters && event.pathParameters.id)) {
@@ -31,6 +31,19 @@ export const getTrip = async (event, context) => {
     const resUser = await executeQuery('get', userParams);
     const trip = resTrip.Item;
     trip['createdBy'] = resUser.Item;
+    try {
+      const resFavorite = await getFavoriteDetails(
+        trip.id,
+        event.requestContext.identity.cognitoIdentityId
+      );
+      trip['isFavorite'] =
+        resFavorite && resFavorite.Item && resFavorite.Item.isFavorite
+          ? true
+          : false;
+    } catch (error) {
+      trip['isFavorite'] = false;
+      console.log(error);
+    }
     return success(trip);
   } catch (error) {
     return failure(errorSanitizer(error), ERROR_CODES.RESOURCE_NOT_FOUND);
