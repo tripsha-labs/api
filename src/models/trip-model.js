@@ -42,6 +42,16 @@ const tripBaseSchema = {
     optional: true,
     items: 'string',
   },
+  focus: {
+    type: 'string',
+    optional: true,
+    empty: true,
+  },
+  cost: {
+    type: 'number',
+    optional: true,
+    empty: true,
+  },
   minGroupSize: {
     type: 'number',
     empty: false,
