@@ -10,7 +10,6 @@ import {
   keyPrefixAlterer,
   errorSanitizer,
   getTripMembersCount,
-  getMemberIdByUsername,
 } from '../../helpers';
 import * as moment from 'moment';
 
@@ -41,21 +40,6 @@ export const memberAction = async (event, context) => {
   data['memberIds'].map(memberId => {
     promises.push(
       new Promise(async (resolve, reject) => {
-        if (data['action'] == 'addMember') {
-          try {
-            const resMemberDetails = await getMemberIdByUsername(memberId);
-            if (
-              resMemberDetails &&
-              resMemberDetails.Items &&
-              resMemberDetails.Items.length > 0
-            ) {
-              memberId = resMemberDetails.Items[0].id;
-            } else return reject('MemberNotFound');
-          } catch (error) {
-            console.log(error);
-            return reject('MemberNotFound');
-          }
-        }
         const getMembershipParams = {
           TableName: TABLE_NAMES.MEMBERS,
           Key: {
@@ -63,37 +47,51 @@ export const memberAction = async (event, context) => {
             tripId: data['tripId'],
           },
         };
-        try {
-          const resMember = await executeQuery('get', getMembershipParams);
-          if (!resMember.Item) throw 'MEMBER_NOT_FOUND';
-          info['memberDetails'] = resMember.Item;
-          info['memberExists'] = true;
-        } catch (error) {
-          info['memberExists'] = false;
-          console.log(error);
-          console.log('Member not exists.');
-        }
-
         let membershipParams = {
           TableName: TABLE_NAMES.MEMBERS,
           Item: {
             memberId: memberId,
             tripId: data['tripId'],
-            isActive: false,
-            isOwner: false,
+            isFavorite: false,
+            isMember: false,
+
             updatedAt: moment().unix(),
           },
         };
+        try {
+          const resMember = await executeQuery('get', getMembershipParams);
+          if (!resMember.Item) throw 'MEMBER_NOT_FOUND';
+          membershipParams['Item'] = {
+            ...membershipParams['Item'],
+            isMember: resMember.Item.isMember,
+            isFavorite: resMember.Item.isFavorite,
+          };
+          info['memberExists'] = true;
+        } catch (error) {
+          info['memberExists'] = false;
+          console.log(error);
+          console.log('Member does not exist.');
+        }
+
         info['action'] = false;
         switch (data['action']) {
           case 'addMember':
+            // Check if member already exists, then do nothing
+            if (
+              membershipParams['Item'] &&
+              membershipParams['Item']['isMember']
+            ) {
+              return resolve('MemberAlreadyExists');
+            }
+            // Check if trip members already full, then do nothing
             if (
               info['tripDetails'] &&
               (info['tripDetails']['isArchived'] ||
                 info['tripDetails']['isFull'])
             ) {
-              break;
+              return resolve('AlreadyFull');
             }
+
             info['tripUpdateRequired'] = true;
             if (info['memberExists']) {
               membershipParams = { ...getMembershipParams };
@@ -137,7 +135,8 @@ export const memberAction = async (event, context) => {
             if (info['memberExists']) {
               membershipParams = { ...getMembershipParams };
               if (
-                info['memberDetails']['isFavorite'] ||
+                (info['memberDetails'] &&
+                  info['memberDetails']['isFavorite']) ||
                 (info['tripDetails'] && info['tripDetails']['isArchived'])
               ) {
                 info['action'] = 'update';
@@ -157,7 +156,7 @@ export const memberAction = async (event, context) => {
           case 'makeUnFavorite':
             if (info['memberExists']) {
               membershipParams = { ...getMembershipParams };
-              if (info['memberDetails']['isMember']) {
+              if (info['memberDetails'] && info['memberDetails']['isMember']) {
                 info['action'] = 'update';
                 const updateQuery = { isFavorite: false };
                 membershipParams['UpdateExpression'] =
@@ -178,6 +177,9 @@ export const memberAction = async (event, context) => {
         if (info['action'] !== false) {
           await executeQuery(info['action'], membershipParams);
           return resolve('Success');
+        } else {
+          // Member action for not found
+          return resolve('ActionNotFound');
         }
       })
     );
@@ -206,7 +208,8 @@ export const memberAction = async (event, context) => {
           ExpressionAttributeValues: keyPrefixAlterer(trip),
         };
         await executeQuery('update', updateTripParams);
-        return success('success');
+        console.log(res);
+        return success(res);
       })
       .catch(err => {
         console.log(err);

@@ -116,7 +116,6 @@ export const addMember = (tripId, memberId) => {
 };
 
 export const injectFavoriteDetails = (trips, userId) => {
-  console.log(userId);
   const promises = [];
   trips.map(trip => {
     promises.push(
@@ -125,15 +124,8 @@ export const injectFavoriteDetails = (trips, userId) => {
           trip.isFavorite = false;
           return res(trip);
         }
-        const params = {
-          TableName: TABLE_NAMES.MEMBERS,
-          Key: {
-            memberId: userId,
-            tripId: trip.id,
-          },
-        };
         try {
-          const result = await executeQuery('get', params);
+          const result = await getFavoriteDetails(trip.id, userId);
           console.log(result);
           trip.isFavorite =
             result && result.Item && result.Item.isFavorite ? true : false;
@@ -146,6 +138,18 @@ export const injectFavoriteDetails = (trips, userId) => {
     );
   });
   return Promise.all(promises);
+};
+
+export const getFavoriteDetails = (tripId, userId) => {
+  const params = {
+    TableName: TABLE_NAMES.MEMBERS,
+    Key: {
+      memberId: userId,
+      tripId: tripId,
+    },
+  };
+
+  return executeQuery('get', params);
 };
 
 export const injectUserDetails = trips => {
