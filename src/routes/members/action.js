@@ -10,7 +10,6 @@ import {
   keyPrefixAlterer,
   errorSanitizer,
   getTripMembersCount,
-  getMemberIdByUsername,
 } from '../../helpers';
 import * as moment from 'moment';
 
@@ -71,23 +70,27 @@ export const memberAction = async (event, context) => {
         } catch (error) {
           info['memberExists'] = false;
           console.log(error);
-          console.log('Member not exists.');
+          console.log('Member does not exist.');
         }
 
         info['action'] = false;
         switch (data['action']) {
           case 'addMember':
+            // Check if member already exists, then do nothing
             if (
               membershipParams['Item'] &&
               membershipParams['Item']['isMember']
-            )
+            ) {
               return resolve('MemberAlreadyExists');
+            }
+            // Check if trip members already full, then do nothing
             if (
               info['tripDetails'] &&
               (info['tripDetails']['isArchived'] ||
                 info['tripDetails']['isFull'])
-            )
+            ) {
               return resolve('AlreadyFull');
+            }
 
             info['tripUpdateRequired'] = true;
             if (info['memberExists']) {
@@ -175,6 +178,7 @@ export const memberAction = async (event, context) => {
           await executeQuery(info['action'], membershipParams);
           return resolve('Success');
         } else {
+          // Member action for not found
           return resolve('ActionNotFound');
         }
       })
