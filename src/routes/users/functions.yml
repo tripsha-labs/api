@@ -1,5 +1,5 @@
 listUser:
-  handler: src/routes/users/list.listUser
+  handler: src/routes/users/handler.listUser
   events:
     - http:
         path: users
@@ -7,7 +7,7 @@ listUser:
         cors: true
         authorizer: aws_iam
 createUser:
-  handler: src/routes/users/create.createUser
+  handler: src/routes/users/handler.createUser
   events:
     - http:
         path: users
@@ -16,7 +16,7 @@ createUser:
         authorizer: aws_iam
 
 searchUser:
-  handler: src/routes/users/search-user.searchUser
+  handler: src/routes/users/handler.listUser
   events:
     - http:
         path: search-users
@@ -25,7 +25,7 @@ searchUser:
         authorizer: aws_iam
 
 getUser:
-  handler: src/routes/users/get.getUser
+  handler: src/routes/users/handler.getUser
   events:
     - http:
         path: users/{id}
@@ -34,7 +34,7 @@ getUser:
         authorizer: aws_iam
 
 updateUser:
-  handler: src/routes/users/update.updateUser
+  handler: src/routes/users/handler.updateUser
   events:
     - http:
         path: users/{id}
@@ -43,7 +43,7 @@ updateUser:
         authorizer: aws_iam
 
 deleteUser:
-  handler: src/routes/users/delete.deleteUser
+  handler: src/routes/users/handler.deleteUser
   events:
     - http:
         path: users/{id}
@@ -52,7 +52,7 @@ deleteUser:
         authorizer: aws_iam
 
 checkExists:
-  handler: src/routes/users/checkExists.checkExist
+  handler: src/routes/users/handler.isExists
   events:
     - http:
         path: users/check-user-exists

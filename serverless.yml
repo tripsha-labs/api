@@ -7,7 +7,6 @@ plugins:
   - serverless-dynamodb-fixtures
   - serverless-dynamodb-local
   - serverless-offline
-
 custom:
   stage: ${opt:stage, self:provider.stage}
   fixtures:
@@ -91,11 +90,11 @@ package:
 
 functions:
   - ${file(src/routes/users/functions.yml)}
-  - ${file(src/routes/trips/functions.yml)}
-  - ${file(src/routes/tags/functions.yml)}
-  - ${file(src/routes/messages/functions.yml)}
-  - ${file(src/routes/countries/functions.yml)}
-  - ${file(src/routes/members/functions.yml)}
+  # - ${file(src/routes/trips/functions.yml)}
+  # - ${file(src/routes/tags/functions.yml)}
+  # - ${file(src/routes/messages/functions.yml)}
+  # - ${file(src/routes/countries/functions.yml)}
+  # - ${file(src/routes/members/functions.yml)}
 
 resources:
   # API Gateway Errors

@@ -1,4 +1,10 @@
 import AWS from 'aws-sdk';
+const cred = {
+  region: 'localhost',
+  endpoint: '192.168.0.10:8000',
+  accessKeyId: 'AKIASX2C4OLA565GJQOW',
+  secretAccessKey: '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',
+};
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
 export const saveItem = params => {
