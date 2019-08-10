@@ -53,7 +53,6 @@ export class UserModel extends BaseModel {
       ...expressionAttributeValues,
       ...exclusiveStartKey,
     };
-    console.log(listParams);
     return queryItem(listParams);
   }
 
@@ -66,6 +65,17 @@ export class UserModel extends BaseModel {
       },
     };
 
+    return scanItem(params);
+  }
+
+  getUserByUsername(username) {
+    const params = {
+      TableName: TABLE_NAMES.USER,
+      ExpressionAttributeValues: {
+        ':username': username,
+      },
+      FilterExpression: 'username=:username',
+    };
     return scanItem(params);
   }
 }

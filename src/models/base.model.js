@@ -36,7 +36,7 @@ export class BaseModel {
   get(id) {
     const params = {
       TableName: this.tableName,
-      Key: { id: id },
+      Key: { id },
     };
     return getItem(params);
   }

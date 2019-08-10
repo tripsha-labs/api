@@ -1,5 +1,5 @@
 getTags:
-  handler: src/routes/tags/list.get
+  handler: src/routes/tags/handler.listTags
   events:
     - http:
         path: public/tags

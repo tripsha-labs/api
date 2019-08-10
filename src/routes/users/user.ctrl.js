@@ -56,14 +56,15 @@ export class UserController {
     }
   }
 
-  static async getUser(userId) {
+  static async getUser(id) {
     try {
       const userModel = new UserModel();
-      const res = await userModel.get(userId);
+      const res = await userModel.get(id);
+      if (!(res && res.Item)) throw 'User not found';
       return { error: null, result: res.Item };
     } catch (error) {
       console.log(error);
-      return { error };
+      return { error: 'User not found' };
     }
   }
 
@@ -97,16 +98,21 @@ export class UserController {
       await userModel.delete(id);
       return { error: null, result: 'success' };
     } catch (error) {
-      return { error };
+      console.log(error);
+      return { error: 'Failed to delete' };
     }
   }
 
-  static async isExists(userId) {
+  static async isExists(username) {
     try {
       const userModel = new UserModel();
-      const res = await userModel.isExists(userId);
-      return { error: null, result: res && res.Items && res.Items.length > 0 };
+      const res = await userModel.isExists(username);
+      return {
+        error: null,
+        result: res && res.Items && res.Items.length > 0 ? true : false,
+      };
     } catch (error) {
+      console.log(error);
       return { error };
     }
   }

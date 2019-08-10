@@ -9,17 +9,22 @@ export const updateItem = async params => {
 };
 
 export const getItem = params => {
-  const item = {
-    id: 'id_of_the_item',
-  };
-  return Promise.resolve({ Item: item });
+  if (params.Key.id !== 'id_of_the_item') return Promise.reject({});
+  return Promise.resolve({
+    Item: {
+      id: params.Key.id,
+    },
+  });
 };
 
 export const deleteItem = params => {
+  if (params.Key.id !== 'id_of_the_item') return Promise.reject({});
   return Promise.resolve({});
 };
 
 export const scanItem = params => {
+  if (params.ExpressionAttributeValues[':userId'] !== 'sanjay')
+    return Promise.resolve({ Items: [] });
   return Promise.resolve({
     Items: [{ id: 'id_of_the_item' }],
     Count: 1,
