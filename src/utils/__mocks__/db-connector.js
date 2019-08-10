@@ -37,3 +37,10 @@ export const queryItem = params => {
     Count: 1,
   });
 };
+
+export const batchGetItem = params => {
+  return Promise.resolve({
+    Items: [{ id: 'id_of_the_item' }],
+    Count: 1,
+  });
+};

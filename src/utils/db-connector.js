@@ -30,3 +30,8 @@ export const scanItem = params => {
 export const queryItem = params => {
   return dynamo.query(params).promise();
 };
+
+export const batchGetItem = params => {
+  const dynamoDb = new AWS.DynamoDB();
+  return dynamoDb.batchGet(params).promise();
+};

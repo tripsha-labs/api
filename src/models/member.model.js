@@ -53,4 +53,41 @@ export class MemberModel extends BaseModel {
     };
     return deleteItem(params);
   }
+
+  myTrips(memberId) {
+    const getMemberList = {
+      TableName: TABLE_NAMES.MEMBERS,
+      ScanIndexForward: true,
+      Limit: 1000,
+      ExpressionAttributeNames: {
+        '#memberId': 'memberId',
+        '#isActive': 'isActive',
+      },
+      KeyConditionExpression: '#memberId=:memberId',
+      ExpressionAttributeValues: {
+        ':memberId': memberId,
+        ':isActive': true,
+      },
+      FilterExpression: '#isActive=:isActive',
+    };
+
+    return queryItem(getMemberList);
+  }
+
+  savedTrips(memberId) {
+    const getMemberList = {
+      TableName: TABLE_NAMES.MEMBERS,
+      ScanIndexForward: true,
+      Limit: 1000,
+      ExpressionAttributeNames: {
+        '#memberId': 'memberId',
+        '#isFavorite': 'isFavorite',
+      },
+      KeyConditionExpression: '#memberId=:memberId',
+      ExpressionAttributeValues: { ':memberId': memberId, ':isFavorite': true },
+      FilterExpression: '#isFavorite=:isFavorite',
+    };
+
+    return queryItem(getMemberList);
+  }
 }
