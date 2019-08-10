@@ -1,6 +1,7 @@
 import https from 'https';
 import * as moment from 'moment';
 import uuid from 'uuid';
+import jose from 'node-jose';
 import { generateAllow } from './helper';
 import {
   UserModel,
@@ -9,7 +10,6 @@ import {
   ConversationModel,
 } from '../../models';
 import { apigwManagementApi } from '../../utils';
-const jose = require('node-jose');
 
 export class MessageController {
   static async auth(authFilter) {

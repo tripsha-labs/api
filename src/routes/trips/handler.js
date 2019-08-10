@@ -2,6 +2,11 @@ import { TripController } from './trip.ctrl';
 import { success, failure } from '../../utils';
 import { errorSanitizer } from '../../helpers';
 import { ERROR_CODES } from '../../constants';
+import {
+  createTripValidation,
+  validateTripLength,
+  updateTripValidation,
+} from '../../models';
 
 /**
  * List trips
@@ -9,7 +14,8 @@ import { ERROR_CODES } from '../../constants';
 export const listTrips = async (event, context) => {
   try {
     const { error, result } = await TripController.listTrips(
-      event.queryStringParameters
+      event.queryStringParameters,
+      event.requestContext.identity.cognitoIdentityId
     );
     if (error !== null) {
       console.log(error);
@@ -70,14 +76,6 @@ export const updateTrip = async (event, context) => {
     const errors = updateTripValidation(data);
     if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
 
-    if (data['startDate'] || data['endDate']) {
-      const tripLength = validateTripLength(data['startDate'], data['endDate']);
-
-      if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
-        return failure(ERROR_KEYS.INVALID_DATES, ERROR_CODES.VALIDATION_ERROR);
-      data['tripLength'] = tripLength;
-    }
-
     const { error, result } = await TripController.updateTrip(
       event.pathParameters.id,
       {
@@ -107,7 +105,8 @@ export const getTrip = async (event, context) => {
   }
   try {
     const { error, result } = await TripController.getTrip(
-      event.pathParameters.id
+      event.pathParameters.id,
+      event.requestContext.identity.cognitoIdentityId
     );
     if (error !== null) {
       console.log(error);
@@ -147,36 +146,29 @@ export const deleteTrip = async (event, context) => {
 
 export const myTrips = async (event, context) => {
   try {
-    const resMembers = await getMyTrips(
+    const { error, result } = await TripController.myTrips(
       event.requestContext.identity.cognitoIdentityId
     );
-    const tripKeys = [];
-    _.forEach(resMembers.Items, item => {
-      tripKeys.push({ id: item.tripId });
-    });
-    const result = {
-      data: resMembers.Items,
-      count: resMembers.Count,
-    };
-    if (tripKeys.length > 0) {
-      const tripParams = {
-        RequestItems: {
-          [TABLE_NAMES.TRIP]: {
-            Keys: tripKeys,
-          },
-        },
-      };
-      const resTrips = await executeQuery('batchGet', tripParams);
-
-      result['data'] = await injectUserDetails(
-        resTrips.Responses[TABLE_NAMES.TRIP]
-      );
-      result['data'] = await injectFavoriteDetails(
-        result['data'],
-        event.requestContext.identity.cognitoIdentityId
-      );
+    if (error !== null) {
+      console.log(error);
+      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
     }
+    return success(result);
+  } catch (error) {
+    console.log(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+  }
+};
 
+export const savedTrips = async (event, context) => {
+  try {
+    const { error, result } = await TripController.savedTrips(
+      event.requestContext.identity.cognitoIdentityId
+    );
+    if (error !== null) {
+      console.log(error);
+      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    }
     return success(result);
   } catch (error) {
     console.log(error);

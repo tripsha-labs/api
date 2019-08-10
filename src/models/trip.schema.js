@@ -55,10 +55,12 @@ const tripBaseSchema = {
   minGroupSize: {
     type: 'number',
     empty: false,
+    optional: true,
   },
   maxGroupSize: {
     type: 'number',
     empty: false,
+    optional: true,
   },
   isPublic: {
     type: 'boolean',

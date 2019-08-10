@@ -72,6 +72,7 @@ export class UserController {
     try {
       const userModel = new UserModel();
       const res = await userModel.list(user);
+      console.log(res);
       const lastEvaluatedKey =
         res && res.LastEvaluatedKey
           ? {

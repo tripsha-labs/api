@@ -9,8 +9,9 @@ import { TagsController } from './tags.ctrl';
 export const listTags = async (event, context) => {
   // Get search string from queryparams
   const params = {
-    search: event.queryStringParameters.search,
-    nextPageToken: event.queryStringParameters.nextPageToken,
+    search: event.queryStringParameters && event.queryStringParameters.search,
+    nextPageToken:
+      event.queryStringParameters && event.queryStringParameters.nextPageToken,
   };
 
   try {

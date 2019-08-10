@@ -2,9 +2,9 @@ import _ from 'lodash';
 import * as moment from 'moment';
 import uuid from 'uuid';
 import { TripModel, MemberModel, UserModel } from '../../models';
-
+import { TABLE_NAMES } from '../../constants';
 export class TripController {
-  static async listTrips(tripFilter) {
+  static async listTrips(tripFilter, userId) {
     // Get search string from queryparams
     const filterExpressions = [];
     const filterAttributeValues = [
@@ -143,6 +143,7 @@ export class TripController {
     try {
       const tripModel = new TripModel();
       const resTrips = await tripModel.list(params);
+
       const lastEvaluatedKey =
         resTrips && resTrips.LastEvaluatedKey
           ? {
@@ -151,17 +152,16 @@ export class TripController {
               ).toString('base64'),
             }
           : {};
+
+      const tripList = await TripController.injectData(resTrips.Items, userId);
       const result = {
-        data: await TripController.injectData(
-          resTrips.Items,
-          event.requestContext.identity.cognitoIdentityId
-        ),
+        data: tripList,
         count: resTrips.Count,
         ...lastEvaluatedKey,
       };
       return { error: null, result };
     } catch (error) {
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+      return { error };
     }
   }
 
@@ -204,12 +204,47 @@ export class TripController {
   static async updateTrip(tripId, data) {
     try {
       const trip = { ...data, updatedAt: moment().unix() };
-      trip['startDate'] = parseInt(data['startDate']);
-      trip['endDate'] = parseInt(data['endDate']);
       const tripModel = new TripModel();
       if (trip['maxGroupSize']) {
         const tripDetails = await tripModel.get(tripId);
+
         if (!(tripDetails && tripDetails.Item)) throw 'Trip not found';
+        if (
+          trip['startDate'] &&
+          trip['startDate'] != '' &&
+          (trip['endDate'] && trip['endDate'] != '')
+        ) {
+          trip['startDate'] = parseInt(trip['startDate']);
+          trip['endDate'] = parseInt(trip['endDate']);
+          const tripLength = validateTripLength(
+            trip['startDate'],
+            trip['endDate']
+          );
+
+          if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
+            throw ERROR_KEYS.INVALID_DATES;
+          trip['tripLength'] = tripLength;
+        } else if (trip['startDate'] && trip['startDate'] != '') {
+          trip['startDate'] = parseInt(trip['startDate']);
+          const tripLength = validateTripLength(
+            trip['startDate'],
+            tripDetails.Item['endDate']
+          );
+
+          if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
+            throw ERROR_KEYS.INVALID_DATES;
+          trip['tripLength'] = tripLength;
+        } else if (trip['endDate'] && trip['endDate'] != '') {
+          trip['endDate'] = parseInt(trip['endDate']);
+          const tripLength = validateTripLength(
+            tripDetails.Item['startDate'],
+            trip['endDate']
+          );
+
+          if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
+            throw ERROR_KEYS.INVALID_DATES;
+          trip['tripLength'] = tripLength;
+        }
         trip['spotFilledRank'] = Math.round(
           (tripDetails.Item['groupSize'] / trip['maxGroupSize']) * 100
         );
@@ -222,12 +257,15 @@ export class TripController {
     }
   }
 
-  static async getTrip(tripId) {
+  static async getTrip(tripId, userId = null) {
     try {
       const tripModel = new TripModel();
       const trip = await tripModel.get(tripId);
-      return { error: null, result: trip.Item };
+      if (!(trip && trip.Item)) throw 'Trip not found';
+      const tripList = await TripController.injectData([trip.Item], userId);
+      return { error: null, result: tripList[0] };
     } catch (error) {
+      console.log(error);
       return { error };
     }
   }
@@ -274,14 +312,16 @@ export class TripController {
     const tripModel = new TripModel();
     const tripKeys = [];
     _.forEach(trips, item => {
-      tripKeys.push({ id: item.tripId });
+      tripKeys.push({ id: item.id });
     });
 
     if (tripKeys.length > 0) {
       const resTrips = await tripModel.batchList(tripKeys);
 
-      trips = await injectUserDetails(resTrips.Responses[TABLE_NAMES.TRIP]);
-      trips = await injectFavoriteDetails(trips, memberId);
+      trips = await TripController.injectUserDetails(
+        resTrips.Responses[TABLE_NAMES.TRIP]
+      );
+      trips = await TripController.injectFavoriteDetails(trips, memberId);
     }
     return trips;
   }

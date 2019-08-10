@@ -5,17 +5,17 @@ export class MemberController {
     try {
       const memberModel = new MemberModel();
       const res = await memberModel.list(membersFilter);
-      //   const promises = [];
-      //   const userModel = new UserModel();
-      //   res.Items.map(member => {
-      //     promises.push(
-      //       new Promise(async res => {
-      //         const user = await userModel.get(member.memberId);
-      //         return res({ ...member, ...user.Item });
-      //       })
-      //     );
-      //   });
-      //   await Promise.all(promises);
+      // const promises = [];
+      // const userModel = new UserModel();
+      // res.Items.map(member => {
+      //   promises.push(
+      //     new Promise(async res => {
+      //       const user = await userModel.get(member.memberId);
+      //       return res({ ...member, ...user.Item });
+      //     })
+      //   );
+      // });
+      // const members = await Promise.all(promises);
       const lastEvaluatedKey =
         res && res.LastEvaluatedKey
           ? {

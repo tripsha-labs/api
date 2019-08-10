@@ -1,5 +1,5 @@
 memberAction:
-  handler: src/routes/members/action.memberAction
+  handler: src/routes/members/handler.memberActions
   events:
     - http:
         path: members/action
@@ -8,7 +8,7 @@ memberAction:
         authorizer: aws_iam
 
 memberList:
-  handler: src/routes/members/list.memberList
+  handler: src/routes/members/handler.listMembers
   events:
     - http:
         path: trips/{id}/members
