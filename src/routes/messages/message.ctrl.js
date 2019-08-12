@@ -12,6 +12,118 @@ import {
 import { apigwManagementApi } from '../../utils';
 
 export class MessageController {
+  static async listMessages(queryFilter) {
+    try {
+      const messageModel = new MessageModel();
+      const resMessages = await messageModel.list(queryFilter);
+      const result = {
+        data: [],
+        count: 0,
+      };
+      if (resMessages && resMessages.Items && resMessages.Items.length > 0) {
+        if (resMessages.LastEvaluatedKey)
+          result['nextPageToken'] = Buffer.from(
+            JSON.stringify(resMessages.LastEvaluatedKey)
+          ).toString('base64');
+
+        const promises = [];
+        resMessages.Items.map(message => {
+          promises.push(
+            new Promise(async resolve => {
+              const userModel = new UserModel();
+              const memberId =
+                message['toMemberId'] == queryFilter.userId
+                  ? message['fromMemberId']
+                  : message['toMemberId'];
+
+              let user = {};
+              try {
+                const resultUser = await userModel.get(memberId);
+                user = resultUser.Item;
+              } catch (error) {
+                console.log(error);
+              }
+              user['message'] = message;
+              return resolve(user);
+            })
+          );
+        });
+        const resConversations = await Promise.all(promises);
+        result['data'] = resConversations;
+        result['count'] = resMessages.Count;
+      }
+
+      return { error: null, result };
+    } catch (error) {
+      console.error(error);
+      return { error: null };
+    }
+  }
+
+  static async listConversations(queryFilter) {
+    try {
+      const conversationModel = new ConversationModel();
+      const resMessages = await conversationModel.list(queryFilter);
+      const result = {
+        data: [],
+        count: 0,
+      };
+      if (resMessages && resMessages.Items && resMessages.Items.length > 0) {
+        if (resMessages.LastEvaluatedKey)
+          result['nextPageToken'] = Buffer.from(
+            JSON.stringify(resMessages.LastEvaluatedKey)
+          ).toString('base64');
+
+        const promises = [];
+        resMessages.Items.map(message => {
+          promises.push(
+            new Promise(async resolve => {
+              const userModel = new UserModel();
+              const memberId =
+                message['toMemberId'] == queryFilter.userId
+                  ? message['fromMemberId']
+                  : message['toMemberId'];
+
+              let user = {};
+              try {
+                const resultUser = await userModel.get(memberId);
+                user = resultUser.Item;
+              } catch (error) {
+                console.log(error);
+              }
+              user['message'] = message;
+              return resolve(user);
+            })
+          );
+        });
+        const resConversations = await Promise.all(promises);
+        result['data'] = resConversations;
+        result['count'] = resMessages.Count;
+      }
+
+      return { error: null, result };
+    } catch (error) {
+      console.error(error);
+      return { error: null };
+    }
+  }
+
+  static async sendMessageRest(message) {
+    try {
+      const messageModel = new MessageModel();
+      const res = await messageModel.add(message);
+      // const conversationModel = new ConversationModel();
+      // await conversationModel.update(res.Item, {
+      //   ':userId': res.Item['fromMemberId'],
+      //   ':memberId': res.Item['toMemberId'],
+      //   ':groupId': res.Item['groupId'],
+      // });
+      return { error: null, result: res.Item };
+    } catch (error) {
+      return { error: error };
+    }
+  }
+
   static async auth(authFilter) {
     const region = authFilter.region;
     const userpoolId = authFilter.userpoolId;

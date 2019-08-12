@@ -1,7 +1,7 @@
 import { TripController } from './trip.ctrl';
 import { success, failure } from '../../utils';
 import { errorSanitizer } from '../../helpers';
-import { ERROR_CODES } from '../../constants';
+import { ERROR_CODES, ERROR_KEYS } from '../../constants';
 import {
   createTripValidation,
   validateTripLength,
@@ -144,6 +144,9 @@ export const deleteTrip = async (event, context) => {
   }
 };
 
+/**
+ * List my trips
+ */
 export const myTrips = async (event, context) => {
   try {
     const { error, result } = await TripController.myTrips(
@@ -160,6 +163,9 @@ export const myTrips = async (event, context) => {
   }
 };
 
+/**
+ * List saved trips
+ */
 export const savedTrips = async (event, context) => {
   try {
     const { error, result } = await TripController.savedTrips(

@@ -18,6 +18,10 @@ describe('Create User', () => {
     const { error } = await UserController.createUser(user);
     expect(error).to.be.an('array');
   });
+  test('With invalid input', async () => {
+    const { error } = await UserController.createUser();
+    expect(error).to.equal('Invalid input');
+  });
 });
 
 describe('Update User', () => {
@@ -43,6 +47,19 @@ describe('Update User', () => {
     const id = 'id_of_the_item';
     const { error, result } = await UserController.updateUser(id, user);
     expect(error).to.be.an('array');
+  });
+  test('With userid exists', async () => {
+    const id = 'id_of_the_item1';
+    const user = {
+      userId: 'sanjay',
+    };
+    const { error, result } = await UserController.updateUser(id, user);
+    expect(error).to.equal('UserAlreadyExists');
+  });
+  test('With invalid input', async () => {
+    const id = 'id_of_the_item';
+    const { error, result } = await UserController.updateUser(id);
+    expect(error).to.equal('Invalid input');
   });
 });
 
@@ -80,10 +97,17 @@ describe('List Users', () => {
     expect(error).to.equal(null);
     expect(result).to.have.property('data');
   });
-  test('With invalid input', async () => {
-    const { error, result } = await UserController.listUser({});
+  test('With valid search input', async () => {
+    const { error, result } = await UserController.listUser({
+      searchText: 'sanjay',
+    });
     expect(error).to.equal(null);
     expect(result).to.have.property('data');
+  });
+
+  test('With invalid input', async () => {
+    const { error, result } = await UserController.listUser();
+    expect(error).to.equal('Invalid input');
   });
 });
 
@@ -98,5 +122,9 @@ describe('Check User exists', () => {
     const username = 'xyz';
     const { error, result } = await UserController.isExists(username);
     expect(result).to.be.false;
+  });
+  test('With invalid username', async () => {
+    const { error, result } = await UserController.isExists();
+    expect(error).to.equal('Invalid input');
   });
 });

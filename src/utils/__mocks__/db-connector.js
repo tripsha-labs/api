@@ -1,4 +1,7 @@
+import { TABLE_NAMES } from '../../constants';
+
 export const saveItem = async params => {
+  if (!params.Item) return Promise.resolve([]);
   return await Promise.resolve({
     Item: { ...params.Item },
   });
@@ -13,6 +16,7 @@ export const getItem = params => {
   return Promise.resolve({
     Item: {
       id: params.Key.id,
+      isFavorite: true,
     },
   });
 };
@@ -26,21 +30,32 @@ export const scanItem = params => {
   if (params.ExpressionAttributeValues[':userId'] !== 'sanjay')
     return Promise.resolve({ Items: [] });
   return Promise.resolve({
-    Items: [{ id: 'id_of_the_item' }],
+    Items: [
+      {
+        id: 'id_of_the_item',
+        memberId: 'id_of_the_item',
+      },
+    ],
     Count: 1,
   });
 };
 
 export const queryItem = params => {
   return Promise.resolve({
-    Items: [{ id: 'id_of_the_item' }],
+    Items: [{ id: 'id_of_the_item', memberId: 'id_of_the_item' }],
     Count: 1,
   });
 };
 
 export const batchGetItem = params => {
   return Promise.resolve({
-    Items: [{ id: 'id_of_the_item' }],
-    Count: 1,
+    resTrips: {
+      Responses: {
+        [TABLE_NAMES.TRIP]: {
+          Items: [{ id: 'id_of_the_item', memberId: 'id_of_the_item' }],
+          Count: 1,
+        },
+      },
+    },
   });
 };

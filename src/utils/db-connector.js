@@ -32,6 +32,5 @@ export const queryItem = params => {
 };
 
 export const batchGetItem = params => {
-  // const dynamoDb = new AWS.DynamoDB();
   return dynamo.batchGet(params).promise();
 };

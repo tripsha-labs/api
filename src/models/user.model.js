@@ -1,7 +1,9 @@
+import _ from 'lodash';
 import { TABLE_NAMES } from '../constants';
 import { BaseModel } from './base.model';
 import { queryItem, scanItem } from '../utils';
-import _ from 'lodash';
+import { base64Decode } from '../helpers';
+
 export class UserModel extends BaseModel {
   constructor() {
     super(TABLE_NAMES.USER);
@@ -9,7 +11,6 @@ export class UserModel extends BaseModel {
 
   list(params = {}) {
     const searchText = params.searchText;
-
     // Build attribute values
     const expressionAttributeValues = searchText
       ? {
@@ -36,14 +37,7 @@ export class UserModel extends BaseModel {
           },
           KeyConditionExpression: '#isActive=:isActive',
         };
-    // Build nextpage token
-    const exclusiveStartKey = params.nextPageToken
-      ? {
-          ExclusiveStartKey: JSON.parse(
-            Buffer.from(params.nextPageToken, 'base64').toString('ascii')
-          ),
-        }
-      : {};
+
     const listParams = {
       TableName: this.tableName,
       IndexName: 'SortByUsername',
@@ -51,7 +45,7 @@ export class UserModel extends BaseModel {
       Limit: 500,
       ...expressionAttributeNames,
       ...expressionAttributeValues,
-      ...exclusiveStartKey,
+      ...base64Decode(params.nextPageToken),
     };
     return queryItem(listParams);
   }

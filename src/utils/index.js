@@ -4,6 +4,5 @@
  * @see - If new file added in this folder then add reference here
  */
 export * from './response';
-export * from './db';
 export * from './aws-api';
 export * from './db-connector';

@@ -3,6 +3,7 @@ import { TagModel } from '../../models';
 export class TagsController {
   static async listTags(tagsFilter) {
     try {
+      if (!tagsFilter) throw 'Invalid input';
       const tagModel = new TagModel();
       const res = await tagModel.list(tagsFilter);
       const lastEvaluatedKey =

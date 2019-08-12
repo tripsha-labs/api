@@ -58,7 +58,7 @@ export const sendMessageHandler = async (event, context) => {
     const postData = JSON.parse(body.data);
     const message = await MessageController.storeMessage(postData);
     await MessageController.sendMessage(event, message);
-    // await sendMessageToAllConnected(event, message);
+    await sendMessageToAllConnected(event, message);
     console.info('Message sent!');
     return success({
       data: 'success',
@@ -66,5 +66,76 @@ export const sendMessageHandler = async (event, context) => {
   } catch (error) {
     console.error(error);
     return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+  }
+};
+
+export const listMessages = async (event, context) => {
+  if (!(event.pathParameters && event.pathParameters.memberId))
+    return failure(
+      { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' },
+      ERROR_CODES.VALIDATION_ERROR
+    );
+  // Get search string from queryparams
+  const params = {
+    userId: event.requestContext.identity.cognitoIdentityId,
+    memberId: event.pathParameters.memberId,
+    groupId: event.pathParameters.groupId ? event.pathParameters.groupId : '1',
+  };
+
+  //   nextPageToken:
+  //     event.queryStringParameters && event.queryStringParameters.nextPageToken,
+  // };
+
+  try {
+    const { error, result } = await MessageController.listMessages(params);
+    if (error !== null) {
+      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    }
+    return success(result);
+  } catch (error) {
+    console.log(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+  }
+};
+
+export const listConversations = async (event, context) => {
+  // Get search string from queryparams
+  const params = {
+    userId: event.requestContext.identity.cognitoIdentityId,
+    groupId:
+      event.pathParameters && event.pathParameters.groupId
+        ? event.pathParameters.groupId
+        : '1',
+  };
+
+  try {
+    const { error, result } = await MessageController.listConversations(params);
+    if (error !== null) {
+      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    }
+    return success(result);
+  } catch (error) {
+    console.log(error);
+    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+  }
+};
+
+export const sendMessage = async (event, context) => {
+  try {
+    const data = JSON.parse(event.body);
+    const { error, result } = await MessageController.sendMessageRest({
+      ...data,
+      fromMemberId: event.requestContext.identity.cognitoIdentityId,
+    });
+    if (error !== null) {
+      console.log(error);
+      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    }
+    return success(result);
+  } catch (error) {
+    if (error !== null) {
+      console.log(error);
+      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    }
   }
 };

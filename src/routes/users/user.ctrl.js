@@ -8,14 +8,15 @@ import {
 
 export class UserController {
   static async createUser(user) {
-    const error = createUserValidation(user);
-    if (error != true) return { error };
-    const userObject = {
-      ...user,
-      ...createUserDefaultValues,
-    };
-
     try {
+      if (!user) throw 'Invalid input';
+      const error = createUserValidation(user);
+      if (error != true) return { error };
+      const userObject = {
+        ...user,
+        ...createUserDefaultValues,
+      };
+
       const userModel = new UserModel();
       const res = await userModel.add(userObject);
       return { error: null, result: res.Item };
@@ -26,28 +27,24 @@ export class UserController {
   }
 
   static async updateUser(id, user) {
-    const error = updateUserValidation(user);
-    if (error != true) return { error };
-    const userModel = new UserModel();
-    if (user && user.userId) {
-      try {
+    try {
+      if (!user) throw 'Invalid input';
+      const error = updateUserValidation(user);
+      if (error != true) return { error };
+      const userModel = new UserModel();
+      if (user && user.userId) {
         const resIsExists = await userModel.isExists(user.userId);
         if (resIsExists && resIsExists.Items && resIsExists.Items.length > 0) {
           if (resIsExists.Items[0].id !== id) {
             return { error: 'UserAlreadyExists' };
           }
         }
-      } catch (error) {
-        console.log(error);
-        return { error };
       }
-    }
-    const userObject = {
-      ...user,
-      ...updateUserDefaultValues,
-    };
+      const userObject = {
+        ...user,
+        ...updateUserDefaultValues,
+      };
 
-    try {
       const res = await userModel.update(id, userObject);
       return { error: null, result: res };
     } catch (error) {
@@ -70,9 +67,10 @@ export class UserController {
 
   static async listUser(user) {
     try {
+      if (!user) throw 'Invalid input';
       const userModel = new UserModel();
       const res = await userModel.list(user);
-      console.log(res);
+
       const lastEvaluatedKey =
         res && res.LastEvaluatedKey
           ? {
@@ -106,6 +104,7 @@ export class UserController {
 
   static async isExists(username) {
     try {
+      if (!username) throw 'Invalid input';
       const userModel = new UserModel();
       const res = await userModel.isExists(username);
       return {

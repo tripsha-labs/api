@@ -3,6 +3,7 @@ import { CountryModel } from '../../models';
 export class CountryController {
   static async listCountries(countryFilter) {
     try {
+      if (!countryFilter) throw 'Invalid input';
       const countryModel = new CountryModel();
       const res = await countryModel.list(countryFilter);
       const lastEvaluatedKey =

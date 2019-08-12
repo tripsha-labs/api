@@ -3,7 +3,7 @@
  * @description - All the schema validation for trip handled from here
  */
 import Validator from 'fastest-validator';
-import * as moment from 'moment';
+import moment from 'moment';
 import { DATE_FORMAT } from '../constants/constants';
 
 const tripBaseSchema = {

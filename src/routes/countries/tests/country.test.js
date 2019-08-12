@@ -9,11 +9,10 @@ describe('List Countries', () => {
     expect(result).to.have.property('data');
   });
   test('With invalid input', async () => {
-    const { error, result } = await CountryController.listCountries({});
-    expect(error).to.equal(null);
-    expect(result).to.have.property('data');
+    const { error, result } = await CountryController.listCountries();
+    expect(error).to.equal('Invalid input');
   });
-  test('With invalid input', async () => {
+  test('With valid search input', async () => {
     const { error, result } = await CountryController.listCountries({
       search: 'tech',
     });
