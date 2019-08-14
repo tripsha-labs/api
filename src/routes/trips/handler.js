@@ -1,7 +1,6 @@
 import { TripController } from './trip.ctrl';
 import { success, failure } from '../../utils';
-import { errorSanitizer } from '../../helpers';
-import { ERROR_CODES, ERROR_KEYS } from '../../constants';
+import { ERROR_KEYS } from '../../constants';
 import {
   createTripValidation,
   validateTripLength,
@@ -13,18 +12,14 @@ import {
  */
 export const listTrips = async (event, context) => {
   try {
-    const { error, result } = await TripController.listTrips(
-      event.queryStringParameters,
+    const result = await TripController.listTrips(
+      event.queryStringParameters || {},
       event.requestContext.identity.cognitoIdentityId
     );
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -32,31 +27,27 @@ export const listTrips = async (event, context) => {
  * Create Trip
  */
 export const createTrip = async (event, context) => {
-  const data = JSON.parse(event.body) || {};
-  // Validate trip fields against the strict schema
-  const errors = createTripValidation(data);
-  if (errors != true) {
-    return failure(errors, ERROR_CODES.VALIDATION_ERROR);
-  }
-
-  const tripLength = validateTripLength(data['startDate'], data['endDate']);
-  if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength)) {
-    return failure(ERROR_KEYS.INVALID_DATES, ERROR_CODES.VALIDATION_ERROR);
-  }
-  data['tripLength'] = tripLength;
   try {
-    const { error, result } = await TripController.createTrip({
+    const data = JSON.parse(event.body) || {};
+    // Validate trip fields against the strict schema
+    const errors = createTripValidation(data);
+    if (errors != true) throw errors.shift();
+
+    const tripLength = validateTripLength(data['startDate'], data['endDate']);
+    if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
+      throw ERROR_KEYS.INVALID_DATES;
+
+    data['tripLength'] = tripLength;
+
+    const result = await TripController.createTrip({
       ...data,
       ownerId: event.requestContext.identity.cognitoIdentityId,
     });
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
+
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -66,30 +57,20 @@ export const createTrip = async (event, context) => {
 export const updateTrip = async (event, context) => {
   try {
     const data = JSON.parse(event.body) || {};
-    if (!(event.pathParameters && event.pathParameters.id)) {
-      return failure(
-        { ...ERROR_KEYS.MISSING_FIELD, field: 'id' },
-        ERROR_CODES.VALIDATION_ERROR
-      );
-    }
+    if (!(event.pathParameters && event.pathParameters.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
     // Validate trip fields against the strict schema
     const errors = updateTripValidation(data);
-    if (errors != true) return failure(errors, ERROR_CODES.VALIDATION_ERROR);
+    if (errors != true) throw errors.shift();
 
-    const { error, result } = await TripController.updateTrip(
-      event.pathParameters.id,
-      {
-        ...data,
-      }
-    );
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
+    const result = await TripController.updateTrip(event.pathParameters.id, {
+      ...data,
+    });
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -97,25 +78,18 @@ export const updateTrip = async (event, context) => {
  * Get Trip
  */
 export const getTrip = async (event, context) => {
-  if (!(event.pathParameters && event.pathParameters.id)) {
-    return failure(
-      { ...ERROR_KEYS.MISSING_FIELD, field: 'id' },
-      ERROR_CODES.VALIDATION_ERROR
-    );
-  }
   try {
-    const { error, result } = await TripController.getTrip(
+    if (!(event.pathParameters && event.pathParameters.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const result = await TripController.getTrip(
       event.pathParameters.id,
       event.requestContext.identity.cognitoIdentityId
     );
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -123,24 +97,15 @@ export const getTrip = async (event, context) => {
  * Delete Trip
  */
 export const deleteTrip = async (event, context) => {
-  if (!(event.pathParameters && event.pathParameters.id)) {
-    return failure(
-      { ...ERROR_KEYS.MISSING_FIELD, field: 'id' },
-      ERROR_CODES.VALIDATION_ERROR
-    );
-  }
   try {
-    const { error, result } = await TripController.deleteTrip(
-      event.pathParameters.id
-    );
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
+    if (!(event.pathParameters && event.pathParameters.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const result = await TripController.deleteTrip(event.pathParameters.id);
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -149,17 +114,13 @@ export const deleteTrip = async (event, context) => {
  */
 export const myTrips = async (event, context) => {
   try {
-    const { error, result } = await TripController.myTrips(
+    const result = await TripController.myTrips(
       event.requestContext.identity.cognitoIdentityId
     );
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -168,16 +129,13 @@ export const myTrips = async (event, context) => {
  */
 export const savedTrips = async (event, context) => {
   try {
-    const { error, result } = await TripController.savedTrips(
+    console.log(event.requestContext.identity.cognitoIdentityId);
+    const result = await TripController.savedTrips(
       event.requestContext.identity.cognitoIdentityId
     );
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };

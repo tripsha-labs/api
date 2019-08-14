@@ -3,10 +3,6 @@
  * @description - Websocket handler for messaging
  */
 import { success, failure } from '../../utils';
-
-import { ERROR_CODES } from '../../constants';
-import { errorSanitizer } from '../../helpers';
-
 import { MessageController } from './message.ctrl';
 
 export const auth = (event, context, callback) => {
@@ -41,8 +37,8 @@ export const connectionHandler = async (event, context) => {
     });
   } catch (error) {
     console.error('Failed to esablish/remove connection');
-    console.error(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    console.log(error);
+    return failure(error);
   }
 };
 
@@ -65,16 +61,13 @@ export const sendMessageHandler = async (event, context) => {
     });
   } catch (error) {
     console.error(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
 export const listMessages = async (event, context) => {
   if (!(event.pathParameters && event.pathParameters.memberId))
-    return failure(
-      { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' },
-      ERROR_CODES.VALIDATION_ERROR
-    );
+    return failure({ ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' });
   // Get search string from queryparams
   const params = {
     userId: event.requestContext.identity.cognitoIdentityId,
@@ -87,14 +80,11 @@ export const listMessages = async (event, context) => {
   // };
 
   try {
-    const { error, result } = await MessageController.listMessages(params);
-    if (error !== null) {
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
+    const result = await MessageController.listMessages(params);
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -109,33 +99,24 @@ export const listConversations = async (event, context) => {
   };
 
   try {
-    const { error, result } = await MessageController.listConversations(params);
-    if (error !== null) {
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
+    const result = await MessageController.listConversations(params);
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
 export const sendMessage = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
-    const { error, result } = await MessageController.sendMessageRest({
+    const result = await MessageController.sendMessageRest({
       ...data,
       fromMemberId: event.requestContext.identity.cognitoIdentityId,
     });
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
     return success(result);
   } catch (error) {
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
+    console.log(error);
+    return failure(error);
   }
 };

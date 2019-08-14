@@ -6,7 +6,7 @@ import Validator from 'fastest-validator';
 import moment from 'moment';
 
 const userBaseSchema = {
-  dob: { type: 'string', optional: true, empty: false },
+  dob: { type: 'string', empty: false, optional: true },
   firstName: { type: 'string', empty: false, optional: true },
   lastName: { type: 'string', empty: false, optional: true },
   userId: { type: 'string', empty: false, optional: true },

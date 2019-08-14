@@ -10,22 +10,20 @@ components:
           type: string
           default: 'error'
         result:
-          type: array
-          items:
-            type: object
-            required:
-              - errorCode
-              - message
-            properties:
-              errorCode:
-                type: string
-                description: Error code to handle internationalization(i18)
-              message:
-                type: string
-                description: Error message in english
-              field:
-                type: string
-                description: Error field name
+          type: object
+          required:
+            - errorCode
+            - message
+          properties:
+            errorCode:
+              type: string
+              description: Error code to handle internationalization(i18)
+            message:
+              type: string
+              description: Error message in english
+            field:
+              type: string
+              description: Error field name
     CommonSuccessFormat:
       type: object
       required:

@@ -1,8 +1,9 @@
 import https from 'https';
-import * as moment from 'moment';
+import moment from 'moment';
 import uuid from 'uuid';
 import jose from 'node-jose';
 import { generateAllow } from './helper';
+import { base64Encode } from '../../helpers';
 import {
   UserModel,
   ConnectionModel,
@@ -14,23 +15,18 @@ import { apigwManagementApi } from '../../utils';
 export class MessageController {
   static async listMessages(queryFilter) {
     try {
-      const messageModel = new MessageModel();
-      const resMessages = await messageModel.list(queryFilter);
+      const resMessages = await new MessageModel().list(queryFilter);
       const result = {
         data: [],
         count: 0,
+        ...base64Encode(resMessages.LastEvaluatedKey),
       };
       if (resMessages && resMessages.Items && resMessages.Items.length > 0) {
-        if (resMessages.LastEvaluatedKey)
-          result['nextPageToken'] = Buffer.from(
-            JSON.stringify(resMessages.LastEvaluatedKey)
-          ).toString('base64');
-
         const promises = [];
+        const userModel = new UserModel();
         resMessages.Items.map(message => {
           promises.push(
             new Promise(async resolve => {
-              const userModel = new UserModel();
               const memberId =
                 message['toMemberId'] == queryFilter.userId
                   ? message['fromMemberId']
@@ -53,32 +49,27 @@ export class MessageController {
         result['count'] = resMessages.Count;
       }
 
-      return { error: null, result };
+      return result;
     } catch (error) {
-      console.error(error);
-      return { error: null };
+      console.log(error);
+      throw error;
     }
   }
 
   static async listConversations(queryFilter) {
     try {
-      const conversationModel = new ConversationModel();
-      const resMessages = await conversationModel.list(queryFilter);
+      const resMessages = await new ConversationModel().list(queryFilter);
       const result = {
         data: [],
         count: 0,
+        ...base64Encode(resMessages.LastEvaluatedKey),
       };
       if (resMessages && resMessages.Items && resMessages.Items.length > 0) {
-        if (resMessages.LastEvaluatedKey)
-          result['nextPageToken'] = Buffer.from(
-            JSON.stringify(resMessages.LastEvaluatedKey)
-          ).toString('base64');
-
         const promises = [];
+        const userModel = new UserModel();
         resMessages.Items.map(message => {
           promises.push(
             new Promise(async resolve => {
-              const userModel = new UserModel();
               const memberId =
                 message['toMemberId'] == queryFilter.userId
                   ? message['fromMemberId']
@@ -101,26 +92,25 @@ export class MessageController {
         result['count'] = resMessages.Count;
       }
 
-      return { error: null, result };
+      return result;
     } catch (error) {
       console.error(error);
-      return { error: null };
+      throw error;
     }
   }
 
   static async sendMessageRest(message) {
     try {
-      const messageModel = new MessageModel();
-      const res = await messageModel.add(message);
+      const res = await new MessageModel().add(message);
       // const conversationModel = new ConversationModel();
       // await conversationModel.update(res.Item, {
       //   ':userId': res.Item['fromMemberId'],
       //   ':memberId': res.Item['toMemberId'],
       //   ':groupId': res.Item['groupId'],
       // });
-      return { error: null, result: res.Item };
+      return res.Item;
     } catch (error) {
-      return { error: error };
+      throw error;
     }
   }
 
@@ -221,9 +211,8 @@ export class MessageController {
     };
 
     try {
-      const messageModel = new MessageModel();
+      await new MessageModel().add(params);
       const conversationModel = new ConversationModel();
-      await messageModel.add(params);
       const conversations = await conversationModel.list({
         ':userId': params['fromMemberId'],
         ':memberId': params['toMemberId'],
@@ -247,8 +236,7 @@ export class MessageController {
   }
 
   static async sendMessage(event, message) {
-    const connModel = new ConnectionModel();
-    const connections = await connModel.list(message.toMemberId);
+    const connections = await new ConnectionModel().list(message.toMemberId);
     const promises = [];
     connections.Items.map(connectionId => {
       promises.push(

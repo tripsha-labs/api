@@ -136,8 +136,7 @@ export class TripController {
         ...base64Decode(tripFilter.nextPageToken),
       };
 
-      const tripModel = new TripModel();
-      const resTrips = await tripModel.list(params);
+      const resTrips = await new TripModel().list(params);
 
       const tripList = await TripController.injectData(
         resTrips.Items,
@@ -148,10 +147,10 @@ export class TripController {
         count: resTrips.Count,
         ...base64Encode(resTrips.LastEvaluatedKey),
       };
-      return { result };
+      return result;
     } catch (error) {
       console.log(error);
-      return { error: ERROR_KEYS.INTERNAL_SERVER_ERROR };
+      throw error;
     }
   }
 
@@ -172,9 +171,8 @@ export class TripController {
         createdAt: moment().unix(),
         updatedAt: moment().unix(),
       };
-      const tripModel = new TripModel();
-      await tripModel.add(params);
-      const memberModel = new MemberModel();
+
+      await new TripModel().add(params);
       const addMemberParams = {
         memberId: data['ownerId'],
         tripId: params.id,
@@ -184,11 +182,11 @@ export class TripController {
         isFavorite: false,
         updatedAt: moment().unix(),
       };
-      await memberModel.add(addMemberParams);
-      return { error: null, result: params };
+      await new MemberModel().add(addMemberParams);
+      return params;
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 
@@ -242,69 +240,70 @@ export class TripController {
         trip['isFull'] = trip['spotFilledRank'] == 100;
       }
       await tripModel.update(tripId, trip);
-      return { error: null, result: 'success' };
+      return 'success';
     } catch (error) {
-      return { error };
+      throw error;
     }
   }
 
   static async getTrip(tripId, memberId) {
     try {
-      const tripModel = new TripModel();
-      const trip = await tripModel.get(tripId);
-      if (!(trip && trip.Item)) throw 'Trip not found';
+      const trip = await new TripModel().get(tripId);
+      if (!(trip && trip.Item)) throw ERROR_KEYS.TRIP_NOT_FOUND;
       const tripList = await TripController.injectData([trip.Item], memberId);
-
-      return { error: null, result: tripList[0] };
+      return tripList.shift();
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 
   static async deleteTrip(tripId) {
     try {
-      const tripModel = new TripModel();
-      await tripModel.delete(tripId);
+      await new TripModel().delete(tripId);
       //TODO: Delete members and other dependecies with the trip
-      return { error: null, result: 'success' };
+      return 'success';
     } catch (error) {
-      return { error };
+      throw error;
     }
   }
 
   static async myTrips(memberId) {
     try {
-      const memberModel = new MemberModel();
-      const resMembers = await memberModel.myTrips(memberId);
+      const resMembers = await new MemberModel().myTrips(memberId);
+      if (resMembers && resMembers.Items && resMembers.Items.length <= 0)
+        return {
+          data: [],
+          count: 0,
+        };
+      const trips = await TripController.injectData(resMembers.Items, memberId);
       const result = {
-        data: [],
-        count: 0,
+        data: trips,
+        count: trips.length,
       };
-      if (resMembers.Items && resMembers.Items.length > 0) {
-        result['data'] = await TripController.injectData(
-          resMembers.Items,
-          memberId
-        );
-        result['count'] = resMembers.Count;
-      }
-      return { error: null, result };
+
+      return result;
     } catch (error) {
-      return { error };
+      throw error;
     }
   }
 
   static async savedTrips(memberId) {
     try {
-      const memberModel = new MemberModel();
-      const resMembers = await memberModel.savedTrips(memberId);
+      const resMembers = await new MemberModel().savedTrips(memberId);
+      if (resMembers && resMembers.Items && resMembers.Items.length <= 0)
+        return {
+          data: [],
+          count: 0,
+        };
+      const trips = await TripController.injectData(resMembers.Items, memberId);
       const result = {
-        data: await TripController.injectData(resMembers.Items),
-        count: resMembers.Count,
+        data: trips,
+        count: trips.length,
       };
-      return { error: null, result };
+      return result;
     } catch (error) {
-      return { error };
+      throw error;
     }
   }
 
@@ -312,7 +311,7 @@ export class TripController {
     const tripModel = new TripModel();
     const tripKeys = [];
     _.forEach(trips, item => {
-      tripKeys.push({ id: item.id });
+      tripKeys.push({ id: item.tripId });
     });
     try {
       if (tripKeys.length <= 0) throw 'Invalid keys';

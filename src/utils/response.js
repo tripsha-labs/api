@@ -1,3 +1,4 @@
+import { ERROR_KEYS } from '../constants';
 /**
  *
  * @name - response
@@ -23,6 +24,8 @@ export const success = body => {
   return _buildResponse(200, { status: 'success', result: body });
 };
 
-export const failure = (body, httpCode = 500) => {
+export const failure = (body, httpCode = 400) => {
+  httpCode = body && body.code ? body.code : httpCode;
+  body = body && body.type ? body : ERROR_KEYS.INTERNAL_SERVER_ERROR;
   return _buildResponse(httpCode, { status: 'error', result: body });
 };

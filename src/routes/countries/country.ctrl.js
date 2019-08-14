@@ -1,28 +1,19 @@
 import { CountryModel } from '../../models';
+import { base64Encode } from '../../helpers';
 
 export class CountryController {
   static async listCountries(countryFilter) {
     try {
-      if (!countryFilter) throw 'Invalid input';
-      const countryModel = new CountryModel();
-      const res = await countryModel.list(countryFilter);
-      const lastEvaluatedKey =
-        res && res.LastEvaluatedKey
-          ? {
-              nextPageToken: Buffer.from(
-                JSON.stringify(res.LastEvaluatedKey)
-              ).toString('base64'),
-            }
-          : {};
+      const res = await new CountryModel().list(countryFilter);
       const result = {
         data: res.Items,
         count: res.Count,
-        ...lastEvaluatedKey,
+        ...base64Encode(res.LastEvaluatedKey),
       };
-      return { error: null, result };
+      return result;
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 }

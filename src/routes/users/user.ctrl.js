@@ -5,38 +5,37 @@ import {
   updateUserDefaultValues,
   updateUserValidation,
 } from '../../models';
+import { ERROR_KEYS } from '../../constants';
+import { base64Encode } from '../../helpers';
 
 export class UserController {
   static async createUser(user) {
     try {
-      if (!user) throw 'Invalid input';
       const error = createUserValidation(user);
-      if (error != true) return { error };
+      if (error != true) return error.shift();
       const userObject = {
         ...user,
         ...createUserDefaultValues,
       };
 
-      const userModel = new UserModel();
-      const res = await userModel.add(userObject);
-      return { error: null, result: res.Item };
+      const res = await new UserModel().add(userObject);
+      return res.Item;
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 
   static async updateUser(id, user) {
     try {
-      if (!user) throw 'Invalid input';
       const error = updateUserValidation(user);
-      if (error != true) return { error };
+      if (error != true) throw error.shift();
       const userModel = new UserModel();
       if (user && user.userId) {
         const resIsExists = await userModel.isExists(user.userId);
         if (resIsExists && resIsExists.Items && resIsExists.Items.length > 0) {
           if (resIsExists.Items[0].id !== id) {
-            return { error: 'UserAlreadyExists' };
+            throw ERROR_KEYS.USER_ALREADY_EXISTS;
           }
         }
       }
@@ -45,75 +44,56 @@ export class UserController {
         ...updateUserDefaultValues,
       };
 
-      const res = await userModel.update(id, userObject);
-      return { error: null, result: res };
+      return await userModel.update(id, userObject);
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 
   static async getUser(id) {
     try {
-      const userModel = new UserModel();
-      const res = await userModel.get(id);
-      if (!(res && res.Item)) throw 'User not found';
-      return { error: null, result: res.Item };
+      const res = await new UserModel().get(id);
+      if (!(res && res.Item)) throw ERROR_KEYS.USER_NOT_FOUND;
+      return res.Item;
     } catch (error) {
       console.log(error);
-      return { error: 'User not found' };
+      throw error;
     }
   }
 
   static async listUser(user) {
     try {
-      if (!user) throw 'Invalid input';
-      const userModel = new UserModel();
-      const res = await userModel.list(user);
-
-      const lastEvaluatedKey =
-        res && res.LastEvaluatedKey
-          ? {
-              nextPageToken: Buffer.from(
-                JSON.stringify(res.LastEvaluatedKey)
-              ).toString('base64'),
-            }
-          : {};
+      const res = await new UserModel().list(user);
       const result = {
         data: res.Items,
         count: res.Count,
-        ...lastEvaluatedKey,
+        ...base64Encode(res.LastEvaluatedKey),
       };
-      return { error: null, result };
+      return result;
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 
   static async deleteUser(id) {
     try {
-      const userModel = new UserModel();
-      await userModel.delete(id);
-      return { error: null, result: 'success' };
+      await new UserModel().delete(id);
+      return 'success';
     } catch (error) {
       console.log(error);
-      return { error: 'Failed to delete' };
+      throw error;
     }
   }
 
-  static async isExists(username) {
+  static async isExists(username, userId) {
     try {
-      if (!username) throw 'Invalid input';
-      const userModel = new UserModel();
-      const res = await userModel.isExists(username);
-      return {
-        error: null,
-        result: res && res.Items && res.Items.length > 0 ? true : false,
-      };
+      const res = await new UserModel().isExists(username, userId);
+      return res && res.Items && res.Items.length > 0 ? true : false;
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 }

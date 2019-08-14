@@ -1,11 +1,12 @@
 import moment from 'moment';
 import { MemberModel, TripModel, UserModel } from '../../models';
+import { base64Encode } from '../../helpers';
+import { ERROR_KEYS } from '../../constants';
 
 export class MemberController {
   static async listMembers(membersFilter) {
     try {
-      const memberModel = new MemberModel();
-      const res = await memberModel.list(membersFilter);
+      const res = await new MemberModel().list(membersFilter);
       const promises = [];
       const userModel = new UserModel();
       res.Items.map(member => {
@@ -16,24 +17,16 @@ export class MemberController {
           })
         );
       });
-      const members = await Promise.all(promises);
-      const lastEvaluatedKey =
-        res && res.LastEvaluatedKey
-          ? {
-              nextPageToken: Buffer.from(
-                JSON.stringify(res.LastEvaluatedKey)
-              ).toString('base64'),
-            }
-          : {};
+      await Promise.all(promises);
       const result = {
         data: res.Items,
         count: res.Count,
-        ...lastEvaluatedKey,
+        ...base64Encode(res.LastEvaluatedKey),
       };
-      return { error: null, result };
+      return result;
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 
@@ -41,8 +34,9 @@ export class MemberController {
     try {
       const tripModel = new TripModel();
       const memberModel = new MemberModel();
-      const res = await tripModel.get(params['tripId']);
-      if (!res.Item) return { error: 'TRIP_NOT_FOUND' };
+      const res = await tripModel.get(params.tripId);
+      if (!res.Item) throw ERROR_KEYS.TRIP_NOT_FOUND;
+
       const promises = [
         data['memberIds'].map(memberId => {
           return new Promise(async resolve => {
@@ -76,23 +70,30 @@ export class MemberController {
               switch (data['action']) {
                 case 'addMember':
                   if (memberStatus['exists']) {
+                    if (membershipParams['isMember']) return resolve('success');
                     await memberModel.update(keyParams, {
                       updatedAt: moment().unix(),
                       isMember: true,
                     });
                   } else {
                     membershipParams['isMember'] = true;
+                    membershipParams['memberId'] = memberId;
+                    membershipParams['tripId'] = params['tripId'];
                     await memberModel.add(membershipParams);
                   }
                   break;
                 case 'makeFavorite':
                   if (memberStatus['exists']) {
+                    if (membershipParams['isFavorite'])
+                      return resolve('success');
                     await memberModel.update(keyParams, {
                       updatedAt: moment().unix(),
                       isFavorite: true,
                     });
                   } else {
                     membershipParams['isFavorite'] = true;
+                    membershipParams['memberId'] = memberId;
+                    membershipParams['tripId'] = params['tripId'];
                     await memberModel.add(membershipParams);
                   }
                   break;
@@ -103,7 +104,7 @@ export class MemberController {
                       isFavorite: false,
                     });
                   } else {
-                    await memberModel.delete(membershipParams);
+                    await memberModel.delete(keyParams);
                   }
                   break;
                 case 'removeMember':
@@ -113,7 +114,7 @@ export class MemberController {
                       isMember: false,
                     });
                   } else {
-                    await memberModel.delete(membershipParams);
+                    await memberModel.delete(keyParams);
                   }
                   break;
                 default:
@@ -141,10 +142,10 @@ export class MemberController {
         };
         await tripModel.update(params['tripId'], updateTrip);
       }
-      return { error: null, result: 'success' };
+      return 'success';
     } catch (error) {
       console.log(error);
-      return { error };
+      throw error;
     }
   }
 }

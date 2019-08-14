@@ -45,4 +45,9 @@ export const ERROR_KEYS = {
     message: 'Member already exists!',
     code: 400,
   },
+  USER_ALREADY_EXISTS: {
+    type: 'userExists',
+    message: 'User already exists!',
+    code: 400,
+  },
 };

@@ -62,13 +62,15 @@ export class MemberModel extends BaseModel {
       ExpressionAttributeNames: {
         '#memberId': 'memberId',
         '#isActive': 'isActive',
+        '#isMember': 'isMember',
       },
       KeyConditionExpression: '#memberId=:memberId',
       ExpressionAttributeValues: {
         ':memberId': memberId,
         ':isActive': true,
+        ':isMember': true,
       },
-      FilterExpression: '#isActive=:isActive',
+      FilterExpression: '#isActive=:isActive and #isMember=:isMember',
     };
 
     return queryItem(getMemberList);

@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import { TABLE_NAMES } from '../constants';
 import { BaseModel } from './base.model';
 import { queryItem } from '../utils';
-import _ from 'lodash';
+import { base64Decode } from '../helpers';
 
 export class TagModel extends BaseModel {
   constructor() {
@@ -36,22 +37,14 @@ export class TagModel extends BaseModel {
             },
             KeyConditionExpression: '#pKey=:pKey',
           };
-    // Build nextpage token
-    const exclusiveStartKey =
-      params && params.nextPageToken
-        ? {
-            ExclusiveStartKey: JSON.parse(
-              Buffer.from(params.nextPageToken, 'base64').toString('ascii')
-            ),
-          }
-        : {};
+
     const tagsParams = {
       TableName: TABLE_NAMES.TAGS,
       ...expressionAttributeNames,
       ...expressionAttributeValues,
       ScanIndexForward: true,
       Limit: 500,
-      ...exclusiveStartKey,
+      ...base64Decode(params.nextPageToken),
     };
     return queryItem(tagsParams);
   }

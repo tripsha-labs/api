@@ -9,8 +9,16 @@ import { DATE_FORMAT } from '../constants/constants';
 const tripBaseSchema = {
   title: { type: 'string', empty: false, optional: true },
   description: { type: 'string', empty: false, optional: true },
-  startDate: { type: 'string', empty: false, optional: true },
-  endDate: { type: 'string', empty: false, optional: true },
+  startDate: {
+    type: 'string',
+    empty: false,
+    optional: true,
+  },
+  endDate: {
+    type: 'string',
+    empty: false,
+    optional: true,
+  },
   destinations: {
     type: 'array',
     optional: true,
@@ -45,12 +53,12 @@ const tripBaseSchema = {
   focus: {
     type: 'string',
     optional: true,
-    empty: true,
+    empty: false,
   },
   cost: {
     type: 'number',
     optional: true,
-    empty: true,
+    empty: false,
   },
   minGroupSize: {
     type: 'number',
@@ -80,7 +88,10 @@ const tripBaseSchema = {
 const createTripSchema = {
   ...tripBaseSchema,
   title: { type: 'string', empty: false },
-  startDate: { type: 'string', empty: false },
+  startDate: {
+    type: 'string',
+    empty: false,
+  },
   endDate: { type: 'string', empty: false },
   minGroupSize: { type: 'number', empty: false },
   maxGroupSize: { type: 'number', empty: false },

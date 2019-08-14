@@ -50,12 +50,13 @@ export class UserModel extends BaseModel {
     return queryItem(listParams);
   }
 
-  isExists(userId) {
+  isExists(userId, id) {
     const params = {
       TableName: this.tableName,
-      FilterExpression: 'userId=:userId',
+      FilterExpression: 'userId=:userId and id<>:id',
       ExpressionAttributeValues: {
         ':userId': userId,
+        ':id': id,
       },
     };
 

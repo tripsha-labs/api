@@ -1,6 +1,4 @@
-import { ERROR_CODES } from '../../constants';
 import { success, failure } from '../../utils';
-import { errorSanitizer } from '../../helpers';
 import { CountryController } from './country.ctrl';
 
 /**
@@ -17,11 +15,11 @@ export const listCountries = async (event, context) => {
   try {
     const { error, result } = await CountryController.listCountries(params);
     if (error !== null) {
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+      return failure(error);
     }
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };

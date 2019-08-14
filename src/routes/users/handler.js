@@ -1,7 +1,6 @@
 import { UserController } from './user.ctrl';
 import { success, failure } from '../../utils';
-import { errorSanitizer } from '../../helpers';
-import { ERROR_CODES } from '../../constants';
+import { ERROR_KEYS } from '../../constants';
 import urldecode from 'urldecode';
 
 /**
@@ -9,18 +8,14 @@ import urldecode from 'urldecode';
  */
 export const listUser = async (event, context) => {
   try {
-    const { error, result } = await UserController.listUser({
+    const result = await UserController.listUser({
       // searchText:
       //   event.queryStringParameters && event.queryStringParameters.search,
     });
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -29,23 +24,16 @@ export const listUser = async (event, context) => {
  */
 export const getUser = async (event, context) => {
   if (!(event.pathParameters && event.pathParameters.id))
-    return failure(
-      { ...ERROR_KEYS.MISSING_FIELD, field: 'id' },
-      ERROR_CODES.VALIDATION_ERROR
-    );
+    throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
   const userId =
     event.pathParameters.id == 'me'
       ? event.requestContext.identity.cognitoIdentityId
       : event.pathParameters.id;
   try {
-    const { error, result } = await UserController.getUser(urldecode(userId));
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
+    const result = await UserController.getUser(urldecode(userId));
     return success(result);
   } catch (error) {
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -55,18 +43,14 @@ export const getUser = async (event, context) => {
 export const createUser = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
-    const { error, result } = await UserController.createUser({
+    const result = await UserController.createUser({
       ...data,
       id: event.requestContext.identity.cognitoIdentityId,
     });
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
@@ -75,10 +59,7 @@ export const createUser = async (event, context) => {
  */
 export const updateUser = async (event, context) => {
   if (!(event.pathParameters && event.pathParameters.id))
-    return failure(
-      { ...ERROR_KEYS.MISSING_FIELD, field: 'id' },
-      ERROR_CODES.VALIDATION_ERROR
-    );
+    return failure({ ...ERROR_KEYS.MISSING_FIELD, field: 'id' });
   const id =
     event.pathParameters.id == 'me'
       ? event.requestContext.identity.cognitoIdentityId
@@ -86,19 +67,30 @@ export const updateUser = async (event, context) => {
 
   try {
     const data = JSON.parse(event.body);
-    const { error, result } = await UserController.updateUser(urldecode(id), {
+    const result = await UserController.updateUser(urldecode(id), {
       ...data,
     });
-    if (error !== null) {
-      console.log(error);
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
 
 // TODO: Handle user account close/disable flow
 export const deleteUser = async (event, context) => {};
+
+export const isUserExists = async (event, context) => {
+  try {
+    const data = JSON.parse(event.body);
+    if (!(data && data.userId))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'userId' };
+    const result = await UserController.isExists(
+      data.userId,
+      event.requestContext.identity.cognitoIdentityId
+    );
+    return success(result);
+  } catch (error) {
+    return failure(error);
+  }
+};

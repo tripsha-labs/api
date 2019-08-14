@@ -7,8 +7,6 @@ components:
       required: true
       schema:
         properties:
-          userId:
-            type: string
           email:
             type: string
           firstName:
@@ -35,10 +33,6 @@ components:
             type: string
           gender:
             type: string
-            enum:
-              - 'male'
-              - 'female'
-              - 'other'
           spokenLanguages:
             type: string
             description: 'List of languages user can speak separated by comma'

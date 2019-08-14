@@ -52,9 +52,10 @@ deleteUser:
         authorizer: aws_iam
 
 checkExists:
-  handler: src/routes/users/handler.isExists
+  handler: src/routes/users/handler.isUserExists
   events:
     - http:
         path: users/check-user-exists
         method: post
+        authorizer: aws_iam
         cors: true

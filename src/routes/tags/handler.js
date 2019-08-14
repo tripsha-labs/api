@@ -1,6 +1,4 @@
-import { ERROR_CODES } from '../../constants';
 import { success, failure } from '../../utils';
-import { errorSanitizer } from '../../helpers';
 import { TagsController } from './tags.ctrl';
 
 /**
@@ -15,13 +13,10 @@ export const listTags = async (event, context) => {
   };
 
   try {
-    const { error, result } = await TagsController.listTags(params);
-    if (error !== null) {
-      return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
-    }
+    const result = await TagsController.listTags(params);
     return success(result);
   } catch (error) {
     console.log(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    return failure(error);
   }
 };
