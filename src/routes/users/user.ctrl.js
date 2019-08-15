@@ -32,7 +32,7 @@ export class UserController {
       if (error != true) throw error.shift();
       const userModel = new UserModel();
       if (user && user.userId) {
-        const resIsExists = await userModel.isExists(user.userId);
+        const resIsExists = await userModel.isExists(user.userId, id);
         if (resIsExists && resIsExists.Items && resIsExists.Items.length > 0) {
           if (resIsExists.Items[0].id !== id) {
             throw ERROR_KEYS.USER_ALREADY_EXISTS;
@@ -43,7 +43,7 @@ export class UserController {
         ...user,
         ...updateUserDefaultValues,
       };
-
+      console.log(userObject);
       return await userModel.update(id, userObject);
     } catch (error) {
       console.log(error);
@@ -65,6 +65,7 @@ export class UserController {
   static async listUser(user) {
     try {
       const res = await new UserModel().list(user);
+
       const result = {
         data: res.Items,
         count: res.Count,

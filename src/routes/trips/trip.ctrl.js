@@ -1,7 +1,12 @@
 import _ from 'lodash';
 import moment from 'moment';
 import uuid from 'uuid';
-import { TripModel, MemberModel, UserModel } from '../../models';
+import {
+  TripModel,
+  MemberModel,
+  UserModel,
+  validateTripLength,
+} from '../../models';
 import { TABLE_NAMES } from '../../constants';
 import { ERROR_KEYS } from '../../constants';
 import { base64Encode, base64Decode } from '../../helpers';
@@ -144,7 +149,7 @@ export class TripController {
       );
       const result = {
         data: tripList,
-        count: resTrips.Count,
+        count: tripList.length,
         ...base64Encode(resTrips.LastEvaluatedKey),
       };
       return result;
@@ -250,6 +255,7 @@ export class TripController {
     try {
       const trip = await new TripModel().get(tripId);
       if (!(trip && trip.Item)) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      trip.Item['tripId'] = trip.Item.id;
       const tripList = await TripController.injectData([trip.Item], memberId);
       return tripList.shift();
     } catch (error) {
@@ -311,8 +317,9 @@ export class TripController {
     const tripModel = new TripModel();
     const tripKeys = [];
     _.forEach(trips, item => {
-      tripKeys.push({ id: item.tripId });
+      tripKeys.push({ id: item.tripId ? item.tripId : item.id });
     });
+
     try {
       if (tripKeys.length <= 0) throw 'Invalid keys';
       const resTrips = await tripModel.batchList(tripKeys);

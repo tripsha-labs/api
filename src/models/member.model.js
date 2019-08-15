@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import { TABLE_NAMES } from '../constants';
 import { BaseModel } from './base.model';
 import { queryItem, getItem, deleteItem, updateItem } from '../utils';
-import _ from 'lodash';
+import { queryBuilder, keyPrefixAlterer } from '../helpers';
 
 export class MemberModel extends BaseModel {
   constructor() {

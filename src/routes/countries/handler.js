@@ -13,10 +13,7 @@ export const listCountries = async (event, context) => {
   };
 
   try {
-    const { error, result } = await CountryController.listCountries(params);
-    if (error !== null) {
-      return failure(error);
-    }
+    const result = await CountryController.listCountries(params);
     return success(result);
   } catch (error) {
     console.log(error);

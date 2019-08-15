@@ -63,7 +63,7 @@ custom:
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: staging
+  stage: dev
   region: us-east-1
   environment: ${file(src/resources/env-variables.yml)}
 

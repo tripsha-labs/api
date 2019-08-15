@@ -22,6 +22,7 @@ export class BaseModel {
       ExpressionAttributeValues: keyPrefixAlterer(item),
       ReturnValues: 'ALL_NEW',
     };
+    console.log(params);
     return updateItem(params);
   }
 

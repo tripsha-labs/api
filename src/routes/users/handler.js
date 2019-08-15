@@ -9,8 +9,8 @@ import urldecode from 'urldecode';
 export const listUser = async (event, context) => {
   try {
     const result = await UserController.listUser({
-      // searchText:
-      //   event.queryStringParameters && event.queryStringParameters.search,
+      searchText:
+        event.queryStringParameters && event.queryStringParameters.search,
     });
     return success(result);
   } catch (error) {
@@ -61,10 +61,9 @@ export const updateUser = async (event, context) => {
   if (!(event.pathParameters && event.pathParameters.id))
     return failure({ ...ERROR_KEYS.MISSING_FIELD, field: 'id' });
   const id =
-    event.pathParameters.id == 'me'
+    event.pathParameters.id === 'me'
       ? event.requestContext.identity.cognitoIdentityId
       : event.pathParameters.id;
-
   try {
     const data = JSON.parse(event.body);
     const result = await UserController.updateUser(urldecode(id), {

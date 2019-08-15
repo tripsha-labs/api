@@ -24,6 +24,7 @@ export class TripModel extends BaseModel {
         },
       },
     };
+
     return batchGetItem(tripParams);
   }
 }
