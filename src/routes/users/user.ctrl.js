@@ -9,7 +9,7 @@ import { ERROR_KEYS } from '../../constants';
 import { base64Encode } from '../../helpers';
 
 export class UserController {
-  static async createUser(user) {
+  static async createUser(user = {}) {
     try {
       const error = createUserValidation(user);
       if (error != true) return error.shift();

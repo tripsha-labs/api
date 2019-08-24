@@ -4,18 +4,16 @@ jest.mock('../../../utils/db-connector');
 
 describe('List Tags', () => {
   test('With valid input', async () => {
-    const { error, result } = await TagsController.listTags({});
-    expect(error).to.equal(null);
+    const result = await TagsController.listTags({});
     expect(result).to.have.property('data');
   });
   test('With invalid input', async () => {
-    const { error, result } = await TagsController.listTags();
-    expect(error).to.equal('Invalid input');
+    const result = await TagsController.listTags();
+    expect(result).to.have.property('data');
   });
 
   test('With valid search input', async () => {
-    const { error, result } = await TagsController.listTags({ search: 'tech' });
-    expect(error).to.equal(null);
+    const result = await TagsController.listTags({ search: 'tech' });
     expect(result).to.have.property('data');
   });
 });
