@@ -1,12 +1,12 @@
-/**
- * @name - countryModel
- * @description - All the schema validation for country handled from here
- */
-import Validator from 'fastest-validator';
+import mongoose from 'mongoose';
 
-export const countrySchema = {
-  code: { type: 'string', empty: false },
-  name: { type: 'string', empty: false },
-};
+const countrySchema = new mongoose.Schema(
+  {
+    code: { type: String, required: true, unique: true, index: true },
+    name: { type: String, required: true, unique: true, index: true },
+  },
+  { versionKey: false }
+);
 
-export const countryValidation = new Validator().compile(countrySchema);
+export const Country =
+  mongoose.models.Country || mongoose.model('Country', countrySchema);

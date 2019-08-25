@@ -1,17 +1,20 @@
 import { TagModel } from '../../models';
-import { base64Encode } from '../../helpers';
-
+import { dbConnect } from '../../utils/db-connect';
+import { prepareCommonFilter } from '../../helpers';
 export class TagsController {
-  static async listTags(tagsFilter) {
+  static async listTags(filter) {
     try {
-      const tagModel = new TagModel();
-      const res = await tagModel.list(tagsFilter);
-      const result = {
-        data: res.Items,
-        count: res.Count,
-        ...base64Encode(res.LastEvaluatedKey),
+      const params = {
+        filter: {
+          name: { $regex: new RegExp('^' + (filter.search || ''), 'i') },
+        },
+        ...prepareCommonFilter(filter, ['name']),
       };
-      return result;
+      await dbConnect();
+      const tags = await TagModel.list(params);
+      return {
+        data: tags,
+      };
     } catch (error) {
       console.log(error);
       throw error;

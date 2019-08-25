@@ -1,30 +1,35 @@
-import { TABLE_NAMES } from '../constants';
-import { BaseModel } from './base.model';
-import { queryItem, scanItem, batchGetItem } from '../utils';
-import _ from 'lodash';
+import { Trip } from './';
 
-export class TripModel extends BaseModel {
-  constructor() {
-    super(TABLE_NAMES.TRIP);
-  }
-  list(params) {
-    const queryParams = {
-      TableName: this.tableName,
-      Limit: 1000,
-      ...params,
-    };
-    return queryItem(queryParams);
+export class TripModel {
+  static list(params = {}) {
+    const { filter, select, pagination, sort } = params;
+    const trips = Trip.find(filter, select || {});
+    if (sort) trips.sort(sort);
+    if (pagination) {
+      trips.limit(pagination.limit);
+      trips.skip(pagination.skip);
+    }
+    return trips;
   }
 
-  batchList(keys) {
-    const tripParams = {
-      RequestItems: {
-        [this.tableName]: {
-          Keys: keys,
-        },
-      },
-    };
+  static count(params = {}) {
+    return Trip.count(params);
+  }
 
-    return batchGetItem(tripParams);
+  static create(params = {}) {
+    const trip = new Trip(params);
+    return trip.save();
+  }
+
+  static update(id, params = {}) {
+    return Trip.updateOne({ _id: id }, { $set: params });
+  }
+
+  static delete(params = {}) {
+    return Trip.deleteOne(params);
+  }
+
+  static getById(id) {
+    return Trip.findById(id);
   }
 }

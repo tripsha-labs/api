@@ -1,18 +1,19 @@
-/**
- * @name - memberModel
- * @description - All the schema validation for member handled from here
- */
-import Validator from 'fastest-validator';
+import mongoose from 'mongoose';
 
-const memberSchema = {
-  tripId: { type: 'string', empty: false },
-  memberIds: { type: 'array', items: 'string', empty: false },
-  action: {
-    type: 'string',
-    empty: false,
-    enum: ['addMember', 'makeFavorite', 'removeMember', 'makeUnFavorite'],
+const memberSchema = new mongoose.Schema(
+  {
+    tripId: { type: String, required: true, index: true },
+    memberId: { type: String, required: true, index: true },
+    isActive: Boolean,
+    isOwner: Boolean,
+    isMember: Boolean,
+    isFavorite: Boolean,
   },
-  $$strict: true,
-};
-
-export const memberValidation = new Validator().compile(memberSchema);
+  {
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    versionKey: false,
+    strict: true,
+  }
+);
+export const Member =
+  mongoose.models.Member || mongoose.model('Member', memberSchema);

@@ -8,11 +8,11 @@ import urldecode from 'urldecode';
  */
 export const listUser = async (event, context) => {
   try {
-    const result = await UserController.listUser({
-      searchText:
-        event.queryStringParameters && event.queryStringParameters.search,
-    });
-    return success(result);
+    const params = event.queryStringParameters
+      ? event.queryStringParameters
+      : {};
+    const users = await UserController.listUser(params);
+    return success(users);
   } catch (error) {
     console.log(error);
     return failure(error);
@@ -25,6 +25,7 @@ export const listUser = async (event, context) => {
 export const getUser = async (event, context) => {
   if (!(event.pathParameters && event.pathParameters.id))
     throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
   const userId =
     event.pathParameters.id == 'me'
       ? event.requestContext.identity.cognitoIdentityId
@@ -45,7 +46,7 @@ export const createUser = async (event, context) => {
     const data = JSON.parse(event.body);
     const result = await UserController.createUser({
       ...data,
-      id: event.requestContext.identity.cognitoIdentityId,
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
     return success(result);
   } catch (error) {

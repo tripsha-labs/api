@@ -1,21 +1,18 @@
-/**
- * @name - messageModel
- * @description - All the schema validation for message handled from here
- */
-import Validator from 'fastest-validator';
+import mongoose from 'mongoose';
 
-const messageSchema = {
-  id: { type: 'string', empty: false },
-  toMemberId: { type: 'string', empty: false },
-  fromMemberId: { type: 'string', empty: false },
-  sentOn: { type: 'number', empty: false },
-  message: { type: 'string', empty: false },
-  type: {
-    type: 'enum',
-    empty: false,
-    values: ['text'],
+const messageSchema = new mongoose.Schema(
+  {
+    toMemberId: { type: String, required: true, index: true },
+    fromMemberId: { type: String, required: true, index: true },
+    message: { type: String, required: true },
+    messageType: { type: String, required: true },
+    isRead: Boolean,
   },
-  $$strict: true,
-};
-
-export const createMessageValidation = new Validator().compile(messageSchema);
+  {
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    versionKey: false,
+    strict: true,
+  }
+);
+export const Message =
+  mongoose.models.Message || mongoose.model('Message', messageSchema);

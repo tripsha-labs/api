@@ -3,26 +3,26 @@
  * @description - All common helpers defined here
  */
 import _ from 'lodash';
+import { APP_CONSTANTS } from '../constants';
 
 export const errorSanitizer = error => {
   if (!error.code) return error;
   return [{ type: _.camelCase(error.code), message: error.message }];
 };
 
-export const base64Decode = nextPageToken => {
-  return nextPageToken
-    ? {
-        ExclusiveStartKey: JSON.parse(
-          Buffer.from(nextPageToken, 'base64').toString('ascii')
-        ),
-      }
-    : {};
-};
+export const prepareCommonFilter = (params, allowedFields = []) => {
+  const limit = params.limit ? parseInt(params.limit) : APP_CONSTANTS.LIMIT;
+  const page = params.page ? parseInt(params.page) : APP_CONSTANTS.PAGE;
 
-export const base64Encode = key => {
-  return key
-    ? {
-        nextPageToken: Buffer.from(JSON.stringify(key)).toString('base64'),
-      }
-    : {};
+  const filter = {
+    pagination: {
+      limit: limit,
+      skip: limit * page,
+    },
+  };
+  if (params.sortBy && _.indexOf(allowedFields, params.sortBy) != -1) {
+    const sortOrder = params.sortOrder ? params.sortOrder : 1;
+    filter['sort'] = { [params.sortBy]: sortOrder };
+  }
+  return filter;
 };

@@ -1,3 +1,6 @@
+import { dbConnect } from '../../utils/db-connect';
+import { prepareCommonFilter } from '../../helpers';
+
 import _ from 'lodash';
 import moment from 'moment';
 import uuid from 'uuid';
@@ -11,146 +14,54 @@ import { TABLE_NAMES } from '../../constants';
 import { ERROR_KEYS } from '../../constants';
 import { base64Encode, base64Decode } from '../../helpers';
 export class TripController {
-  static async listTrips(tripFilter, memberId) {
+  static async listTrips(filter) {
     try {
-      // Get search string from queryparams
-      const filterExpressions = [];
-      const filterAttributeValues = [
-        {
-          ':isArchived': 0,
-        },
-      ];
-      const filter = {
-        KeyConditionExpression: 'isArchived=:isArchived',
-        IndexName: 'newestTrips',
-        ScanIndexForward: false,
+      const currentDate = parseInt(moment().format('YYYYMMDD'));
+      const filterParams = {
+        isArchived: false,
+        startDate: { $gte: currentDate },
+        isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
-      if (tripFilter) {
-        filter['ScanIndexForward'] = tripFilter.sortOrder
-          ? tripFilter.sortOrder
-          : false;
-        // Sort by earliest departure
-        if (tripFilter.sortBy == 'earliestDeparture') {
-          filter['IndexName'] = 'StartDateIndex';
-          filter['ScanIndexForward'] =
-            tripFilter.sortOrder == false ? false : true;
-        }
-        // Sort by most spots filled
-        if (tripFilter.sortBy == 'mostSpotsFilled') {
-          filter['IndexName'] = 'SpotsFilledIndex';
-          filter['ScanIndexForward'] = tripFilter.sortOrder
-            ? tripFilter.sortOrder
-            : false;
-        }
 
-        // Budgets
-        if (tripFilter.budgets) {
-          const budgets = tripFilter.budgets.split(',');
-          const budgetFilter = [];
-          _.forEach(budgets, (value, key) => {
-            filterAttributeValues.push({
-              [':budgets' + key]: value,
-            });
-            budgetFilter.push('contains(budgets, :budgets' + key + ')');
-          });
-          budgetFilter.length > 0 &&
-            filterExpressions.push('(' + budgetFilter.join(' or ') + ')');
-        }
-        // minGroupSize
-        if (tripFilter.minGroupSize) {
-          filterAttributeValues.push({
-            ':minGroupSize': parseInt(tripFilter.minGroupSize),
-          });
-          filterExpressions.push('minGroupSize >= :minGroupSize');
-        }
-        // maxGroupSize
-        if (tripFilter.maxGroupSize) {
-          filterAttributeValues.push({
-            ':maxGroupSize': parseInt(tripFilter.maxGroupSize),
-          });
-          filterExpressions.push('maxGroupSize <= :maxGroupSize');
-        }
-        // minStartDate
-        if (tripFilter.minStartDate) {
-          filterAttributeValues.push({
-            ':minStartDate': parseInt(tripFilter.minStartDate),
-          });
-          filterExpressions.push('startDate >= :minStartDate');
-        }
-        // endDate
-        if (tripFilter.maxEndDate) {
-          filterAttributeValues.push({
-            ':maxEndDate': parseInt(tripFilter.maxEndDate),
-          });
-          filterExpressions.push('startDate <= :maxEndDate');
-        }
-        // minTripLength
-        if (tripFilter.minTripLength) {
-          filterAttributeValues.push({
-            ':minTripLength': parseInt(tripFilter.minTripLength),
-          });
-          filterExpressions.push('tripLength >= :minTripLength');
-        }
-        // maxTripLength
-        if (tripFilter.maxTripLength) {
-          filterAttributeValues.push({
-            ':maxTripLength': parseInt(tripFilter.maxTripLength),
-          });
-          filterExpressions.push('tripLength <= :maxTripLength');
-        }
-        // interests
-        if (tripFilter.interests) {
-          const interests = tripFilter.interests.split(',');
-          const interestFilter = [];
-          _.forEach(interests, (value, key) => {
-            filterAttributeValues.push({
-              [':interests' + key]: value,
-            });
-            interestFilter.push('contains(interests, :interests' + key + ')');
-          });
-          interestFilter.length > 0 &&
-            filterExpressions.push('(' + interestFilter.join(' or ') + ')');
-        }
-        // destinations
-        if (tripFilter.destinations) {
-          const destinations = tripFilter.destinations.split(',');
-          const destinationsFilter = [];
-          _.forEach(destinations, (value, key) => {
-            filterAttributeValues.push({
-              [':destinations' + key]: value,
-            });
-            destinationsFilter.push(
-              'contains(destinations, :destinations' + key + ')'
-            );
-          });
-          destinationsFilter.length > 0 &&
-            filterExpressions.push('(' + destinationsFilter.join(' or ') + ')');
-        }
+      if (filter.minGroupSize)
+        filterParams['minGroupSize'] = { $gte: filter.minGroupSize };
+
+      if (filter.maxGroupSize)
+        filterParams['maxGroupSize'] = { $lte: filter.maxGroupSize };
+
+      if (filter.minStartDate)
+        filterParams['startDate'] = { $gte: filter.minStartDate };
+
+      if (filter.maxEndDate)
+        filterParams['startDate'] = { $lte: filter.maxEndDate };
+
+      if (filter.minTripLength)
+        filterParams['tripLength'] = { $gte: filter.minTripLength };
+
+      if (filter.maxTripLength)
+        filterParams['tripLength'] = { $lte: filter.maxTripLength };
+
+      const multiFilter = [];
+      if (filter.interests && filter.interests.length > 0) {
+        multiFilter.push({ interests: { $in: filter.interests } });
       }
-      let filterAttributes = {};
-      _.forEach(
-        filterAttributeValues,
-        value => (filterAttributes = { ...filterAttributes, ...value })
-      );
-      if (filterExpressions.length > 0)
-        filter['FilterExpression'] = filterExpressions.join(' and ');
-      filter['ExpressionAttributeValues'] = filterAttributes;
+
+      if (filter.destinations && filter.destinations.length > 0) {
+        multiFilter.push({ interests: { $in: filter.destinations } });
+      }
+      filterParams['$and'] = multiFilter;
 
       const params = {
-        ...filter,
-        ...base64Decode(tripFilter.nextPageToken),
+        filter: filterParams,
+        ...prepareCommonFilter(filter, ['email']),
       };
 
-      const resTrips = await new TripModel().list(params);
+      const resTrips = await TripModel.list(params);
+      const resCount = await TripModel.count(filterParams);
 
-      const tripList = await TripController.injectData(
-        resTrips.Items,
-        memberId
-      );
       const result = {
-        data: tripList,
-        count: tripList.length,
-        ...base64Encode(resTrips.LastEvaluatedKey),
+        data: resTrips,
+        count: resCount,
       };
       return result;
     } catch (error) {
@@ -163,21 +74,13 @@ export class TripController {
     try {
       data['startDate'] = parseInt(data['startDate']);
       data['endDate'] = parseInt(data['endDate']);
-      data['groupSize'] = 1;
-      data['spotFilledRank'] = Math.round(
-        (data['groupSize'] / data['maxGroupSize']) * 100
-      );
-      data['isFull'] = data['spotFilledRank'] == 100;
       const params = {
-        ...data, // validated data
+        ...data,
         isActive: true,
         isArchived: 0,
-        id: uuid.v1(),
-        createdAt: moment().unix(),
-        updatedAt: moment().unix(),
       };
 
-      await new TripModel().add(params);
+      await TripModel.add(params);
       const addMemberParams = {
         memberId: data['ownerId'],
         tripId: params.id,

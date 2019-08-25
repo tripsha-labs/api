@@ -7,10 +7,9 @@ import { MessageController } from './message.ctrl';
 
 export const auth = (event, context, callback) => {
   if (!event.queryStringParameters) {
-    console.log('region, userpoolId, appClientId, auth must be required');
     return callback('region, userpoolId, appClientId, auth must be required');
   }
-  const params = event.queryStringParameters;
+  const params = event.queryStringParameters || {};
   return callback(MessageController.auth(params));
 };
 

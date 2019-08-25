@@ -1,27 +1,35 @@
-import { TABLE_NAMES } from '../constants';
-import { BaseModel } from './base.model';
-import { queryItem } from '../utils';
-import { base64Decode } from '../helpers';
+import { Message } from './';
 
-export class MessageModel extends BaseModel {
-  constructor() {
-    super(TABLE_NAMES.MESSAGES);
+export class MessageModel {
+  static list(params = {}) {
+    const { filter, select, pagination, sort } = params;
+    const messages = Message.find(filter, select || {});
+    if (sort) messages.sort(sort);
+    if (pagination) {
+      messages.limit(pagination.limit);
+      messages.skip(pagination.skip);
+    }
+    return messages;
   }
-  list(queryParams) {
-    const params = {
-      TableName: this.tableName,
-      ExpressionAttributeValues: {
-        ':userId': queryParams.userId,
-        ':memberId': queryParams.memberId,
-        ':groupId': queryParams.groupId,
-      },
-      KeyConditionExpression: 'groupId=:groupId',
-      FilterExpression:
-        '(toMemberId=:userId and fromMemberId=:memberId) or (toMemberId=:memberId and fromMemberId=:userId)',
-      ScanIndexForward: true,
-      Limit: 5000,
-      ...base64Decode(queryParams.nextPageToken),
-    };
-    return queryItem(params);
+
+  static count(params = {}) {
+    return Message.count(params);
+  }
+
+  static create(params = {}) {
+    const message = new Message(params);
+    return message.save();
+  }
+
+  static update(id, params = {}) {
+    return Message.updateOne({ _id: id }, { $set: params });
+  }
+
+  static delete(params = {}) {
+    return Message.deleteOne(params);
+  }
+
+  static getById(id) {
+    return Message.findById(id);
   }
 }

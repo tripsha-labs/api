@@ -5,4 +5,4 @@
  */
 export * from './response';
 export * from './aws-api';
-export * from './db-connector';
+export * from './db-connect';

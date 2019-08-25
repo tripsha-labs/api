@@ -26,6 +26,6 @@ export const success = body => {
 
 export const failure = (body, httpCode = 400) => {
   httpCode = body && body.code ? body.code : httpCode;
-  body = body && body.type ? body : ERROR_KEYS.INTERNAL_SERVER_ERROR;
+  body = body && body.errors ? body.errors : ERROR_KEYS.INTERNAL_SERVER_ERROR;
   return _buildResponse(httpCode, { status: 'error', result: body });
 };

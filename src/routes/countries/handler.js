@@ -5,14 +5,11 @@ import { CountryController } from './country.ctrl';
  * List tags
  */
 export const listCountries = async (event, context) => {
-  // Get search string from queryparams
-  const params = {
-    search: event.queryStringParameters && event.queryStringParameters.search,
-    nextPageToken:
-      event.queryStringParameters && event.queryStringParameters.nextPageToken,
-  };
-
   try {
+    // Get search string from queryparams
+    const params = event.queryStringParameters
+      ? event.queryStringParameters
+      : {};
     const result = await CountryController.listCountries(params);
     return success(result);
   } catch (error) {

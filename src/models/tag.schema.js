@@ -1,11 +1,9 @@
-/**
- * @name - tagModel
- * @description - All the schema validation for tag handled from here
- */
-import Validator from 'fastest-validator';
+import mongoose from 'mongoose';
 
-export const tagSchema = {
-  name: { type: 'string', empty: false },
-};
-
-export const tagValidation = new Validator().compile(tagSchema);
+const tagSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, unique: true, index: true },
+  },
+  { versionKey: false }
+);
+export const Tag = mongoose.models.Tag || mongoose.model('Tag', tagSchema);

@@ -14,6 +14,7 @@ export const TABLE_NAMES = {
 };
 
 export const APP_CONSTANTS = {
-  TAG_LIST_LIMIT: 20,
+  LIMIT: 25,
+  PAGE: 0,
 };
 export const DATE_FORMAT = 'YYYYMMDD';
