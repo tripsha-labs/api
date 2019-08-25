@@ -1,3 +1,5 @@
+import { Types } from 'mongoose';
+import _ from 'lodash';
 import { MemberModel, TripModel } from '../../models';
 import { dbConnect } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';
@@ -29,46 +31,69 @@ export class MemberController {
     try {
       await dbConnect();
       if (params['memberIds'] && params['memberIds'].length > 0) {
-        const bulkOps = params['memberIds'].map(memberId => {
-          const ops = {
-            updateOne: {
-              filter: {
-                memberId: memberId,
-                tripId: params.tripId,
-              },
-              update: {
-                memberId: memberId,
-                tripId: params.tripId,
-              },
-              upsert: true,
+        params['memberIds'] = params['memberIds'].map(id => Types.ObjectId(id));
+        params.tripId = Types.ObjectId(params.tripId);
+        const members = await MemberModel.aggregate([
+          {
+            $match: {
+              memberId: { $in: params['memberIds'] },
+              tripId: params.tripId,
             },
+          },
+        ]);
+
+        const memberIds = members.map(member =>
+          JSON.stringify(member.memberId)
+        );
+
+        const actions = params['memberIds'].map(memberId => {
+          const filterParams = {
+            memberId: memberId,
+            tripId: params.tripId,
           };
           switch (params['action']) {
             case 'addMember':
-              ops['updateOne']['update']['isMember'] = true;
+              filterParams['isMember'] = true;
               break;
             case 'removeMember':
-              ops['updateOne']['update']['isMember'] = false;
+              filterParams['isMember'] = false;
               break;
             case 'makeFavorite':
-              ops['updateOne']['update']['isFavorite'] = true;
+              filterParams['isFavorite'] = true;
               break;
             case 'makeUnFavorite':
-              ops['updateOne']['update']['isFavorite'] = false;
+              filterParams['isFavorite'] = false;
               break;
           }
-          return ops;
+
+          return _.indexOf(memberIds, JSON.stringify(memberId)) === -1
+            ? MemberModel.create(filterParams)
+            : MemberModel.update(
+                {
+                  memberId: memberId,
+                  tripId: params.tripId,
+                },
+                filterParams
+              );
         });
-        await MemberModel.bulkUpdate(bulkOps);
-        const memberCount = await MemberModel.count({ tripId: params.tripId });
-        const updateTrip = {
-          groupSize: memberCount,
-          isFull: memberCount >= res.Item['maxGroupSize'],
-          spotFilledRank: Math.round(
-            (memberCount / res.Item['maxGroupSize']) * 100
-          ),
-        };
-        await TripModel.update(params.tripId, updateTrip);
+
+        await Promise.all(actions);
+        const trip = await TripModel.getById(params.tripId);
+        if (trip) {
+          const memberCount = await MemberModel.count({
+            tripId: params.tripId,
+            isMember: true,
+            isActive: true,
+          });
+          const updateTrip = {
+            groupSize: memberCount,
+            isFull: memberCount >= trip['maxGroupSize'],
+            spotFilledRank: Math.round(
+              (memberCount / trip['maxGroupSize']) * 100
+            ),
+          };
+          await TripModel.update(params.tripId, updateTrip);
+        }
       }
       return 'success';
     } catch (error) {

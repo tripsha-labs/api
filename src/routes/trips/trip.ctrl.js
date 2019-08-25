@@ -1,5 +1,6 @@
 import moment from 'moment';
 import _ from 'lodash';
+import { Types } from 'mongoose';
 import { dbConnect } from '../../utils/db-connect';
 import { prepareSortFilter } from '../../helpers';
 import {
@@ -51,14 +52,14 @@ export class TripController {
 
       params.push({
         $sort: prepareSortFilter(
-          params,
+          filter,
           ['updatedAt', 'startDate', 'spotsFilled'],
           'updatedAt'
         ),
       });
-      const limit = params.limit ? parseInt(params.limit) : APP_CONSTANTS.LIMIT;
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       params.push({ $limit: limit });
-      const page = params.page ? parseInt(params.page) : APP_CONSTANTS.PAGE;
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
       params.push({ $skip: limit * page });
       params.push({
         $lookup: {
@@ -96,11 +97,10 @@ export class TripController {
 
       const resCount = await TripModel.count(filterParams);
 
-      const result = {
+      return {
         data: resTrips,
         count: resCount,
       };
-      return result;
     } catch (error) {
       console.log(error);
       throw error;
@@ -146,7 +146,7 @@ export class TripController {
         spotsFilled: spotsFilled,
         isFull: spotsFilled === APP_CONSTANTS.SPOTSFILLED_PERCEENT,
       };
-      await MemberModel.update(trip._id, tripDetails);
+      await TripModel.update(trip._id, tripDetails);
       return trip;
     } catch (error) {
       console.log(error);
@@ -268,24 +268,80 @@ export class TripController {
     }
   }
 
-  static async myTrips(memberId) {
+  static async myTrips(filter) {
     try {
       await dbConnect();
-      const myTrips = await TripModel.myTrips(memberId);
-      return {
-        data: myTrips,
+      const user = await UserModel.get({ awsUserId: filter.memberId });
+      const filterParams = {
+        memberId: user._id,
+        isActive: true,
       };
-    } catch (error) {
-      throw error;
-    }
-  }
+      if (filter.isMember) filterParams['isMember'] = true;
+      else if (filter.isFavorite) filterParams['isFavorite'] = true;
+      const params = [
+        {
+          $match: filterParams,
+        },
+      ];
 
-  static async savedTrips(memberId) {
-    try {
-      await dbConnect();
-      const savedTrips = await TripModel.savedTrips(memberId);
+      params.push({
+        $sort: prepareSortFilter(
+          filter,
+          ['updatedAt', 'startDate', 'spotsFilled'],
+          'updatedAt'
+        ),
+      });
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $limit: limit });
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
+      params.push({
+        $lookup: {
+          from: 'trips',
+          localField: 'tripId',
+          foreignField: '_id',
+          as: 'trip',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$trip',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $replaceRoot: {
+          newRoot: { $mergeObjects: ['$trip', '$$ROOT'] },
+        },
+      });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'ownerDetails',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$ownerDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $project: {
+          trip: 0,
+          memberId: 0,
+          tripId: 0,
+        },
+      });
+
+      const resTrips = await MemberModel.aggregate(params);
+      const resCount = await MemberModel.count(filterParams);
+
       return {
-        data: savedTrips,
+        data: resTrips,
+        count: resCount,
       };
     } catch (error) {
       throw error;

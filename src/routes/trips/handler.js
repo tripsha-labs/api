@@ -104,9 +104,10 @@ export const deleteTrip = async (event, context) => {
  */
 export const myTrips = async (event, context) => {
   try {
-    const result = await TripController.myTrips(
-      event.requestContext.identity.cognitoIdentityId
-    );
+    const result = await TripController.myTrips({
+      memberId: event.requestContext.identity.cognitoIdentityId,
+      isMember: true,
+    });
     return success(result);
   } catch (error) {
     console.log(error);
@@ -119,9 +120,10 @@ export const myTrips = async (event, context) => {
  */
 export const savedTrips = async (event, context) => {
   try {
-    const result = await TripController.savedTrips(
-      event.requestContext.identity.cognitoIdentityId
-    );
+    const result = await TripController.myTrips({
+      memberId: event.requestContext.identity.cognitoIdentityId,
+      isFavorite: true,
+    });
     return success(result);
   } catch (error) {
     console.log(error);

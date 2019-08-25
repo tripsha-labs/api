@@ -4,6 +4,8 @@
  */
 import { success, failure } from '../../utils';
 import { MessageController } from './message.ctrl';
+import { ERROR_KEYS } from '../../constants';
+import { createMessageValidation } from '../../models';
 
 export const auth = (event, context, callback) => {
   if (!event.queryStringParameters) {
@@ -51,6 +53,8 @@ export const sendMessageHandler = async (event, context) => {
   try {
     const body = JSON.parse(event.body);
     const postData = JSON.parse(body.data);
+    const errors = createMessageValidation(postData);
+    if (errors != true) throw errors.shift();
     const message = await MessageController.storeMessage(postData);
     await MessageController.sendMessage(event, message);
     await sendMessageToAllConnected(event, message);
@@ -65,12 +69,12 @@ export const sendMessageHandler = async (event, context) => {
 };
 
 export const listMessages = async (event, context) => {
-  if (!(event.queryStringParameters && event.queryStringParameters.memberId))
-    return failure({ ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' });
-  // Get search string from queryparams
-  const params = event.queryStringParameters ? event.queryStringParameters : {};
-
   try {
+    if (!(event.queryStringParameters && event.queryStringParameters.memberId))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
+    // Get search string from queryparams
+    const params = event.queryStringParameters || {};
+
     const result = await MessageController.listMessages(params);
     return success(result);
   } catch (error) {
@@ -101,6 +105,9 @@ export const listConversations = async (event, context) => {
 export const sendMessage = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
+    const errors = createMessageValidation(data);
+    if (errors != true) throw errors.shift();
+
     const result = await MessageController.sendMessageRest({
       ...data,
       fromMemberId: event.requestContext.identity.cognitoIdentityId,

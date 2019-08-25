@@ -16,17 +16,6 @@ export class TripModel {
     return Trip.aggregate(params);
   }
 
-  static myTrips(params = {}) {
-    const { filter, select, pagination, sort } = params;
-    const trips = Trip.find(filter, select || {});
-    if (sort) trips.sort(sort);
-    if (pagination) {
-      trips.limit(pagination.limit);
-      trips.skip(pagination.skip);
-    }
-    return trips;
-  }
-
   static savedTrips(params = {}) {
     const { filter, select, pagination, sort } = params;
     const trips = Trip.find(filter, select || {});

@@ -1,6 +1,5 @@
 import https from 'https';
 import moment from 'moment';
-import uuid from 'uuid';
 import jose from 'node-jose';
 import { dbConnect } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';

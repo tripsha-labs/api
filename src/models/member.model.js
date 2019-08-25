@@ -21,8 +21,12 @@ export class MemberModel {
     return member.save();
   }
 
-  static update(id, params = {}) {
-    return Member.updateOne({ _id: id }, { $set: params });
+  static aggregate(params = {}) {
+    return Member.aggregate(params);
+  }
+
+  static update(filter, params = {}) {
+    return Member.updateOne(filter, { $set: params });
   }
 
   static delete(params = {}) {

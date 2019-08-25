@@ -11,4 +11,4 @@ const memberSchema = {
   $$strict: true,
 };
 
-export const memberValidation = new Validator().compile(memberSchema);
+export const memberActionValidation = new Validator().compile(memberSchema);

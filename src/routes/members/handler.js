@@ -1,5 +1,6 @@
 import { success, failure } from '../../utils';
 import { MemberController } from './member.ctrl';
+import { memberActionValidation } from '../../models';
 
 /**
  * List members
@@ -25,6 +26,8 @@ export const listMembers = async (event, context) => {
 export const memberActions = async (event, context) => {
   try {
     const params = JSON.parse(event.body) || {};
+    const errors = memberActionValidation(params);
+    if (errors != true) throw errors.shift();
     const result = await MemberController.memberAction(params);
     return success(result);
   } catch (error) {
