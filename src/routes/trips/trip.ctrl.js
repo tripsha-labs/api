@@ -1,20 +1,16 @@
-import { dbConnect } from '../../utils/db-connect';
-import { prepareCommonFilter } from '../../helpers';
-
-import _ from 'lodash';
 import moment from 'moment';
-import uuid from 'uuid';
+import _ from 'lodash';
+import { dbConnect } from '../../utils/db-connect';
+import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
   MemberModel,
-  UserModel,
   validateTripLength,
+  UserModel,
 } from '../../models';
-import { TABLE_NAMES } from '../../constants';
-import { ERROR_KEYS } from '../../constants';
-import { base64Encode, base64Decode } from '../../helpers';
+import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 export class TripController {
-  static async listTrips(filter) {
+  static async listTrips(filter, memberId) {
     try {
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const filterParams = {
@@ -49,14 +45,55 @@ export class TripController {
       if (filter.destinations && filter.destinations.length > 0) {
         multiFilter.push({ interests: { $in: filter.destinations } });
       }
-      filterParams['$and'] = multiFilter;
+      if (multiFilter.length > 0) filterParams['$and'] = multiFilter;
 
-      const params = {
-        filter: filterParams,
-        ...prepareCommonFilter(filter, ['email']),
-      };
+      const params = [{ $match: filterParams }];
 
-      const resTrips = await TripModel.list(params);
+      params.push({
+        $sort: prepareSortFilter(
+          params,
+          ['updatedAt', 'startDate', 'spotsFilled'],
+          'updatedAt'
+        ),
+      });
+      const limit = params.limit ? parseInt(params.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $limit: limit });
+      const page = params.page ? parseInt(params.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'ownerDetails',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$ownerDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+
+      await dbConnect();
+
+      let resTrips = await TripModel.aggregate(params);
+      if (memberId) {
+        const tripIds = resTrips.map(trip => trip._id);
+        const user = await UserModel.get({ awsUserId: memberId });
+        const memberParams = {
+          tripId: { $in: tripIds },
+          memberId: user._id,
+          isFavorite: true,
+        };
+        const members = await MemberModel.list(memberParams);
+        const favoriteTripIds = members.map(member => member.tripId);
+        resTrips = resTrips.map(trip => {
+          trip['isFavorite'] = _.indexOf(favoriteTripIds, trip._id) !== -1;
+          return trip;
+        });
+      }
+
       const resCount = await TripModel.count(filterParams);
 
       const result = {
@@ -70,84 +107,123 @@ export class TripController {
     }
   }
 
-  static async createTrip(data) {
+  static async createTrip(params) {
     try {
-      data['startDate'] = parseInt(data['startDate']);
-      data['endDate'] = parseInt(data['endDate']);
-      const params = {
-        ...data,
-        isActive: true,
-        isArchived: 0,
-      };
+      // Validate trip fields against the strict schema
+      const tripLength = validateTripLength(
+        params['startDate'],
+        params['endDate']
+      );
+      if (
+        tripLength <= 0 ||
+        tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
+        isNaN(tripLength)
+      )
+        throw ERROR_KEYS.INVALID_DATES;
 
-      await TripModel.add(params);
+      params['tripLength'] = tripLength;
+
+      await dbConnect();
+      params['ownerId'] = await UserModel.get({ awsUserId: params.ownerId });
+      const trip = await TripModel.create(params);
       const addMemberParams = {
-        memberId: data['ownerId'],
-        tripId: params.id,
-        isActive: true,
+        memberId: trip.ownerId,
+        tripId: trip._id,
         isOwner: true,
         isMember: true,
-        isFavorite: false,
-        updatedAt: moment().unix(),
       };
-      await new MemberModel().add(addMemberParams);
-      return params;
+      await MemberModel.create(addMemberParams);
+      const memberCount = await MemberModel.count({
+        tripId: trip._id,
+        isMember: true,
+      });
+      const spotsFilled = Math.round(
+        (memberCount / params['maxGroupSize']) *
+          APP_CONSTANTS.SPOTSFILLED_PERCEENT
+      );
+      const tripDetails = {
+        groupSize: memberCount,
+        spotsFilled: spotsFilled,
+        isFull: spotsFilled === APP_CONSTANTS.SPOTSFILLED_PERCEENT,
+      };
+      await MemberModel.update(trip._id, tripDetails);
+      return trip;
     } catch (error) {
       console.log(error);
       throw error;
     }
   }
 
-  static async updateTrip(tripId, data) {
+  static async updateTrip(tripId, trip) {
     try {
-      const trip = { ...data, updatedAt: moment().unix() };
-      const tripModel = new TripModel();
-      if (trip['maxGroupSize']) {
-        const tripDetails = await tripModel.get(tripId);
-
-        if (!(tripDetails && tripDetails.Item)) throw 'Trip not found';
-        if (
-          trip['startDate'] &&
-          trip['startDate'] != '' &&
-          (trip['endDate'] && trip['endDate'] != '')
-        ) {
-          trip['startDate'] = parseInt(trip['startDate']);
-          trip['endDate'] = parseInt(trip['endDate']);
-          const tripLength = validateTripLength(
-            trip['startDate'],
-            trip['endDate']
-          );
-
-          if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
-            throw ERROR_KEYS.INVALID_DATES;
-          trip['tripLength'] = tripLength;
-        } else if (trip['startDate'] && trip['startDate'] != '') {
-          trip['startDate'] = parseInt(trip['startDate']);
-          const tripLength = validateTripLength(
-            trip['startDate'],
-            tripDetails.Item['endDate']
-          );
-
-          if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
-            throw ERROR_KEYS.INVALID_DATES;
-          trip['tripLength'] = tripLength;
-        } else if (trip['endDate'] && trip['endDate'] != '') {
-          trip['endDate'] = parseInt(trip['endDate']);
-          const tripLength = validateTripLength(
-            tripDetails.Item['startDate'],
-            trip['endDate']
-          );
-
-          if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
-            throw ERROR_KEYS.INVALID_DATES;
-          trip['tripLength'] = tripLength;
-        }
-        trip['spotFilledRank'] = Math.round(
-          (tripDetails.Item['groupSize'] / trip['maxGroupSize']) * 100
+      await dbConnect();
+      const tripDetails = await TripModel.getById(tripId);
+      if (!tripDetails) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      if (
+        trip['startDate'] &&
+        trip['startDate'] != '' &&
+        (trip['endDate'] && trip['endDate'] != '')
+      ) {
+        trip['startDate'] = parseInt(trip['startDate']);
+        trip['endDate'] = parseInt(trip['endDate']);
+        const tripLength = validateTripLength(
+          trip['startDate'],
+          trip['endDate']
         );
-        trip['isFull'] = trip['spotFilledRank'] == 100;
+
+        if (
+          tripLength <= APP_CONSTANTS.MIN_TRIP_LENGTH ||
+          tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
+          isNaN(tripLength)
+        )
+          throw ERROR_KEYS.INVALID_DATES;
+        trip['tripLength'] = tripLength;
+      } else if (trip['startDate'] && trip['startDate'] != '') {
+        trip['startDate'] = parseInt(trip['startDate']);
+        const tripLength = validateTripLength(
+          trip['startDate'],
+          tripDetails['endDate']
+        );
+
+        if (
+          tripLength <= APP_CONSTANTS.MIN_TRIP_LENGTH ||
+          tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
+          isNaN(tripLength)
+        )
+          throw ERROR_KEYS.INVALID_DATES;
+        trip['tripLength'] = tripLength;
+      } else if (trip['endDate'] && trip['endDate'] != '') {
+        trip['endDate'] = parseInt(trip['endDate']);
+        const tripLength = validateTripLength(
+          tripDetails['startDate'],
+          trip['endDate']
+        );
+
+        if (
+          tripLength <= APP_CONSTANTS.MIN_TRIP_LENGTH ||
+          tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
+          isNaN(tripLength)
+        )
+          throw ERROR_KEYS.INVALID_DATES;
+        trip['tripLength'] = tripLength;
       }
-      await tripModel.update(tripId, trip);
+
+      const memberCount = await MemberModel.count({
+        tripId: tripId,
+        isMember: true,
+      });
+
+      const maxGroupSize = trip['maxGroupSize']
+        ? trip['maxGroupSize']
+        : tripDetails['maxGroupSize'];
+      trip['groupSize'] = memberCount;
+      trip['spotsFilled'] = Math.round(
+        (memberCount / maxGroupSize) * APP_CONSTANTS.SPOTSFILLED_PERCEENT
+      );
+      trip['isFull'] =
+        trip['spotsFilled'] === APP_CONSTANTS.SPOTSFILLED_PERCEENT;
+
+      await TripModel.update(tripId, trip);
       return 'success';
     } catch (error) {
       throw error;
@@ -156,11 +232,25 @@ export class TripController {
 
   static async getTrip(tripId, memberId) {
     try {
-      const trip = await new TripModel().get(tripId);
-      if (!(trip && trip.Item)) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      trip.Item['tripId'] = trip.Item.id;
-      const tripList = await TripController.injectData([trip.Item], memberId);
-      return tripList.shift();
+      await dbConnect();
+      let trip = await TripModel.get({ _id: tripId });
+      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      trip = JSON.parse(JSON.stringify(trip));
+      trip['ownerDetails'] = await UserModel.getById(trip.ownerId);
+      if (memberId) {
+        const user = await UserModel.get({ awsUserId: memberId });
+        if (user) {
+          const memberParams = {
+            tripId: tripId,
+            memberId: user._id,
+            isFavorite: true,
+          };
+          const member = await MemberModel.get(memberParams);
+
+          trip['isFavorite'] = member && member.isFavorite ? true : false;
+        }
+      }
+      return trip;
     } catch (error) {
       console.log(error);
       throw error;
@@ -169,7 +259,8 @@ export class TripController {
 
   static async deleteTrip(tripId) {
     try {
-      await new TripModel().delete(tripId);
+      await dbConnect();
+      await TripModel.delete(tripId);
       //TODO: Delete members and other dependecies with the trip
       return 'success';
     } catch (error) {
@@ -179,19 +270,11 @@ export class TripController {
 
   static async myTrips(memberId) {
     try {
-      const resMembers = await new MemberModel().myTrips(memberId);
-      if (resMembers && resMembers.Items && resMembers.Items.length <= 0)
-        return {
-          data: [],
-          count: 0,
-        };
-      const trips = await TripController.injectData(resMembers.Items, memberId);
-      const result = {
-        data: trips,
-        count: trips.length,
+      await dbConnect();
+      const myTrips = await TripModel.myTrips(memberId);
+      return {
+        data: myTrips,
       };
-
-      return result;
     } catch (error) {
       throw error;
     }
@@ -199,91 +282,13 @@ export class TripController {
 
   static async savedTrips(memberId) {
     try {
-      const resMembers = await new MemberModel().savedTrips(memberId);
-      if (resMembers && resMembers.Items && resMembers.Items.length <= 0)
-        return {
-          data: [],
-          count: 0,
-        };
-      const trips = await TripController.injectData(resMembers.Items, memberId);
-      const result = {
-        data: trips,
-        count: trips.length,
+      await dbConnect();
+      const savedTrips = await TripModel.savedTrips(memberId);
+      return {
+        data: savedTrips,
       };
-      return result;
     } catch (error) {
       throw error;
     }
-  }
-
-  static async injectData(trips, memberId) {
-    const tripModel = new TripModel();
-    const tripKeys = [];
-    _.forEach(trips, item => {
-      tripKeys.push({ id: item.tripId ? item.tripId : item.id });
-    });
-
-    try {
-      if (tripKeys.length <= 0) throw 'Invalid keys';
-      const resTrips = await tripModel.batchList(tripKeys);
-      if (resTrips.Responses) {
-        trips = await TripController.injectUserDetails(
-          resTrips.Responses[TABLE_NAMES.TRIP]
-        );
-        trips = await TripController.injectFavoriteDetails(trips, memberId);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-
-    return trips;
-  }
-
-  static async injectUserDetails(trips) {
-    const promises = [];
-    const userModel = new UserModel();
-    trips.forEach(trip => {
-      promises.push(
-        new Promise(async res => {
-          try {
-            const result = await userModel.get(trip.ownerId);
-            trip.createdBy = result.Item;
-          } catch (error) {
-            console.log(error);
-          }
-          return res(trip);
-        })
-      );
-    });
-    return Promise.all(promises);
-  }
-
-  static async injectFavoriteDetails(trips, memberId) {
-    const promises = [];
-    const memberModel = new MemberModel();
-    trips.map(trip => {
-      promises.push(
-        new Promise(async res => {
-          if (!memberId) {
-            trip.isFavorite = false;
-            return res(trip);
-          }
-          try {
-            const result = await memberModel.get({
-              tripId: trip.id,
-              memberId: memberId,
-            });
-
-            trip.isFavorite =
-              result && result.Item && result.Item.isFavorite ? true : false;
-          } catch (error) {
-            trip.isFavorite = false;
-            console.log(error);
-          }
-          return res(trip);
-        })
-      );
-    });
-    return Promise.all(promises);
   }
 }

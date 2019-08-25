@@ -26,3 +26,16 @@ export const prepareCommonFilter = (params, allowedFields = []) => {
   }
   return filter;
 };
+
+export const prepareSortFilter = (
+  params,
+  allowedFields = [],
+  defaultSort,
+  defaultSortOrder = 1
+) => {
+  if (params.sortBy && _.indexOf(allowedFields, params.sortBy) != -1) {
+    const sortOrder = params.sortOrder ? params.sortOrder : 1;
+    return { [params.sortBy]: sortOrder };
+  }
+  return { [defaultSort]: defaultSortOrder };
+};

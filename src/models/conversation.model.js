@@ -32,4 +32,11 @@ export class ConversationModel {
   static getById(id) {
     return Conversation.findById(id);
   }
+  static get(params) {
+    return Conversation.findOne(params);
+  }
+
+  static addOrUpdate(filter, update) {
+    return Conversation.updateOne(filter, { $set: update }, { upsert: true });
+  }
 }

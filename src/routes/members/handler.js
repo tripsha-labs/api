@@ -1,6 +1,5 @@
 import { success, failure } from '../../utils';
 import { MemberController } from './member.ctrl';
-import { memberValidation } from '../../models';
 
 /**
  * List members
@@ -8,11 +7,11 @@ import { memberValidation } from '../../models';
 export const listMembers = async (event, context) => {
   try {
     // Get search string from queryparams
-    const params = {
-      tripId: event.pathParameters && event.pathParameters.id,
-    };
+    const params = event.queryStringParameters
+      ? event.queryStringParameters
+      : {};
 
-    const result = await MemberController.listMembers(params);
+    const result = await MemberController.list(params);
     return success(result);
   } catch (error) {
     console.log(error);
@@ -25,13 +24,8 @@ export const listMembers = async (event, context) => {
  */
 export const memberActions = async (event, context) => {
   try {
-    const data = JSON.parse(event.body) || {};
-    const errors = memberValidation(data);
-    if (errors != true) throw errors.shift();
-    const params = {
-      tripId: data.tripId,
-    };
-    const result = await MemberController.memberAction(params, data);
+    const params = JSON.parse(event.body) || {};
+    const result = await MemberController.memberAction(params);
     return success(result);
   } catch (error) {
     console.log(error);

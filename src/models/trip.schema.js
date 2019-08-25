@@ -1,23 +1,23 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const tripSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, index: true },
     description: String,
-    startDate: String,
-    endDate: String,
+    startDate: { type: Number, required: true },
+    endDate: { type: Number, required: true },
     focus: String,
     cost: Number,
     minGroupSize: Number,
     maxGroupSize: Number,
-    groupSize: Number,
-    tripLength: Number,
-    ownerId: String,
-    isActive: Boolean,
-    isPublic: Boolean,
-    isArchived: Boolean,
-    isFull: Boolean,
-    spotsFilled: Number,
+    groupSize: { type: Number, default: 0 },
+    tripLength: { type: Number, default: 0 },
+    ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
+    isActive: { type: Boolean, default: true },
+    isPublic: { type: Boolean, default: true },
+    isArchived: { type: Boolean, default: false },
+    isFull: { type: Boolean, default: false },
+    spotsFilled: { type: Number, default: 0 },
     destinations: [String],
     languages: [String],
     interests: [String],
@@ -29,4 +29,4 @@ const tripSchema = new mongoose.Schema(
     strict: true,
   }
 );
-export const Trip = mongoose.models.User || mongoose.model('Trip', tripSchema);
+export const Trip = mongoose.models.Trip || mongoose.model('Trip', tripSchema);

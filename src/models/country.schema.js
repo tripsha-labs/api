@@ -5,7 +5,7 @@ const countrySchema = new mongoose.Schema(
     code: { type: String, required: true, unique: true, index: true },
     name: { type: String, required: true, unique: true, index: true },
   },
-  { versionKey: false }
+  { versionKey: false, strict: true }
 );
 
 export const Country =

@@ -65,18 +65,10 @@ export const sendMessageHandler = async (event, context) => {
 };
 
 export const listMessages = async (event, context) => {
-  if (!(event.pathParameters && event.pathParameters.memberId))
+  if (!(event.queryStringParameters && event.queryStringParameters.memberId))
     return failure({ ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' });
   // Get search string from queryparams
-  const params = {
-    userId: event.requestContext.identity.cognitoIdentityId,
-    memberId: event.pathParameters.memberId,
-    groupId: event.pathParameters.groupId ? event.pathParameters.groupId : '1',
-  };
-
-  //   nextPageToken:
-  //     event.queryStringParameters && event.queryStringParameters.nextPageToken,
-  // };
+  const params = event.queryStringParameters ? event.queryStringParameters : {};
 
   try {
     const result = await MessageController.listMessages(params);

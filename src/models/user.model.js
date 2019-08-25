@@ -33,4 +33,12 @@ export class UserModel {
   static getById(id) {
     return User.findById(id);
   }
+
+  static get(params) {
+    return User.findOne(params);
+  }
+
+  static getUserByAWSUsername(username) {
+    return User.findOne({ awsUesrname: username });
+  }
 }

@@ -32,4 +32,12 @@ export class MemberModel {
   static getById(id) {
     return Member.findById(id);
   }
+
+  static get(params) {
+    return Member.findOne(params);
+  }
+
+  static bulkUpdate(params) {
+    return Member.collection.bulkWrite(params);
+  }
 }

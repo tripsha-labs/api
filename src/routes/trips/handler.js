@@ -1,6 +1,7 @@
 import { TripController } from './trip.ctrl';
 import { success, failure } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
+import { updateTripValidation, createTripValidation } from '../../models';
 
 /**
  * List trips
@@ -10,7 +11,10 @@ export const listTrips = async (event, context) => {
     const params = event.queryStringParameters
       ? event.queryStringParameters
       : {};
-    const result = await TripController.listTrips(params);
+    const result = await TripController.listTrips(
+      params,
+      event.requestContext.identity.cognitoIdentityId
+    );
     return success(result);
   } catch (error) {
     console.log(error);
@@ -24,12 +28,8 @@ export const listTrips = async (event, context) => {
 export const createTrip = async (event, context) => {
   try {
     const data = JSON.parse(event.body) || {};
-    // Validate trip fields against the strict schema
-    const tripLength = validateTripLength(data['startDate'], data['endDate']);
-    if (tripLength <= 0 || tripLength > 365 || isNaN(tripLength))
-      throw ERROR_KEYS.INVALID_DATES;
-
-    data['tripLength'] = tripLength;
+    const errors = createTripValidation(data);
+    if (errors != true) throw errors.shift();
 
     const result = await TripController.createTrip({
       ...data,
@@ -51,6 +51,8 @@ export const updateTrip = async (event, context) => {
     const data = JSON.parse(event.body) || {};
     if (!(event.pathParameters && event.pathParameters.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const errors = updateTripValidation(data);
+    if (errors != true) throw errors.shift();
 
     const result = await TripController.updateTrip(event.pathParameters.id, {
       ...data,

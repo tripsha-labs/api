@@ -3,9 +3,11 @@ import mongoose from 'mongoose';
 const conversationSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true, index: true },
+    connectionId: String,
+    awsUsername: String,
     message: String,
-    messageType: String,
-    isOnline: Boolean,
+    messageType: { type: String, default: 'text' },
+    isOnline: { type: Boolean, default: false },
     lastOnlineTime: String,
   },
   {

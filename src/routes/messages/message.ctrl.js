@@ -2,97 +2,54 @@ import https from 'https';
 import moment from 'moment';
 import uuid from 'uuid';
 import jose from 'node-jose';
+import { dbConnect } from '../../utils/db-connect';
+import { prepareCommonFilter } from '../../helpers';
 import { generateAllow } from './helper';
-import { base64Encode } from '../../helpers';
-import {
-  UserModel,
-  ConnectionModel,
-  MessageModel,
-  ConversationModel,
-} from '../../models';
+import { UserModel, MessageModel, ConversationModel } from '../../models';
 import { apigwManagementApi } from '../../utils';
 
 export class MessageController {
-  static async listMessages(queryFilter) {
+  static async listMessages(filter) {
     try {
-      const resMessages = await new MessageModel().list(queryFilter);
-      const result = {
-        data: [],
-        count: 0,
-        ...base64Encode(resMessages.LastEvaluatedKey),
+      const params = {
+        filter: {
+          $or: [
+            { toMemberId: filter.memberId },
+            { fromMemberId: filter.memberId },
+          ],
+        },
+        ...prepareCommonFilter(filter, ['updatedAt']),
       };
-      if (resMessages && resMessages.Items && resMessages.Items.length > 0) {
-        const promises = [];
-        const userModel = new UserModel();
-        resMessages.Items.map(message => {
-          promises.push(
-            new Promise(async resolve => {
-              const memberId =
-                message['toMemberId'] == queryFilter.userId
-                  ? message['fromMemberId']
-                  : message['toMemberId'];
+      await dbConnect();
+      const messages = await MessageModel.list(params);
+      const messagesCount = await MessageModel.count(params.filter);
 
-              let user = {};
-              try {
-                const resultUser = await userModel.get(memberId);
-                user = resultUser.Item;
-              } catch (error) {
-                console.log(error);
-              }
-              user['message'] = message;
-              return resolve(user);
-            })
-          );
-        });
-        const resConversations = await Promise.all(promises);
-        result['data'] = resConversations;
-        result['count'] = resMessages.Count;
-      }
-
-      return result;
+      return {
+        data: messages,
+        count: messagesCount,
+      };
     } catch (error) {
       console.log(error);
       throw error;
     }
   }
 
-  static async listConversations(queryFilter) {
+  static async listConversations(filter) {
     try {
-      const resMessages = await new ConversationModel().list(queryFilter);
-      const result = {
-        data: [],
-        count: 0,
-        ...base64Encode(resMessages.LastEvaluatedKey),
+      const params = {
+        filter: {
+          userId: filter.memberId,
+        },
+        ...prepareCommonFilter(filter, ['updatedAt']),
       };
-      if (resMessages && resMessages.Items && resMessages.Items.length > 0) {
-        const promises = [];
-        const userModel = new UserModel();
-        resMessages.Items.map(message => {
-          promises.push(
-            new Promise(async resolve => {
-              const memberId =
-                message['toMemberId'] == queryFilter.userId
-                  ? message['fromMemberId']
-                  : message['toMemberId'];
+      await dbConnect();
+      const conversations = await ConversationModel.list(params);
+      const conversationsCount = await ConversationModel.count(params.filter);
 
-              let user = {};
-              try {
-                const resultUser = await userModel.get(memberId);
-                user = resultUser.Item;
-              } catch (error) {
-                console.log(error);
-              }
-              user['message'] = message;
-              return resolve(user);
-            })
-          );
-        });
-        const resConversations = await Promise.all(promises);
-        result['data'] = resConversations;
-        result['count'] = resMessages.Count;
-      }
-
-      return result;
+      return {
+        data: conversations,
+        count: conversationsCount,
+      };
     } catch (error) {
       console.error(error);
       throw error;
@@ -101,14 +58,9 @@ export class MessageController {
 
   static async sendMessageRest(message) {
     try {
-      const res = await new MessageModel().add(message);
-      // const conversationModel = new ConversationModel();
-      // await conversationModel.update(res.Item, {
-      //   ':userId': res.Item['fromMemberId'],
-      //   ':memberId': res.Item['toMemberId'],
-      //   ':groupId': res.Item['groupId'],
-      // });
-      return res.Item;
+      await dbConnect();
+      const resMessage = await MessageModel.create(message);
+      return resMessage;
     } catch (error) {
       throw error;
     }
@@ -181,54 +133,62 @@ export class MessageController {
   }
 
   static async addConnection(connParams) {
-    const userModel = new UserModel();
-    const connModel = new ConnectionModel();
-    const userlist = await userModel.getUserByUsername(connParams.username);
-    const params = {
-      connectionId: connParams.connectionId,
-      username: connParams.username,
-    };
-    if (userlist && userlist.Items && userlist.Items.length > 0) {
-      params['userId'] = userlist.Items[0].id;
+    try {
+      await dbConnect();
+      const user = await UserModel.getUserByAWSUsername(connParams.username);
+      const params = {
+        connectionId: connParams.connectionId,
+        awsUsername: connParams.username,
+        userId: user._id,
+        isOnline: true,
+      };
+
+      await ConversationModel.addOrUpdate({ userId: user._id }, params);
+      return 'success';
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-    return connModel.add(params);
   }
 
   static async deleteConnection(connectionId) {
-    const connModel = new ConnectionModel();
-    return connModel.delete(connectionId);
+    try {
+      await dbConnect();
+      const params = {
+        connectionId: null,
+        isOnline: false,
+        lastOnlineTime: moment.unix(),
+      };
+      await ConversationModel.addOrUpdate(
+        { connectionId: connectionId },
+        params
+      );
+      return 'success';
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   static async storeMessage(messageParams) {
     const params = {
-      groupId: messageParams.groupId ? messageParams.groupId : '1',
       toMemberId: messageParams.userId,
       fromMemberId: messageParams.fromMemberId,
       message: messageParams.message,
-      sentOn: moment().unix(),
       messageType: 'text',
-      id: uuid.v1(),
     };
 
     try {
-      await new MessageModel().add(params);
-      const conversationModel = new ConversationModel();
-      const conversations = await conversationModel.list({
-        ':userId': params['fromMemberId'],
-        ':memberId': params['toMemberId'],
-        ':groupId': params['groupId'],
-      });
-      if (
-        !(
-          conversations &&
-          conversations.Items &&
-          conversations.Items.length > 0
-        )
-      ) {
-        await conversationModel.add(params);
-      }
-      console.info('Message stored!');
-      return params;
+      const message = await MessageModel.create(params);
+      const conversationParams = {
+        userId: params['toMemberId'],
+        message: messageParams.message,
+        messageType: 'text',
+      };
+      await ConversationModel.addOrUpdate(conversationParams);
+      conversationParams['userId'] = params['fromMemberId'];
+      await ConversationModel.addOrUpdate(conversationParams);
+      return message;
     } catch (error) {
       console.error(error);
       throw error;
@@ -236,14 +196,11 @@ export class MessageController {
   }
 
   static async sendMessage(event, message) {
-    const connections = await new ConnectionModel().list(message.toMemberId);
-    const promises = [];
-    connections.Items.map(connectionId => {
-      promises.push(
-        MessageController.send(event, connectionId.connectionId, message)
-      );
+    const conversation = await ConversationModel.get({
+      userId: message.toMemberId,
     });
-    return Promise.all(promises);
+    if (conversation.connectionId == null) return Promise.resolve();
+    return MessageController.send(event, conversation.connectionId, message);
   }
 
   static send(event, connectionId, message) {

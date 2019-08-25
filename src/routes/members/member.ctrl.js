@@ -1,146 +1,74 @@
-import moment from 'moment';
-import { MemberModel, TripModel, UserModel } from '../../models';
-import { base64Encode } from '../../helpers';
-import { ERROR_KEYS } from '../../constants';
+import { MemberModel, TripModel } from '../../models';
+import { dbConnect } from '../../utils/db-connect';
+import { prepareCommonFilter } from '../../helpers';
 
 export class MemberController {
-  static async listMembers(membersFilter) {
+  static async list(filter) {
     try {
-      const res = await new MemberModel().list(membersFilter);
-      const promises = [];
-      const userModel = new UserModel();
-      res.Items.map(member => {
-        promises.push(
-          new Promise(async res => {
-            const user = await userModel.get(member.memberId);
-            return res({ ...member, ...user.Item });
-          })
-        );
-      });
-      await Promise.all(promises);
-      const result = {
-        data: res.Items,
-        count: res.Count,
-        ...base64Encode(res.LastEvaluatedKey),
+      const params = {
+        filter: {
+          tripId: filter.tripId,
+          isMember: true,
+        },
+        ...prepareCommonFilter(filter, ['updatedAt']),
       };
-      return result;
+      await dbConnect();
+      const result = await MemberModel.list(params);
+      const resultCount = await MemberModel.count(params.filter);
+      return {
+        data: result,
+        count: resultCount,
+      };
     } catch (error) {
       console.log(error);
       throw error;
     }
   }
 
-  static async memberAction(params, data) {
+  static async memberAction(params) {
     try {
-      const tripModel = new TripModel();
-      const memberModel = new MemberModel();
-      const res = await tripModel.get(params.tripId);
-      if (!res.Item) throw ERROR_KEYS.TRIP_NOT_FOUND;
-
-      const promises = [
-        data['memberIds'].map(memberId => {
-          return new Promise(async resolve => {
-            // Check member already exists of not
-            const memberStatus = {
-              exists: false,
-            };
-            const membershipParams = {
-              isMember: false,
-              isActive: true,
-              isArchived: false,
-              isFavorite: false,
-              updatedAt: moment().unix(),
-            };
-            const keyParams = {
-              memberId: memberId,
-              tripId: params['tripId'],
-            };
-            try {
-              const memberDetails = await memberModel.get(keyParams);
-              if (memberDetails && memberDetails.Item) {
-                memberStatus['exists'] = true;
-                membershipParams['isFavorite'] =
-                  memberDetails.Item['isFavorite'];
-                membershipParams['isMember'] = memberDetails.Item['isMember'];
-              }
-            } catch (error) {
-              console.log(error);
-            }
-            try {
-              switch (data['action']) {
-                case 'addMember':
-                  if (memberStatus['exists']) {
-                    if (membershipParams['isMember']) return resolve('success');
-                    await memberModel.update(keyParams, {
-                      updatedAt: moment().unix(),
-                      isMember: true,
-                    });
-                  } else {
-                    membershipParams['isMember'] = true;
-                    membershipParams['memberId'] = memberId;
-                    membershipParams['tripId'] = params['tripId'];
-                    await memberModel.add(membershipParams);
-                  }
-                  break;
-                case 'makeFavorite':
-                  if (memberStatus['exists']) {
-                    if (membershipParams['isFavorite'])
-                      return resolve('success');
-                    await memberModel.update(keyParams, {
-                      updatedAt: moment().unix(),
-                      isFavorite: true,
-                    });
-                  } else {
-                    membershipParams['isFavorite'] = true;
-                    membershipParams['memberId'] = memberId;
-                    membershipParams['tripId'] = params['tripId'];
-                    await memberModel.add(membershipParams);
-                  }
-                  break;
-                case 'makeUnFavorite':
-                  if (membershipParams['isMember'] == true) {
-                    await memberModel.update(keyParams, {
-                      updatedAt: moment().unix(),
-                      isFavorite: false,
-                    });
-                  } else {
-                    await memberModel.delete(keyParams);
-                  }
-                  break;
-                case 'removeMember':
-                  if (membershipParams['isFavorite'] == true) {
-                    await memberModel.update(keyParams, {
-                      updatedAt: moment().unix(),
-                      isMember: false,
-                    });
-                  } else {
-                    await memberModel.delete(keyParams);
-                  }
-                  break;
-                default:
-                  break;
-              }
-            } catch (error) {
-              console.log(error);
-              return resolve('success');
-            }
-            return resolve('success');
-          });
-        }),
-      ];
-
-      await Promise.all(promises);
-
-      const members = await memberModel.list({ tripId: params['tripId'] });
-      if (members && members.Items && members.Items.length > 0) {
+      await dbConnect();
+      if (params['memberIds'] && params['memberIds'].length > 0) {
+        const bulkOps = params['memberIds'].map(memberId => {
+          const ops = {
+            updateOne: {
+              filter: {
+                memberId: memberId,
+                tripId: params.tripId,
+              },
+              update: {
+                memberId: memberId,
+                tripId: params.tripId,
+              },
+              upsert: true,
+            },
+          };
+          switch (params['action']) {
+            case 'addMember':
+              ops['updateOne']['update']['isMember'] = true;
+              break;
+            case 'removeMember':
+              ops['updateOne']['update']['isMember'] = false;
+              break;
+            case 'makeFavorite':
+              ops['updateOne']['update']['isFavorite'] = true;
+              break;
+            case 'makeUnFavorite':
+              ops['updateOne']['update']['isFavorite'] = false;
+              break;
+          }
+          return ops;
+        });
+        await MemberModel.bulkUpdate(bulkOps);
+        const memberCount = await MemberModel.count({ tripId: params.tripId });
         const updateTrip = {
-          groupSize: members.Items.length,
-          isFull: members.Items.length >= res.Item['maxGroupSize'],
+          groupSize: memberCount,
+          isFull: memberCount >= res.Item['maxGroupSize'],
           spotFilledRank: Math.round(
-            (members.Items.length / res.Item['maxGroupSize']) * 100
+            (memberCount / res.Item['maxGroupSize']) * 100
           ),
         };
-        await tripModel.update(params['tripId'], updateTrip);
+        await TripModel.update(params.tripId, updateTrip);
       }
       return 'success';
     } catch (error) {

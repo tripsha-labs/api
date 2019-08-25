@@ -1,13 +1,13 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const memberSchema = new mongoose.Schema(
   {
-    tripId: { type: String, required: true, index: true },
-    memberId: { type: String, required: true, index: true },
-    isActive: Boolean,
-    isOwner: Boolean,
-    isMember: Boolean,
-    isFavorite: Boolean,
+    tripId: { type: Schema.Types.ObjectId, ref: 'Trip' },
+    memberId: { type: Schema.Types.ObjectId, ref: 'User' },
+    isActive: { type: Boolean, default: true },
+    isOwner: { type: Boolean, default: false },
+    isMember: { type: Boolean, default: false },
+    isFavorite: { type: Boolean, default: false },
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

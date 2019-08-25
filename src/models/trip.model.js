@@ -12,6 +12,32 @@ export class TripModel {
     return trips;
   }
 
+  static aggregate(params = {}) {
+    return Trip.aggregate(params);
+  }
+
+  static myTrips(params = {}) {
+    const { filter, select, pagination, sort } = params;
+    const trips = Trip.find(filter, select || {});
+    if (sort) trips.sort(sort);
+    if (pagination) {
+      trips.limit(pagination.limit);
+      trips.skip(pagination.skip);
+    }
+    return trips;
+  }
+
+  static savedTrips(params = {}) {
+    const { filter, select, pagination, sort } = params;
+    const trips = Trip.find(filter, select || {});
+    if (sort) trips.sort(sort);
+    if (pagination) {
+      trips.limit(pagination.limit);
+      trips.skip(pagination.skip);
+    }
+    return trips;
+  }
+
   static count(params = {}) {
     return Trip.count(params);
   }
@@ -31,5 +57,8 @@ export class TripModel {
 
   static getById(id) {
     return Trip.findById(id);
+  }
+  static get(params) {
+    return Trip.findOne(params).populate('User');
   }
 }
