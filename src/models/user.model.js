@@ -22,8 +22,8 @@ export class UserModel {
     return user.save();
   }
 
-  static update(id, params = {}) {
-    return User.updateOne({ _id: id }, { $set: params });
+  static update(filter, params = {}) {
+    return User.updateOne(filter, { $set: params });
   }
 
   static delete(params = {}) {

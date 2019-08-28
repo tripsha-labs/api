@@ -1,0 +1,7 @@
+getTripTags:
+  handler: src/routes/trip-tags/handler.listTripTags
+  events:
+    - http:
+        path: trip-tags
+        method: get
+        cors: true

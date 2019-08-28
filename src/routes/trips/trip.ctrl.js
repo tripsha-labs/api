@@ -1,7 +1,6 @@
 import moment from 'moment';
 import _ from 'lodash';
-import { Types } from 'mongoose';
-import { dbConnect } from '../../utils/db-connect';
+import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -104,6 +103,8 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -151,6 +152,8 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -227,6 +230,8 @@ export class TripController {
       return 'success';
     } catch (error) {
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -254,6 +259,8 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -265,6 +272,8 @@ export class TripController {
       return 'success';
     } catch (error) {
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -345,6 +354,8 @@ export class TripController {
       };
     } catch (error) {
       throw error;
+    } finally {
+      dbClose();
     }
   }
 }

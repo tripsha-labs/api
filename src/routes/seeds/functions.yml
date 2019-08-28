@@ -1,0 +1,7 @@
+getSeeds:
+  handler: src/routes/seeds/handler.seeds
+  events:
+    - http:
+        path: seeds
+        method: get
+        cors: true

@@ -1,7 +1,7 @@
 import https from 'https';
 import moment from 'moment';
 import jose from 'node-jose';
-import { dbConnect } from '../../utils/db-connect';
+import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';
 import { generateAllow } from './helper';
 import { UserModel, MessageModel, ConversationModel } from '../../models';
@@ -30,6 +30,8 @@ export class MessageController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -52,6 +54,8 @@ export class MessageController {
     } catch (error) {
       console.error(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -62,6 +66,8 @@ export class MessageController {
       return resMessage;
     } catch (error) {
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -147,6 +153,8 @@ export class MessageController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -166,6 +174,8 @@ export class MessageController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 

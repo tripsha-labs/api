@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import _ from 'lodash';
 import { MemberModel, TripModel } from '../../models';
-import { dbConnect } from '../../utils/db-connect';
+import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';
 
 export class MemberController {
@@ -24,6 +24,8 @@ export class MemberController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 
@@ -99,6 +101,8 @@ export class MemberController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 }

@@ -1,7 +1,9 @@
+import urldecode from 'urldecode';
 import { UserController } from './user.ctrl';
 import { success, failure } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
-import urldecode from 'urldecode';
+
+import { createUserValidation, updateUserValidation } from '../../models';
 
 /**
  * List users
@@ -44,6 +46,10 @@ export const getUser = async (event, context) => {
 export const createUser = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
+    // Validate user fields against the strict schema
+    const errors = createUserValidation(data);
+    if (errors != true) throw errors.shift();
+
     const result = await UserController.createUser({
       ...data,
       awsUserId: event.requestContext.identity.cognitoIdentityId,
@@ -59,14 +65,18 @@ export const createUser = async (event, context) => {
  * Update user
  */
 export const updateUser = async (event, context) => {
-  if (!(event.pathParameters && event.pathParameters.id))
-    return failure({ ...ERROR_KEYS.MISSING_FIELD, field: 'id' });
-  const id =
-    event.pathParameters.id === 'me'
-      ? event.requestContext.identity.cognitoIdentityId
-      : event.pathParameters.id;
   try {
+    if (!(event.pathParameters && event.pathParameters.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const id =
+      event.pathParameters.id === 'me'
+        ? event.requestContext.identity.cognitoIdentityId
+        : event.pathParameters.id;
     const data = JSON.parse(event.body);
+    const errors = updateUserValidation(data);
+    if (errors != true) throw errors.shift();
+
     const result = await UserController.updateUser(urldecode(id), {
       ...data,
     });

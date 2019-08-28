@@ -1,9 +1,9 @@
-import { CountryModel } from '../../models';
+import { TripTagModel } from '../../models';
 import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';
 
-export class CountryController {
-  static async listCountries(filter) {
+export class TripTagsController {
+  static async listTags(filter) {
     try {
       const params = {
         filter: {
@@ -12,9 +12,9 @@ export class CountryController {
         ...prepareCommonFilter(filter, ['name']),
       };
       await dbConnect();
-      const countries = await CountryModel.list(params);
+      const tags = await TripTagModel.list(params);
       return {
-        data: countries,
+        data: tags,
       };
     } catch (error) {
       console.log(error);

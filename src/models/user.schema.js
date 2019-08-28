@@ -4,14 +4,14 @@ const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
-      required: [true, 'User email required'],
+      required: true,
       unique: true,
       index: true,
     },
 
-    username: { type: String, unique: true, index: true },
-    awsUesrname: { type: String, unique: true },
-    awsUserId: { type: String, unique: true },
+    username: { type: String, index: true },
+    awsUesrname: { type: String },
+    awsUserId: { type: String },
     phone: String,
     identity: Object,
     firstName: String,

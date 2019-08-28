@@ -2,26 +2,34 @@ service: tripsha-app-api
 
 plugins:
   - serverless-webpack
-  # - serverless-domain-manager
+  - serverless-domain-manager
+  - serverless-plugin-split-stacks
   - serverless-offline
 custom:
   stage: ${opt:stage, self:provider.stage}
-  # customDomain:
-  #   domainName: ${self:provider.stage}-api.tripsha.com
-  #   basePath: ''
-  #   stage: ${self:provider.stage}
-  #   createRoute53Record: true
-  #   endpointType: 'REGIONAL'
-  #   websockets:
-  #     domainName: ${self:provider.stage}-api.tripsha.com
-  #     basePath: ''
-  #     createRoute53Record: true
-  #     endpointType: 'REGIONAL'
-  #     stage: '${self:provider.stage}'
+  customDomain:
+    domainName: ${self:provider.stage}-api.tripsha.com
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+    endpointType: 'REGIONAL'
+    websockets:
+      domainName: ${self:provider.stage}-api.tripsha.com
+      basePath: ''
+      createRoute53Record: true
+      endpointType: 'REGIONAL'
+      stage: '${self:provider.stage}'
 
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
+
+  splitStacks:
+    nestedStackCount: 20
+    perFunction: false
+    perType: false
+    perGroupFunction: true
+
   environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
 
 provider:
@@ -29,14 +37,6 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: us-east-1
-  # environment: ${file(src/resources/env-variables.yml)}
-  vpc:
-    securityGroupIds:
-      - sg-16fcee5d
-    subnetIds:
-      - subnet-411f630b
-      - subnet-411f630b
-      - subnet-7710be2b
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -49,10 +49,12 @@ package:
 functions:
   - ${file(src/routes/users/functions.yml)}
   - ${file(src/routes/trips/functions.yml)}
+  - ${file(src/routes/trip-tags/functions.yml)}
   - ${file(src/routes/tags/functions.yml)}
   - ${file(src/routes/messages/functions.yml)}
   - ${file(src/routes/countries/functions.yml)}
   - ${file(src/routes/members/functions.yml)}
+  - ${file(src/routes/seeds/functions.yml)}
 
 resources:
   # API Gateway Errors

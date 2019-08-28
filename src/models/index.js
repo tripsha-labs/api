@@ -20,6 +20,9 @@ export * from './member.validation';
 export * from './tag.schema';
 export * from './tag.model';
 
+export * from './trip-tag.schema';
+export * from './trip-tag.model';
+
 export * from './message.schema';
 export * from './message.model';
 export * from './message.validation';

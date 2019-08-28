@@ -1,5 +1,5 @@
 import { TagModel } from '../../models';
-import { dbConnect } from '../../utils/db-connect';
+import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';
 export class TagsController {
   static async listTags(filter) {
@@ -18,6 +18,8 @@ export class TagsController {
     } catch (error) {
       console.log(error);
       throw error;
+    } finally {
+      dbClose();
     }
   }
 }
