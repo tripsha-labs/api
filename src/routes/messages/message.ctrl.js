@@ -71,70 +71,83 @@ export class MessageController {
     }
   }
 
-  static async auth(authFilter) {
-    const region = authFilter.region;
-    const userpoolId = authFilter.userpoolId;
-    const appClientId = authFilter.appClientId;
-    const keys_url =
-      'https://cognito-idp.' +
-      region +
-      '.amazonaws.com/' +
-      userpoolId +
-      '/.well-known/jwks.json';
-    const token = authFilter.Auth;
-    const sections = token.split('.');
-    // get the kid from the headers prior to verification
-    const header = JSON.parse(jose.util.base64url.decode(sections[0]));
-    const kid = header.kid;
-    // download the public keys
-    https.get(keys_url, response => {
-      if (response.statusCode == 200) {
-        response.on('data', body => {
-          const keys = JSON.parse(body)['keys'];
-          // search for the kid in the downloaded public keys
-          let keyIndex = -1;
-          for (let i = 0; i < keys.length; i++) {
-            if (kid == keys[i].kid) {
-              keyIndex = i;
-              break;
+  static async auth(authFilter, event, context) {
+    try {
+      const region = authFilter.region;
+      const userpoolId = authFilter.userpoolId;
+      const appClientId = authFilter.appClientId;
+
+      const keys_url =
+        'https://cognito-idp.' +
+        region +
+        '.amazonaws.com/' +
+        userpoolId +
+        '/.well-known/jwks.json';
+      const token = authFilter.Auth;
+      const sections = token.split('.');
+      // get the kid from the headers prior to verification
+      const header = JSON.parse(jose.util.base64url.decode(sections[0]));
+      const kid = header.kid;
+      // download the public keys
+      return https.get(keys_url, response => {
+        if (response.statusCode == 200) {
+          response.on('data', body => {
+            const keys = JSON.parse(body)['keys'];
+            // search for the kid in the downloaded public keys
+            let keyIndex = -1;
+            for (let i = 0; i < keys.length; i++) {
+              if (kid == keys[i].kid) {
+                keyIndex = i;
+                break;
+              }
             }
-          }
-          if (keyIndex == -1) {
-            return { error: 'Public key not found in jwks.json' };
-          }
-          // construct the public key
-          jose.JWK.asKey(keys[keyIndex]).then(result => {
-            // verify the signature
-            jose.JWS.createVerify(result)
-              .verify(token)
-              .then(result => {
-                // now we can use the claims
-                const claims = JSON.parse(result.payload);
-                // additionally we can verify the token expiration
-                const currentTS = Math.floor(new Date() / 1000);
-                if (currentTS > claims.exp) {
-                  return { error: 'Token is expired' };
-                }
-                // and the Audience (use claims.client_id if verifying an access token)
-                if (claims.client_id != appClientId) {
+            if (keyIndex == -1) {
+              console.log('Public key not found in jwks.json');
+              return { error: 'Public key not found in jwks.json' };
+            }
+            // construct the public key
+            return jose.JWK.asKey(keys[keyIndex]).then(result => {
+              // verify the signature
+              return jose.JWS.createVerify(result)
+                .verify(token)
+                .then(result => {
+                  // now we can use the claims
+                  const claims = JSON.parse(result.payload);
+                  // additionally we can verify the token expiration
+                  const currentTS = Math.floor(new Date() / 1000);
+                  if (currentTS > claims.exp) {
+                    console.log('Token is expired');
+                    return { error: 'Token is expired' };
+                  }
+                  // and the Audience (use claims.client_id if verifying an access token)
+                  if (claims.client_id != appClientId) {
+                    console.log('Token was not issued for this audience');
+                    return {
+                      error: 'Token was not issued for this audience',
+                    };
+                  }
+                  const ga = generateAllow(claims, event.methodArn);
                   return {
-                    error: 'Token was not issued for this audience',
+                    error: null,
+                    result: ga,
                   };
-                }
-                return {
-                  error: null,
-                  result: generateAllow(claims, event.methodArn),
-                };
-              })
-              .catch(() => {
-                return { error: 'Signature verification failed' };
-              });
+                })
+                .catch(error => {
+                  console.log('Signature verification failed');
+                  console.log(error);
+                  return { error: 'Signature verification failed' };
+                });
+            });
           });
-        });
-      } else {
-        return { error: 'Key verification failed' };
-      }
-    });
+        } else {
+          console.log('Key verification failed');
+          return { error: 'Key verification failed' };
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      return { error: 'Key verification failed' };
+    }
   }
 
   static async addConnection(connParams) {
@@ -164,12 +177,9 @@ export class MessageController {
       const params = {
         connectionId: null,
         isOnline: false,
-        lastOnlineTime: moment.unix(),
+        lastOnlineTime: moment().unix(),
       };
-      await ConversationModel.addOrUpdate(
-        { connectionId: connectionId },
-        params
-      );
+      await ConversationModel.updateOne({ connectionId: connectionId }, params);
       return 'success';
     } catch (error) {
       console.log(error);

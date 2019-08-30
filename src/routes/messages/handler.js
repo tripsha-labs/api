@@ -2,27 +2,93 @@
  * @name - Websocket handler
  * @description - Websocket handler for messaging
  */
+import https from 'https';
+import jose from 'node-jose';
 import { success, failure } from '../../utils';
 import { MessageController } from './message.ctrl';
 import { ERROR_KEYS } from '../../constants';
 import { createMessageValidation } from '../../models';
+import { generateAllow } from './helper';
 
 export const auth = (event, context, callback) => {
   if (!event.queryStringParameters) {
+    console.log('region, userpoolId, appClientId, auth must be required');
     return callback('region, userpoolId, appClientId, auth must be required');
   }
-  const params = event.queryStringParameters || {};
-  return callback(MessageController.auth(params));
+  const region = event.queryStringParameters.region;
+  const userpoolId = event.queryStringParameters.userpoolId;
+  const appClientId = event.queryStringParameters.appClientId;
+  const keys_url =
+    'https://cognito-idp.' +
+    region +
+    '.amazonaws.com/' +
+    userpoolId +
+    '/.well-known/jwks.json';
+  const token = event.queryStringParameters.Auth;
+  const sections = token.split('.');
+  // get the kid from the headers prior to verification
+  const header = JSON.parse(jose.util.base64url.decode(sections[0]));
+  const kid = header.kid;
+  // download the public keys
+  https.get(keys_url, response => {
+    if (response.statusCode == 200) {
+      response.on('data', body => {
+        const keys = JSON.parse(body)['keys'];
+        // search for the kid in the downloaded public keys
+        let keyIndex = -1;
+        for (let i = 0; i < keys.length; i++) {
+          if (kid == keys[i].kid) {
+            keyIndex = i;
+            break;
+          }
+        }
+        if (keyIndex == -1) {
+          console.log('Public key not found in jwks.json');
+          return callback('Public key not found in jwks.json');
+        }
+        // construct the public key
+        jose.JWK.asKey(keys[keyIndex]).then(result => {
+          // verify the signature
+          console.log(token);
+          console.log(result);
+          jose.JWS.createVerify(result)
+            .verify(token)
+            .then(res => {
+              // now we can use the claims
+              const claims = JSON.parse(res.payload);
+              console.log(claims);
+              // additionally we can verify the token expiration
+              const currentTS = Math.floor(new Date() / 1000);
+              if (currentTS > claims.exp) {
+                return callback('Token is expired');
+              }
+              // and the Audience (use claims.client_id if verifying an access token)
+              if (claims.client_id != appClientId) {
+                return callback('Token was not issued for this audience');
+              }
+              const ga = generateAllow(claims, event.methodArn);
+              return callback(null, ga);
+            })
+            .catch(error => {
+              console.log('===============');
+              console.log(error);
+              return callback('Signature verification failed');
+            });
+        });
+      });
+    }
+  });
 };
 
 export const connectionHandler = async (event, context) => {
+  console.log('==================con');
   try {
     if (event.requestContext.eventType === 'CONNECT') {
       const connParams = {
-        username: requestContext.authorizer
-          ? requestContext.authorizer.username
+        username: event.requestContext.authorizer
+          ? event.requestContext.authorizer.username
           : '',
-        connectionId: requestContext.connectionId,
+        connectionId: event.requestContext.connectionId,
       };
       await MessageController.addConnection(connParams);
       console.info('Connection added');

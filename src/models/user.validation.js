@@ -44,6 +44,11 @@ const updateUserSchema = {
     optional: true,
     empty: true,
   },
+  awsUesrname: {
+    type: 'string',
+    optional: true,
+    empty: true,
+  },
   interests: {
     type: 'array',
     optional: true,

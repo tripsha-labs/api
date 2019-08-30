@@ -93,10 +93,10 @@ export const deleteUser = async (event, context) => {};
 export const isUserExists = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
-    if (!(data && data.userId))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'userId' };
+    if (!(data && data.username))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
     const result = await UserController.isExists(
-      data.userId,
+      data.username,
       event.requestContext.identity.cognitoIdentityId
     );
     return success(result);

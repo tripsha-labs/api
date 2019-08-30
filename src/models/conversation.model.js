@@ -25,6 +25,10 @@ export class ConversationModel {
     return Conversation.updateOne({ _id: id }, { $set: params });
   }
 
+  static updateOne(filter, update) {
+    return Conversation.updateOne(filter, { $set: update });
+  }
+
   static delete(params = {}) {
     return Conversation.deleteOne(params);
   }
