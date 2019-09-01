@@ -14,6 +14,6 @@ export class CountryModel {
   }
 
   static count(params) {
-    return Country.count((params = {}));
+    return Country.countDocuments((params = {}));
   }
 }

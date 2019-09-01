@@ -20,22 +20,22 @@ export class TripController {
       };
 
       if (filter.minGroupSize)
-        filterParams['minGroupSize'] = { $gte: filter.minGroupSize };
+        filterParams['minGroupSize'] = { $gte: parseInt(filter.minGroupSize) };
 
       if (filter.maxGroupSize)
-        filterParams['maxGroupSize'] = { $lte: filter.maxGroupSize };
+        filterParams['maxGroupSize'] = { $lte: parseInt(filter.maxGroupSize) };
 
       if (filter.minStartDate)
-        filterParams['startDate'] = { $gte: filter.minStartDate };
+        filterParams['startDate'] = { $gte: parseInt(filter.minStartDate) };
 
       if (filter.maxEndDate)
-        filterParams['startDate'] = { $lte: filter.maxEndDate };
+        filterParams['startDate'] = { $lte: parseInt(filter.maxEndDate) };
 
       if (filter.minTripLength)
-        filterParams['tripLength'] = { $gte: filter.minTripLength };
+        filterParams['tripLength'] = { $gte: parseInt(filter.minTripLength) };
 
       if (filter.maxTripLength)
-        filterParams['tripLength'] = { $lte: filter.maxTripLength };
+        filterParams['tripLength'] = { $lte: parseInt(filter.maxTripLength) };
 
       const multiFilter = [];
       if (filter.interests && filter.interests.length > 0) {
@@ -76,22 +76,23 @@ export class TripController {
       });
 
       await dbConnect();
-
       let resTrips = await TripModel.aggregate(params);
       if (memberId) {
         const tripIds = resTrips.map(trip => trip._id);
         const user = await UserModel.get({ awsUserId: memberId });
-        const memberParams = {
-          tripId: { $in: tripIds },
-          memberId: user._id,
-          isFavorite: true,
-        };
-        const members = await MemberModel.list(memberParams);
-        const favoriteTripIds = members.map(member => member.tripId);
-        resTrips = resTrips.map(trip => {
-          trip['isFavorite'] = _.indexOf(favoriteTripIds, trip._id) !== -1;
-          return trip;
-        });
+        if (user) {
+          const memberParams = {
+            tripId: { $in: tripIds },
+            memberId: user._id,
+            isFavorite: true,
+          };
+          const members = await MemberModel.list(memberParams);
+          const favoriteTripIds = members.map(member => member.tripId);
+          resTrips = resTrips.map(trip => {
+            trip['isFavorite'] = _.indexOf(favoriteTripIds, trip._id) !== -1;
+            return trip;
+          });
+        }
       }
 
       const resCount = await TripModel.count(filterParams);
@@ -320,7 +321,7 @@ export class TripController {
       });
       params.push({
         $replaceRoot: {
-          newRoot: { $mergeObjects: ['$trip', '$$ROOT'] },
+          newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
         },
       });
       params.push({

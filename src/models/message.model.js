@@ -13,7 +13,7 @@ export class MessageModel {
   }
 
   static count(params = {}) {
-    return Message.count(params);
+    return Message.countDocuments(params);
   }
 
   static create(params = {}) {

@@ -13,6 +13,6 @@ export class TripTagModel {
   }
 
   static count(params = {}) {
-    return Tag.count(params);
+    return Tag.countDocuments(params);
   }
 }

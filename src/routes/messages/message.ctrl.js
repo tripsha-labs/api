@@ -6,6 +6,7 @@ import { prepareCommonFilter } from '../../helpers';
 import { generateAllow } from './helper';
 import { UserModel, MessageModel, ConversationModel } from '../../models';
 import { apigwManagementApi } from '../../utils';
+import { ERROR_KEYS } from '../../constants';
 
 export class MessageController {
   static async listMessages(filter) {
@@ -37,13 +38,16 @@ export class MessageController {
 
   static async listConversations(filter) {
     try {
+      await dbConnect();
+      const user = await UserModel.get({ awsUserId: filter.userId });
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const params = {
         filter: {
-          userId: filter.memberId,
+          userId: user._id.toString(),
         },
         ...prepareCommonFilter(filter, ['updatedAt']),
       };
-      await dbConnect();
+
       const conversations = await ConversationModel.list(params);
       const conversationsCount = await ConversationModel.count(params.filter);
 
@@ -62,7 +66,17 @@ export class MessageController {
   static async sendMessageRest(message) {
     try {
       await dbConnect();
+      const user = await UserModel.get({ awsUserId: message.fromMemberId });
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      message['fromMemberId'] = user._id;
       const resMessage = await MessageModel.create(message);
+      const params = {
+        userId: user._id,
+        message: message.message,
+      };
+      await ConversationModel.addOrUpdate({ userId: user._id }, params);
+      params['userId'] = message.toMemberId;
+      await ConversationModel.addOrUpdate({ userId: user._id }, params);
       return resMessage;
     } catch (error) {
       throw error;

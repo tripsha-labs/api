@@ -49,14 +49,11 @@ export const auth = (event, context, callback) => {
         // construct the public key
         jose.JWK.asKey(keys[keyIndex]).then(result => {
           // verify the signature
-          console.log(token);
-          console.log(result);
           jose.JWS.createVerify(result)
             .verify(token)
             .then(res => {
               // now we can use the claims
               const claims = JSON.parse(res.payload);
-              console.log(claims);
               // additionally we can verify the token expiration
               const currentTS = Math.floor(new Date() / 1000);
               if (currentTS > claims.exp) {
@@ -70,7 +67,6 @@ export const auth = (event, context, callback) => {
               return callback(null, ga);
             })
             .catch(error => {
-              console.log('===============');
               console.log(error);
               return callback('Signature verification failed');
             });
@@ -81,7 +77,6 @@ export const auth = (event, context, callback) => {
 };
 
 export const connectionHandler = async (event, context) => {
-  console.log('==================con');
   try {
     if (event.requestContext.eventType === 'CONNECT') {
       const connParams = {
@@ -153,10 +148,6 @@ export const listConversations = async (event, context) => {
   // Get search string from queryparams
   const params = {
     userId: event.requestContext.identity.cognitoIdentityId,
-    groupId:
-      event.pathParameters && event.pathParameters.groupId
-        ? event.pathParameters.groupId
-        : '1',
   };
 
   try {

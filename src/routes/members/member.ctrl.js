@@ -1,22 +1,53 @@
 import { Types } from 'mongoose';
 import _ from 'lodash';
+import moment from 'moment';
 import { MemberModel, TripModel } from '../../models';
 import { dbConnect, dbClose } from '../../utils/db-connect';
-import { prepareCommonFilter } from '../../helpers';
+import { prepareSortFilter } from '../../helpers';
+import { APP_CONSTANTS } from '../../constants';
 
 export class MemberController {
   static async list(filter) {
     try {
-      const params = {
-        filter: {
-          tripId: filter.tripId,
-          isMember: true,
-        },
-        ...prepareCommonFilter(filter, ['updatedAt']),
+      const filterParams = {
+        tripId: Types.ObjectId(filter.tripId),
+        isMember: true,
       };
       await dbConnect();
-      const result = await MemberModel.list(params);
-      const resultCount = await MemberModel.count(params.filter);
+      const params = [{ $match: filterParams }];
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'memberId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $replaceRoot: {
+          newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
+        },
+      });
+      params.push({
+        $sort: prepareSortFilter(
+          filter,
+          ['updatedAt', 'username'],
+          'updatedAt'
+        ),
+      });
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $limit: limit });
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
+
+      const result = await MemberModel.aggregate(params);
+      const resultCount = await MemberModel.count(filterParams);
       return {
         data: result,
         count: resultCount,
@@ -49,33 +80,35 @@ export class MemberController {
         );
 
         const actions = params['memberIds'].map(memberId => {
-          const filterParams = {
+          const updateParams = {
             memberId: memberId,
             tripId: params.tripId,
           };
           switch (params['action']) {
             case 'addMember':
-              filterParams['isMember'] = true;
+              updateParams['isMember'] = true;
+              updateParams['joinedOn'] = moment().unix();
               break;
             case 'removeMember':
-              filterParams['isMember'] = false;
+              updateParams['isMember'] = false;
               break;
             case 'makeFavorite':
-              filterParams['isFavorite'] = true;
+              updateParams['isFavorite'] = true;
+              updateParams['favoriteOn'] = moment().unix();
               break;
             case 'makeUnFavorite':
-              filterParams['isFavorite'] = false;
+              updateParams['isFavorite'] = false;
               break;
           }
 
           return _.indexOf(memberIds, JSON.stringify(memberId)) === -1
-            ? MemberModel.create(filterParams)
+            ? MemberModel.create(updateParams)
             : MemberModel.update(
                 {
                   memberId: memberId,
                   tripId: params.tripId,
                 },
-                filterParams
+                updateParams
               );
         });
 

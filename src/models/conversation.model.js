@@ -13,7 +13,7 @@ export class ConversationModel {
   }
 
   static count(params = {}) {
-    return Conversation.count(params);
+    return Conversation.countDocuments(params);
   }
 
   static create(params = {}) {

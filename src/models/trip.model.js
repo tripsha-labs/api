@@ -28,7 +28,7 @@ export class TripModel {
   }
 
   static count(params = {}) {
-    return Trip.count(params);
+    return Trip.countDocuments(params);
   }
 
   static create(params = {}) {

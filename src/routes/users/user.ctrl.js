@@ -47,15 +47,15 @@ export class UserController {
     try {
       const params = {
         filter: {
-          email: {
+          username: {
             $regex: new RegExp('^' + (filter.search || ''), 'i'),
           },
         },
-        ...prepareCommonFilter(filter, ['email']),
+        ...prepareCommonFilter(filter, ['username']),
       };
       await dbConnect();
       const users = await UserModel.list(params);
-      return users;
+      return { data: users };
     } catch (error) {
       console.log(error);
       throw error;

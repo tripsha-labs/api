@@ -13,8 +13,7 @@ export class UserModel {
   }
 
   static count(params = {}) {
-    const users = User.count(params);
-    return users;
+    return User.countDocuments(params);
   }
 
   static create(params = {}) {

@@ -13,7 +13,7 @@ export class MemberModel {
   }
 
   static count(params = {}) {
-    return Member.count(params);
+    return Member.countDocuments(params);
   }
 
   static create(params = {}) {
