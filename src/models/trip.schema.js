@@ -24,7 +24,7 @@ const tripSchema = new mongoose.Schema(
     pictureUrls: [String],
   },
   {
-    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    timestamps: true,
     versionKey: false,
     strict: true,
   }

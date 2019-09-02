@@ -16,6 +16,10 @@ export class ConversationModel {
     return Conversation.countDocuments(params);
   }
 
+  static aggregate(params) {
+    return Conversation.aggregate(params);
+  }
+
   static create(params = {}) {
     const conversation = new Conversation(params);
     return conversation.save();

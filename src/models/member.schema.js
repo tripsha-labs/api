@@ -10,7 +10,7 @@ const memberSchema = new mongoose.Schema(
     isFavorite: { type: Boolean, default: false },
   },
   {
-    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    timestamps: true,
     versionKey: false,
     strict: true,
   }

@@ -31,7 +31,7 @@ export class MemberController {
       });
       params.push({
         $replaceRoot: {
-          newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
+          newRoot: { $mergeObjects: ['$$ROOT', '$user'] },
         },
       });
       params.push({

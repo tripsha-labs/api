@@ -2,11 +2,11 @@ import https from 'https';
 import moment from 'moment';
 import jose from 'node-jose';
 import { dbConnect, dbClose } from '../../utils/db-connect';
-import { prepareCommonFilter } from '../../helpers';
+import { prepareCommonFilter, prepareSortFilter } from '../../helpers';
 import { generateAllow } from './helper';
 import { UserModel, MessageModel, ConversationModel } from '../../models';
 import { apigwManagementApi } from '../../utils';
-import { ERROR_KEYS } from '../../constants';
+import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 
 export class MessageController {
   static async listMessages(filter) {
@@ -41,15 +41,56 @@ export class MessageController {
       await dbConnect();
       const user = await UserModel.get({ awsUserId: filter.userId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-      const params = {
-        filter: {
-          userId: user._id.toString(),
-        },
-        ...prepareCommonFilter(filter, ['updatedAt']),
+      const filterParams = {
+        memberId: user._id.toString(),
       };
 
-      const conversations = await ConversationModel.list(params);
-      const conversationsCount = await ConversationModel.count(params.filter);
+      const params = [{ $match: filterParams }];
+      params.push({
+        $project: {
+          userId: {
+            $toObjectId: '$userId',
+          },
+          isOnline: 1,
+          lastOnlineTime: 1,
+          message: 1,
+          created_at: 1,
+          updated_at: 1,
+        },
+      });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $replaceRoot: {
+          newRoot: { $mergeObjects: ['$$ROOT', '$user'] },
+        },
+      });
+      params.push({
+        $sort: prepareSortFilter(
+          filter,
+          ['updatedAt', 'username'],
+          'updatedAt'
+        ),
+      });
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $limit: limit });
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
+
+      const conversations = await ConversationModel.aggregate(params);
+      const conversationsCount = await ConversationModel.count(filterParams);
 
       return {
         data: conversations,
@@ -73,10 +114,18 @@ export class MessageController {
       const params = {
         userId: user._id,
         message: message.message,
+        memberId: message.toMemberId,
       };
-      await ConversationModel.addOrUpdate({ userId: user._id }, params);
+      await ConversationModel.addOrUpdate(
+        { userId: user._id, memberId: message.toMemberId },
+        params
+      );
       params['userId'] = message.toMemberId;
-      await ConversationModel.addOrUpdate({ userId: user._id }, params);
+      params['memberId'] = user._id;
+      await ConversationModel.addOrUpdate(
+        { userId: message.toMemberId, memberId: user._id },
+        params
+      );
       return resMessage;
     } catch (error) {
       throw error;

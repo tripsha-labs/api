@@ -8,7 +8,7 @@ const messageSchema = new mongoose.Schema(
     messageType: { type: String, default: 'text' },
   },
   {
-    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    timestamps: true,
     versionKey: false,
     strict: true,
   }

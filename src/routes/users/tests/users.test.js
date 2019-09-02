@@ -64,68 +64,68 @@ describe('Update User', () => {
   });
 });
 
-// describe('Delete User', () => {
-//   test('With valid user id', async () => {
-//     const id = 'id_of_the_item';
-//     const { error, result } = await UserController.deleteUser(id);
-//     expect(error).to.equal(null);
-//     expect(result).to.equal('success');
-//   });
-//   test('With invalid user id', async () => {
-//     const id = '';
-//     const { error, result } = await UserController.deleteUser(id);
-//     expect(error).to.equal('Failed to delete');
-//   });
-// });
+describe('Delete User', () => {
+  test('With valid user id', async () => {
+    const id = 'id_of_the_item';
+    const { error, result } = await UserController.deleteUser(id);
+    expect(error).to.equal(null);
+    expect(result).to.equal('success');
+  });
+  test('With invalid user id', async () => {
+    const id = '';
+    const { error, result } = await UserController.deleteUser(id);
+    expect(error).to.equal('Failed to delete');
+  });
+});
 
-// describe('Get User', () => {
-//   test('With valid user id', async () => {
-//     const id = 'id_of_the_item';
-//     const { error, result } = await UserController.getUser(id);
-//     expect(error).to.equal(null);
-//     expect(result).to.have.property('id');
-//   });
-//   test('With invalid user id', async () => {
-//     const id = '';
-//     const { error, result } = await UserController.getUser(id);
-//     expect(error).to.equal('User not found');
-//   });
-// });
+describe('Get User', () => {
+  test('With valid user id', async () => {
+    const id = 'id_of_the_item';
+    const { error, result } = await UserController.getUser(id);
+    expect(error).to.equal(null);
+    expect(result).to.have.property('id');
+  });
+  test('With invalid user id', async () => {
+    const id = '';
+    const { error, result } = await UserController.getUser(id);
+    expect(error).to.equal('User not found');
+  });
+});
 
-// describe('List Users', () => {
-//   test('With valid input', async () => {
-//     const { error, result } = await UserController.listUser({});
-//     expect(error).to.equal(null);
-//     expect(result).to.have.property('data');
-//   });
-//   test('With valid search input', async () => {
-//     const { error, result } = await UserController.listUser({
-//       searchText: 'sanjay',
-//     });
-//     expect(error).to.equal(null);
-//     expect(result).to.have.property('data');
-//   });
+describe('List Users', () => {
+  test('With valid input', async () => {
+    const { error, result } = await UserController.listUser({});
+    expect(error).to.equal(null);
+    expect(result).to.have.property('data');
+  });
+  test('With valid search input', async () => {
+    const { error, result } = await UserController.listUser({
+      searchText: 'sanjay',
+    });
+    expect(error).to.equal(null);
+    expect(result).to.have.property('data');
+  });
 
-//   test('With invalid input', async () => {
-//     const { error, result } = await UserController.listUser();
-//     expect(error).to.equal('Invalid input');
-//   });
-// });
+  test('With invalid input', async () => {
+    const { error, result } = await UserController.listUser();
+    expect(error).to.equal('Invalid input');
+  });
+});
 
-// describe('Check User exists', () => {
-//   test('With user exists', async () => {
-//     const username = 'sanjay';
-//     const { error, result } = await UserController.isExists(username);
-//     expect(error).to.equal(null);
-//     expect(result).to.be.true;
-//   });
-//   test('With user not exists', async () => {
-//     const username = 'xyz';
-//     const { error, result } = await UserController.isExists(username);
-//     expect(result).to.be.false;
-//   });
-//   test('With invalid username', async () => {
-//     const { error, result } = await UserController.isExists();
-//     expect(error).to.equal('Invalid input');
-//   });
-// });
+describe('Check User exists', () => {
+  test('With user exists', async () => {
+    const username = 'sanjay';
+    const { error, result } = await UserController.isExists(username);
+    expect(error).to.equal(null);
+    expect(result).to.be.true;
+  });
+  test('With user not exists', async () => {
+    const username = 'xyz';
+    const { error, result } = await UserController.isExists(username);
+    expect(result).to.be.false;
+  });
+  test('With invalid username', async () => {
+    const { error, result } = await UserController.isExists();
+    expect(error).to.equal('Invalid input');
+  });
+});

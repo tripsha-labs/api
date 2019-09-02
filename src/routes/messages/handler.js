@@ -7,7 +7,7 @@ import jose from 'node-jose';
 import { success, failure } from '../../utils';
 import { MessageController } from './message.ctrl';
 import { ERROR_KEYS } from '../../constants';
-import { createMessageValidation } from '../../models';
+import { createMessageValidation, UserModel } from '../../models';
 import { generateAllow } from './helper';
 
 export const auth = (event, context, callback) => {
@@ -116,6 +116,10 @@ export const sendMessageHandler = async (event, context) => {
     const postData = JSON.parse(body.data);
     const errors = createMessageValidation(postData);
     if (errors != true) throw errors.shift();
+    const username = event.requestContext.authorizer.username;
+    const user = await UserModel.get({ awsUesrname: username });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    postData['fromMemberId'] = user._id.toString();
     const message = await MessageController.storeMessage(postData);
     await MessageController.sendMessage(event, message);
     await sendMessageToAllConnected(event, message);
