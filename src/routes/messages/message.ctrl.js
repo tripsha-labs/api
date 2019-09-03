@@ -253,23 +253,30 @@ export class MessageController {
   }
 
   static async storeMessage(messageParams) {
-    const params = {
-      toMemberId: messageParams.userId,
-      fromMemberId: messageParams.fromMemberId,
-      message: messageParams.message,
-      messageType: 'text',
-    };
-
     try {
-      const message = await MessageModel.create(params);
+      const message = await MessageModel.create(messageParams);
       const conversationParams = {
-        userId: params['toMemberId'],
+        userId: messageParams['toMemberId'],
+        memberId: messageParams['fromMemberId'],
         message: messageParams.message,
         messageType: 'text',
       };
-      await ConversationModel.addOrUpdate(conversationParams);
-      conversationParams['userId'] = params['fromMemberId'];
-      await ConversationModel.addOrUpdate(conversationParams);
+      await ConversationModel.addOrUpdate(
+        {
+          userId: messageParams['toMemberId'],
+          memberId: messageParams['fromMemberId'],
+        },
+        conversationParams
+      );
+      conversationParams['userId'] = messageParams['fromMemberId'];
+      conversationParams['memberId'] = messageParams['toMemberId'];
+      await ConversationModel.addOrUpdate(
+        {
+          userId: messageParams['fromMemberId'],
+          memberId: messageParams['toMemberId'],
+        },
+        conversationParams
+      );
       return message;
     } catch (error) {
       console.error(error);

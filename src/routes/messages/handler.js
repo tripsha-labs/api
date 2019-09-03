@@ -9,6 +9,7 @@ import { MessageController } from './message.ctrl';
 import { ERROR_KEYS } from '../../constants';
 import { createMessageValidation, UserModel } from '../../models';
 import { generateAllow } from './helper';
+import { dbConnect, dbClose } from '../../utils/db-connect';
 
 export const auth = (event, context, callback) => {
   if (!event.queryStringParameters) {
@@ -116,6 +117,7 @@ export const sendMessageHandler = async (event, context) => {
     const postData = JSON.parse(body.data);
     const errors = createMessageValidation(postData);
     if (errors != true) throw errors.shift();
+    await dbConnect();
     const username = event.requestContext.authorizer.username;
     const user = await UserModel.get({ awsUesrname: username });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
@@ -128,8 +130,10 @@ export const sendMessageHandler = async (event, context) => {
       data: 'success',
     });
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return failure(error);
+  } finally {
+    dbClose();
   }
 };
 
