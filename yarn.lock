@@ -6699,11 +6699,6 @@ serverless-offline@^3.25.6:
     uuid "^3.3.2"
     velocityjs "^1.1.2"
 
-serverless-plugin-additional-stacks@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/serverless-plugin-additional-stacks/-/serverless-plugin-additional-stacks-1.2.0.tgz#af05b23744796351a6c86d8016a7f42d51c05af3"
-  integrity sha512-q3JAfbUkXB/KKa6QHvI0d8oJHwjMfBE6RyxwXE72tOQjXyCNCuPSO7+TIXSEXfenF+89fmR9Z/pQD8NVld2Esg==
-
 serverless-plugin-split-stacks@^1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/serverless-plugin-split-stacks/-/serverless-plugin-split-stacks-1.9.1.tgz#bc3779d13e96d9e8fc1c9d0205f6741b3bf119bf"

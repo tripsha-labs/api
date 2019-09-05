@@ -34,7 +34,7 @@ export const prepareSortFilter = (
   defaultSortOrder = 1
 ) => {
   if (params.sortBy && _.indexOf(allowedFields, params.sortBy) != -1) {
-    const sortOrder = params.sortOrder ? params.sortOrder : 1;
+    const sortOrder = params.sortOrder ? parseInt(params.sortOrder) : 1;
     return { [params.sortBy]: sortOrder };
   }
   return { [defaultSort]: defaultSortOrder };

@@ -18,42 +18,59 @@ export class TripController {
         startDate: { $gte: currentDate },
         isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
-
+      const multiFilter = [];
       if (filter.minGroupSize)
-        filterParams['minGroupSize'] = { $gte: parseInt(filter.minGroupSize) };
+        multiFilter.push({
+          minGroupSize: { $gte: parseInt(filter.minGroupSize) },
+        });
 
       if (filter.maxGroupSize)
-        filterParams['maxGroupSize'] = { $lte: parseInt(filter.maxGroupSize) };
+        multiFilter.push({
+          maxGroupSize: { $lte: parseInt(filter.maxGroupSize) },
+        });
 
       if (filter.minStartDate)
-        filterParams['startDate'] = { $gte: parseInt(filter.minStartDate) };
+        multiFilter.push({
+          startDate: filter.matchExactDdate
+            ? parseInt(filter.minStartDate)
+            : { $gte: parseInt(filter.minStartDate) },
+        });
 
       if (filter.maxEndDate)
-        filterParams['startDate'] = { $lte: parseInt(filter.maxEndDate) };
+        multiFilter.push({
+          endDate: filter.matchExactDdate
+            ? filter.maxEndDate
+            : { $lte: parseInt(filter.maxEndDate) },
+        });
 
       if (filter.minTripLength)
-        filterParams['tripLength'] = { $gte: parseInt(filter.minTripLength) };
+        multiFilter.push({
+          tripLength: { $gte: parseInt(filter.minTripLength) },
+        });
 
       if (filter.maxTripLength)
-        filterParams['tripLength'] = { $lte: parseInt(filter.maxTripLength) };
+        multiFilter.push({
+          tripLength: { $lte: parseInt(filter.maxTripLength) },
+        });
 
-      const multiFilter = [];
-      if (filter.interests && filter.interests.length > 0) {
-        multiFilter.push({ interests: { $in: filter.interests } });
+      if (filter.interests) {
+        multiFilter.push({ interests: { $in: filter.interests.split(',') } });
       }
 
-      if (filter.destinations && filter.destinations.length > 0) {
-        multiFilter.push({ interests: { $in: filter.destinations } });
+      if (filter.destinations) {
+        multiFilter.push({
+          destinations: { $in: filter.destinations.split(',') },
+        });
       }
       if (multiFilter.length > 0) filterParams['$and'] = multiFilter;
-
       const params = [{ $match: filterParams }];
 
       params.push({
         $sort: prepareSortFilter(
           filter,
           ['updatedAt', 'startDate', 'spotsFilled'],
-          'updatedAt'
+          'updatedAt',
+          -1
         ),
       });
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;

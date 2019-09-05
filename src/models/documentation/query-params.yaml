@@ -33,21 +33,21 @@ components:
       description: 'Sort by key'
       schema:
         type: 'string'
-        default: 'newestTrips'
+        default: 'updatedAt'
         enum:
-          - 'newestTrips'
-          - 'earliestDeparture'
-          - 'mostSpotsFilled'
+          - 'updatedAt'
+          - 'startDate'
+          - 'spotsFilled'
     querySortOrder:
       name: 'sortOrder'
       in: 'query'
-      description: 'Sort order applied on `sortBy`'
+      description: 'Sort order applied on `sortBy` fields'
       schema:
-        type: 'boolean'
+        type: 'number'
         enum:
-          - true
-          - false
-        default: false
+          - 1
+          - -1
+        default: -1
     querySearch:
       name: 'search'
       in: 'query'
