@@ -477,6 +477,15 @@
           "default": 0
         }
       },
+      "queryMatchExact": {
+        "name": "matchExactDate",
+        "in": "query",
+        "description": "Match `startDate` and `endDate` exact",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
       "queryLimit": {
         "name": "limit",
         "in": "query",
@@ -526,14 +535,6 @@
           "type": "string"
         }
       },
-      "queryBudgets": {
-        "name": "budgets",
-        "in": "query",
-        "description": "Search budgets filter, comma separated values. $,$$",
-        "schema": {
-          "type": "string"
-        }
-      },
       "queryMinGroupSize": {
         "name": "minGroupSize",
         "in": "query",
@@ -551,7 +552,7 @@
         }
       },
       "queryMinStartDate": {
-        "name": "minStartDate",
+        "name": "startDate",
         "in": "query",
         "description": "Search for minStartDate. Format: `YYYYMMDD`",
         "schema": {
@@ -560,7 +561,7 @@
         }
       },
       "queryMaxEndDate": {
-        "name": "maxEndDate",
+        "name": "endDate",
         "in": "query",
         "description": "Search for maxEndDate. Format: `YYYYMMDD`",
         "schema": {
@@ -809,10 +810,6 @@
                             "$ref": "#/components/schemas/CountryModel"
                           }
                         },
-                        "total": {
-                          "type": "number",
-                          "description": "Total no of records"
-                        },
                         "count": {
                           "type": "number",
                           "description": "Count of the current records"
@@ -835,6 +832,12 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/pathTripId"
+          },
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
           }
         ],
         "responses": {
@@ -852,11 +855,15 @@
                     },
                     "result": {
                       "type": "object",
-                      "required": ["totalCount", "data"],
+                      "required": ["totalCount", "count", "data"],
                       "properties": {
                         "totalCount": {
                           "type": "number",
                           "description": "Total number of records"
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Current number of records"
                         },
                         "data": {
                           "type": "array",
@@ -937,6 +944,12 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/queryMemberId"
+          },
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
           }
         ],
         "responses": {
@@ -954,11 +967,15 @@
                     },
                     "result": {
                       "type": "object",
-                      "required": ["totalCount", "data"],
+                      "required": ["totalCount", "count", "data"],
                       "properties": {
                         "totalCount": {
                           "type": "number",
                           "description": "Total number of records"
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Current records count"
                         },
                         "data": {
                           "type": "array",
@@ -991,6 +1008,14 @@
         "description": "Returns list of conversations",
         "operationId": "listConversations",
         "tags": ["Messages"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Conversations response",
@@ -1006,11 +1031,15 @@
                     },
                     "result": {
                       "type": "object",
-                      "required": ["totalCount", "data"],
+                      "required": ["totalCount", "count", "data"],
                       "properties": {
                         "totalCount": {
                           "type": "number",
                           "description": "Total number of records"
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Current number of records"
                         },
                         "data": {
                           "type": "array",
@@ -1114,10 +1143,6 @@
                             "$ref": "#/components/schemas/TagModel"
                           }
                         },
-                        "total": {
-                          "type": "number",
-                          "description": "Total no of records"
-                        },
                         "count": {
                           "type": "number",
                           "description": "Count of the current records"
@@ -1164,10 +1189,6 @@
                             "$ref": "#/components/schemas/TagModel"
                           }
                         },
-                        "total": {
-                          "type": "number",
-                          "description": "Total no of records"
-                        },
                         "count": {
                           "type": "number",
                           "description": "Count of the current records"
@@ -1189,16 +1210,16 @@
         "tags": ["Trips"],
         "parameters": [
           {
-            "$ref": "#/components/parameters/queryNextPageToken"
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
           },
           {
             "$ref": "#/components/parameters/querySortBy"
           },
           {
             "$ref": "#/components/parameters/querySortOrder"
-          },
-          {
-            "$ref": "#/components/parameters/queryBudgets"
           },
           {
             "$ref": "#/components/parameters/queryMinGroupSize"
@@ -1208,6 +1229,9 @@
           },
           {
             "$ref": "#/components/parameters/queryMinStartDate"
+          },
+          {
+            "$ref": "#/components/parameters/queryMatchExact"
           },
           {
             "$ref": "#/components/parameters/queryMaxEndDate"
@@ -1241,13 +1265,13 @@
                     "result": {
                       "type": "object",
                       "properties": {
-                        "totalCount": {
+                        "count": {
                           "type": "number",
-                          "description": "Total number of records"
+                          "description": "Current records count"
                         },
-                        "nextPageToken": {
-                          "type": "string",
-                          "description": "Next page token, available if more record exists. On last page it will not come."
+                        "total": {
+                          "type": "number",
+                          "description": "Total number of records."
                         },
                         "data": {
                           "type": "array",
@@ -1331,13 +1355,13 @@
                     "result": {
                       "type": "object",
                       "properties": {
-                        "totalCount": {
+                        "total": {
                           "type": "number",
                           "description": "Total number of records"
                         },
-                        "nextPageToken": {
-                          "type": "string",
-                          "description": "Next page token, available if more record exists. On last page it will not come."
+                        "count": {
+                          "type": "number",
+                          "description": "Current records count."
                         },
                         "data": {
                           "type": "array",
@@ -1385,9 +1409,9 @@
                           "type": "number",
                           "description": "Total number of records"
                         },
-                        "nextPageToken": {
-                          "type": "string",
-                          "description": "Next page token, available if more record exists. On last page it will not come."
+                        "count": {
+                          "type": "number",
+                          "description": "Current records count."
                         },
                         "data": {
                           "type": "array",
@@ -1565,10 +1589,6 @@
                       "type": "object",
                       "required": ["total", "data"],
                       "properties": {
-                        "total": {
-                          "type": "number",
-                          "description": "Total number of records"
-                        },
                         "count": {
                           "type": "number",
                           "description": "Current page count."
