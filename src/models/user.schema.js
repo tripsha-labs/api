@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     },
 
     username: { type: String, index: true },
-    awsUesrname: { type: String },
+    awsUsername: { type: String },
     awsUserId: { type: String },
     phone: String,
     identity: Object,

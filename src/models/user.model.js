@@ -38,6 +38,6 @@ export class UserModel {
   }
 
   static getUserByAWSUsername(username) {
-    return User.findOne({ awsUesrname: username });
+    return User.findOne({ awsUsername: username });
   }
 }

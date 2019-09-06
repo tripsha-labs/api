@@ -44,7 +44,7 @@ const updateUserSchema = {
     optional: true,
     empty: true,
   },
-  awsUesrname: {
+  awsUsername: {
     type: 'string',
     optional: true,
     empty: true,

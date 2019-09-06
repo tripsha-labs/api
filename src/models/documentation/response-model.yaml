@@ -17,7 +17,7 @@ components:
           properties:
             errorCode:
               type: string
-              description: Error code to handle internationalization(i18)
+              description: Error code to handle internationalization(i18n)
             message:
               type: string
               description: Error message in english
