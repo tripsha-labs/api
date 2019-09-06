@@ -15,6 +15,7 @@ export class TripTagsController {
       const tags = await TripTagModel.list(params);
       return {
         data: tags,
+        count: tags.length,
       };
     } catch (error) {
       console.log(error);

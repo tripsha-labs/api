@@ -15,6 +15,7 @@ export class CountryController {
       const countries = await CountryModel.list(params);
       return {
         data: countries,
+        count: countries.length,
       };
     } catch (error) {
       console.log(error);

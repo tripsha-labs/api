@@ -12,13 +12,30 @@ components:
       description: 'Id of the user'
       schema:
         type: 'string'
-    queryNextPageToken:
-      name: 'nextPageToken'
+    queryPage:
+      name: 'page'
       in: 'query'
-      description: 'Next Page token'
+      description: 'Page number of pagination'
       schema:
-        type: 'string'
-    querySortByUsername:
+        type: 'number'
+        default: 0
+    queryMatchExact:
+      name: 'matchExactDate'
+      in: 'query'
+      description: 'Match `startDate` and `endDate` exact'
+      schema:
+        type: 'boolean'
+        default: false
+    queryLimit:
+      name: 'limit'
+      in: 'query'
+      description: 'Limit of the records on a each page'
+      schema:
+        type: 'number'
+        default: 25
+        minimum: 25
+        maximum: 100
+    querySortByUser:
       name: 'sortBy'
       in: 'query'
       description: 'Sort by username'
@@ -27,7 +44,7 @@ components:
         default: username
         enum:
           - username
-    querySortBy:
+    querySortByTrip:
       name: 'sortBy'
       in: 'query'
       description: 'Sort by key'
@@ -54,12 +71,6 @@ components:
       description: 'Search filter'
       schema:
         type: 'string'
-    queryBudgets:
-      name: 'budgets'
-      in: 'query'
-      description: 'Search budgets filter, comma separated values. $,$$'
-      schema:
-        type: 'string'
     queryMinGroupSize:
       name: 'minGroupSize'
       in: 'query'
@@ -73,14 +84,14 @@ components:
       schema:
         type: 'number'
     queryMinStartDate:
-      name: 'minStartDate'
+      name: 'startDate'
       in: 'query'
       description: 'Search for minStartDate. Format: `YYYYMMDD`'
       schema:
         type: 'date'
         format: 'YYYYMMDD'
     queryMaxEndDate:
-      name: 'maxEndDate'
+      name: 'endDate'
       in: 'query'
       description: 'Search for maxEndDate. Format: `YYYYMMDD`'
       schema:

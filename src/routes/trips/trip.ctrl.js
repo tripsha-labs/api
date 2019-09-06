@@ -31,14 +31,14 @@ export class TripController {
 
       if (filter.minStartDate)
         multiFilter.push({
-          startDate: filter.matchExactDdate
+          startDate: filter.matchExactDate
             ? parseInt(filter.minStartDate)
             : { $gte: parseInt(filter.minStartDate) },
         });
 
       if (filter.maxEndDate)
         multiFilter.push({
-          endDate: filter.matchExactDdate
+          endDate: filter.matchExactDate
             ? filter.maxEndDate
             : { $lte: parseInt(filter.maxEndDate) },
         });
@@ -116,7 +116,8 @@ export class TripController {
 
       return {
         data: resTrips,
-        count: resCount,
+        totalCount: resCount,
+        count: resTrips.length,
       };
     } catch (error) {
       console.log(error);
@@ -368,7 +369,8 @@ export class TripController {
 
       return {
         data: resTrips,
-        count: resCount,
+        totalCount: resCount,
+        count: resTrips.length,
       };
     } catch (error) {
       throw error;

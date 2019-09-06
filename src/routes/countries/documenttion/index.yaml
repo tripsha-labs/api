@@ -1,5 +1,5 @@
 paths:
-  /public/countries:
+  /countries:
     get:
       description: Return list of matching countries
       operationId: listCountries
@@ -7,6 +7,8 @@ paths:
         - Countries
       parameters:
         - $ref: '#/components/parameters/querySearch'
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
       responses:
         '200':
           description: Countries response
@@ -28,9 +30,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/CountryModel'
-                      nextPageToken:
-                        type: string
-                        description: "End of the result this will not come, It will used to retrive next page data"
                       count:
                         type: number
                         description: Count of the current records

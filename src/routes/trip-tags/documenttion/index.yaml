@@ -1,8 +1,8 @@
 paths:
-  /public/tags:
+  /trip-tags:
     get:
-      description: Return list of matching interest tags
-      operationId: listTags
+      description: Return list of matching trip tags
+      operationId: listTripTags
       tags:
         - Tags
       parameters:
@@ -28,9 +28,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/TagModel'
-                      nextPageToken:
-                        type: string
-                        description: 'End of the result this will not come, It will used to retrive next page data'
                       count:
                         type: number
                         description: Count of the current records

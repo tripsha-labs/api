@@ -14,6 +14,7 @@ export class TagsController {
       const tags = await TagModel.list(params);
       return {
         data: tags,
+        count: tags.length,
       };
     } catch (error) {
       console.log(error);

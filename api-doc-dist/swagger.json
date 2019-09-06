@@ -130,23 +130,20 @@
             "default": "error"
           },
           "result": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["errorCode", "message"],
-              "properties": {
-                "errorCode": {
-                  "type": "string",
-                  "description": "Error code to handle internationalization(i18)"
-                },
-                "message": {
-                  "type": "string",
-                  "description": "Error message in english"
-                },
-                "field": {
-                  "type": "string",
-                  "description": "Error field name"
-                }
+            "type": "object",
+            "required": ["errorCode", "message"],
+            "properties": {
+              "errorCode": {
+                "type": "string",
+                "description": "Error code to handle internationalization(i18)"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message in english"
+              },
+              "field": {
+                "type": "string",
+                "description": "Error field name"
               }
             }
           }
@@ -172,9 +169,6 @@
           "name": {
             "type": "string",
             "description": "Name of the tag"
-          },
-          "isVerified": {
-            "type": "boolean"
           }
         }
       },
@@ -329,12 +323,6 @@
           "avatarUrl": {
             "type": "string"
           },
-          "connections": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "interests": {
             "type": "array",
             "items": {
@@ -349,12 +337,12 @@
             "type": "boolean"
           },
           "createdAt": {
-            "type": "number",
-            "format": "unix timestamp"
+            "type": "string",
+            "desciption": "Datetime"
           },
           "updatedAt": {
-            "type": "number",
-            "format": "unix timestamp"
+            "type": "string",
+            "desciption": "Datetime"
           }
         }
       },
@@ -480,15 +468,27 @@
           "type": "string"
         }
       },
-      "queryNextPageToken": {
-        "name": "nextPageToken",
+      "queryPage": {
+        "name": "page",
         "in": "query",
-        "description": "Next Page token",
+        "description": "Page number of pagination",
         "schema": {
-          "type": "string"
+          "type": "number",
+          "default": 0
         }
       },
-      "querySortByUsername": {
+      "queryLimit": {
+        "name": "limit",
+        "in": "query",
+        "description": "Limit of the records on a each page",
+        "schema": {
+          "type": "number",
+          "default": 25,
+          "minimum": 25,
+          "maximum": 100
+        }
+      },
+      "querySortByUser": {
         "name": "sortBy",
         "in": "query",
         "description": "Sort by username",
@@ -498,24 +498,24 @@
           "enum": ["username"]
         }
       },
-      "querySortBy": {
+      "querySortByTrip": {
         "name": "sortBy",
         "in": "query",
         "description": "Sort by key",
         "schema": {
           "type": "string",
-          "default": "newestTrips",
-          "enum": ["newestTrips", "earliestDeparture", "mostSpotsFilled"]
+          "default": "updatedAt",
+          "enum": ["updatedAt", "startDate", "spotsFilled"]
         }
       },
       "querySortOrder": {
         "name": "sortOrder",
         "in": "query",
-        "description": "Sort order applied on `sortBy`",
+        "description": "Sort order applied on `sortBy` fields",
         "schema": {
-          "type": "boolean",
-          "enum": [true, false],
-          "default": false
+          "type": "number",
+          "enum": [1, -1],
+          "default": -1
         }
       },
       "querySearch": {
@@ -665,11 +665,13 @@
         "required": true,
         "schema": {
           "properties": {
-            "userId": {
-              "type": "string"
-            },
             "email": {
               "type": "string"
+            },
+            "dob": {
+              "type": "number",
+              "format": "YYYYMMDD",
+              "description": "Date of birth in `YYYYMMDD` format"
             },
             "firstName": {
               "type": "string"
@@ -704,8 +706,7 @@
               "type": "string"
             },
             "gender": {
-              "type": "string",
-              "enum": ["male", "female", "other"]
+              "type": "string"
             },
             "spokenLanguages": {
               "type": "string",
@@ -720,12 +721,6 @@
             "avatarUrl": {
               "type": "string"
             },
-            "connections": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
             "interests": {
               "type": "array",
               "items": {
@@ -737,9 +732,6 @@
               "items": {
                 "type": "string"
               }
-            },
-            "isActive": {
-              "type": "boolean"
             }
           }
         }
@@ -751,7 +743,7 @@
         "required": true,
         "schema": {
           "properties": {
-            "userId": {
+            "username": {
               "type": "string"
             }
           }
@@ -779,7 +771,7 @@
     }
   },
   "paths": {
-    "/public/countries": {
+    "/countries": {
       "get": {
         "description": "Return list of matching countries",
         "operationId": "listCountries",
@@ -787,6 +779,12 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/querySearch"
+          },
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
           }
         ],
         "responses": {
@@ -811,9 +809,9 @@
                             "$ref": "#/components/schemas/CountryModel"
                           }
                         },
-                        "nextPageToken": {
-                          "type": "string",
-                          "description": "End of the result this will not come, It will used to retrive next page data"
+                        "total": {
+                          "type": "number",
+                          "description": "Total no of records"
                         },
                         "count": {
                           "type": "number",
@@ -1084,7 +1082,7 @@
         }
       }
     },
-    "/public/tags": {
+    "/tags": {
       "get": {
         "description": "Return list of matching interest tags",
         "operationId": "listTags",
@@ -1116,9 +1114,59 @@
                             "$ref": "#/components/schemas/TagModel"
                           }
                         },
-                        "nextPageToken": {
-                          "type": "string",
-                          "description": "End of the result this will not come, It will used to retrive next page data"
+                        "total": {
+                          "type": "number",
+                          "description": "Total no of records"
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Count of the current records"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trip-tags": {
+      "get": {
+        "description": "Return list of matching trip tags",
+        "operationId": "listTripTags",
+        "tags": ["Tags"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/querySearch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tags response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TagModel"
+                          }
+                        },
+                        "total": {
+                          "type": "number",
+                          "description": "Total no of records"
                         },
                         "count": {
                           "type": "number",
@@ -1488,10 +1536,16 @@
             "$ref": "#/components/parameters/querySearch"
           },
           {
-            "$ref": "#/components/parameters/querySortByUsername"
+            "$ref": "#/components/parameters/querySortByUser"
           },
           {
             "$ref": "#/components/parameters/querySortOrder"
+          },
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
           }
         ],
         "responses": {
@@ -1509,15 +1563,15 @@
                     },
                     "result": {
                       "type": "object",
-                      "required": ["totalCount", "data"],
+                      "required": ["total", "data"],
                       "properties": {
-                        "totalCount": {
+                        "total": {
                           "type": "number",
                           "description": "Total number of records"
                         },
-                        "nextPageToken": {
-                          "type": "string",
-                          "description": "Next page token, available if more record exists. On last page it will not come."
+                        "count": {
+                          "type": "number",
+                          "description": "Current page count."
                         },
                         "data": {
                           "type": "array",

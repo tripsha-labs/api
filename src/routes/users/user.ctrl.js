@@ -55,7 +55,7 @@ export class UserController {
       };
       await dbConnect();
       const users = await UserModel.list(params);
-      return { data: users };
+      return { data: users, count: users.length };
     } catch (error) {
       console.log(error);
       throw error;

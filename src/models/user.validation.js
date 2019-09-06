@@ -66,6 +66,7 @@ const updateUserSchema = {
 
 const createUserSchema = {
   email: { type: 'email', empty: false },
+  dob: { type: 'number', empty: false, optional: true },
   firstName: { type: 'string', empty: false },
   lastName: { type: 'string', empty: false, optional: true },
   $$strict: true,

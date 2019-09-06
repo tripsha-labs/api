@@ -26,7 +26,8 @@ export class MessageController {
 
       return {
         data: messages,
-        count: messagesCount,
+        count: messages.length,
+        totalCount: messagesCount,
       };
     } catch (error) {
       console.log(error);
@@ -94,7 +95,8 @@ export class MessageController {
 
       return {
         data: conversations,
-        count: conversationsCount,
+        totalCount: conversationsCount,
+        count: conversations.length,
       };
     } catch (error) {
       console.error(error);

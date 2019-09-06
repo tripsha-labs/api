@@ -50,7 +50,8 @@ export class MemberController {
       const resultCount = await MemberModel.count(filterParams);
       return {
         data: result,
-        count: resultCount,
+        count: result.length,
+        totalCount: resultCount,
       };
     } catch (error) {
       console.log(error);
