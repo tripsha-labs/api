@@ -6,48 +6,52 @@
 export const ERROR_KEYS = {
   ITEM_NOT_FOUND: {
     type: 'itemNotFound',
-    message: 'Requested item not found',
+    message: 'The requested item was not found.',
     code: 404,
   },
-  BAD_REQUEST: { type: 'badRequest', message: 'Bad Request', code: 400 },
+  BAD_REQUEST: {
+    type: 'badRequest',
+    message: 'Sorry! Something went wrong on our end. Please go back and try again.',
+    code: 400
+  },
   INTERNAL_SERVER_ERROR: {
     type: 'internalServerError',
-    message: 'Oops! something went wrong, please try after sometimes',
+    message: 'Sorry! Something went wrong on our end. Please go back and try again.',
     code: 500,
   },
   MISSING_FIELD: {
     type: 'required',
-    message: "The '{ field }' field is required!",
+    message: "Whoops you need to enter a '{ field }' to proceed.",
     code: 400,
   },
   INVALID_DATES: {
     type: 'invalidDates',
-    message: 'startDate and/or endDate invalid',
+    message: 'Whoops! One or both of your trip dates are invalid. Trips must within the next 24 months to be valid.',
     code: 400,
   },
   TRIP_NOT_FOUND: {
     type: 'tripNotFound',
-    message: 'Trip not found!',
+    message: "Hmm we can't find that trip. Please go back and try again. If you encounter this error again please contact support@tripsha.com.",
     code: 404,
   },
   USER_NOT_FOUND: {
     type: 'userNotFound',
-    message: 'User not found!',
+    message: "Whoops! Looks like that person doesn't exist on Tripsha yet!",
     code: 404,
   },
   MEMBER_NOT_FOUND: {
     type: 'memberNotFound',
-    message: 'Member not found!',
+    message: "Whoops! Looks like that person doesn't exist on Tripsha yet!",
     code: 404,
   },
   MEMBER_ALREADY_EXISTS: {
     type: 'memberExists',
-    message: 'Member already exists!',
+    message: 'Whoops! Looks like that username already exists! Please select a different one and try again.',
     code: 400,
   },
   USER_ALREADY_EXISTS: {
     type: 'userExists',
-    message: 'User already exists!',
+    message: 'Whoops! Looks like that username already exists! Please select a different one and try again.',
     code: 400,
   },
 };
