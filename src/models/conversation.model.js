@@ -1,3 +1,7 @@
+/**
+ * @name - conversation model
+ * @description - Mongouse DB model for Conversation
+ */
 import { Conversation } from './';
 
 export class ConversationModel {

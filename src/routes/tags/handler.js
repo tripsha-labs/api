@@ -1,3 +1,7 @@
+/**
+ * @name - Tags handler
+ * @description - This will handle tags API requests
+ */
 import { success, failure } from '../../utils';
 import { TagsController } from './tags.ctrl';
 

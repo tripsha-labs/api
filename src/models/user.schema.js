@@ -1,3 +1,7 @@
+/**
+ * @name - User schema
+ * @description - This is mongoose schema for user
+ */
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(

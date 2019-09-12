@@ -1,3 +1,7 @@
+/**
+ * @name - model tests
+ * @description - This contains model test cases
+ */
 import { UserModel, validateTripLength } from './';
 import { expect } from 'chai';
 jest.mock('../utils/db-connector');

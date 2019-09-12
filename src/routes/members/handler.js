@@ -1,3 +1,7 @@
+/**
+ * @name - Member handler
+ * @description - This will handle API request for member module
+ */
 import { success, failure } from '../../utils';
 import { MemberController } from './member.ctrl';
 import { memberActionValidation } from '../../models';
@@ -11,9 +15,7 @@ export const listMembers = async (event, context) => {
     if (!(event.pathParameters && event.pathParameters.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     // Get search string from queryparams
-    const queryParams = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const queryParams = event.queryStringParameters || {};
 
     const params = {
       tripId: event.pathParameters.id,

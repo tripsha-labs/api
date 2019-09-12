@@ -1,3 +1,6 @@
+/**
+ * @name - Mongoose schema for Message model
+ */
 import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema(
@@ -13,5 +16,6 @@ const messageSchema = new mongoose.Schema(
     strict: true,
   }
 );
+
 export const Message =
   mongoose.models.Message || mongoose.model('Message', messageSchema);

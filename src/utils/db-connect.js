@@ -1,3 +1,7 @@
+/**
+ * @name - DB connector
+ * @description - Mongodb connector
+ */
 import mongoose from 'mongoose';
 
 export const dbConnect = () => {

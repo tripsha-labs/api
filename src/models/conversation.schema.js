@@ -1,3 +1,8 @@
+/**
+ * @name - conversation schema
+ * @description - Mongouse schema for Conversation
+ */
+
 import mongoose from 'mongoose';
 
 const conversationSchema = new mongoose.Schema(

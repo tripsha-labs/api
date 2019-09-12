@@ -1,3 +1,7 @@
+/**
+ * @name - Country schema
+ * @description - Mongoose schema for country model
+ */
 import mongoose from 'mongoose';
 
 const countrySchema = new mongoose.Schema(

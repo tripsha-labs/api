@@ -1,3 +1,7 @@
+/**
+ * @name - Seeds handlar
+ * @description - This will handle seed data population in the database
+ */
 import { success, failure } from '../../utils';
 import { loadCountries, loadProfileTags } from '../../seeds';
 import { dbConnect, dbClose } from '../../utils/db-connect';

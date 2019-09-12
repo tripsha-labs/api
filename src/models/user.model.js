@@ -1,3 +1,7 @@
+/**
+ * @name - User model
+ * @description - This is User db model, all opearations for users wiith DB handled here
+ */
 import { User } from './';
 
 export class UserModel {

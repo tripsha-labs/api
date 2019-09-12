@@ -1,3 +1,7 @@
+/**
+ * @name - Tag model
+ * @description - This is db model for tags
+ */
 import { Tag } from './tag.schema';
 
 export class TagModel {

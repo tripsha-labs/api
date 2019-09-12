@@ -1,9 +1,9 @@
-import { ERROR_KEYS } from '../constants';
 /**
  *
  * @name - response
  * @description - This file will handle all the responses for the api call
  */
+import { ERROR_KEYS } from '../constants';
 
 /**
  *

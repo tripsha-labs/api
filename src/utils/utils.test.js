@@ -1,3 +1,7 @@
+/**
+ * @name - Utils tests
+ * @description - This contains test cases for utility
+ */
 import { expect } from 'chai';
 import { apigwManagementApi } from './aws-api';
 import { success, failure } from './response';

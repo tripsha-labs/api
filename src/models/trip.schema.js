@@ -1,3 +1,7 @@
+/**
+ * @name - Trip schema
+ * @description - This is trip mongoose trip schema
+ */
 import mongoose, { Schema } from 'mongoose';
 
 const tripSchema = new mongoose.Schema(
@@ -29,4 +33,5 @@ const tripSchema = new mongoose.Schema(
     strict: true,
   }
 );
+
 export const Trip = mongoose.models.Trip || mongoose.model('Trip', tripSchema);

@@ -1,3 +1,7 @@
+/**
+ * @name - Trips handlar
+ * @description - This will handle all trip related API requests
+ */
 import { TripController } from './trip.ctrl';
 import { success, failure } from '../../utils';
 import { ERROR_KEYS } from '../../constants';

@@ -1,3 +1,7 @@
+/**
+ * @name -Trip tags controller
+ * @description - This will handle trip tags business logic
+ */
 import { TripTagModel } from '../../models';
 import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';

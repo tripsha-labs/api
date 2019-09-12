@@ -1,3 +1,7 @@
+/**
+ * @name - User validator
+ * @description - This is user schema validator
+ */
 import Validator from 'fastest-validator';
 
 const updateUserSchema = {

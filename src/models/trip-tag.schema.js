@@ -1,3 +1,7 @@
+/**
+ * @name - Trip tag schema
+ * @description - This is mongoose schema for Trip tags collection
+ */
 import mongoose from 'mongoose';
 
 const tripTagSchema = new mongoose.Schema(

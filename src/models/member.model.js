@@ -1,3 +1,7 @@
+/**
+ * @name - Member model
+ * @description - Member db model
+ */
 import { Member } from './';
 
 export class MemberModel {

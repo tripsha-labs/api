@@ -1,3 +1,7 @@
+/**
+ * @name - User handler
+ * @description - This will handle user API requests
+ */
 import urldecode from 'urldecode';
 import { UserController } from './user.ctrl';
 import { success, failure } from '../../utils';

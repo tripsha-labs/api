@@ -1,3 +1,7 @@
+/**
+ * @name - Helper tests
+ * @description - Helper module test cases
+ */
 import { expect } from 'chai';
 import { errorSanitizer, base64Decode, base64Encode } from './common';
 import { queryBuilder, keyPrefixAlterer } from './';

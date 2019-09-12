@@ -1,6 +1,6 @@
 /**
  * @name - constants
- * @description Application constants defined here
+ * @description Application level constants defined here
  */
 
 export const APP_CONSTANTS = {

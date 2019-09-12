@@ -1,3 +1,7 @@
+/**
+ * @name - Trip contoller
+ * @description - This will handle business logic for Trip module
+ */
 import moment from 'moment';
 import _ from 'lodash';
 import { dbConnect, dbClose } from '../../utils/db-connect';

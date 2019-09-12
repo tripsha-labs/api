@@ -1,3 +1,7 @@
+/**
+ * @name - Trips tags handler
+ * @description - This will handle trip tags API requests
+ */
 import { success, failure } from '../../utils';
 import { TripTagsController } from './trip-tags.ctrl';
 

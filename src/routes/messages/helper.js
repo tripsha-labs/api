@@ -1,3 +1,7 @@
+/**
+ * @name - Messages helper
+ * @description - This contains helper methods for messaging
+ */
 export const generatePolicy = (claims, effect, resource) => {
   // Required output:
   const authResponse = {};

@@ -1,3 +1,7 @@
+/**
+ * @name - Countries API Handler
+ * @description - This handles API requests
+ */
 import { success, failure } from '../../utils';
 import { CountryController } from './country.ctrl';
 

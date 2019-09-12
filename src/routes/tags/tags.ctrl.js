@@ -1,3 +1,7 @@
+/**
+ * @name  - Tags controller
+ * @description - This will hadle tags module business logic
+ */
 import { TagModel } from '../../models';
 import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';

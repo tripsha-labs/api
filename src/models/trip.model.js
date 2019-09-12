@@ -1,3 +1,7 @@
+/**
+ * @name - Trip model
+ * @description - This is trip model, where all db opeartion related to trip, performed from here
+ */
 import { Trip } from './';
 
 export class TripModel {

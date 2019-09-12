@@ -1,3 +1,7 @@
+/**
+ * @name - Trip validator
+ * @description - This Trip schema validator
+ */
 import Validator from 'fastest-validator';
 import moment from 'moment';
 import { DATE_FORMAT } from '../constants/constants';

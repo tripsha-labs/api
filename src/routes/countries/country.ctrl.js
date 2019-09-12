@@ -1,3 +1,7 @@
+/**
+ * @name - Country Controller
+ * @description - This will handle all business logic for country
+ */
 import { CountryModel } from '../../models';
 import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';

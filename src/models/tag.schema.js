@@ -1,3 +1,7 @@
+/**
+ * @name - Tag schama
+ * @description - This is mongoose schema for tags
+ */
 import mongoose from 'mongoose';
 
 const tagSchema = new mongoose.Schema(

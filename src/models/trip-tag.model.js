@@ -1,3 +1,7 @@
+/**
+ * @name - Trip tags model
+ * @description - This is trip -tags model, which handle mamage all trip related interest tags
+ */
 import { Tag } from './tag.schema';
 
 export class TripTagModel {

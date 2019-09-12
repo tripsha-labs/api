@@ -1,3 +1,7 @@
+/**
+ * @name - Message model
+ * @description - DB model for Messages
+ */
 import { Message } from './';
 
 export class MessageModel {

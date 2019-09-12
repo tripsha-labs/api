@@ -1,3 +1,7 @@
+/**
+ * @name - Member controller
+ * @description - This will handle business logic for members
+ */
 import { Types } from 'mongoose';
 import _ from 'lodash';
 import moment from 'moment';

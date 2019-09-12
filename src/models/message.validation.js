@@ -1,3 +1,7 @@
+/**
+ * @name - Message validator
+ * @description - This will validate message schema
+ */
 import Validator from 'fastest-validator';
 
 const messageSchema = {

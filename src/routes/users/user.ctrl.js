@@ -1,3 +1,7 @@
+/***
+ * @name - User controller
+ * @description - THis will handle business logic for user module
+ */
 import { UserModel } from '../../models';
 import { dbConnect, dbClose } from '../../utils/db-connect';
 import { prepareCommonFilter } from '../../helpers';

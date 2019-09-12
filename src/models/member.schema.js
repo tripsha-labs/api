@@ -1,3 +1,7 @@
+/**
+ * @name - Member schema
+ * @description - Mongoose db schema for Member
+ */
 import mongoose, { Schema } from 'mongoose';
 
 const memberSchema = new mongoose.Schema(
@@ -15,5 +19,6 @@ const memberSchema = new mongoose.Schema(
     strict: true,
   }
 );
+
 export const Member =
   mongoose.models.Member || mongoose.model('Member', memberSchema);

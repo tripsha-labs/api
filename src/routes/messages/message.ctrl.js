@@ -1,3 +1,7 @@
+/**
+ * @name - Message Controller
+ * @description - This contains business logic for messages module
+ */
 import https from 'https';
 import moment from 'moment';
 import jose from 'node-jose';

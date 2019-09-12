@@ -1,3 +1,7 @@
+/**
+ * @name - Member validation
+ * @description - Member schema validator
+ */
 import Validator from 'fastest-validator';
 
 const memberSchema = {
