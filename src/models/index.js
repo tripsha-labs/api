@@ -1,22 +1,31 @@
 /**
- * @description - Common schema validator defined here,
- * @see - In case if we have large number of schemas then move this code into separate file
- */
-import Validator from 'fastest-validator';
-
-const idSchema = {
-  id: { type: 'string', empty: false },
-};
-
-export const idValidation = new Validator().compile(idSchema);
-
-/**
  * @description - All model specific schema validation references
  * @see - If new file added in this folder then add reference here
  */
-export * from './user-model';
-export * from './trip-model';
-export * from './country-model';
-export * from './member-model';
-export * from './tag-model';
-export * from './message-model';
+export * from './user.schema';
+export * from './user.validation';
+export * from './user.model';
+
+export * from './trip.schema';
+export * from './trip.model';
+export * from './trip.validation';
+
+export * from './country.schema';
+export * from './country.model';
+
+export * from './member.schema';
+export * from './member.model';
+export * from './member.validation';
+
+export * from './tag.schema';
+export * from './tag.model';
+
+export * from './trip-tag.schema';
+export * from './trip-tag.model';
+
+export * from './message.schema';
+export * from './message.model';
+export * from './message.validation';
+
+export * from './conversation.schema';
+export * from './conversation.model';

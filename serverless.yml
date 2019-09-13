@@ -2,21 +2,11 @@ service: tripsha-app-api
 
 plugins:
   - serverless-webpack
-  - serverless-hooks-plugin
   - serverless-domain-manager
-  - serverless-dynamodb-fixtures
-  - serverless-dynamodb-local
+  - serverless-plugin-split-stacks
   - serverless-offline
-
 custom:
   stage: ${opt:stage, self:provider.stage}
-  fixtures:
-    - table: ${self:custom.tblTags}
-      sources:
-        - ./src/seeds/tags.json
-    - table: ${self:custom.tblCountries}
-      sources:
-        - ./src/seeds/countries.json
   customDomain:
     domainName: ${self:provider.stage}-api.tripsha.com
     basePath: ''
@@ -30,57 +20,24 @@ custom:
       endpointType: 'REGIONAL'
       stage: '${self:provider.stage}'
 
-  hooks:
-    after:command:lifecycleEvent:
-      - sls fixtures
-  dynamodb:
-    start:
-      migrate: true
-      seed: true
-    seed:
-      domain:
-        sources:
-          - table: ${self:custom.tblTags}
-            sources: [./src/seeds/tags.json]
-          - table: ${self:custom.tblCountries}
-            sources: [./src/seeds/countries.json]
-  tableThroughputs:
-    prod: 5
-    default: 1
-  tableThroughput: ${self:custom.tableThroughputs.${self:custom.stage}, self:custom.tableThroughputs.default}
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
+
+  splitStacks:
+    nestedStackCount: 20
+    perFunction: false
+    perType: false
+    perGroupFunction: true
+
   environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
-  tblUsers: ${self:custom.stage}-users
-  tblTrips: ${self:custom.stage}-trips
-  tblTags: ${self:custom.stage}-tags
-  tblMembers: ${self:custom.stage}-members
-  tblMessages: ${self:custom.stage}-messages
-  tblConversations: ${self:custom.stage}-conversations
-  tblCountries: ${self:custom.stage}-countries
-  tblConnectionInfo: ${self:custom.stage}-connections
 
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: dev
+  stage: staging
   region: us-east-1
-  environment: ${file(src/resources/env-variables.yml)}
-
   iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:DescribeTable
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-        - dynamodb:BatchGetItem
-      Resource: 'arn:aws:dynamodb:${self:provider.region}:*:*'
-
     - Effect: Allow
       Action:
         - 'execute-api:ManageConnections'
@@ -92,16 +49,16 @@ package:
 functions:
   - ${file(src/routes/users/functions.yml)}
   - ${file(src/routes/trips/functions.yml)}
+  - ${file(src/routes/trip-tags/functions.yml)}
   - ${file(src/routes/tags/functions.yml)}
   - ${file(src/routes/messages/functions.yml)}
   - ${file(src/routes/countries/functions.yml)}
   - ${file(src/routes/members/functions.yml)}
+  - ${file(src/routes/seeds/functions.yml)}
 
 resources:
   # API Gateway Errors
   - ${file(src/resources/api-gateway-errors.yml)}
-  # DynamoDB
-  - ${file(src/resources/dynamodb-table.yml)}
   # S3
   - ${file(src/resources/s3-bucket.yml)}
   # Cognito

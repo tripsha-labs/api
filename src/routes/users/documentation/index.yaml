@@ -7,8 +7,10 @@ paths:
         - Users
       parameters:
         - $ref: '#/components/parameters/querySearch'
-        - $ref: '#/components/parameters/querySortByUsername'
+        - $ref: '#/components/parameters/querySortByUser'
         - $ref: '#/components/parameters/querySortOrder'
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
       responses:
         '200':
           description: User response
@@ -26,15 +28,12 @@ paths:
                   result:
                     type: object
                     required:
-                      - totalCount
+                      - total
                       - data
                     properties:
-                      totalCount:
+                      count:
                         type: number
-                        description: Total number of records
-                      nextPageToken:
-                        type: string
-                        description: Next page token, available if more record exists. On last page it will not come.
+                        description: Current page count.
                       data:
                         type: array
                         items:

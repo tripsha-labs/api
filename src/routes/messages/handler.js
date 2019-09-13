@@ -2,18 +2,14 @@
  * @name - Websocket handler
  * @description - Websocket handler for messaging
  */
-import {
-  success,
-  failure,
-  executeQuery,
-  apigwManagementApi,
-} from '../../utils';
-import { TABLE_NAMES, ERROR_CODES } from '../../constants';
-import { errorSanitizer, updateConversation } from '../../helpers';
-import * as moment from 'moment';
-import uuid from 'uuid';
 import https from 'https';
-const jose = require('node-jose');
+import jose from 'node-jose';
+import { success, failure } from '../../utils';
+import { MessageController } from './message.ctrl';
+import { ERROR_KEYS } from '../../constants';
+import { createMessageValidation, UserModel } from '../../models';
+import { generateAllow } from './helper';
+import { dbConnect, dbClose } from '../../utils/db-connect';
 
 export const auth = (event, context, callback) => {
   if (!event.queryStringParameters) {
@@ -56,9 +52,9 @@ export const auth = (event, context, callback) => {
           // verify the signature
           jose.JWS.createVerify(result)
             .verify(token)
-            .then(result => {
+            .then(res => {
               // now we can use the claims
-              const claims = JSON.parse(result.payload);
+              const claims = JSON.parse(res.payload);
               // additionally we can verify the token expiration
               const currentTS = Math.floor(new Date() / 1000);
               if (currentTS > claims.exp) {
@@ -68,9 +64,11 @@ export const auth = (event, context, callback) => {
               if (claims.client_id != appClientId) {
                 return callback('Token was not issued for this audience');
               }
-              return callback(null, generateAllow(claims, event.methodArn));
+              const ga = generateAllow(claims, event.methodArn);
+              return callback(null, ga);
             })
-            .catch(() => {
+            .catch(error => {
+              console.log(error);
               return callback('Signature verification failed');
             });
         });
@@ -79,52 +77,31 @@ export const auth = (event, context, callback) => {
   });
 };
 
-const generatePolicy = (claims, effect, resource) => {
-  // Required output:
-  const authResponse = {};
-  authResponse.principalId = 'me';
-  if (effect && resource) {
-    const policyDocument = {};
-    policyDocument.Version = '2012-10-17'; // default version
-    policyDocument.Statement = [];
-    const statementOne = {};
-    statementOne.Action = 'execute-api:Invoke'; // default action
-    statementOne.Effect = effect;
-    statementOne.Resource = resource;
-    policyDocument.Statement[0] = statementOne;
-    authResponse.policyDocument = policyDocument;
-  }
-  // Optional output with custom properties of the String, Number or Boolean type.
-  authResponse.context = {
-    username: claims.username,
-    sub: claims.sub,
-  };
-  return authResponse;
-};
-
-const generateAllow = (claims, resource) => {
-  return generatePolicy(claims, 'Allow', resource);
-};
-
-const generateDeny = (claims, resource) => {
-  return generatePolicy(claims, 'Deny', resource);
-};
-
 export const connectionHandler = async (event, context) => {
   try {
     if (event.requestContext.eventType === 'CONNECT') {
-      await addConnection(event.requestContext);
+      const connParams = {
+        username: event.requestContext.authorizer
+          ? event.requestContext.authorizer.username
+          : '',
+        connectionId: event.requestContext.connectionId,
+      };
+      await MessageController.addConnection(connParams);
+      console.info('Connection added');
     } else if (event.requestContext.eventType === 'DISCONNECT') {
-      await deleteConnection(event.requestContext.connectionId);
+      await MessageController.deleteConnection(
+        event.requestContext.connectionId
+      );
+      console.info('Connection removed');
     }
-    console.info('Connection added/removed');
+
     return success({
       data: 'success',
     });
   } catch (error) {
     console.error('Failed to esablish/remove connection');
-    console.error(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    console.log(error);
+    return failure(error);
   }
 };
 
@@ -136,125 +113,73 @@ export const defaultHandler = async (event, context) => {
 
 export const sendMessageHandler = async (event, context) => {
   try {
-    const message = await storeMessage(event);
+    const body = JSON.parse(event.body);
+    const postData = JSON.parse(body.data);
+    const errors = createMessageValidation(postData);
+    if (errors != true) throw errors.shift();
+    await dbConnect();
+    const username = event.requestContext.authorizer.username;
+    const user = await UserModel.get({ awsUsername: username });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    postData['fromMemberId'] = user._id.toString();
+    const message = await MessageController.storeMessage(postData);
+    await MessageController.sendMessage(event, message);
     await sendMessageToAllConnected(event, message);
     console.info('Message sent!');
     return success({
       data: 'success',
     });
   } catch (error) {
-    console.error(error);
-    return failure(errorSanitizer(error), ERROR_CODES.VALIDATION_ERROR);
+    console.log(error);
+    return failure(error);
+  } finally {
+    dbClose();
   }
 };
 
-const sendMessageToAllConnected = async (event, message) => {
-  const connectionData = await getConnectionIds(event, message);
-  const promises = [];
-  connectionData.Items.map(connectionId => {
-    promises.push(send(event, connectionId.connectionId, message));
-  });
-  return Promise.all(promises);
+export const listMessages = async (event, context) => {
+  try {
+    if (!(event.queryStringParameters && event.queryStringParameters.memberId))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
+    // Get search string from queryparams
+    const params = event.queryStringParameters || {};
+
+    const result = await MessageController.listMessages(params);
+    return success(result);
+  } catch (error) {
+    console.log(error);
+    return failure(error);
+  }
 };
 
-const storeMessage = async event => {
-  const body = JSON.parse(event.body);
-  const postData = JSON.parse(body.data);
-
+export const listConversations = async (event, context) => {
+  // Get search string from queryparams
   const params = {
-    TableName: TABLE_NAMES.MESSAGES,
-    Item: {
-      groupId: postData.groupId ? postData.groupId : '1',
-      toMemberId: postData.userId,
-      fromMemberId: postData.fromMemberId,
-      message: postData.message,
-      sentOn: moment().unix(),
-      messageType: 'text',
-      id: uuid.v1(),
-    },
+    userId: event.requestContext.identity.cognitoIdentityId,
   };
 
   try {
-    await executeQuery('put', params);
-    await updateConversation(
-      params.Item,
-      {
-        ':userId': params.Item['fromMemberId'],
-        ':memberId': params.Item['toMemberId'],
-        ':groupId': params.Item['groupId'],
-      },
-      params.Item['groupId']
-    );
-    console.info('Message stored!');
-    return params.Item;
+    const result = await MessageController.listConversations(params);
+    return success(result);
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.log(error);
+    return failure(error);
   }
 };
 
-const getUserId = username => {
-  const params = {
-    TableName: TABLE_NAMES.USER,
-    ExpressionAttributeValues: {
-      ':username': username,
-    },
-    FilterExpression: 'username=:username',
-  };
+export const sendMessage = async (event, context) => {
+  try {
+    const data = JSON.parse(event.body);
+    const errors = createMessageValidation(data);
+    if (errors != true) throw errors.shift();
 
-  return executeQuery('scan', params);
-};
-
-const getConnectionIds = (event, message) => {
-  const params = {
-    TableName: TABLE_NAMES.CONNECTIONS,
-    ProjectionExpression: 'connectionId',
-    ExpressionAttributeValues: {
-      ':userId': message.toMemberId,
-    },
-    FilterExpression: 'userId=:userId',
-  };
-
-  return executeQuery('scan', params);
-};
-
-const send = (event, connectionId, message) => {
-  const endpoint =
-    event.requestContext.domainName + '/' + event.requestContext.stage;
-  const apigwManagement = apigwManagementApi(endpoint);
-
-  const params = {
-    ConnectionId: connectionId,
-    Data: JSON.stringify(message),
-  };
-  return apigwManagement.postToConnection(params).promise();
-};
-
-const addConnection = async requestContext => {
-  const username = requestContext.authorizer
-    ? requestContext.authorizer.username
-    : '';
-
-  const params = {
-    TableName: TABLE_NAMES.CONNECTIONS,
-    Item: {
-      connectionId: requestContext.connectionId,
-      username: username,
-    },
-  };
-  const userlist = await getUserId(username);
-  if (userlist && userlist.Items && userlist.Items.length > 0) {
-    params.Item['userId'] = userlist.Items[0].id;
+    const result = await MessageController.sendMessageRest({
+      ...data,
+      fromMemberId: event.requestContext.identity.cognitoIdentityId,
+    });
+    return success(result);
+  } catch (error) {
+    console.log(error);
+    return failure(error);
   }
-  return executeQuery('put', params);
-};
-
-const deleteConnection = connectionId => {
-  const params = {
-    TableName: TABLE_NAMES.CONNECTIONS,
-    Key: {
-      connectionId: connectionId,
-    },
-  };
-  return executeQuery('delete', params);
 };

@@ -1,5 +1,5 @@
 createTrip:
-  handler: src/routes/trips/create.createTrip
+  handler: src/routes/trips/handler.createTrip
   events:
     - http:
         path: trips
@@ -7,7 +7,7 @@ createTrip:
         cors: true
         authorizer: aws_iam
 myTripList:
-  handler: src/routes/trips/mytrips.myTrips
+  handler: src/routes/trips/handler.myTrips
   events:
     - http:
         path: mytrips
@@ -16,7 +16,7 @@ myTripList:
         authorizer: aws_iam
 
 savedTripList:
-  handler: src/routes/trips/saved-trips.savedTrips
+  handler: src/routes/trips/handler.savedTrips
   events:
     - http:
         path: saved-trips
@@ -25,41 +25,23 @@ savedTripList:
         authorizer: aws_iam
 
 getTrip:
-  handler: src/routes/trips/get.getTrip
+  handler: src/routes/trips/handler.getTrip
   events:
     - http:
         path: trips/{id}
         method: get
         cors: true
 
-getPrivateTrip:
-  handler: src/routes/trips/get.getTrip
-  events:
-    - http:
-        path: private/trips/{id}
-        method: get
-        authorizer: aws_iam
-        cors: true
-
 listTrips:
-  handler: src/routes/trips/list.listTrips
+  handler: src/routes/trips/handler.listTrips
   events:
     - http:
         path: trips
         method: get
         cors: true
 
-privateListTrips:
-  handler: src/routes/trips/list.listTrips
-  events:
-    - http:
-        path: private/trips
-        method: get
-        authorizer: aws_iam
-        cors: true
-
 updateTrip:
-  handler: src/routes/trips/update.updateTrip
+  handler: src/routes/trips/handler.updateTrip
   events:
     - http:
         path: trips/{id}
@@ -68,7 +50,7 @@ updateTrip:
         authorizer: aws_iam
 
 deleteTrip:
-  handler: src/routes/trips/delete.deleteTrip
+  handler: src/routes/trips/handler.deleteTrip
   events:
     - http:
         path: trips/{id}

@@ -1,0 +1,33 @@
+paths:
+  /trip-tags:
+    get:
+      description: Return list of matching trip tags
+      operationId: listTripTags
+      tags:
+        - Tags
+      parameters:
+        - $ref: '#/components/parameters/querySearch'
+      responses:
+        '200':
+          description: Tags response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TagModel'
+                      count:
+                        type: number
+                        description: Count of the current records

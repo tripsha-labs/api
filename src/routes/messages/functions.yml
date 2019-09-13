@@ -1,5 +1,5 @@
 listMessages:
-  handler: src/routes/messages/list.get
+  handler: src/routes/messages/handler.listMessages
   events:
     - http:
         path: messages
@@ -8,7 +8,7 @@ listMessages:
         authorizer: aws_iam
 
 listConversations:
-  handler: src/routes/messages/conversations.get
+  handler: src/routes/messages/handler.listConversations
   events:
     - http:
         path: conversations
@@ -17,7 +17,7 @@ listConversations:
         authorizer: aws_iam
 
 sendMessages:
-  handler: src/routes/messages/sendmessage.sendMessage
+  handler: src/routes/messages/handler.sendMessage
   events:
     - http:
         path: send-message

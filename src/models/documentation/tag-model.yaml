@@ -6,5 +6,3 @@ components:
         name:
           type: string
           description: Name of the tag
-        isVerified:
-          type: boolean

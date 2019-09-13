@@ -3,12 +3,39 @@
  * @description - All common helpers defined here
  */
 import _ from 'lodash';
+import { APP_CONSTANTS } from '../constants';
 
 export const errorSanitizer = error => {
-  try {
-    if (!error.code) return error;
-    return [{ type: _.camelCase(error.code), message: error.message }];
-  } catch (error) {
-    return error;
+  if (!error.code) return error;
+  return [{ type: _.camelCase(error.code), message: error.message }];
+};
+
+export const prepareCommonFilter = (params, allowedFields = []) => {
+  const limit = params.limit ? parseInt(params.limit) : APP_CONSTANTS.LIMIT;
+  const page = params.page ? parseInt(params.page) : APP_CONSTANTS.PAGE;
+
+  const filter = {
+    pagination: {
+      limit: limit,
+      skip: limit * page,
+    },
+  };
+  if (params.sortBy && _.indexOf(allowedFields, params.sortBy) != -1) {
+    const sortOrder = params.sortOrder ? params.sortOrder : 1;
+    filter['sort'] = { [params.sortBy]: sortOrder };
   }
+  return filter;
+};
+
+export const prepareSortFilter = (
+  params,
+  allowedFields = [],
+  defaultSort,
+  defaultSortOrder = 1
+) => {
+  if (params.sortBy && _.indexOf(allowedFields, params.sortBy) != -1) {
+    const sortOrder = params.sortOrder ? parseInt(params.sortOrder) : 1;
+    return { [params.sortBy]: sortOrder };
+  }
+  return { [defaultSort]: defaultSortOrder };
 };

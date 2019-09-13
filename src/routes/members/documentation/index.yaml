@@ -7,6 +7,8 @@ paths:
         - Trips
       parameters:
         - $ref: '#/components/parameters/pathTripId'
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
       responses:
         '200':
           description: Members response
@@ -25,11 +27,15 @@ paths:
                     type: object
                     required:
                       - totalCount
+                      - count
                       - data
                     properties:
                       totalCount:
                         type: number
-                        description: Total number of records                      
+                        description: Total number of records
+                      count:
+                        type: number
+                        description: Current number of records
                       data:
                         type: array
                         items:
@@ -64,7 +70,7 @@ paths:
                     default: 'success'
                   result:
                     type: string
-                    default: 'success'                    
+                    default: 'success'
         default:
           description: Error response
           content:

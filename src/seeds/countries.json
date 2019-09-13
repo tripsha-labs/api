@@ -1,1460 +1,974 @@
 [
   {
     "name": "Afghanistan",
-    "nameLower": "afghanistan",
-    "code": "AF",
-    "pKey": 1
+    "code": "AF"
   },
   {
     "name": "Åland Islands",
-    "nameLower": "åland islands",
-    "code": "AX",
-    "pKey": 1
+    "code": "AX"
   },
   {
     "name": "Albania",
-    "nameLower": "albania",
-    "code": "AL",
-    "pKey": 1
+    "code": "AL"
   },
   {
     "name": "Algeria",
-    "nameLower": "algeria",
-    "code": "DZ",
-    "pKey": 1
+    "code": "DZ"
   },
   {
     "name": "American Samoa",
-    "nameLower": "american samoa",
-    "code": "AS",
-    "pKey": 1
+    "code": "AS"
   },
   {
     "name": "Andorra",
-    "nameLower": "andorra",
-    "code": "AD",
-    "pKey": 1
+    "code": "AD"
   },
   {
     "name": "Angola",
-    "nameLower": "angola",
-    "code": "AO",
-    "pKey": 1
+    "code": "AO"
   },
   {
     "name": "Anguilla",
-    "nameLower": "anguilla",
-    "code": "AI",
-    "pKey": 1
+    "code": "AI"
   },
   {
     "name": "Antarctica",
-    "nameLower": "antarctica",
-    "code": "AQ",
-    "pKey": 1
+    "code": "AQ"
   },
   {
     "name": "Antigua and Barbuda",
-    "nameLower": "antigua and barbuda",
-    "code": "AG",
-    "pKey": 1
+    "code": "AG"
   },
   {
     "name": "Argentina",
-    "nameLower": "argentina",
-    "code": "AR",
-    "pKey": 1
+    "code": "AR"
   },
   {
     "name": "Armenia",
-    "nameLower": "armenia",
-    "code": "AM",
-    "pKey": 1
+    "code": "AM"
   },
   {
     "name": "Aruba",
-    "nameLower": "aruba",
-    "code": "AW",
-    "pKey": 1
+    "code": "AW"
   },
   {
     "name": "Australia",
-    "nameLower": "australia",
-    "code": "AU",
-    "pKey": 1
+    "code": "AU"
   },
   {
     "name": "Austria",
-    "nameLower": "austria",
-    "code": "AT",
-    "pKey": 1
+    "code": "AT"
   },
   {
     "name": "Azerbaijan",
-    "nameLower": "azerbaijan",
-    "code": "AZ",
-    "pKey": 1
+    "code": "AZ"
   },
   {
     "name": "Bahamas",
-    "nameLower": "bahamas",
-    "code": "BS",
-    "pKey": 1
+    "code": "BS"
   },
   {
     "name": "Bahrain",
-    "nameLower": "bahrain",
-    "code": "BH",
-    "pKey": 1
+    "code": "BH"
   },
   {
     "name": "Bangladesh",
-    "nameLower": "bangladesh",
-    "code": "BD",
-    "pKey": 1
+    "code": "BD"
   },
   {
     "name": "Barbados",
-    "nameLower": "barbados",
-    "code": "BB",
-    "pKey": 1
+    "code": "BB"
   },
   {
     "name": "Belarus",
-    "nameLower": "belarus",
-    "code": "BY",
-    "pKey": 1
+    "code": "BY"
   },
   {
     "name": "Belgium",
-    "nameLower": "belgium",
-    "code": "BE",
-    "pKey": 1
+    "code": "BE"
   },
   {
     "name": "Belize",
-    "nameLower": "belize",
-    "code": "BZ",
-    "pKey": 1
+    "code": "BZ"
   },
   {
     "name": "Benin",
-    "nameLower": "benin",
-    "code": "BJ",
-    "pKey": 1
+    "code": "BJ"
   },
   {
     "name": "Bermuda",
-    "nameLower": "bermuda",
-    "code": "BM",
-    "pKey": 1
+    "code": "BM"
   },
   {
     "name": "Bhutan",
-    "nameLower": "bhutan",
-    "code": "BT",
-    "pKey": 1
+    "code": "BT"
   },
   {
     "name": "Bolivia",
-    "nameLower": "bolivia",
-    "code": "BO",
-    "pKey": 1
+    "code": "BO"
   },
   {
     "name": "Bosnia and Herzegovina",
-    "nameLower": "bosnia and herzegovina",
-    "code": "BA",
-    "pKey": 1
+    "code": "BA"
   },
   {
     "name": "Botswana",
-    "nameLower": "botswana",
-    "code": "BW",
-    "pKey": 1
+    "code": "BW"
   },
   {
     "name": "Bouvet Island",
-    "nameLower": "bouvet island",
-    "code": "BV",
-    "pKey": 1
+    "code": "BV"
   },
   {
     "name": "Brazil",
-    "nameLower": "brazil",
-    "code": "BR",
-    "pKey": 1
+    "code": "BR"
   },
   {
     "name": "British Indian Ocean Territory",
-    "nameLower": "british indian ocean territory",
-    "code": "IO",
-    "pKey": 1
+    "code": "IO"
   },
   {
     "name": "Brunei Darussalam",
-    "nameLower": "brunei darussalam",
-    "code": "BN",
-    "pKey": 1
+    "code": "BN"
   },
   {
     "name": "Bulgaria",
-    "nameLower": "bulgaria",
-    "code": "BG",
-    "pKey": 1
+    "code": "BG"
   },
   {
     "name": "Burkina Faso",
-    "nameLower": "burkina faso",
-    "code": "BF",
-    "pKey": 1
+    "code": "BF"
   },
   {
     "name": "Burundi",
-    "nameLower": "burundi",
-    "code": "BI",
-    "pKey": 1
+    "code": "BI"
   },
   {
     "name": "Cambodia",
-    "nameLower": "cambodia",
-    "code": "KH",
-    "pKey": 1
+    "code": "KH"
   },
   {
     "name": "Cameroon",
-    "nameLower": "cameroon",
-    "code": "CM",
-    "pKey": 1
+    "code": "CM"
   },
   {
     "name": "Canada",
-    "nameLower": "canada",
-    "code": "CA",
-    "pKey": 1
+    "code": "CA"
   },
   {
     "name": "Cape Verde",
-    "nameLower": "cape verde",
-    "code": "CV",
-    "pKey": 1
+    "code": "CV"
   },
   {
     "name": "Cayman Islands",
-    "nameLower": "cayman islands",
-    "code": "KY",
-    "pKey": 1
+    "code": "KY"
   },
   {
     "name": "Central African Republic",
-    "nameLower": "central african republic",
-    "code": "CF",
-    "pKey": 1
+    "code": "CF"
   },
   {
     "name": "Chad",
-    "nameLower": "chad",
-    "code": "TD",
-    "pKey": 1
+    "code": "TD"
   },
   {
     "name": "Chile",
-    "nameLower": "chile",
-    "code": "CL",
-    "pKey": 1
+    "code": "CL"
   },
   {
     "name": "China",
-    "nameLower": "china",
-    "code": "CN",
-    "pKey": 1
+    "code": "CN"
   },
   {
     "name": "Christmas Island",
-    "nameLower": "christmas island",
-    "code": "CX",
-    "pKey": 1
+    "code": "CX"
   },
   {
     "name": "Cocos (Keeling) Islands",
-    "nameLower": "cocos (keeling) islands",
-    "code": "CC",
-    "pKey": 1
+    "code": "CC"
   },
   {
     "name": "Colombia",
-    "nameLower": "colombia",
-    "code": "CO",
-    "pKey": 1
+    "code": "CO"
   },
   {
     "name": "Comoros",
-    "nameLower": "comoros",
-    "code": "KM",
-    "pKey": 1
+    "code": "KM"
   },
   {
     "name": "Congo",
-    "nameLower": "congo",
-    "code": "CG",
-    "pKey": 1
+    "code": "CG"
   },
   {
     "name": "Congo, The Democratic Republic of the",
-    "nameLower": "congo, the democratic republic of the",
-    "code": "CD",
-    "pKey": 1
+    "code": "CD"
   },
   {
     "name": "Cook Islands",
-    "nameLower": "cook islands",
-    "code": "CK",
-    "pKey": 1
+    "code": "CK"
   },
   {
     "name": "Costa Rica",
-    "nameLower": "costa rica",
-    "code": "CR",
-    "pKey": 1
+    "code": "CR"
   },
   {
     "name": "Cote D'Ivoire",
-    "nameLower": "cote d'ivoire",
-    "code": "CI",
-    "pKey": 1
+    "code": "CI"
   },
   {
     "name": "Croatia",
-    "nameLower": "croatia",
-    "code": "HR",
-    "pKey": 1
+    "code": "HR"
   },
   {
     "name": "Cuba",
-    "nameLower": "cuba",
-    "code": "CU",
-    "pKey": 1
+    "code": "CU"
   },
   {
     "name": "Cyprus",
-    "nameLower": "cyprus",
-    "code": "CY",
-    "pKey": 1
+    "code": "CY"
   },
   {
     "name": "Czech Republic",
-    "nameLower": "czech republic",
-    "code": "CZ",
-    "pKey": 1
+    "code": "CZ"
   },
   {
     "name": "Denmark",
-    "nameLower": "denmark",
-    "code": "DK",
-    "pKey": 1
+    "code": "DK"
   },
   {
     "name": "Djibouti",
-    "nameLower": "djibouti",
-    "code": "DJ",
-    "pKey": 1
+    "code": "DJ"
   },
   {
     "name": "Dominica",
-    "nameLower": "dominica",
-    "code": "DM",
-    "pKey": 1
+    "code": "DM"
   },
   {
     "name": "Dominican Republic",
-    "nameLower": "dominican republic",
-    "code": "DO",
-    "pKey": 1
+    "code": "DO"
   },
   {
     "name": "Ecuador",
-    "nameLower": "ecuador",
-    "code": "EC",
-    "pKey": 1
+    "code": "EC"
   },
   {
     "name": "Egypt",
-    "nameLower": "egypt",
-    "code": "EG",
-    "pKey": 1
+    "code": "EG"
   },
   {
     "name": "El Salvador",
-    "nameLower": "el salvador",
-    "code": "SV",
-    "pKey": 1
+    "code": "SV"
   },
   {
     "name": "Equatorial Guinea",
-    "nameLower": "equatorial guinea",
-    "code": "GQ",
-    "pKey": 1
+    "code": "GQ"
   },
   {
     "name": "Eritrea",
-    "nameLower": "eritrea",
-    "code": "ER",
-    "pKey": 1
+    "code": "ER"
   },
   {
     "name": "Estonia",
-    "nameLower": "estonia",
-    "code": "EE",
-    "pKey": 1
+    "code": "EE"
   },
   {
     "name": "Ethiopia",
-    "nameLower": "ethiopia",
-    "code": "ET",
-    "pKey": 1
+    "code": "ET"
   },
   {
     "name": "Falkland Islands (Malvinas)",
-    "nameLower": "falkland islands (malvinas)",
-    "code": "FK",
-    "pKey": 1
+    "code": "FK"
   },
   {
     "name": "Faroe Islands",
-    "nameLower": "faroe islands",
-    "code": "FO",
-    "pKey": 1
+    "code": "FO"
   },
   {
     "name": "Fiji",
-    "nameLower": "fiji",
-    "code": "FJ",
-    "pKey": 1
+    "code": "FJ"
   },
   {
     "name": "Finland",
-    "nameLower": "finland",
-    "code": "FI",
-    "pKey": 1
+    "code": "FI"
   },
   {
     "name": "France",
-    "nameLower": "france",
-    "code": "FR",
-    "pKey": 1
+    "code": "FR"
   },
   {
     "name": "French Guiana",
-    "nameLower": "french guiana",
-    "code": "GF",
-    "pKey": 1
+    "code": "GF"
   },
   {
     "name": "French Polynesia",
-    "nameLower": "french polynesia",
-    "code": "PF",
-    "pKey": 1
+    "code": "PF"
   },
   {
     "name": "French Southern Territories",
-    "nameLower": "french southern territories",
-    "code": "TF",
-    "pKey": 1
+    "code": "TF"
   },
   {
     "name": "Gabon",
-    "nameLower": "gabon",
-    "code": "GA",
-    "pKey": 1
+    "code": "GA"
   },
   {
     "name": "Gambia",
-    "nameLower": "gambia",
-    "code": "GM",
-    "pKey": 1
+    "code": "GM"
   },
   {
     "name": "Georgia",
-    "nameLower": "georgia",
-    "code": "GE",
-    "pKey": 1
+    "code": "GE"
   },
   {
     "name": "Germany",
-    "nameLower": "germany",
-    "code": "DE",
-    "pKey": 1
+    "code": "DE"
   },
   {
     "name": "Ghana",
-    "nameLower": "ghana",
-    "code": "GH",
-    "pKey": 1
+    "code": "GH"
   },
   {
     "name": "Gibraltar",
-    "nameLower": "gibraltar",
-    "code": "GI",
-    "pKey": 1
+    "code": "GI"
   },
   {
     "name": "Greece",
-    "nameLower": "greece",
-    "code": "GR",
-    "pKey": 1
+    "code": "GR"
   },
   {
     "name": "Greenland",
-    "nameLower": "greenland",
-    "code": "GL",
-    "pKey": 1
+    "code": "GL"
   },
   {
     "name": "Grenada",
-    "nameLower": "grenada",
-    "code": "GD",
-    "pKey": 1
+    "code": "GD"
   },
   {
     "name": "Guadeloupe",
-    "nameLower": "guadeloupe",
-    "code": "GP",
-    "pKey": 1
+    "code": "GP"
   },
   {
     "name": "Guam",
-    "nameLower": "guam",
-    "code": "GU",
-    "pKey": 1
+    "code": "GU"
   },
   {
     "name": "Guatemala",
-    "nameLower": "guatemala",
-    "code": "GT",
-    "pKey": 1
+    "code": "GT"
   },
   {
     "name": "Guernsey",
-    "nameLower": "guernsey",
-    "code": "GG",
-    "pKey": 1
+    "code": "GG"
   },
   {
     "name": "Guinea",
-    "nameLower": "guinea",
-    "code": "GN",
-    "pKey": 1
+    "code": "GN"
   },
   {
     "name": "Guinea-Bissau",
-    "nameLower": "guinea-bissau",
-    "code": "GW",
-    "pKey": 1
+    "code": "GW"
   },
   {
     "name": "Guyana",
-    "nameLower": "guyana",
-    "code": "GY",
-    "pKey": 1
+    "code": "GY"
   },
   {
     "name": "Haiti",
-    "nameLower": "haiti",
-    "code": "HT",
-    "pKey": 1
+    "code": "HT"
   },
   {
     "name": "Heard Island and Mcdonald Islands",
-    "nameLower": "heard island and mcdonald islands",
-    "code": "HM",
-    "pKey": 1
+    "code": "HM"
   },
   {
     "name": "Holy See (Vatican City State)",
-    "nameLower": "holy see (vatican city state)",
-    "code": "VA",
-    "pKey": 1
+    "code": "VA"
   },
   {
     "name": "Honduras",
-    "nameLower": "honduras",
-    "code": "HN",
-    "pKey": 1
+    "code": "HN"
   },
   {
     "name": "Hong Kong",
-    "nameLower": "hong kong",
-    "code": "HK",
-    "pKey": 1
+    "code": "HK"
   },
   {
     "name": "Hungary",
-    "nameLower": "hungary",
-    "code": "HU",
-    "pKey": 1
+    "code": "HU"
   },
   {
     "name": "Iceland",
-    "nameLower": "iceland",
-    "code": "IS",
-    "pKey": 1
+    "code": "IS"
   },
   {
     "name": "India",
-    "nameLower": "india",
-    "code": "IN",
-    "pKey": 1
+    "code": "IN"
   },
   {
     "name": "Indonesia",
-    "nameLower": "indonesia",
-    "code": "ID",
-    "pKey": 1
+    "code": "ID"
   },
   {
     "name": "Iran, Islamic Republic Of",
-    "nameLower": "iran, islamic republic of",
-    "code": "IR",
-    "pKey": 1
+    "code": "IR"
   },
   {
     "name": "Iraq",
-    "nameLower": "iraq",
-    "code": "IQ",
-    "pKey": 1
+    "code": "IQ"
   },
   {
     "name": "Ireland",
-    "nameLower": "ireland",
-    "code": "IE",
-    "pKey": 1
+    "code": "IE"
   },
   {
     "name": "Isle of Man",
-    "nameLower": "isle of man",
-    "code": "IM",
-    "pKey": 1
+    "code": "IM"
   },
   {
     "name": "Israel",
-    "nameLower": "israel",
-    "code": "IL",
-    "pKey": 1
+    "code": "IL"
   },
   {
     "name": "Italy",
-    "nameLower": "italy",
-    "code": "IT",
-    "pKey": 1
+    "code": "IT"
   },
   {
     "name": "Jamaica",
-    "nameLower": "jamaica",
-    "code": "JM",
-    "pKey": 1
+    "code": "JM"
   },
   {
     "name": "Japan",
-    "nameLower": "japan",
-    "code": "JP",
-    "pKey": 1
+    "code": "JP"
   },
   {
     "name": "Jersey",
-    "nameLower": "jersey",
-    "code": "JE",
-    "pKey": 1
+    "code": "JE"
   },
   {
     "name": "Jordan",
-    "nameLower": "jordan",
-    "code": "JO",
-    "pKey": 1
+    "code": "JO"
   },
   {
     "name": "Kazakhstan",
-    "nameLower": "kazakhstan",
-    "code": "KZ",
-    "pKey": 1
+    "code": "KZ"
   },
   {
     "name": "Kenya",
-    "nameLower": "kenya",
-    "code": "KE",
-    "pKey": 1
+    "code": "KE"
   },
   {
     "name": "Kiribati",
-    "nameLower": "kiribati",
-    "code": "KI",
-    "pKey": 1
+    "code": "KI"
   },
   {
     "name": "Korea, Democratic People'S Republic of",
-    "nameLower": "korea, democratic people's republic of",
-    "code": "KP",
-    "pKey": 1
+    "code": "KP"
   },
   {
     "name": "Korea, Republic of",
-    "nameLower": "korea, republic of",
-    "code": "KR",
-    "pKey": 1
+    "code": "KR"
   },
   {
     "name": "Kuwait",
-    "nameLower": "kuwait",
-    "code": "KW",
-    "pKey": 1
+    "code": "KW"
   },
   {
     "name": "Kyrgyzstan",
-    "nameLower": "kyrgyzstan",
-    "code": "KG",
-    "pKey": 1
+    "code": "KG"
   },
   {
     "name": "Lao People'S Democratic Republic",
-    "nameLower": "lao people's democratic republic",
-    "code": "LA",
-    "pKey": 1
+    "code": "LA"
   },
   {
     "name": "Latvia",
-    "nameLower": "latvia",
-    "code": "LV",
-    "pKey": 1
+    "code": "LV"
   },
   {
     "name": "Lebanon",
-    "nameLower": "lebanon",
-    "code": "LB",
-    "pKey": 1
+    "code": "LB"
   },
   {
     "name": "Lesotho",
-    "nameLower": "lesotho",
-    "code": "LS",
-    "pKey": 1
+    "code": "LS"
   },
   {
     "name": "Liberia",
-    "nameLower": "liberia",
-    "code": "LR",
-    "pKey": 1
+    "code": "LR"
   },
   {
     "name": "Libyan Arab Jamahiriya",
-    "nameLower": "libyan arab jamahiriya",
-    "code": "LY",
-    "pKey": 1
+    "code": "LY"
   },
   {
     "name": "Liechtenstein",
-    "nameLower": "liechtenstein",
-    "code": "LI",
-    "pKey": 1
+    "code": "LI"
   },
   {
     "name": "Lithuania",
-    "nameLower": "lithuania",
-    "code": "LT",
-    "pKey": 1
+    "code": "LT"
   },
   {
     "name": "Luxembourg",
-    "nameLower": "luxembourg",
-    "code": "LU",
-    "pKey": 1
+    "code": "LU"
   },
   {
     "name": "Macao",
-    "nameLower": "macao",
-    "code": "MO",
-    "pKey": 1
+    "code": "MO"
   },
   {
     "name": "Macedonia, The Former Yugoslav Republic of",
-    "nameLower": "macedonia, the former yugoslav republic of",
-    "code": "MK",
-    "pKey": 1
+    "code": "MK"
   },
   {
     "name": "Madagascar",
-    "nameLower": "madagascar",
-    "code": "MG",
-    "pKey": 1
+    "code": "MG"
   },
   {
     "name": "Malawi",
-    "nameLower": "malawi",
-    "code": "MW",
-    "pKey": 1
+    "code": "MW"
   },
   {
     "name": "Malaysia",
-    "nameLower": "malaysia",
-    "code": "MY",
-    "pKey": 1
+    "code": "MY"
   },
   {
     "name": "Maldives",
-    "nameLower": "maldives",
-    "code": "MV",
-    "pKey": 1
+    "code": "MV"
   },
   {
     "name": "Mali",
-    "nameLower": "mali",
-    "code": "ML",
-    "pKey": 1
+    "code": "ML"
   },
   {
     "name": "Malta",
-    "nameLower": "malta",
-    "code": "MT",
-    "pKey": 1
+    "code": "MT"
   },
   {
     "name": "Marshall Islands",
-    "nameLower": "marshall islands",
-    "code": "MH",
-    "pKey": 1
+    "code": "MH"
   },
   {
     "name": "Martinique",
-    "nameLower": "martinique",
-    "code": "MQ",
-    "pKey": 1
+    "code": "MQ"
   },
   {
     "name": "Mauritania",
-    "nameLower": "mauritania",
-    "code": "MR",
-    "pKey": 1
+    "code": "MR"
   },
   {
     "name": "Mauritius",
-    "nameLower": "mauritius",
-    "code": "MU",
-    "pKey": 1
+    "code": "MU"
   },
   {
     "name": "Mayotte",
-    "nameLower": "mayotte",
-    "code": "YT",
-    "pKey": 1
+    "code": "YT"
   },
   {
     "name": "Mexico",
-    "nameLower": "mexico",
-    "code": "MX",
-    "pKey": 1
+    "code": "MX"
   },
   {
     "name": "Micronesia, Federated States of",
-    "nameLower": "micronesia, federated states of",
-    "code": "FM",
-    "pKey": 1
+    "code": "FM"
   },
   {
     "name": "Moldova, Republic of",
-    "nameLower": "moldova, republic of",
-    "code": "MD",
-    "pKey": 1
+    "code": "MD"
   },
   {
     "name": "Monaco",
-    "nameLower": "monaco",
-    "code": "MC",
-    "pKey": 1
+    "code": "MC"
   },
   {
     "name": "Mongolia",
-    "nameLower": "mongolia",
-    "code": "MN",
-    "pKey": 1
+    "code": "MN"
   },
   {
     "name": "Montserrat",
-    "nameLower": "montserrat",
-    "code": "MS",
-    "pKey": 1
+    "code": "MS"
   },
   {
     "name": "Morocco",
-    "nameLower": "morocco",
-    "code": "MA",
-    "pKey": 1
+    "code": "MA"
   },
   {
     "name": "Mozambique",
-    "nameLower": "mozambique",
-    "code": "MZ",
-    "pKey": 1
+    "code": "MZ"
   },
   {
     "name": "Myanmar",
-    "nameLower": "myanmar",
-    "code": "MM",
-    "pKey": 1
+    "code": "MM"
   },
   {
     "name": "Namibia",
-    "nameLower": "namibia",
-    "code": "NA",
-    "pKey": 1
+    "code": "NA"
   },
   {
     "name": "Nauru",
-    "nameLower": "nauru",
-    "code": "NR",
-    "pKey": 1
+    "code": "NR"
   },
   {
     "name": "Nepal",
-    "nameLower": "nepal",
-    "code": "NP",
-    "pKey": 1
+    "code": "NP"
   },
   {
     "name": "Netherlands",
-    "nameLower": "netherlands",
-    "code": "NL",
-    "pKey": 1
+    "code": "NL"
   },
   {
     "name": "Netherlands Antilles",
-    "nameLower": "netherlands antilles",
-    "code": "AN",
-    "pKey": 1
+    "code": "AN"
   },
   {
     "name": "New Caledonia",
-    "nameLower": "new caledonia",
-    "code": "NC",
-    "pKey": 1
+    "code": "NC"
   },
   {
     "name": "New Zealand",
-    "nameLower": "new zealand",
-    "code": "NZ",
-    "pKey": 1
+    "code": "NZ"
   },
   {
     "name": "Nicaragua",
-    "nameLower": "nicaragua",
-    "code": "NI",
-    "pKey": 1
+    "code": "NI"
   },
   {
     "name": "Niger",
-    "nameLower": "niger",
-    "code": "NE",
-    "pKey": 1
+    "code": "NE"
   },
   {
     "name": "Nigeria",
-    "nameLower": "nigeria",
-    "code": "NG",
-    "pKey": 1
+    "code": "NG"
   },
   {
     "name": "Niue",
-    "nameLower": "niue",
-    "code": "NU",
-    "pKey": 1
+    "code": "NU"
   },
   {
     "name": "Norfolk Island",
-    "nameLower": "norfolk island",
-    "code": "NF",
-    "pKey": 1
+    "code": "NF"
   },
   {
     "name": "Northern Mariana Islands",
-    "nameLower": "northern mariana islands",
-    "code": "MP",
-    "pKey": 1
+    "code": "MP"
   },
   {
     "name": "Norway",
-    "nameLower": "norway",
-    "code": "NO",
-    "pKey": 1
+    "code": "NO"
   },
   {
     "name": "Oman",
-    "nameLower": "oman",
-    "code": "OM",
-    "pKey": 1
+    "code": "OM"
   },
   {
     "name": "Pakistan",
-    "nameLower": "pakistan",
-    "code": "PK",
-    "pKey": 1
+    "code": "PK"
   },
   {
     "name": "Palau",
-    "nameLower": "palau",
-    "code": "PW",
-    "pKey": 1
+    "code": "PW"
   },
   {
     "name": "Palestinian Territory, Occupied",
-    "nameLower": "palestinian territory, occupied",
-    "code": "PS",
-    "pKey": 1
+    "code": "PS"
   },
   {
     "name": "Panama",
-    "nameLower": "panama",
-    "code": "PA",
-    "pKey": 1
+    "code": "PA"
   },
   {
     "name": "Papua New Guinea",
-    "nameLower": "papua new guinea",
-    "code": "PG",
-    "pKey": 1
+    "code": "PG"
   },
   {
     "name": "Paraguay",
-    "nameLower": "paraguay",
-    "code": "PY",
-    "pKey": 1
+    "code": "PY"
   },
   {
     "name": "Peru",
-    "nameLower": "peru",
-    "code": "PE",
-    "pKey": 1
+    "code": "PE"
   },
   {
     "name": "Philippines",
-    "nameLower": "philippines",
-    "code": "PH",
-    "pKey": 1
+    "code": "PH"
   },
   {
     "name": "Pitcairn",
-    "nameLower": "pitcairn",
-    "code": "PN",
-    "pKey": 1
+    "code": "PN"
   },
   {
     "name": "Poland",
-    "nameLower": "poland",
-    "code": "PL",
-    "pKey": 1
+    "code": "PL"
   },
   {
     "name": "Portugal",
-    "nameLower": "portugal",
-    "code": "PT",
-    "pKey": 1
+    "code": "PT"
   },
   {
     "name": "Puerto Rico",
-    "nameLower": "puerto rico",
-    "code": "PR",
-    "pKey": 1
+    "code": "PR"
   },
   {
     "name": "Qatar",
-    "nameLower": "qatar",
-    "code": "QA",
-    "pKey": 1
+    "code": "QA"
   },
   {
     "name": "Reunion",
-    "nameLower": "reunion",
-    "code": "RE",
-    "pKey": 1
+    "code": "RE"
   },
   {
     "name": "Romania",
-    "nameLower": "romania",
-    "code": "RO",
-    "pKey": 1
+    "code": "RO"
   },
   {
     "name": "Russian Federation",
-    "nameLower": "russian federation",
-    "code": "RU",
-    "pKey": 1
+    "code": "RU"
   },
   {
     "name": "RWANDA",
-    "nameLower": "rwanda",
-    "code": "RW",
-    "pKey": 1
+    "code": "RW"
   },
   {
     "name": "Saint Helena",
-    "nameLower": "saint helena",
-    "code": "SH",
-    "pKey": 1
+    "code": "SH"
   },
   {
     "name": "Saint Kitts and Nevis",
-    "nameLower": "saint kitts and nevis",
-    "code": "KN",
-    "pKey": 1
+    "code": "KN"
   },
   {
     "name": "Saint Lucia",
-    "nameLower": "saint lucia",
-    "code": "LC",
-    "pKey": 1
+    "code": "LC"
   },
   {
     "name": "Saint Pierre and Miquelon",
-    "nameLower": "saint pierre and miquelon",
-    "code": "PM",
-    "pKey": 1
+    "code": "PM"
   },
   {
     "name": "Saint Vincent and the Grenadines",
-    "nameLower": "saint vincent and the grenadines",
-    "code": "VC",
-    "pKey": 1
+    "code": "VC"
   },
   {
     "name": "Samoa",
-    "nameLower": "samoa",
-    "code": "WS",
-    "pKey": 1
+    "code": "WS"
   },
   {
     "name": "San Marino",
-    "nameLower": "san marino",
-    "code": "SM",
-    "pKey": 1
+    "code": "SM"
   },
   {
     "name": "Sao Tome and Principe",
-    "nameLower": "sao tome and principe",
-    "code": "ST",
-    "pKey": 1
+    "code": "ST"
   },
   {
     "name": "Saudi Arabia",
-    "nameLower": "saudi arabia",
-    "code": "SA",
-    "pKey": 1
+    "code": "SA"
   },
   {
     "name": "Senegal",
-    "nameLower": "senegal",
-    "code": "SN",
-    "pKey": 1
+    "code": "SN"
   },
   {
     "name": "Serbia and Montenegro",
-    "nameLower": "serbia and montenegro",
-    "code": "CS",
-    "pKey": 1
+    "code": "CS"
   },
   {
     "name": "Seychelles",
-    "nameLower": "seychelles",
-    "code": "SC",
-    "pKey": 1
+    "code": "SC"
   },
   {
     "name": "Sierra Leone",
-    "nameLower": "sierra leone",
-    "code": "SL",
-    "pKey": 1
+    "code": "SL"
   },
   {
     "name": "Singapore",
-    "nameLower": "singapore",
-    "code": "SG",
-    "pKey": 1
+    "code": "SG"
   },
   {
     "name": "Slovakia",
-    "nameLower": "slovakia",
-    "code": "SK",
-    "pKey": 1
+    "code": "SK"
   },
   {
     "name": "Slovenia",
-    "nameLower": "slovenia",
-    "code": "SI",
-    "pKey": 1
+    "code": "SI"
   },
   {
     "name": "Solomon Islands",
-    "nameLower": "solomon islands",
-    "code": "SB",
-    "pKey": 1
+    "code": "SB"
   },
   {
     "name": "Somalia",
-    "nameLower": "somalia",
-    "code": "SO",
-    "pKey": 1
+    "code": "SO"
   },
   {
     "name": "South Africa",
-    "nameLower": "south africa",
-    "code": "ZA",
-    "pKey": 1
+    "code": "ZA"
   },
   {
     "name": "South Georgia and the South Sandwich Islands",
-    "nameLower": "south georgia and the south sandwich islands",
-    "code": "GS",
-    "pKey": 1
+    "code": "GS"
   },
   {
     "name": "Spain",
-    "nameLower": "spain",
-    "code": "ES",
-    "pKey": 1
+    "code": "ES"
   },
   {
     "name": "Sri Lanka",
-    "nameLower": "sri lanka",
-    "code": "LK",
-    "pKey": 1
+    "code": "LK"
   },
   {
     "name": "Sudan",
-    "nameLower": "sudan",
-    "code": "SD",
-    "pKey": 1
+    "code": "SD"
   },
   {
     "name": "Suriname",
-    "nameLower": "suriname",
-    "code": "SR",
-    "pKey": 1
+    "code": "SR"
   },
   {
     "name": "Svalbard and Jan Mayen",
-    "nameLower": "svalbard and jan mayen",
-    "code": "SJ",
-    "pKey": 1
+    "code": "SJ"
   },
   {
     "name": "Swaziland",
-    "nameLower": "swaziland",
-    "code": "SZ",
-    "pKey": 1
+    "code": "SZ"
   },
   {
     "name": "Sweden",
-    "nameLower": "sweden",
-    "code": "SE",
-    "pKey": 1
+    "code": "SE"
   },
   {
     "name": "Switzerland",
-    "nameLower": "switzerland",
-    "code": "CH",
-    "pKey": 1
+    "code": "CH"
   },
   {
     "name": "Syrian Arab Republic",
-    "nameLower": "syrian arab republic",
-    "code": "SY",
-    "pKey": 1
+    "code": "SY"
   },
   {
     "name": "Taiwan",
-    "nameLower": "taiwan",
-    "code": "TW",
-    "pKey": 1
+    "code": "TW"
   },
   {
     "name": "Tajikistan",
-    "nameLower": "tajikistan",
-    "code": "TJ",
-    "pKey": 1
+    "code": "TJ"
   },
   {
     "name": "Tanzania, United Republic of",
-    "nameLower": "tanzania, united republic of",
-    "code": "TZ",
-    "pKey": 1
+    "code": "TZ"
   },
   {
     "name": "Thailand",
-    "nameLower": "thailand",
-    "code": "TH",
-    "pKey": 1
+    "code": "TH"
   },
   {
     "name": "Timor-Leste",
-    "nameLower": "timor-leste",
-    "code": "TL",
-    "pKey": 1
+    "code": "TL"
   },
   {
     "name": "Togo",
-    "nameLower": "togo",
-    "code": "TG",
-    "pKey": 1
+    "code": "TG"
   },
   {
     "name": "Tokelau",
-    "nameLower": "tokelau",
-    "code": "TK",
-    "pKey": 1
+    "code": "TK"
   },
   {
     "name": "Tonga",
-    "nameLower": "tonga",
-    "code": "TO",
-    "pKey": 1
+    "code": "TO"
   },
   {
     "name": "Trinidad and Tobago",
-    "nameLower": "trinidad and tobago",
-    "code": "TT",
-    "pKey": 1
+    "code": "TT"
   },
   {
     "name": "Tunisia",
-    "nameLower": "tunisia",
-    "code": "TN",
-    "pKey": 1
+    "code": "TN"
   },
   {
     "name": "Turkey",
-    "nameLower": "turkey",
-    "code": "TR",
-    "pKey": 1
+    "code": "TR"
   },
   {
     "name": "Turkmenistan",
-    "nameLower": "turkmenistan",
-    "code": "TM",
-    "pKey": 1
+    "code": "TM"
   },
   {
     "name": "Turks and Caicos Islands",
-    "nameLower": "turks and caicos islands",
-    "code": "TC",
-    "pKey": 1
+    "code": "TC"
   },
   {
     "name": "Tuvalu",
-    "nameLower": "tuvalu",
-    "code": "TV",
-    "pKey": 1
+    "code": "TV"
   },
   {
     "name": "Uganda",
-    "nameLower": "uganda",
-    "code": "UG",
-    "pKey": 1
+    "code": "UG"
   },
   {
     "name": "Ukraine",
-    "nameLower": "ukraine",
-    "code": "UA",
-    "pKey": 1
+    "code": "UA"
   },
   {
     "name": "United Arab Emirates",
-    "nameLower": "united arab emirates",
-    "code": "AE",
-    "pKey": 1
+    "code": "AE"
   },
   {
     "name": "United Kingdom",
-    "nameLower": "united kingdom",
-    "code": "GB",
-    "pKey": 1
+    "code": "GB"
   },
   {
     "name": "United States",
-    "nameLower": "united states",
-    "code": "US",
-    "pKey": 1
+    "code": "US"
   },
   {
     "name": "United States Minor Outlying Islands",
-    "nameLower": "united states minor outlying islands",
-    "code": "UM",
-    "pKey": 1
+    "code": "UM"
   },
   {
     "name": "Uruguay",
-    "nameLower": "uruguay",
-    "code": "UY",
-    "pKey": 1
+    "code": "UY"
   },
   {
     "name": "Uzbekistan",
-    "nameLower": "uzbekistan",
-    "code": "UZ",
-    "pKey": 1
+    "code": "UZ"
   },
   {
     "name": "Vanuatu",
-    "nameLower": "vanuatu",
-    "code": "VU",
-    "pKey": 1
+    "code": "VU"
   },
   {
     "name": "Venezuela",
-    "nameLower": "venezuela",
-    "code": "VE",
-    "pKey": 1
+    "code": "VE"
   },
   {
     "name": "Viet Nam",
-    "nameLower": "viet nam",
-    "code": "VN",
-    "pKey": 1
+    "code": "VN"
   },
   {
     "name": "Virgin Islands, British",
-    "nameLower": "virgin islands, british",
-    "code": "VG",
-    "pKey": 1
+    "code": "VG"
   },
   {
     "name": "Virgin Islands, U.S.",
-    "nameLower": "virgin islands, u.s.",
-    "code": "VI",
-    "pKey": 1
+    "code": "VI"
   },
   {
     "name": "Wallis and Futuna",
-    "nameLower": "wallis and futuna",
-    "code": "WF",
-    "pKey": 1
+    "code": "WF"
   },
   {
     "name": "Western Sahara",
-    "nameLower": "western sahara",
-    "code": "EH",
-    "pKey": 1
+    "code": "EH"
   },
   {
     "name": "Yemen",
-    "nameLower": "yemen",
-    "code": "YE",
-    "pKey": 1
+    "code": "YE"
   },
   {
     "name": "Zambia",
-    "nameLower": "zambia",
-    "code": "ZM",
-    "pKey": 1
+    "code": "ZM"
   },
   {
     "name": "Zimbabwe",
-    "nameLower": "zimbabwe",
-    "code": "ZW",
-    "pKey": 1
+    "code": "ZW"
   }
 ]

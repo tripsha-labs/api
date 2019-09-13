@@ -7,10 +7,12 @@ components:
       required: true
       schema:
         properties:
-          userId:
-            type: string
           email:
             type: string
+          dob:
+            type: number
+            format: 'YYYYMMDD'
+            description: Date of birth in `YYYYMMDD` format
           firstName:
             type: string
           lastName:
@@ -35,10 +37,6 @@ components:
             type: string
           gender:
             type: string
-            enum:
-              - 'male'
-              - 'female'
-              - 'other'
           spokenLanguages:
             type: string
             description: 'List of languages user can speak separated by comma'
@@ -48,10 +46,6 @@ components:
             type: boolean
           avatarUrl:
             type: string
-          connections:
-            type: array
-            items:
-              type: string
           interests:
             type: array
             items:
@@ -60,8 +54,6 @@ components:
             type: array
             items:
               type: string
-          isActive:
-            type: boolean
     checkUserExists:
       in: body
       name: body
@@ -69,5 +61,5 @@ components:
       required: true
       schema:
         properties:
-          userId:
+          username:
             type: string
