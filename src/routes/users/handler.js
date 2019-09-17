@@ -6,6 +6,7 @@ import urldecode from 'urldecode';
 import { UserController } from './user.ctrl';
 import { success, failure } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
+import { generateRandomNumber } from '../../helpers';
 
 import { createUserValidation, updateUserValidation } from '../../models';
 
@@ -53,14 +54,42 @@ export const createUser = async (event, context) => {
     // Validate user fields against the strict schema
     const errors = createUserValidation(data);
     if (errors != true) throw errors.shift();
-
+    // Generate username
+    let username = data['email'].split('@')[0];
+    let userExists = await UserController.isExists({ username: username });
+    if (userExists) {
+      username = username + generateRandomNumber();
+      userExists = await UserController.isExists({ username: username });
+      if (userExists) {
+        username = username + generateRandomNumber();
+      }
+    }
     const result = await UserController.createUser({
       ...data,
+      username: username,
       awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
     return success(result);
   } catch (error) {
     console.log(error);
+    return failure(error);
+  }
+};
+
+/**
+ * Get user by username
+ */
+export const getUserByUsername = async (event, context) => {
+  if (!(event.pathParameters && event.pathParameters.username))
+    throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
+
+  const username = event.pathParameters.username;
+  try {
+    const result = await UserController.get({
+      username: username,
+    });
+    return success(result);
+  } catch (error) {
     return failure(error);
   }
 };

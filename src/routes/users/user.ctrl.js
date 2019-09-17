@@ -94,4 +94,18 @@ export class UserController {
       dbClose();
     }
   }
+
+  static async get(params) {
+    try {
+      await dbConnect();
+      const user = await UserModel.get(params);
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      return user;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    } finally {
+      dbClose();
+    }
+  }
 }

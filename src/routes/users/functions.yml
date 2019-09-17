@@ -33,6 +33,15 @@ getUser:
         cors: true
         authorizer: aws_iam
 
+getUserByUsername:
+  handler: src/routes/users/handler.getUserByUsername
+  events:
+    - http:
+        path: username/{username}
+        method: get
+        cors: true
+        authorizer: aws_iam
+
 updateUser:
   handler: src/routes/users/handler.updateUser
   events:
