@@ -11,12 +11,14 @@ export const ERROR_KEYS = {
   },
   BAD_REQUEST: {
     type: 'badRequest',
-    message: 'Sorry! Something went wrong on our end. Please go back and try again.',
-    code: 400
+    message:
+      'Sorry! Something went wrong on our end. Please go back and try again.',
+    code: 400,
   },
   INTERNAL_SERVER_ERROR: {
     type: 'internalServerError',
-    message: 'Sorry! Something went wrong on our end. Please go back and try again.',
+    message:
+      'Sorry! Something went wrong on our end. Please go back and try again.',
     code: 500,
   },
   MISSING_FIELD: {
@@ -26,12 +28,14 @@ export const ERROR_KEYS = {
   },
   INVALID_DATES: {
     type: 'invalidDates',
-    message: 'Whoops! One or both of your trip dates are invalid. Trips must within the next 24 months to be valid.',
+    message:
+      'Whoops! One or both of your trip dates are invalid. Trips must within the next 24 months to be valid.',
     code: 400,
   },
   TRIP_NOT_FOUND: {
     type: 'tripNotFound',
-    message: "Hmm we can't find that trip. Please go back and try again. If you encounter this error again please contact support@tripsha.com.",
+    message:
+      "Hmm we can't find that trip. Please go back and try again. If you encounter this error again please contact support@tripsha.com.",
     code: 404,
   },
   USER_NOT_FOUND: {
@@ -46,12 +50,14 @@ export const ERROR_KEYS = {
   },
   MEMBER_ALREADY_EXISTS: {
     type: 'memberExists',
-    message: 'Whoops! Looks like that username already exists! Please select a different one and try again.',
+    message:
+      'Whoops! Looks like that username already exists! Please select a different one and try again.',
     code: 400,
   },
   USER_ALREADY_EXISTS: {
     type: 'userExists',
-    message: 'Whoops! Looks like that username already exists! Please select a different one and try again.',
+    message:
+      'Whoops! Looks like that username already exists! Please select a different one and try again.',
     code: 400,
   },
 };
