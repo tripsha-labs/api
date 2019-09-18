@@ -72,8 +72,8 @@ export class TripController {
       params.push({
         $sort: prepareSortFilter(
           filter,
-          ['updatedAt', 'startDate', 'spotsFilled'],
-          'updatedAt',
+          ['createdAt', 'startDate', 'spotsFilled'],
+          'createdAt',
           -1
         ),
       });
@@ -103,19 +103,25 @@ export class TripController {
         const user = await UserModel.get({ awsUserId: memberId });
         if (user) {
           const memberParams = {
-            tripId: { $in: tripIds },
-            memberId: user._id,
-            isFavorite: true,
+            filter: {
+              tripId: { $in: tripIds },
+              memberId: user._id,
+              isFavorite: true,
+            },
           };
+
           const members = await MemberModel.list(memberParams);
-          const favoriteTripIds = members.map(member => member.tripId);
+          const favoriteTripIds = members.map(member =>
+            member.tripId.toString()
+          );
+
           resTrips = resTrips.map(trip => {
-            trip['isFavorite'] = _.indexOf(favoriteTripIds, trip._id) !== -1;
+            trip['isFavorite'] =
+              _.indexOf(favoriteTripIds, trip._id.toString()) !== -1;
             return trip;
           });
         }
       }
-
       const resCount = await TripModel.count(filterParams);
 
       return {

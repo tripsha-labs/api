@@ -27,6 +27,9 @@ export const prepareCommonFilter = (params, allowedFields = []) => {
   return filter;
 };
 
+/**
+ * This will prepare sort object for mongodb query
+ */
 export const prepareSortFilter = (
   params,
   allowedFields = [],
@@ -38,4 +41,11 @@ export const prepareSortFilter = (
     return { [params.sortBy]: sortOrder };
   }
   return { [defaultSort]: defaultSortOrder };
+};
+
+/**
+ * This will generate 3 digit random number
+ */
+export const generateRandomNumber = () => {
+  return Math.floor(Math.random() * (999 - 100 + 1) + 100);
 };

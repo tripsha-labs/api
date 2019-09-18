@@ -32,6 +32,15 @@ getTrip:
         method: get
         cors: true
 
+getPrivateTrip:
+  handler: src/routes/trips/handler.getTrip
+  events:
+    - http:
+        path: private/trips/{id}
+        method: get
+        cors: true
+        authorizer: aws_iam
+
 listTrips:
   handler: src/routes/trips/handler.listTrips
   events:
@@ -39,6 +48,15 @@ listTrips:
         path: trips
         method: get
         cors: true
+
+listPrivateTrips:
+  handler: src/routes/trips/handler.listTrips
+  events:
+    - http:
+        path: private/trips
+        method: get
+        cors: true
+        authorizer: aws_iam
 
 updateTrip:
   handler: src/routes/trips/handler.updateTrip
