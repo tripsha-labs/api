@@ -209,7 +209,7 @@ export class TripController {
           isNaN(tripLength)
         )
           throw ERROR_KEYS.INVALID_DATES;
-        trip['tripLength'] = tripLength;
+        trip['tripLength'] = tripLength + 1;
       } else if (trip['startDate'] && trip['startDate'] != '') {
         trip['startDate'] = parseInt(trip['startDate']);
         const tripLength = validateTripLength(
@@ -223,7 +223,7 @@ export class TripController {
           isNaN(tripLength)
         )
           throw ERROR_KEYS.INVALID_DATES;
-        trip['tripLength'] = tripLength;
+        trip['tripLength'] = tripLength + 1;
       } else if (trip['endDate'] && trip['endDate'] != '') {
         trip['endDate'] = parseInt(trip['endDate']);
         const tripLength = validateTripLength(
@@ -237,7 +237,7 @@ export class TripController {
           isNaN(tripLength)
         )
           throw ERROR_KEYS.INVALID_DATES;
-        trip['tripLength'] = tripLength;
+        trip['tripLength'] = tripLength + 1;
       }
 
       const memberCount = await MemberModel.count({
@@ -296,7 +296,8 @@ export class TripController {
   static async deleteTrip(tripId) {
     try {
       await dbConnect();
-      await TripModel.delete(tripId);
+      await TripModel.delete({ _id: tripId });
+      await MemberModel.delete({ tripId: tripId });
       //TODO: Delete members and other dependecies with the trip
       return 'success';
     } catch (error) {
