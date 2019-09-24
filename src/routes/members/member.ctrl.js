@@ -45,6 +45,16 @@ export class MemberController {
           'updatedAt'
         ),
       });
+      params.push({
+        $project: {
+          firstName: 1,
+          lastName: 1,
+          avatarUrl: 1,
+          username: 1,
+          updatedAt: 1,
+          awsUserId: 1,
+        },
+      });
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       params.push({ $limit: limit });
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;

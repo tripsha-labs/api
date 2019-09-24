@@ -18,13 +18,24 @@ export class MessageController {
       const params = {
         filter: {
           $or: [
-            { toMemberId: filter.memberId },
-            { fromMemberId: filter.memberId },
+            {
+              $and: [
+                { toMemberId: filter.memberId },
+                { fromMemberId: filter.userId },
+              ],
+            },
+            {
+              $and: [
+                { fromMemberId: filter.memberId },
+                { toMemberId: filter.userId },
+              ],
+            },
           ],
         },
         ...prepareCommonFilter(filter, ['updatedAt']),
       };
       await dbConnect();
+      console.log(params);
       const messages = await MessageModel.list(params);
       const messagesCount = await MessageModel.count(params.filter);
 

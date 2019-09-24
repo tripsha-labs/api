@@ -14,4 +14,3 @@ memberList:
         path: trips/{id}/members
         method: get
         cors: true
-        authorizer: aws_iam
