@@ -20,6 +20,19 @@ export class UserController {
     }
   }
 
+  static async updateUserByEmail(email, user) {
+    try {
+      await dbConnect();
+      await UserModel.findOneAndUpdate({ email: email }, user);
+      return 'success';
+    } catch (error) {
+      console.log(error);
+      throw error;
+    } finally {
+      dbClose();
+    }
+  }
+
   static async updateUser(id, user) {
     try {
       await dbConnect();

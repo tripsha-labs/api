@@ -120,6 +120,22 @@ export const updateUser = async (event, context) => {
   }
 };
 
+/**
+ * Sign in user
+ */
+export const signin = async (event, context) => {
+  try {
+    const data = JSON.parse(event.body);
+    await UserController.get({
+      email: data.email,
+    });
+    return success('success');
+  } catch (error) {
+    console.log(error);
+    return failure(error);
+  }
+};
+
 // TODO: Handle user account close/disable flow
 export const deleteUser = async (event, context) => {};
 

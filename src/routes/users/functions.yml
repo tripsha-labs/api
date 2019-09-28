@@ -15,6 +15,15 @@ createUser:
         cors: true
         authorizer: aws_iam
 
+signin:
+  handler: src/routes/users/handler.signin
+  events:
+    - http:
+        path: signin
+        method: post
+        cors: true
+        authorizer: aws_iam
+
 searchUser:
   handler: src/routes/users/handler.listUser
   events:

@@ -1,38 +1,50 @@
 [
   {
-    "name": "adventure"
+    "name": "Adventure",
+    "key": "adventure"
   },
   {
-    "name": "culture"
+    "name": "Culture",
+    "key": "culture"
   },
   {
-    "name": "festival"
+    "name": "Festival",
+    "key": "festival"
   },
   {
-    "name": "nature"
+    "name": "Nature",
+    "key": "nature"
   },
   {
-    "name": "roadtrips"
+    "name": "Roadtrips",
+    "key": "roadtrips"
   },
   {
-    "name": "cuisine"
+    "name": "Cuisine",
+    "key": "cuisine"
   },
   {
-    "name": "sports"
+    "name": "Sports",
+    "key": "sports"
   },
   {
-    "name": "beach"
+    "name": "Beach",
+    "key": "beach"
   },
   {
-    "name": "poolside"
+    "name": "Poolside",
+    "key": "poolside"
   },
   {
-    "name": "outdoors"
+    "name": "Outdoors",
+    "key": "outdoors"
   },
   {
-    "name": "rejuvenation"
+    "name": "Rejuvenation",
+    "key": "rejuvenation"
   },
   {
-    "name": "beachside"
+    "name": "Beachside",
+    "key": "beachside"
   }
 ]
