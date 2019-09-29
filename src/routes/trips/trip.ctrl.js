@@ -33,6 +33,16 @@ export class TripController {
           maxGroupSize: { $lte: parseInt(filter.maxGroupSize) },
         });
 
+      if (filter.minCost)
+        multiFilter.push({
+          cost: { $gte: parseInt(filter.minCost) },
+        });
+
+      if (filter.maxCost)
+        multiFilter.push({
+          cost: { $lte: parseInt(filter.maxCost) },
+        });
+
       if (filter.minStartDate)
         multiFilter.push({
           startDate: filter.matchExactDate
