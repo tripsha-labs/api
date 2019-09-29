@@ -167,8 +167,9 @@ export class TripController {
         tripId: trip._id,
         isMember: true,
       });
+      // Spots filled percent
       const spotsFilled = Math.round(
-        (memberCount / params['maxGroupSize']) *
+        ((memberCount - 1) / (params['maxGroupSize'] - 1)) *
           APP_CONSTANTS.SPOTSFILLED_PERCEENT
       );
       const tripDetails = {

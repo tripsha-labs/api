@@ -1,9 +1,5 @@
 [
   {
-    "name": "Afghanistan",
-    "code": "AF"
-  },
-  {
     "name": "Åland Islands",
     "code": "AX"
   },
@@ -162,10 +158,6 @@
   {
     "name": "Cayman Islands",
     "code": "KY"
-  },
-  {
-    "name": "Central African Republic",
-    "code": "CF"
   },
   {
     "name": "Chad",
@@ -408,14 +400,6 @@
     "code": "ID"
   },
   {
-    "name": "Iran, Islamic Republic Of",
-    "code": "IR"
-  },
-  {
-    "name": "Iraq",
-    "code": "IQ"
-  },
-  {
     "name": "Ireland",
     "code": "IE"
   },
@@ -459,10 +443,7 @@
     "name": "Kiribati",
     "code": "KI"
   },
-  {
-    "name": "Korea, Democratic People'S Republic of",
-    "code": "KP"
-  },
+
   {
     "name": "Korea, Republic of",
     "code": "KR"
@@ -494,10 +475,6 @@
   {
     "name": "Liberia",
     "code": "LR"
-  },
-  {
-    "name": "Libyan Arab Jamahiriya",
-    "code": "LY"
   },
   {
     "name": "Liechtenstein",
@@ -534,10 +511,6 @@
   {
     "name": "Maldives",
     "code": "MV"
-  },
-  {
-    "name": "Mali",
-    "code": "ML"
   },
   {
     "name": "Malta",
@@ -796,10 +769,6 @@
     "code": "SB"
   },
   {
-    "name": "Somalia",
-    "code": "SO"
-  },
-  {
     "name": "South Africa",
     "code": "ZA"
   },
@@ -838,10 +807,6 @@
   {
     "name": "Switzerland",
     "code": "CH"
-  },
-  {
-    "name": "Syrian Arab Republic",
-    "code": "SY"
   },
   {
     "name": "Taiwan",
@@ -936,10 +901,6 @@
     "code": "VU"
   },
   {
-    "name": "Venezuela",
-    "code": "VE"
-  },
-  {
     "name": "Viet Nam",
     "code": "VN"
   },
@@ -958,10 +919,6 @@
   {
     "name": "Western Sahara",
     "code": "EH"
-  },
-  {
-    "name": "Yemen",
-    "code": "YE"
   },
   {
     "name": "Zambia",
