@@ -1,19 +1,11 @@
 [
   {
-    "name": "Adventure",
-    "key": "adventure"
-  },
-  {
     "name": "Culture",
     "key": "culture"
   },
   {
     "name": "Festival",
     "key": "festival"
-  },
-  {
-    "name": "Nature",
-    "key": "nature"
   },
   {
     "name": "Roadtrips",
@@ -42,9 +34,5 @@
   {
     "name": "Rejuvenation",
     "key": "rejuvenation"
-  },
-  {
-    "name": "Beachside",
-    "key": "beachside"
   }
 ]
