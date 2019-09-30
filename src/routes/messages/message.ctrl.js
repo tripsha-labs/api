@@ -34,7 +34,7 @@ export class MessageController {
         },
         ...prepareCommonFilter(filter, ['updatedAt']),
       };
-      await dbConnect();     
+      await dbConnect();
       const messages = await MessageModel.list(params);
       const messagesCount = await MessageModel.count(params.filter);
 
