@@ -32,9 +32,10 @@ export class MessageController {
             },
           ],
         },
-        ...prepareCommonFilter(filter, ['updatedAt']),
+        ...prepareCommonFilter(filter, ['updatedAt'], 'updatedAt'),
       };
       await dbConnect();
+      console.log(params);
       const messages = await MessageModel.list(params);
       const messagesCount = await MessageModel.count(params.filter);
 
@@ -69,9 +70,12 @@ export class MessageController {
           isOnline: 1,
           lastOnlineTime: 1,
           message: 1,
-          created_at: 1,
-          updated_at: 1,
+          createdAt: 1,
+          updatedAt: 1,
         },
+      });
+      params.push({
+        $sort: prepareSortFilter(filter, ['updatedAt'], 'updatedAt'),
       });
       params.push({
         $lookup: {
@@ -92,13 +96,7 @@ export class MessageController {
           newRoot: { $mergeObjects: ['$$ROOT', '$user'] },
         },
       });
-      params.push({
-        $sort: prepareSortFilter(
-          filter,
-          ['updatedAt', 'username'],
-          'updatedAt'
-        ),
-      });
+
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       params.push({ $limit: limit });
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;

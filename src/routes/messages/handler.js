@@ -158,9 +158,8 @@ export const listMessages = async (event, context) => {
 
 export const listConversations = async (event, context) => {
   // Get search string from queryparams
-  const params = {
-    userId: event.requestContext.identity.cognitoIdentityId,
-  };
+  const params = event.queryStringParameters || {};
+  params['userId'] = event.requestContext.identity.cognitoIdentityId;
 
   try {
     const result = await MessageController.listConversations(params);
