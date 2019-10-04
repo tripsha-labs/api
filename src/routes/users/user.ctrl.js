@@ -64,9 +64,18 @@ export class UserController {
     try {
       const params = {
         filter: {
-          username: {
-            $regex: new RegExp('^' + (filter.search || ''), 'i'),
-          },
+          $or: [
+            {
+              username: {
+                $regex: new RegExp('^' + (filter.search || ''), 'i'),
+              },
+            },
+            {
+              firstName: {
+                $regex: new RegExp('^' + (filter.search || ''), 'i'),
+              },
+            },
+          ],
         },
         ...prepareCommonFilter(filter, ['username']),
       };
