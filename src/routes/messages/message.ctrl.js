@@ -18,11 +18,21 @@ export class MessageController {
       const params = {
         filter: {
           $or: [
-            { toMemberId: filter.memberId },
-            { fromMemberId: filter.memberId },
+            {
+              $and: [
+                { toMemberId: filter.memberId },
+                { fromMemberId: filter.userId },
+              ],
+            },
+            {
+              $and: [
+                { fromMemberId: filter.memberId },
+                { toMemberId: filter.userId },
+              ],
+            },
           ],
         },
-        ...prepareCommonFilter(filter, ['updatedAt']),
+        ...prepareCommonFilter(filter, ['updatedAt'], 'updatedAt'),
       };
       await dbConnect();
       const messages = await MessageModel.list(params);
@@ -59,9 +69,12 @@ export class MessageController {
           isOnline: 1,
           lastOnlineTime: 1,
           message: 1,
-          created_at: 1,
-          updated_at: 1,
+          createdAt: 1,
+          updatedAt: 1,
         },
+      });
+      params.push({
+        $sort: prepareSortFilter(filter, ['updatedAt'], 'updatedAt'),
       });
       params.push({
         $lookup: {
@@ -82,13 +95,7 @@ export class MessageController {
           newRoot: { $mergeObjects: ['$$ROOT', '$user'] },
         },
       });
-      params.push({
-        $sort: prepareSortFilter(
-          filter,
-          ['updatedAt', 'username'],
-          'updatedAt'
-        ),
-      });
+
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       params.push({ $limit: limit });
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;

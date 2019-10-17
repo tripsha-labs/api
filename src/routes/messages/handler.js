@@ -143,7 +143,11 @@ export const listMessages = async (event, context) => {
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
     // Get search string from queryparams
     const params = event.queryStringParameters || {};
-
+    await dbConnect();
+    const user = await UserModel.get({
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
+    });
+    params['userId'] = user._id;
     const result = await MessageController.listMessages(params);
     return success(result);
   } catch (error) {
@@ -154,9 +158,8 @@ export const listMessages = async (event, context) => {
 
 export const listConversations = async (event, context) => {
   // Get search string from queryparams
-  const params = {
-    userId: event.requestContext.identity.cognitoIdentityId,
-  };
+  const params = event.queryStringParameters || {};
+  params['userId'] = event.requestContext.identity.cognitoIdentityId;
 
   try {
     const result = await MessageController.listConversations(params);

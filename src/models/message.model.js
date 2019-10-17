@@ -16,6 +16,10 @@ export class MessageModel {
     return messages;
   }
 
+  static aggregate(params = {}) {
+    return Message.aggregate(params);
+  }
+
   static count(params = {}) {
     return Message.countDocuments(params);
   }

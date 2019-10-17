@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Korea, Democratic People'S Republic of",
+    "code": "KP"
+  },
+  {
+    "name": "Iraq",
+    "code": "IQ"
+  },
+  {
+    "name": "Yemen",
+    "code": "YE"
+  },
+  {
+    "name": "Venezuela",
+    "code": "VE"
+  },
+  {
+    "name": "Syrian Arab Republic",
+    "code": "SY"
+  },
+  {
+    "name": "Somalia",
+    "code": "SO"
+  },
+  {
+    "name": "Mali",
+    "code": "ML"
+  },
+  {
+    "name": "Libyan Arab Jamahiriya",
+    "code": "LY"
+  },
+  {
+    "name": "Iran, Islamic Republic Of",
+    "code": "IR"
+  },
+  {
+    "name": "Central African Republic",
+    "code": "CF"
+  },
+  {
+    "name": "Afghanistan",
+    "code": "AF"
+  }
+]

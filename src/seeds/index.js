@@ -22,7 +22,7 @@ export const loadTripTags = () => {
     tripTags.map(tag => {
       return {
         updateOne: {
-          filter: { name: tag.name },
+          filter: { key: tag.key },
           update: tag,
           upsert: true,
         },

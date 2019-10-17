@@ -36,11 +36,13 @@ export const prepareSortFilter = (
   defaultSort,
   defaultSortOrder = 1
 ) => {
+  const sortOrder = params.sortOrder
+    ? parseInt(params.sortOrder)
+    : defaultSortOrder;
   if (params.sortBy && _.indexOf(allowedFields, params.sortBy) != -1) {
-    const sortOrder = params.sortOrder ? parseInt(params.sortOrder) : 1;
     return { [params.sortBy]: sortOrder };
   }
-  return { [defaultSort]: defaultSortOrder };
+  return { [defaultSort]: sortOrder };
 };
 
 /**

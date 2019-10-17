@@ -1,38 +1,38 @@
 [
   {
-    "name": "adventure"
+    "name": "Culture",
+    "key": "culture"
   },
   {
-    "name": "culture"
+    "name": "Festival",
+    "key": "festival"
   },
   {
-    "name": "festival"
+    "name": "Roadtrips",
+    "key": "roadtrips"
   },
   {
-    "name": "nature"
+    "name": "Cuisine",
+    "key": "cuisine"
   },
   {
-    "name": "roadtrips"
+    "name": "Sports",
+    "key": "sports"
   },
   {
-    "name": "cuisine"
+    "name": "Beach",
+    "key": "beach"
   },
   {
-    "name": "sports"
+    "name": "Poolside",
+    "key": "poolside"
   },
   {
-    "name": "beach"
+    "name": "Outdoors",
+    "key": "outdoors"
   },
   {
-    "name": "poolside"
-  },
-  {
-    "name": "outdoors"
-  },
-  {
-    "name": "rejuvenation"
-  },
-  {
-    "name": "beachside"
+    "name": "Rejuvenation",
+    "key": "rejuvenation"
   }
 ]

@@ -20,6 +20,19 @@ export class UserController {
     }
   }
 
+  static async updateUserByEmail(email, user) {
+    try {
+      await dbConnect();
+      await UserModel.findOneAndUpdate({ email: email }, user);
+      return 'success';
+    } catch (error) {
+      console.log(error);
+      throw error;
+    } finally {
+      dbClose();
+    }
+  }
+
   static async updateUser(id, user) {
     try {
       await dbConnect();
@@ -51,9 +64,18 @@ export class UserController {
     try {
       const params = {
         filter: {
-          username: {
-            $regex: new RegExp('^' + (filter.search || ''), 'i'),
-          },
+          $or: [
+            {
+              username: {
+                $regex: new RegExp('^' + (filter.search || ''), 'i'),
+              },
+            },
+            {
+              firstName: {
+                $regex: new RegExp('^' + (filter.search || ''), 'i'),
+              },
+            },
+          ],
         },
         ...prepareCommonFilter(filter, ['username']),
       };
