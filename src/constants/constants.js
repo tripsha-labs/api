@@ -4,7 +4,7 @@
  */
 
 export const APP_CONSTANTS = {
-  LIMIT: 25,
+  LIMIT: 50,
   PAGE: 0,
   SPOTSFILLED_PERCEENT: 100,
   MAX_TRIP_LENGTH: 365,

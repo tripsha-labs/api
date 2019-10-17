@@ -95,6 +95,21 @@ export class MessageController {
           newRoot: { $mergeObjects: ['$$ROOT', '$user'] },
         },
       });
+      params.push({
+        $project: {
+          isOnline: 1,
+          lastOnlineTime: 1,
+          message: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          avatarUrl: 1,
+          awsUserId: 1,
+          awsUsername: 1,
+          firstName: 1,
+          username: 1,
+          userId: 1,
+        },
+      });
 
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       params.push({ $limit: limit });
@@ -236,7 +251,6 @@ export class MessageController {
         userId: user._id,
         isOnline: true,
       };
-
       await ConversationModel.addOrUpdate({ userId: user._id }, params);
       return 'success';
     } catch (error) {
@@ -250,12 +264,14 @@ export class MessageController {
   static async deleteConnection(connectionId) {
     try {
       await dbConnect();
-      const params = {
-        connectionId: null,
-        isOnline: false,
-        lastOnlineTime: moment().unix(),
-      };
-      await ConversationModel.updateOne({ connectionId: connectionId }, params);
+      await ConversationModel.updateOne(
+        { connectionId: connectionId },
+        {
+          connectionId: null,
+          isOnline: false,
+          lastOnlineTime: moment().unix(),
+        }
+      );
       return 'success';
     } catch (error) {
       console.log(error);

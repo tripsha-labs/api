@@ -33,12 +33,12 @@ export class TripController {
           maxGroupSize: { $lte: parseInt(filter.maxGroupSize) },
         });
 
-      if (filter.minCost)
+      if (filter.minCost && filter.minCost > 0)
         multiFilter.push({
           cost: { $gte: parseInt(filter.minCost) },
         });
 
-      if (filter.maxCost)
+      if (filter.maxCost && filter.maxCost < 10000)
         multiFilter.push({
           cost: { $lte: parseInt(filter.maxCost) },
         });
