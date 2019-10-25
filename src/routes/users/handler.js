@@ -4,7 +4,11 @@
  */
 import urldecode from 'urldecode';
 import { UserController } from './user.ctrl';
-import { success, failure } from '../../utils';
+import {
+  success,
+  failure,
+  subscribeUserToMailchimpAudience,
+} from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { generateRandomNumber } from '../../helpers';
 
@@ -69,6 +73,12 @@ export const createUser = async (event, context) => {
       username: username,
       awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
+
+    subscribeUserToMailchimpAudience({
+      name: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+    });
+
     return success(result);
   } catch (error) {
     console.log(error);
