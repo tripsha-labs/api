@@ -3,7 +3,7 @@
  * @description - THis will handle business logic for user module
  */
 import { UserModel } from '../../models';
-import { dbConnect, dbClose } from '../../utils/db-connect';
+import { dbConnect } from '../../utils';
 import { prepareCommonFilter } from '../../helpers';
 import { ERROR_KEYS } from '../../constants';
 
@@ -15,8 +15,6 @@ export class UserController {
       return result;
     } catch (error) {
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -28,8 +26,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -41,8 +37,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -55,8 +49,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -85,8 +77,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -99,8 +89,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -112,8 +100,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -126,8 +112,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 }

@@ -5,11 +5,10 @@
 import https from 'https';
 import moment from 'moment';
 import jose from 'node-jose';
-import { dbConnect, dbClose } from '../../utils/db-connect';
+import { dbConnect, apigwManagementApi } from '../../utils';
 import { prepareCommonFilter, prepareSortFilter } from '../../helpers';
 import { generateAllow } from './helper';
 import { UserModel, MessageModel, ConversationModel } from '../../models';
-import { apigwManagementApi } from '../../utils';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 
 export class MessageController {
@@ -46,8 +45,6 @@ export class MessageController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -61,16 +58,38 @@ export class MessageController {
       };
 
       const params = [{ $match: filterParams }];
+      const memberProjection = {
+        isOnline: 1,
+        lastOnlineTime: 1,
+        message: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        type: 1,
+        userId: 1,
+        tripId: 1,
+      };
+      const tripProjection = {
+        'trip.title': 1,
+        'trip.startDate': 1,
+        'trip.endDate': 1,
+      };
+      const userProjection = {
+        'user.avatarUrl': 1,
+        'user.awsUserId': 1,
+        'user.awsUsername': 1,
+        'user.firstName': 1,
+        'user.username': 1,
+      };
+
       params.push({
         $project: {
           userId: {
             $toObjectId: '$userId',
           },
-          isOnline: 1,
-          lastOnlineTime: 1,
-          message: 1,
-          createdAt: 1,
-          updatedAt: 1,
+          tripId: {
+            $toObjectId: '$tripId',
+          },
+          ...projection,
         },
       });
       params.push({
@@ -85,29 +104,19 @@ export class MessageController {
         },
       });
       params.push({
-        $unwind: {
-          path: '$user',
-          preserveNullAndEmptyArrays: true,
-        },
-      });
-      params.push({
-        $replaceRoot: {
-          newRoot: { $mergeObjects: ['$$ROOT', '$user'] },
+        $lookup: {
+          from: 'trips',
+          localField: 'tripId',
+          foreignField: '_id',
+          as: 'trip',
         },
       });
       params.push({
         $project: {
-          isOnline: 1,
-          lastOnlineTime: 1,
-          message: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          avatarUrl: 1,
-          awsUserId: 1,
-          awsUsername: 1,
-          firstName: 1,
-          username: 1,
           userId: 1,
+          ...memberProjection,
+          ...tripProjection,
+          ...userProjection,
         },
       });
 
@@ -127,8 +136,6 @@ export class MessageController {
     } catch (error) {
       console.error(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -157,8 +164,6 @@ export class MessageController {
       return resMessage;
     } catch (error) {
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -241,7 +246,43 @@ export class MessageController {
     }
   }
 
-  static async addConnection(connParams) {
+  static async broadcastMessage(event, user, message) {
+    try {
+      const params = [
+        {
+          $match: {
+            connectionId: { $exists: true, $ne: null },
+            userId: { $ne: user.userId },
+          },
+        },
+      ];
+      params.push({
+        $group: {
+          _id: '$connectionId',
+          data: { $last: '$$ROOT' },
+        },
+      });
+      params.push({
+        $replaceRoot: {
+          newRoot: '$data',
+        },
+      });
+      const members = await ConversationModel.aggregate(params);
+      const promises = members.map(member => {
+        return MessageController.send(event, member.connectionId, message);
+      });
+      try {
+        await Promise.all(promises);
+      } catch (error) {
+        console.log('Connection notification failed', error);
+      }
+      return 'success';
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async addConnection(event, connParams) {
     try {
       await dbConnect();
       const user = await UserModel.getUserByAWSUsername(connParams.username);
@@ -252,32 +293,48 @@ export class MessageController {
         isOnline: true,
       };
       await ConversationModel.addOrUpdate({ userId: user._id }, params);
+      params['firstName'] = user['firstName'];
+      params['username'] = user['username'];
+      params['avatarUrl'] = user['avatarUrl'];
+      params['awsUserId'] = user['awsUserId'];
+      const message = {
+        message: params,
+        action: 'userConnected',
+      };
+      await MessageController.broadcastMessage(event, params, message);
       return 'success';
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
-  static async deleteConnection(connectionId) {
+  static async deleteConnection(event, connectionId) {
     try {
       await dbConnect();
-      await ConversationModel.updateOne(
-        { connectionId: connectionId },
-        {
-          connectionId: null,
-          isOnline: false,
-          lastOnlineTime: moment().unix(),
-        }
-      );
+      const params = {
+        connectionId: null,
+        isOnline: false,
+        lastOnlineTime: moment().unix(),
+      };
+      const conversation = await ConversationModel.get({
+        connectionId: connectionId,
+      });
+      await ConversationModel.updateOne({ connectionId: connectionId }, params);
+      const message = {
+        message: conversation,
+        action: 'userDisconnected',
+      };
+      const memberInfo = {
+        ...params,
+        userId: conversation['userId'],
+        memberId: conversation['memberId'],
+      };
+      await MessageController.broadcastMessage(event, memberInfo, message);
       return 'success';
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -285,27 +342,40 @@ export class MessageController {
     try {
       const message = await MessageModel.create(messageParams);
       const conversationParams = {
-        userId: messageParams['toMemberId'],
         memberId: messageParams['fromMemberId'],
         message: messageParams.message,
         messageType: 'text',
       };
-      await ConversationModel.addOrUpdate(
-        {
-          userId: messageParams['toMemberId'],
-          memberId: messageParams['fromMemberId'],
-        },
-        conversationParams
-      );
-      conversationParams['userId'] = messageParams['fromMemberId'];
-      conversationParams['memberId'] = messageParams['toMemberId'];
-      await ConversationModel.addOrUpdate(
-        {
-          userId: messageParams['fromMemberId'],
-          memberId: messageParams['toMemberId'],
-        },
-        conversationParams
-      );
+      if (messageParams['isGroupMessage']) {
+        // Group messaging
+        conversationParams['tripId'] = messageParams['tripId'];
+        await ConversationModel.addOrUpdate(
+          {
+            tripId: messageParams['tripId'],
+            memberId: messageParams['fromMemberId'],
+          },
+          conversationParams
+        );
+      } else {
+        // 1 to 1 messaging
+        conversationParams['userId'] = messageParams['toMemberId'];
+        await ConversationModel.addOrUpdate(
+          {
+            userId: messageParams['toMemberId'],
+            memberId: messageParams['fromMemberId'],
+          },
+          conversationParams
+        );
+        conversationParams['userId'] = messageParams['fromMemberId'];
+        conversationParams['memberId'] = messageParams['toMemberId'];
+        await ConversationModel.addOrUpdate(
+          {
+            userId: messageParams['fromMemberId'],
+            memberId: messageParams['toMemberId'],
+          },
+          conversationParams
+        );
+      }
       return message;
     } catch (error) {
       console.error(error);
@@ -313,12 +383,13 @@ export class MessageController {
     }
   }
 
-  static async sendMessage(event, message) {
+  static async sendMessage(event, message, userId) {
     const conversation = await ConversationModel.get({
-      userId: message.toMemberId,
+      userId,
     });
-    if (conversation.connectionId == null) return Promise.resolve();
-    return MessageController.send(event, conversation.connectionId, message);
+    if (conversation && conversation.connectionId)
+      return MessageController.send(event, conversation.connectionId, message);
+    return Promise.resolve();
   }
 
   static send(event, connectionId, message) {

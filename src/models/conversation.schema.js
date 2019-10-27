@@ -1,16 +1,19 @@
 /**
- * @name - conversation schema
- * @description - Mongouse schema for Conversation
+ * @name - Conversation schema
+ * @description - Mongoose schema for Conversation
  */
 
 import mongoose from 'mongoose';
 
 const conversationSchema = new mongoose.Schema(
   {
-    userId: { type: String, required: true, index: true },
+    userId: { type: String, index: true },
     connectionId: String,
     awsUsername: String,
-    memberId: String,
+    tripId: { type: String, index: true },
+    joinedOn: String,
+    leftOn: String,
+    memberId: { type: String, index: true },
     message: String,
     messageType: { type: String, default: 'text' },
     isOnline: { type: Boolean, default: false },

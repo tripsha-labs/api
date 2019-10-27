@@ -27,9 +27,5 @@ export * from './message.schema';
 export * from './message.model';
 export * from './message.validation';
 
-export * from './group-message.schema';
-export * from './group-message.model';
-export * from './group-message.validation';
-
 export * from './conversation.schema';
 export * from './conversation.model';

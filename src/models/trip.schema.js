@@ -15,6 +15,7 @@ const tripSchema = new mongoose.Schema(
     minGroupSize: Number,
     maxGroupSize: Number,
     groupSize: { type: Number, default: 0 },
+    favoriteCount: { type: Number, default: 0 },
     tripLength: { type: Number, default: 0 },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
     isActive: { type: Boolean, default: true },
@@ -26,6 +27,7 @@ const tripSchema = new mongoose.Schema(
     languages: [String],
     interests: [String],
     pictureUrls: [String],
+    showGroupHistory: { type: Boolean, default: true },
   },
   {
     timestamps: true,

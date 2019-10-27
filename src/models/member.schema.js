@@ -11,7 +11,11 @@ const memberSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     isOwner: { type: Boolean, default: false },
     isMember: { type: Boolean, default: false },
+    joinedOn: { type: String },
+    leftOn: { type: String },
     isFavorite: { type: Boolean, default: false },
+    favoriteOn: { type: String },
+    unFavoriteOn: { type: String },
   },
   {
     timestamps: true,

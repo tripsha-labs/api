@@ -4,12 +4,11 @@
  */
 import https from 'https';
 import jose from 'node-jose';
-import { success, failure } from '../../utils';
+import { success, failure, dbConnect } from '../../utils';
 import { MessageController } from './message.ctrl';
 import { ERROR_KEYS } from '../../constants';
 import { createMessageValidation, UserModel } from '../../models';
 import { generateAllow } from './helper';
-import { dbConnect, dbClose } from '../../utils/db-connect';
 
 export const auth = (event, context, callback) => {
   if (!event.queryStringParameters) {
@@ -86,10 +85,11 @@ export const connectionHandler = async (event, context) => {
           : '',
         connectionId: event.requestContext.connectionId,
       };
-      await MessageController.addConnection(connParams);
+      await MessageController.addConnection(event, connParams);
       console.info('Connection added');
     } else if (event.requestContext.eventType === 'DISCONNECT') {
       await MessageController.deleteConnection(
+        event,
         event.requestContext.connectionId
       );
       console.info('Connection removed');
@@ -121,10 +121,13 @@ export const sendMessageHandler = async (event, context) => {
     const username = event.requestContext.authorizer.username;
     const user = await UserModel.get({ awsUsername: username });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+
     postData['fromMemberId'] = user._id.toString();
-    const message = await MessageController.storeMessage(postData);
-    await MessageController.sendMessage(event, message);
-    await sendMessageToAllConnected(event, message);
+    const message = {
+      message: await MessageController.storeMessage(postData),
+      action: 'newMessage',
+    };
+    await MessageController.sendMessage(event, message, postData['toMemberId']);
     console.info('Message sent!');
     return success({
       data: 'success',
@@ -132,8 +135,6 @@ export const sendMessageHandler = async (event, context) => {
   } catch (error) {
     console.log(error);
     return failure(error);
-  } finally {
-    dbClose();
   }
 };
 

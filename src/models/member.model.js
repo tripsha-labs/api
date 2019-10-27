@@ -29,8 +29,8 @@ export class MemberModel {
     return Member.aggregate(params);
   }
 
-  static update(filter, params = {}) {
-    return Member.updateOne(filter, { $set: params });
+  static update(filter, params = {}, upsert = { upsert: false }) {
+    return Member.updateOne(filter, { $set: params }, upsert);
   }
 
   static delete(params = {}) {

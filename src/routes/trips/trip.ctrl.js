@@ -4,7 +4,7 @@
  */
 import moment from 'moment';
 import _ from 'lodash';
-import { dbConnect, dbClose } from '../../utils/db-connect';
+import { dbConnect } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -13,13 +13,14 @@ import {
   UserModel,
 } from '../../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
+
 export class TripController {
   static async listTrips(filter, memberId) {
     try {
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const filterParams = {
         isArchived: false,
-        startDate: { $gte: currentDate },
+        endDate: { $gte: currentDate },
         isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
       const multiFilter = [];
@@ -142,8 +143,6 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -173,6 +172,14 @@ export class TripController {
         isMember: true,
       };
       await MemberModel.create(addMemberParams);
+
+      const conversationParams = {
+        memberId: trip.ownerId,
+        tripId: trip._id,
+        joinedOn: moment().unix(),
+      };
+      await ConversationModel.create(conversationParams);
+
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
@@ -192,8 +199,6 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -270,8 +275,6 @@ export class TripController {
       return 'success';
     } catch (error) {
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -299,22 +302,17 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
   static async deleteTrip(tripId) {
     try {
       await dbConnect();
-      await TripModel.delete({ _id: tripId });
-      await MemberModel.delete({ tripId: tripId });
+      await TripModel.update(tripId, { isActive: false });
       //TODO: Delete members and other dependecies with the trip
       return 'success';
     } catch (error) {
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -396,8 +394,6 @@ export class TripController {
       };
     } catch (error) {
       throw error;
-    } finally {
-      dbClose();
     }
   }
 }
