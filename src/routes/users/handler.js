@@ -74,8 +74,8 @@ export const createUser = async (event, context) => {
       awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
 
-    subscribeUserToMailchimpAudience({
-      name: `${data.firstName} ${data.lastName}`,
+    await subscribeUserToMailchimpAudience({
+      name: data.firstName + ' ' + data.lastName,
       email: data.email,
     });
 
