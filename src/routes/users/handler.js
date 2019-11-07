@@ -74,8 +74,8 @@ export const createUser = async (event, context) => {
       awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
 
-    subscribeUserToMailchimpAudience({
-      name: `${data.firstName} ${data.lastName}`,
+    await subscribeUserToMailchimpAudience({
+      name: data.firstName + ' ' + data.lastName,
       email: data.email,
     });
 
@@ -147,7 +147,7 @@ export const signin = async (event, context) => {
 };
 
 // TODO: Handle user account close/disable flow
-export const deleteUser = async (event, context) => {};
+export const deleteUser = async (event, context) => { };
 
 export const isUserExists = async (event, context) => {
   try {

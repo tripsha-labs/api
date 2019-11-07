@@ -5,8 +5,8 @@ import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema(
   {
-    toMemberId: { type: String, index: true },
-    tripId: { type: String, index: true },
+    toMemberId: { type: String },
+    tripId: { type: String },
     fromMemberId: { type: String, required: true, index: true },
     message: { type: String, required: true },
     messageType: { type: String, default: 'text' },

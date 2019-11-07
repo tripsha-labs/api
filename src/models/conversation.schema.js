@@ -11,6 +11,7 @@ const conversationSchema = new mongoose.Schema(
     connectionId: String,
     awsUsername: String,
     tripId: { type: String, index: true },
+    isGroup: { type: Boolean, default: false },
     joinedOn: String,
     leftOn: String,
     memberId: { type: String, index: true },

@@ -139,18 +139,23 @@ export const sendMessageHandler = async (event, context) => {
 };
 
 export const listMessages = async (event, context) => {
+  // Get search string from queryparams
+  const params = event.queryStringParameters || {};
+  const { memberId, tripId } = params;
   try {
-    if (!(event.queryStringParameters && event.queryStringParameters.memberId))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
-    // Get search string from queryparams
-    const params = event.queryStringParameters || {};
-    await dbConnect();
-    const user = await UserModel.get({
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
-    });
-    params['userId'] = user._id;
-    const result = await MessageController.listMessages(params);
-    return success(result);
+    if (memberId || tripId) {
+      await dbConnect();
+      const user = await UserModel.get({
+        awsUserId: event.requestContext.identity.cognitoIdentityId,
+      });
+      params['userId'] = user._id;
+
+      const result = await MessageController.listMessages(params);
+      return success(result);
+    } else {
+      if (!memberId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
+      else throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
+    }
   } catch (error) {
     console.log(error);
     return failure(error);

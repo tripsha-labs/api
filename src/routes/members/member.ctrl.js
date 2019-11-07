@@ -108,6 +108,7 @@ export class MemberController {
                   memberId: memberId.toString(),
                   tripId: tripId,
                   joinedOn: moment().unix(),
+                  isGroup: true
                 }
               );
               break;
@@ -124,6 +125,7 @@ export class MemberController {
                   memberId: memberId.toString(),
                   tripId: tripId,
                   leftOn: moment().unix(),
+                  isGroup: true
                 }
               );
               break;

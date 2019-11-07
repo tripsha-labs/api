@@ -11,12 +11,12 @@ const messageSchema = {
   messageType: {
     type: 'enum',
     empty: false,
-    values: ['text', 'image', 'video', 'audio'],
+    values: ['text', 'image', 'video', 'audio', 'info'],
     optional: true,
   },
   mediaUrl: { type: 'string', empty: false },
-  isGroupMessage: { type: Boolean, empty: false, default: false },
-  isEdited: { type: Boolean, empty: false, default: false },
+  isGroupMessage: { type: 'boolean', empty: false, default: false },
+  isEdited: { type: 'boolean', empty: false, default: false },
   $$strict: true,
 };
 

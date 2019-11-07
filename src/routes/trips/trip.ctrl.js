@@ -11,6 +11,7 @@ import {
   MemberModel,
   validateTripLength,
   UserModel,
+  ConversationModel
 } from '../../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 
@@ -163,20 +164,23 @@ export class TripController {
       params['tripLength'] = tripLength;
 
       await dbConnect();
-      params['ownerId'] = await UserModel.get({ awsUserId: params.ownerId });
+      const user = await UserModel.get({ awsUserId: params.ownerId });
+      params['ownerId'] = user;
       const trip = await TripModel.create(params);
       const addMemberParams = {
-        memberId: trip.ownerId,
+        memberId: user._id.toString(),
         tripId: trip._id,
         isOwner: true,
         isMember: true,
+        joinedOn: moment().unix(),
       };
       await MemberModel.create(addMemberParams);
 
       const conversationParams = {
-        memberId: trip.ownerId,
+        memberId: user._id.toString(),
         tripId: trip._id,
         joinedOn: moment().unix(),
+        isGroup: true
       };
       await ConversationModel.create(conversationParams);
 
@@ -187,7 +191,7 @@ export class TripController {
       // Spots filled percent
       const spotsFilled = Math.round(
         ((memberCount - 1) / (params['maxGroupSize'] - 1)) *
-          APP_CONSTANTS.SPOTSFILLED_PERCEENT
+        APP_CONSTANTS.SPOTSFILLED_PERCEENT
       );
       const tripDetails = {
         groupSize: memberCount,

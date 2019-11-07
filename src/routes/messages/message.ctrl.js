@@ -14,8 +14,10 @@ import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 export class MessageController {
   static async listMessages(filter) {
     try {
-      const params = {
-        filter: {
+      let filterParams = {}
+      if (filter.memberId)
+        filterParams = {
+
           $or: [
             {
               $and: [
@@ -30,7 +32,11 @@ export class MessageController {
               ],
             },
           ],
-        },
+        };
+      else
+        filterParams = { tripId: filter.tripId };
+      const params = {
+        filter: filterParams,
         ...prepareCommonFilter(filter, ['updatedAt'], 'updatedAt'),
       };
       await dbConnect();
@@ -65,13 +71,15 @@ export class MessageController {
         createdAt: 1,
         updatedAt: 1,
         type: 1,
-        userId: 1,
-        tripId: 1,
+        isGroup: 1
       };
       const tripProjection = {
         'trip.title': 1,
         'trip.startDate': 1,
         'trip.endDate': 1,
+        'trip.pictureUrls': 1,
+        'trip.ownerId': 1,
+        'trip.groupSize': 1,
       };
       const userProjection = {
         'user.avatarUrl': 1,
@@ -79,6 +87,13 @@ export class MessageController {
         'user.awsUsername': 1,
         'user.firstName': 1,
         'user.username': 1,
+      };
+      const ownerProjection = {
+        'ownerDetails.avatarUrl': 1,
+        'ownerDetails.awsUserId': 1,
+        'ownerDetails.awsUsername': 1,
+        'ownerDetails.firstName': 1,
+        'ownerDetails.username': 1,
       };
 
       params.push({
@@ -89,18 +104,30 @@ export class MessageController {
           tripId: {
             $toObjectId: '$tripId',
           },
-          ...projection,
+          ...memberProjection,
         },
       });
       params.push({
         $sort: prepareSortFilter(filter, ['updatedAt'], 'updatedAt'),
       });
+
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $limit: limit });
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
+
       params.push({
         $lookup: {
           from: 'users',
           localField: 'userId',
           foreignField: '_id',
           as: 'user',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true,
         },
       });
       params.push({
@@ -112,18 +139,37 @@ export class MessageController {
         },
       });
       params.push({
+        $unwind: {
+          path: '$trip',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'trip.ownerId',
+          foreignField: '_id',
+          as: 'ownerDetails',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$ownerDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
         $project: {
           userId: 1,
+          tripId: 1,
           ...memberProjection,
           ...tripProjection,
           ...userProjection,
+          ...ownerProjection,
         },
       });
 
-      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
-      params.push({ $limit: limit });
-      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
-      params.push({ $skip: limit * page });
+
 
       const conversations = await ConversationModel.aggregate(params);
       const conversationsCount = await ConversationModel.count(filterParams);
@@ -347,7 +393,7 @@ export class MessageController {
         messageType: 'text',
       };
       if (messageParams['isGroupMessage']) {
-        // Group messaging
+        // Group messaging        
         conversationParams['tripId'] = messageParams['tripId'];
         await ConversationModel.addOrUpdate(
           {
@@ -357,7 +403,7 @@ export class MessageController {
           conversationParams
         );
       } else {
-        // 1 to 1 messaging
+        // 1 to 1 messaging        
         conversationParams['userId'] = messageParams['toMemberId'];
         await ConversationModel.addOrUpdate(
           {
