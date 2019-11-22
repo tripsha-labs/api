@@ -19,9 +19,10 @@ export class TripController {
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const filterParams = {
         isArchived: false,
-        startDate: { $gte: currentDate },
+        endDate: { $gte: currentDate },
         isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
+      if (filter.pastTrips) filterParams['endDate'] = { $lt: currentDate };
       const multiFilter = [];
       if (filter.minGroupSize)
         multiFilter.push({
@@ -363,6 +364,12 @@ export class TripController {
         $replaceRoot: {
           newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
         },
+      });
+      const currentDate = parseInt(moment().format('YYYYMMDD'));
+      const tripParams = { endDate: { $gte: currentDate } };
+      if (filter.pastTrips) tripParams['endDate'] = { $lt: currentDate };
+      params.push({
+        $match: tripParams,
       });
       params.push({
         $lookup: {

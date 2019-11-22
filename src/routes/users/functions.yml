@@ -77,3 +77,19 @@ checkExists:
         method: post
         authorizer: aws_iam
         cors: true
+
+subscribeUser:
+  handler: src/routes/users/handler.subscribeUser
+  events:
+    - http:
+        path: subscribe
+        method: post
+        cors: true
+
+unsubscribeUser:
+  handler: src/routes/users/handler.unsubscribeUser
+  events:
+    - http:
+        path: unsubscribe
+        method: post
+        cors: true

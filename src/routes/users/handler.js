@@ -8,8 +8,9 @@ import {
   success,
   failure,
   subscribeUserToMailchimpAudience,
+  unsubscribeUserToMailchimpAudience,
 } from '../../utils';
-import { ERROR_KEYS } from '../../constants';
+import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 import { generateRandomNumber } from '../../helpers';
 
 import { createUserValidation, updateUserValidation } from '../../models';
@@ -159,6 +160,48 @@ export const isUserExists = async (event, context) => {
       event.requestContext.identity.cognitoIdentityId
     );
     return success(result);
+  } catch (error) {
+    return failure(error);
+  }
+};
+
+export const subscribeUser = async (event, context) => {
+  try {
+    const data = JSON.parse(event.body);
+    if (!(data && data.email))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+    try {
+      await subscribeUserToMailchimpAudience({
+        name: '',
+        email: data.email,
+        audienceListId: APP_CONSTANTS.MATCHES_ID,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    return success('success');
+  } catch (error) {
+    return failure(error);
+  }
+};
+
+export const unsubscribeUser = async (event, context) => {
+  try {
+    const data = JSON.parse(event.body);
+    if (!(data && data.email))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+    try {
+      await unsubscribeUserToMailchimpAudience({
+        name: '',
+        email: data.email,
+        audienceListId: APP_CONSTANTS.MATCHES_ID,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    return success('success');
   } catch (error) {
     return failure(error);
   }
