@@ -365,6 +365,12 @@ export class TripController {
           newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
         },
       });
+      const currentDate = parseInt(moment().format('YYYYMMDD'));
+      const tripParams = { endDate: { $gte: currentDate } };
+      if (filter.pastTrips) tripParams['endDate'] = { $lt: currentDate };
+      params.push({
+        $match: tripParams,
+      });
       params.push({
         $lookup: {
           from: 'users',

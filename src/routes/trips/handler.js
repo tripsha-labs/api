@@ -108,9 +108,13 @@ export const deleteTrip = async (event, context) => {
  */
 export const myTrips = async (event, context) => {
   try {
+    const params = event.queryStringParameters
+      ? event.queryStringParameters
+      : {};
     const result = await TripController.myTrips({
       memberId: event.requestContext.identity.cognitoIdentityId,
       isMember: true,
+      ...params,
     });
     return success(result);
   } catch (error) {
@@ -124,9 +128,13 @@ export const myTrips = async (event, context) => {
  */
 export const savedTrips = async (event, context) => {
   try {
+    const params = event.queryStringParameters
+      ? event.queryStringParameters
+      : {};
     const result = await TripController.myTrips({
       memberId: event.requestContext.identity.cognitoIdentityId,
       isFavorite: true,
+      ...params,
     });
     return success(result);
   } catch (error) {
