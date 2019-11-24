@@ -5,8 +5,8 @@
 import Validator from 'fastest-validator';
 
 const messageSchema = {
-  toMemberId: { type: 'string', empty: false },
-  tripId: { type: 'string', empty: false },
+  toMemberId: { type: 'string', empty: false, default: '', optional: true },
+  tripId: { type: 'string', empty: false, default: '', optional: true },
   message: { type: 'string', empty: false },
   messageType: {
     type: 'enum',
@@ -14,9 +14,14 @@ const messageSchema = {
     values: ['text', 'image', 'video', 'audio', 'info'],
     optional: true,
   },
-  mediaUrl: { type: 'string', empty: false },
-  isGroupMessage: { type: 'boolean', empty: false, default: false },
-  isEdited: { type: 'boolean', empty: false, default: false },
+  mediaUrl: { type: 'string', empty: false, default: '', optional: true },
+  isGroupMessage: {
+    type: 'boolean',
+    empty: false,
+    default: false,
+    optional: true,
+  },
+  isEdited: { type: 'boolean', empty: false, default: false, optional: true },
   $$strict: true,
 };
 

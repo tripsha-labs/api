@@ -8,8 +8,9 @@ import moment from 'moment';
 import {
   MemberModel,
   TripModel,
-  Conversation,
   ConversationModel,
+  UserModel,
+  MessageModel,
 } from '../../models';
 import { dbConnect } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
@@ -83,6 +84,7 @@ export class MemberController {
       const { memberIds, tripId } = params || { memberIds: [] };
       if (memberIds.length > 0) {
         await dbConnect();
+        const user = await UserModel.get({ awsUserId: params['awsUserId'] });
         const objMemberIds = memberIds.map(id => Types.ObjectId(id));
         const objTripId = Types.ObjectId(tripId);
         const trip = await TripModel.getById(objTripId);
@@ -93,41 +95,83 @@ export class MemberController {
             memberId,
             tripId: objTripId,
           };
-
+          const memberDetails = await UserModel.getById(memberId.toString());
+          const memberExists = await MemberModel.getById(memberId.toString());
           switch (params['action']) {
             case 'addMember':
               updateParams['isMember'] = true;
               updateParams['joinedOn'] = moment().unix();
-              // conversation update
-              await ConversationModel.addOrUpdate(
-                {
-                  memberId: memberId.toString(),
-                  tripId: tripId,
-                },
-                {
-                  memberId: memberId.toString(),
-                  tripId: tripId,
+
+              if (!memberExists) {
+                // conversation update
+                const memberAddDetails = {
+                  memberId: memberDetails._id.toString(),
+                  tripId: trip._id.toString(),
                   joinedOn: moment().unix(),
-                  isGroup: true
-                }
-              );
+                  message:
+                    memberDetails['firstName'] +
+                    ' added by ' +
+                    user['firstName'],
+                  messageType: 'info',
+                  isGroup: true,
+                };
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                    memberId: memberId.toString(),
+                  },
+                  memberAddDetails
+                );
+                const messageParams = {
+                  memberId: memberDetails._id.toString(),
+                  tripId: trip._id.toString(),
+                  message:
+                    memberDetails['firstName'] +
+                    ' added by ' +
+                    user['firstName'],
+                  messageType: 'info',
+                  isGroupMessage: true,
+                  fromMemberId: user._id.toString(),
+                };
+                await MessageModel.create(messageParams);
+              }
               break;
             case 'removeMember':
               updateParams['isMember'] = false;
               updateParams['leftOn'] = moment().unix();
               // conversation update
-              await ConversationModel.addOrUpdate(
-                {
-                  memberId: memberId.toString(),
-                  tripId: tripId,
-                },
-                {
-                  memberId: memberId.toString(),
-                  tripId: tripId,
+              if (memberExists) {
+                const memberRemoveDetails = {
+                  memberId: memberDetails._id.toString(),
+                  tripId: trip._id.toString(),
                   leftOn: moment().unix(),
-                  isGroup: true
-                }
-              );
+                  message:
+                    memberDetails['firstName'] +
+                    ' removed by ' +
+                    user['firstName'],
+                  messageType: 'info',
+                  isGroup: true,
+                };
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                    memberId: memberId.toString(),
+                  },
+                  memberRemoveDetails
+                );
+                const messageParams = {
+                  memberId: memberDetails._id.toString(),
+                  tripId: trip._id.toString(),
+                  message:
+                    memberDetails['firstName'] +
+                    ' removed by ' +
+                    user['firstName'],
+                  messageType: 'info',
+                  isGroupMessage: true,
+                  fromMemberId: user._id.toString(),
+                };
+                await MessageModel.create(messageParams);
+              }
               break;
             case 'makeFavorite':
               updateParams['isFavorite'] = true;

@@ -5,6 +5,7 @@
 import https from 'https';
 import moment from 'moment';
 import jose from 'node-jose';
+import _ from 'lodash';
 import { dbConnect, apigwManagementApi } from '../../utils';
 import { prepareCommonFilter, prepareSortFilter } from '../../helpers';
 import { generateAllow } from './helper';
@@ -14,32 +15,41 @@ import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 export class MessageController {
   static async listMessages(filter) {
     try {
-      let filterParams = {}
-      if (filter.memberId)
-        filterParams = {
+      await dbConnect();
 
+      let filterParams = {};
+      if (
+        filter.isGroup &&
+        (filter.isGroup === true || filter.isGroup === 'true')
+      ) {
+        filterParams = { tripId: filter.tripId };
+      } else {
+        const user = await UserModel.get({
+          awsUserId: filter.awsUserId,
+        });
+        filterParams = {
           $or: [
             {
               $and: [
                 { toMemberId: filter.memberId },
-                { fromMemberId: filter.userId },
+                { fromMemberId: user._id },
               ],
             },
             {
               $and: [
                 { fromMemberId: filter.memberId },
-                { toMemberId: filter.userId },
+                { toMemberId: user._id },
               ],
             },
           ],
         };
-      else
-        filterParams = { tripId: filter.tripId };
+      }
+      console.log(filterParams);
       const params = {
         filter: filterParams,
         ...prepareCommonFilter(filter, ['updatedAt'], 'updatedAt'),
       };
-      await dbConnect();
+
       const messages = await MessageModel.list(params);
       const messagesCount = await MessageModel.count(params.filter);
 
@@ -63,15 +73,15 @@ export class MessageController {
         memberId: user._id.toString(),
       };
 
-      const params = [{ $match: filterParams }];
       const memberProjection = {
         isOnline: 1,
         lastOnlineTime: 1,
         message: 1,
         createdAt: 1,
         updatedAt: 1,
-        type: 1,
-        isGroup: 1
+        messageType: 1,
+        joinedOn: 1,
+        isGroup: 1,
       };
       const tripProjection = {
         'trip.title': 1,
@@ -95,7 +105,7 @@ export class MessageController {
         'ownerDetails.firstName': 1,
         'ownerDetails.username': 1,
       };
-
+      const params = [{ $match: filterParams }];
       params.push({
         $project: {
           userId: {
@@ -169,8 +179,6 @@ export class MessageController {
         },
       });
 
-
-
       const conversations = await ConversationModel.aggregate(params);
       const conversationsCount = await ConversationModel.count(filterParams);
 
@@ -197,10 +205,7 @@ export class MessageController {
         message: message.message,
         memberId: message.toMemberId,
       };
-      await ConversationModel.addOrUpdate(
-        { userId: user._id, memberId: message.toMemberId },
-        params
-      );
+      await ConversationModel.addOrUpdate({ userId: user._id }, params);
       params['userId'] = message.toMemberId;
       params['memberId'] = user._id;
       await ConversationModel.addOrUpdate(
@@ -331,23 +336,35 @@ export class MessageController {
   static async addConnection(event, connParams) {
     try {
       await dbConnect();
-      const user = await UserModel.getUserByAWSUsername(connParams.username);
-      const params = {
-        connectionId: connParams.connectionId,
-        awsUsername: connParams.username,
+      const user = await UserModel.getById(connParams.userId);
+      const conversations = await ConversationModel.getAll({
         userId: user._id,
-        isOnline: true,
-      };
-      await ConversationModel.addOrUpdate({ userId: user._id }, params);
-      params['firstName'] = user['firstName'];
-      params['username'] = user['username'];
-      params['avatarUrl'] = user['avatarUrl'];
-      params['awsUserId'] = user['awsUserId'];
-      const message = {
-        message: params,
-        action: 'userConnected',
-      };
-      await MessageController.broadcastMessage(event, params, message);
+      });
+      if (conversations && conversations.length > 0) {
+        const conversation = conversations[0];
+        conversation['connectionIds'] =
+          conversation && conversation.connectionIds
+            ? conversation.connectionIds
+            : [];
+        if (conversation.connectionIds.indexOf(connParams.connectionId) == -1)
+          conversation.connectionIds.push(connParams.connectionId);
+        const params = {
+          awsUsername: event.requestContext.authorizer.username,
+          isOnline: true,
+          connectionIds: conversation.connectionIds,
+        };
+        await ConversationModel.addOrUpdate({ userId: user._id }, params);
+        // const message = {
+        //   message: {
+        //     'firstName': user['firstName'],
+        //     'avatarUrl': user['avatarUrl'],
+        //     'awsUserId': user['awsUserId']
+        //   },
+        //   action: 'userConnected',
+        // };
+        // await MessageController.broadcastMessage(event, params, message);
+      }
+
       return 'success';
     } catch (error) {
       console.log(error);
@@ -358,25 +375,40 @@ export class MessageController {
   static async deleteConnection(event, connectionId) {
     try {
       await dbConnect();
-      const params = {
-        connectionId: null,
-        isOnline: false,
-        lastOnlineTime: moment().unix(),
-      };
       const conversation = await ConversationModel.get({
-        connectionId: connectionId,
+        connectionIds: { $in: connectionId },
       });
-      await ConversationModel.updateOne({ connectionId: connectionId }, params);
-      const message = {
-        message: conversation,
-        action: 'userDisconnected',
-      };
-      const memberInfo = {
-        ...params,
-        userId: conversation['userId'],
-        memberId: conversation['memberId'],
-      };
-      await MessageController.broadcastMessage(event, memberInfo, message);
+      const params = {};
+      if (
+        conversation &&
+        conversation.connectionIds &&
+        conversation.connectionIds.length > 0
+      ) {
+        const index = conversation.connectionIds.indexOf(connectionId);
+        if (index !== -1) conversation.connectionIds.splice(index, 1);
+        if (conversation.connectionIds.length > 0) {
+          params['connectionIds'] = conversation.connectionIds;
+        } else {
+          params['connectionIds'] = [];
+          params['isOnline'] = false;
+          params['lastOnlineTime'] = moment().unix();
+        }
+        await ConversationModel.addOrUpdate(
+          { userId: conversation.userId },
+          params
+        );
+        // const message = {
+        //   message: conversation,
+        //   action: 'userDisconnected',
+        // };
+        // const memberInfo = {
+        //   ...params,
+        //   userId: conversation['userId'],
+        //   memberId: conversation['memberId'],
+        // };
+        // await MessageController.broadcastMessage(event, memberInfo, message);
+      }
+
       return 'success';
     } catch (error) {
       console.log(error);
@@ -386,24 +418,26 @@ export class MessageController {
 
   static async storeMessage(messageParams) {
     try {
+      if (messageParams.isGroupMessage) {
+        messageParams['tripId'] = messageParams['toMemberId'];
+        delete messageParams['toMemberId'];
+      }
       const message = await MessageModel.create(messageParams);
       const conversationParams = {
-        memberId: messageParams['fromMemberId'],
         message: messageParams.message,
         messageType: 'text',
       };
       if (messageParams['isGroupMessage']) {
-        // Group messaging        
+        // Group messaging
         conversationParams['tripId'] = messageParams['tripId'];
         await ConversationModel.addOrUpdate(
           {
             tripId: messageParams['tripId'],
-            memberId: messageParams['fromMemberId'],
           },
           conversationParams
         );
       } else {
-        // 1 to 1 messaging        
+        // 1 to 1 messaging
         conversationParams['userId'] = messageParams['toMemberId'];
         await ConversationModel.addOrUpdate(
           {
@@ -429,12 +463,36 @@ export class MessageController {
     }
   }
 
-  static async sendMessage(event, message, userId) {
-    const conversation = await ConversationModel.get({
-      userId,
-    });
-    if (conversation && conversation.connectionId)
-      return MessageController.send(event, conversation.connectionId, message);
+  static async sendMessage(event, message, params) {
+    let connectionIds = [];
+    console.log(params);
+    if (
+      params['isGroupMessage'] &&
+      (params['isGroupMessage'] == true && params['isGroupMessage'] == 'true')
+    ) {
+      const conversations = await ConversationModel.getAll({
+        tripId: params['tripId'],
+      });
+      console.log(conversations);
+      conversations.map(conversation => {
+        connectionIds.concat(conversation.connectionIds);
+      });
+    } else {
+      const conversation = await ConversationModel.get({
+        userId: params['toMemberId'],
+      });
+      connectionIds = conversation.connectionIds || [];
+    }
+    connectionIds = _.uniq(connectionIds);
+    console.log(connectionIds);
+    if (connectionIds && connectionIds.length > 0) {
+      const promises = [];
+      connectionIds.map(async connectionId => {
+        promises.push(MessageController.send(event, connectionId, message));
+      });
+
+      await Promise.all(promises);
+    }
     return Promise.resolve();
   }
 

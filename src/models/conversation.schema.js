@@ -7,10 +7,10 @@ import mongoose from 'mongoose';
 
 const conversationSchema = new mongoose.Schema(
   {
-    userId: { type: String, index: true },
-    connectionId: String,
+    userId: { type: String },
+    connectionIds: [String],
     awsUsername: String,
-    tripId: { type: String, index: true },
+    tripId: { type: String },
     isGroup: { type: Boolean, default: false },
     joinedOn: String,
     leftOn: String,

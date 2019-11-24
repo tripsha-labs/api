@@ -79,14 +79,14 @@ export const auth = (event, context, callback) => {
 export const connectionHandler = async (event, context) => {
   try {
     if (event.requestContext.eventType === 'CONNECT') {
-      const connParams = {
-        username: event.requestContext.authorizer
-          ? event.requestContext.authorizer.username
-          : '',
-        connectionId: event.requestContext.connectionId,
-      };
-      await MessageController.addConnection(event, connParams);
-      console.info('Connection added');
+      if (event.queryStringParameters) {
+        const connParams = {
+          userId: event.queryStringParameters.userId,
+          connectionId: event.requestContext.connectionId,
+        };
+        await MessageController.addConnection(event, connParams);
+        console.info('Connection added');
+      }
     } else if (event.requestContext.eventType === 'DISCONNECT') {
       await MessageController.deleteConnection(
         event,
@@ -127,7 +127,7 @@ export const sendMessageHandler = async (event, context) => {
       message: await MessageController.storeMessage(postData),
       action: 'newMessage',
     };
-    await MessageController.sendMessage(event, message, postData['toMemberId']);
+    await MessageController.sendMessage(event, message, postData);
     console.info('Message sent!');
     return success({
       data: 'success',
@@ -144,12 +144,7 @@ export const listMessages = async (event, context) => {
   const { memberId, tripId } = params;
   try {
     if (memberId || tripId) {
-      await dbConnect();
-      const user = await UserModel.get({
-        awsUserId: event.requestContext.identity.cognitoIdentityId,
-      });
-      params['userId'] = user._id;
-
+      params['awsUserId'] = event.requestContext.identity.cognitoIdentityId;
       const result = await MessageController.listMessages(params);
       return success(result);
     } else {

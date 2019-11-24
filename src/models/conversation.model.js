@@ -30,7 +30,11 @@ export class ConversationModel {
     return Conversation.findOne(params);
   }
 
+  static getAll(params) {
+    return Conversation.find(params);
+  }
+
   static addOrUpdate(filter, update) {
-    return Conversation.update(filter, { $set: update }, { upsert: true });
+    return Conversation.updateMany(filter, { $set: update }, { upsert: true });
   }
 }
