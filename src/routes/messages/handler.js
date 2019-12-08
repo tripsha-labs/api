@@ -83,6 +83,7 @@ export const connectionHandler = async (event, context) => {
         const connParams = {
           userId: event.queryStringParameters.userId,
           connectionId: event.requestContext.connectionId,
+          awsUsername: event.requestContext.authorizer.username,
         };
         await MessageController.addConnection(event, connParams);
         console.info('Connection added');
@@ -115,19 +116,23 @@ export const sendMessageHandler = async (event, context) => {
   try {
     const body = JSON.parse(event.body);
     const postData = JSON.parse(body.data);
+
     const errors = createMessageValidation(postData);
     if (errors != true) throw errors.shift();
     await dbConnect();
     const username = event.requestContext.authorizer.username;
     const user = await UserModel.get({ awsUsername: username });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-
+    const sendMessageParams = {
+      toMemberId: postData['toMemberId'],
+    };
     postData['fromMemberId'] = user._id.toString();
+
     const message = {
       message: await MessageController.storeMessage(postData),
       action: 'newMessage',
     };
-    await MessageController.sendMessage(event, message, postData);
+    await MessageController.sendMessage(event, message, sendMessageParams);
     console.info('Message sent!');
     return success({
       data: 'success',
@@ -177,10 +182,13 @@ export const sendMessage = async (event, context) => {
     const errors = createMessageValidation(data);
     if (errors != true) throw errors.shift();
 
-    const result = await MessageController.sendMessageRest({
-      ...data,
-      fromMemberId: event.requestContext.identity.cognitoIdentityId,
-    });
+    const result = await MessageController.sendMessageRest(
+      {
+        ...data,
+        fromMemberId: event.requestContext.identity.cognitoIdentityId,
+      },
+      event
+    );
     return success(result);
   } catch (error) {
     console.log(error);

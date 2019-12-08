@@ -182,16 +182,15 @@ export class TripController {
         memberId: user._id.toString(),
         tripId: trip._id.toString(),
         joinedOn: moment().unix(),
-        message: 'Trip created by ' + user['firstName'],
+        message: params['title'] + ' created by ' + user['firstName'],
         messageType: 'info',
         isGroup: true,
       };
       await ConversationModel.create(conversationParams);
 
       const messageParams = {
-        memberId: user._id.toString(),
         tripId: trip._id.toString(),
-        message: 'Trip created by ' + user['firstName'],
+        message: params['title'] + ' created by ' + user['firstName'],
         messageType: 'info',
         isGroupMessage: true,
         fromMemberId: user._id.toString(),

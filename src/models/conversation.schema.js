@@ -8,8 +8,6 @@ import mongoose from 'mongoose';
 const conversationSchema = new mongoose.Schema(
   {
     userId: { type: String },
-    connectionIds: [String],
-    awsUsername: String,
     tripId: { type: String },
     isGroup: { type: Boolean, default: false },
     joinedOn: String,
@@ -17,8 +15,7 @@ const conversationSchema = new mongoose.Schema(
     memberId: { type: String, index: true },
     message: String,
     messageType: { type: String, default: 'text' },
-    isOnline: { type: Boolean, default: false },
-    lastOnlineTime: String,
+    mediaUrl: { type: String, default: '' },
   },
   {
     timestamps: true,

@@ -108,10 +108,7 @@ export class MemberController {
                   memberId: memberDetails._id.toString(),
                   tripId: trip._id.toString(),
                   joinedOn: moment().unix(),
-                  message:
-                    memberDetails['firstName'] +
-                    ' added by ' +
-                    user['firstName'],
+                  message: memberDetails['firstName'] + ' has joined the group',
                   messageType: 'info',
                   isGroup: true,
                 };
@@ -122,13 +119,16 @@ export class MemberController {
                   },
                   memberAddDetails
                 );
+                delete memberAddDetails['memberId'];
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                  },
+                  memberAddDetails
+                );
                 const messageParams = {
-                  memberId: memberDetails._id.toString(),
                   tripId: trip._id.toString(),
-                  message:
-                    memberDetails['firstName'] +
-                    ' added by ' +
-                    user['firstName'],
+                  message: memberDetails['firstName'] + ' has joined the group',
                   messageType: 'info',
                   isGroupMessage: true,
                   fromMemberId: user._id.toString(),
@@ -142,30 +142,21 @@ export class MemberController {
               // conversation update
               if (memberExists) {
                 const memberRemoveDetails = {
-                  memberId: memberDetails._id.toString(),
                   tripId: trip._id.toString(),
                   leftOn: moment().unix(),
-                  message:
-                    memberDetails['firstName'] +
-                    ' removed by ' +
-                    user['firstName'],
+                  message: memberDetails['firstName'] + ' has left the group',
                   messageType: 'info',
                   isGroup: true,
                 };
                 await ConversationModel.addOrUpdate(
                   {
                     tripId: tripId,
-                    memberId: memberId.toString(),
                   },
                   memberRemoveDetails
                 );
                 const messageParams = {
-                  memberId: memberDetails._id.toString(),
                   tripId: trip._id.toString(),
-                  message:
-                    memberDetails['firstName'] +
-                    ' removed by ' +
-                    user['firstName'],
+                  message: memberDetails['firstName'] + ' has left the group',
                   messageType: 'info',
                   isGroupMessage: true,
                   fromMemberId: user._id.toString(),

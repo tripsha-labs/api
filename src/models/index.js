@@ -29,3 +29,6 @@ export * from './message.validation';
 
 export * from './conversation.schema';
 export * from './conversation.model';
+
+export * from './connection.schema';
+export * from './connection.model';
