@@ -148,7 +148,7 @@ export const signin = async (event, context) => {
 };
 
 // TODO: Handle user account close/disable flow
-export const deleteUser = async (event, context) => { };
+export const deleteUser = async (event, context) => {};
 
 export const isUserExists = async (event, context) => {
   try {
