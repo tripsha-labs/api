@@ -16,7 +16,7 @@ export class MessageModel {
     return messages;
   }
 
-  static aggregate(params = {}) {
+  static aggregate(params) {
     return Message.aggregate(params);
   }
 

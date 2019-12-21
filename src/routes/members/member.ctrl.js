@@ -110,7 +110,7 @@ export class MemberController {
                   joinedOn: moment().unix(),
                   message: memberDetails['firstName'] + ' has joined the group',
                   messageType: 'info',
-                  isGroup: true,
+                  isGroupMessage: true,
                 };
                 await ConversationModel.addOrUpdate(
                   {
@@ -158,7 +158,7 @@ export class MemberController {
                   tripId: trip._id.toString(),
                   message: memberDetails['firstName'] + ' has left the group',
                   messageType: 'info',
-                  isGroupMessage: true,
+                  isGroup: true,
                   fromMemberId: user._id.toString(),
                 };
                 await MessageModel.create(messageParams);

@@ -123,16 +123,15 @@ export const sendMessageHandler = async (event, context) => {
     const username = event.requestContext.authorizer.username;
     const user = await UserModel.get({ awsUsername: username });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    const sendMessageParams = {
-      toMemberId: postData['toMemberId'],
-    };
+
     postData['fromMemberId'] = user._id.toString();
 
     const message = {
       message: await MessageController.storeMessage(postData),
       action: 'newMessage',
     };
-    await MessageController.sendMessage(event, message, sendMessageParams);
+
+    await MessageController.sendMessage(event, message, postData);
     console.info('Message sent!');
     return success({
       data: 'success',

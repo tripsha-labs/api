@@ -24,6 +24,7 @@ export class MessageController {
       await dbConnect();
 
       let filterParams = {};
+
       if (
         filter.isGroup &&
         (filter.isGroup === true || filter.isGroup === 'true')
@@ -38,25 +39,76 @@ export class MessageController {
             {
               $and: [
                 { toMemberId: filter.memberId },
-                { fromMemberId: user._id },
+                { fromMemberId: user._id.toString() },
               ],
             },
             {
               $and: [
                 { fromMemberId: filter.memberId },
-                { toMemberId: user._id },
+                { toMemberId: user._id.toString() },
               ],
             },
           ],
         };
       }
-      const params = {
-        filter: filterParams,
-        ...prepareCommonFilter(filter, ['updatedAt'], 'updatedAt'),
+      const fromMemberProjection = {
+        'fromMember.avatarUrl': 1,
+        'fromMember._id': 1,
+        'fromMember.awsUserId': 1,
+        'fromMember.awsUsername': 1,
+        'fromMember.firstName': 1,
+        'fromMember.username': 1,
+        'fromMember.isOnline': 1,
+        'fromMember.lastOnlineTime': 1,
       };
-
-      const messages = await MessageModel.list(params);
-      const messagesCount = await MessageModel.count(params.filter);
+      const messageProjection = {
+        message: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        messageType: 1,
+        mediaUrl: 1,
+        isGroupMessage: 1,
+        isEdited: 1,
+        _id: 1,
+        tripId: 1,
+      };
+      const params = [{ $match: filterParams }];
+      params.push({
+        $project: {
+          fromMemberId: {
+            $toObjectId: '$fromMemberId',
+          },
+          ...messageProjection,
+        },
+      });
+      params.push({
+        $sort: prepareSortFilter(filter, ['updatedAt'], 'updatedAt'),
+      });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'fromMemberId',
+          foreignField: '_id',
+          as: 'fromMember',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$fromMember',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $project: {
+          fromMemberId: 1,
+          tripId: 1,
+          ...messageProjection,
+          ...fromMemberProjection,
+        },
+      });
+      const messages = await MessageModel.aggregate(params);
+      console.log(messages);
+      const messagesCount = await MessageModel.count(filterParams);
 
       return {
         data: messages,
@@ -225,10 +277,10 @@ export class MessageController {
         { userId: message.toMemberId, memberId: message.fromMemberId },
         params
       );
-      const connParams = {
-        userId: message.toMemberId,
-      };
-      await MessageController.sendMessage(event, message, connParams);
+      // const connParams = {
+      //   userId: message.toMemberId,
+      // };
+      // await MessageController.sendMessage(event, message, connParams);
       return resMessage;
     } catch (error) {
       throw error;
@@ -403,6 +455,7 @@ export class MessageController {
         messageParams['tripId'] = messageParams['toMemberId'];
         delete messageParams['toMemberId'];
       }
+      const user = await UserModel.getById(messageParams['fromMemberId']);
       const message = await MessageModel.create(messageParams);
       const conversationParams = _.cloneDeep(messageParams);
       if (messageParams['isGroupMessage']) {
@@ -435,7 +488,9 @@ export class MessageController {
           conversationParams
         );
       }
-      return message;
+      const resMessage = JSON.parse(JSON.stringify(message));
+      resMessage['fromMember'] = user;
+      return resMessage;
     } catch (error) {
       console.error(error);
       throw error;
@@ -456,14 +511,15 @@ export class MessageController {
       query['userId'] = { $in: memberIds };
     } else if (
       params['isGroupMessage'] &&
-      (params['isGroupMessage'] == true && params['isGroupMessage'] == 'true')
+      (params['isGroupMessage'] == true || params['isGroupMessage'] == 'true')
     ) {
       const conversations = await ConversationModel.getAll({
         tripId: params['tripId'],
       });
       const memberIds = [];
       conversations.map(conversation => {
-        memberIds.push(conversation.memberId);
+        if (params['fromMemberId'] !== conversation.memberId)
+          memberIds.push(conversation.memberId);
       });
       query['userId'] = { $in: memberIds };
     } else {
