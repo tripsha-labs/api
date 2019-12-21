@@ -48,3 +48,9 @@ sendMessageHandler:
   events:
     - websocket:
         route: sendMessage
+readMessageHandler:
+  handler: src/routes/messages/handler.readMessageHandler
+  events:
+    - websocket:
+        route: readMessage
+

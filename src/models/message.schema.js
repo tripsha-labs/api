@@ -11,8 +11,9 @@ const messageSchema = new mongoose.Schema(
     message: { type: String, required: true },
     messageType: { type: String, default: 'text' },
     mediaUrl: { type: String, default: '' },
-    isGroupMessage: { type: String, default: false },
-    isEdited: { type: String, default: false },
+    isGroupMessage: { type: Boolean, default: false },
+    isEdited: { type: Boolean, default: false },
+    isRead: { type: Boolean, default: false },
   },
   {
     timestamps: true,

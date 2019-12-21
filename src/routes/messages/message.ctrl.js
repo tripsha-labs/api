@@ -71,6 +71,7 @@ export class MessageController {
         isEdited: 1,
         _id: 1,
         tripId: 1,
+        isRead: 1,
       };
       const params = [{ $match: filterParams }];
       params.push({
@@ -107,9 +108,7 @@ export class MessageController {
         },
       });
       const messages = await MessageModel.aggregate(params);
-      console.log(messages);
       const messagesCount = await MessageModel.count(filterParams);
-
       return {
         data: messages,
         count: messages.length,
@@ -137,6 +136,8 @@ export class MessageController {
         messageType: 1,
         joinedOn: 1,
         isGroup: 1,
+        isRead: 1,
+        isArchived: 1,
       };
       const tripProjection = {
         'trip.title': 1,
@@ -465,6 +466,13 @@ export class MessageController {
           },
           conversationParams
         );
+        await ConversationModel.addOrUpdate(
+          {
+            tripId: messageParams['tripId'],
+            memberId: messageParams['fromMemberId'],
+          },
+          { isRead: true }
+        );
       } else {
         // 1 to 1 messaging
         delete conversationParams['fromMemberId'];
@@ -476,7 +484,10 @@ export class MessageController {
             userId: messageParams['toMemberId'],
             memberId: messageParams['fromMemberId'],
           },
-          conversationParams
+          {
+            isRead: true,
+            ...conversationParams,
+          }
         );
         conversationParams['userId'] = messageParams['fromMemberId'];
         conversationParams['memberId'] = messageParams['toMemberId'];

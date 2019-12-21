@@ -7,7 +7,7 @@ import jose from 'node-jose';
 import { success, failure, dbConnect } from '../../utils';
 import { MessageController } from './message.ctrl';
 import { ERROR_KEYS } from '../../constants';
-import { createMessageValidation, UserModel } from '../../models';
+import { createMessageValidation, UserModel, MemberModel } from '../../models';
 import { generateAllow } from './helper';
 
 export const auth = (event, context, callback) => {
@@ -112,6 +112,19 @@ export const defaultHandler = async (event, context) => {
   });
 };
 
+export const readMessageHandler = async (event, context) => {
+  try {
+    const body = JSON.parse(event.body);
+    const postData = JSON.parse(body.data);
+    return success({
+      data: 'success',
+    });
+  } catch (error) {
+    console.log(error);
+    return failure(error);
+  }
+};
+
 export const sendMessageHandler = async (event, context) => {
   try {
     const body = JSON.parse(event.body);
@@ -125,6 +138,19 @@ export const sendMessageHandler = async (event, context) => {
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
 
     postData['fromMemberId'] = user._id.toString();
+    if (
+      postData['isGroupMessage'] &&
+      (postData['isGroupMessage'] == true ||
+        postData['isGroupMessage'] == 'true')
+    ) {
+      const memberParams = {
+        tripId: postData['toMemberId'],
+        memberId: user._id,
+        isMember: true,
+      };
+      const memberInfo = await MemberModel.get(memberParams);
+      if (memberInfo == null) throw ERROR_KEYS.NOT_GROUP_MEMBER;
+    }
 
     const message = {
       message: await MessageController.storeMessage(postData),

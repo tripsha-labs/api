@@ -96,7 +96,10 @@ export class MemberController {
             tripId: objTripId,
           };
           const memberDetails = await UserModel.getById(memberId.toString());
-          const memberExists = await MemberModel.getById(memberId.toString());
+          const memberExists = await MemberModel.get({
+            memberId: memberId,
+            isMember: true,
+          });
           switch (params['action']) {
             case 'addMember':
               updateParams['isMember'] = true;
