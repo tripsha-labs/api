@@ -18,6 +18,7 @@ const conversationSchema = new mongoose.Schema(
     mediaUrl: { type: String, default: '' },
     isRead: { type: Boolean, default: false },
     isArchived: { type: Boolean, default: false },
+    lastReadAt: { type: String },
   },
   {
     timestamps: true,

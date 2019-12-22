@@ -33,6 +33,10 @@ export class MessageModel {
     return Message.updateOne({ _id: id }, { $set: params });
   }
 
+  static updateMany(filter, update) {
+    return Message.updateMany(filter, { $set: update });
+  }
+
   static delete(params = {}) {
     return Message.deleteOne(params);
   }

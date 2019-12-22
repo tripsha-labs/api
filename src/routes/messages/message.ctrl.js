@@ -3,12 +3,11 @@
  * @description - This contains business logic for messages module
  */
 import https from 'https';
-import { Types } from 'mongoose';
 import moment from 'moment';
 import jose from 'node-jose';
 import _ from 'lodash';
 import { dbConnect, apigwManagementApi } from '../../utils';
-import { prepareCommonFilter, prepareSortFilter } from '../../helpers';
+import { prepareSortFilter } from '../../helpers';
 import { generateAllow } from './helper';
 import {
   UserModel,
@@ -24,16 +23,26 @@ export class MessageController {
       await dbConnect();
 
       let filterParams = {};
-
+      const user = await UserModel.get({
+        awsUserId: filter.awsUserId,
+      });
       if (
         filter.isGroup &&
         (filter.isGroup === true || filter.isGroup === 'true')
       ) {
-        filterParams = { tripId: filter.tripId };
-      } else {
-        const user = await UserModel.get({
-          awsUserId: filter.awsUserId,
+        const conversation = await ConversationModel.get({
+          tripId: filter.tripId,
+          memberId: user._id.toString(),
         });
+        filterParams = {
+          tripId: filter.tripId,
+        };
+        if (conversation && conversation.isArchived && conversation.leftOn) {
+          filterParams['updatedAt'] = {
+            $lte: new Date(parseInt(conversation.leftOn) * 1000),
+          };
+        }
+      } else {
         filterParams = {
           $or: [
             {
@@ -137,6 +146,7 @@ export class MessageController {
         joinedOn: 1,
         isGroup: 1,
         isRead: 1,
+        lastReadAt: 1,
         isArchived: 1,
       };
       const tripProjection = {
@@ -457,21 +467,26 @@ export class MessageController {
         delete messageParams['toMemberId'];
       }
       const user = await UserModel.getById(messageParams['fromMemberId']);
+      messageParams['isRead'] = true;
       const message = await MessageModel.create(messageParams);
       const conversationParams = _.cloneDeep(messageParams);
       if (messageParams['isGroupMessage']) {
         await ConversationModel.addOrUpdate(
           {
             tripId: messageParams['tripId'],
+            $or: [{ isArchived: { $exists: false } }, { isArchived: false }],
           },
-          conversationParams
+          {
+            ...conversationParams,
+            isRead: false,
+          }
         );
         await ConversationModel.addOrUpdate(
           {
             tripId: messageParams['tripId'],
             memberId: messageParams['fromMemberId'],
           },
-          { isRead: true }
+          { isRead: true, lastReadAt: moment().unix() }
         );
       } else {
         // 1 to 1 messaging
@@ -485,8 +500,9 @@ export class MessageController {
             memberId: messageParams['fromMemberId'],
           },
           {
-            isRead: true,
             ...conversationParams,
+            isRead: true,
+            lastReadAt: moment().unix(),
           }
         );
         conversationParams['userId'] = messageParams['fromMemberId'];
@@ -496,7 +512,10 @@ export class MessageController {
             userId: messageParams['fromMemberId'],
             memberId: messageParams['toMemberId'],
           },
-          conversationParams
+          {
+            ...conversationParams,
+            isRead: false,
+          }
         );
       }
       const resMessage = JSON.parse(JSON.stringify(message));
@@ -526,15 +545,15 @@ export class MessageController {
     ) {
       const conversations = await ConversationModel.getAll({
         tripId: params['tripId'],
+        $or: [{ isArchived: { $exists: false } }, { isArchived: false }],
       });
       const memberIds = [];
       conversations.map(conversation => {
-        if (params['fromMemberId'] !== conversation.memberId)
-          memberIds.push(conversation.memberId);
+        memberIds.push(conversation.memberId);
       });
       query['userId'] = { $in: memberIds };
     } else {
-      query['userId'] = params['toMemberId'];
+      query['userId'] = { $in: [params['toMemberId'], params['fromMemberId']] };
     }
     const connectionIds = await ConnectionModel.distinctConnections(query);
     if (connectionIds && connectionIds.length > 0) {
@@ -551,5 +570,33 @@ export class MessageController {
       await Promise.all(promises);
     }
     return Promise.resolve();
+  }
+
+  static async readMessages(event, params) {
+    // Update conversation
+    const queryConversations = {
+      memberId: params['userId'],
+      isRead: false,
+    };
+    if (params.isGroupMessage) {
+      queryConversations['tripId'] = params['tripId'];
+    } else {
+      queryConversations['userId'] = params['memberId'];
+    }
+    console.log(queryConversations);
+    await ConversationModel.updateMany(queryConversations, {
+      isRead: true,
+      lastReadAt: moment().unix(),
+    });
+
+    // Update messages
+    // if (!params.isGroupMessage) {
+    //   const queryMessages = {
+    //     'isRead': false,
+    //     'toMemberId': params['userId'],
+    //     'fromMemberId': params['memberId']
+    //   }
+    //   await MessageModel.updateMany(queryMessages, { isRead: true });
+    // }
   }
 }
