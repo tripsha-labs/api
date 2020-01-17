@@ -4,6 +4,11 @@
  */
 import mongoose, { Schema } from 'mongoose';
 
+const ItinerarySchema = new Schema({
+  description: String,
+  imageUrl: String,
+});
+
 const tripSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, index: true },
@@ -26,6 +31,9 @@ const tripSchema = new mongoose.Schema(
     languages: [String],
     interests: [String],
     pictureUrls: [String],
+    intinerary: [ItinerarySchema],
+    priceIncludes: String,
+    priceExcludes: String,
   },
   {
     timestamps: true,

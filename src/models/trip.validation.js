@@ -54,7 +54,15 @@ const tripSchema = {
     empty: true,
     positive: true,
   },
-
+  intinerary: {
+    type: 'array',
+    items: {
+      description: 'string',
+      imageUrl: 'string',
+    },
+  },
+  priceIncludes: 'string',
+  priceExcludes: 'string',
   isPublic: {
     type: 'boolean',
     optional: true,
