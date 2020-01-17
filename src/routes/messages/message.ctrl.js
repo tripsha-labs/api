@@ -266,7 +266,7 @@ export class MessageController {
     }
   }
 
-  static async addSupportMember() {
+  static async addSupportMember(id) {
     try {
       await dbConnect();
       const supportUser = await UserModel.get({ email: 'hello@tripsha.com' });
@@ -280,22 +280,29 @@ export class MessageController {
         message: 'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
         fromMemberId: supportUser._id.toString(),
       };
-      await MessageModel.create(message);
-      const params = {
-        memberId: supportUser._id.toString(),
-        message: 'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
-        userId: user._id.toString(),
-      };
-      await ConversationModel.addOrUpdate(
-        { userId: params.userId, memberId: params.memberId },
-        params
-      );
-      params['userId'] = supportUser._id.toString();
-      params['memberId'] = user._id.toString();
-      await ConversationModel.addOrUpdate(
-        { userId: params.userId, memberId: params.memberId },
-        params
-      );
+      const messageCount = await MessageModel.count({
+        toMemberId: user._id.toString(),
+        fromMemberId: supportUser._id.toString(),
+      });
+      if (messageCount <= 0) {
+        await MessageModel.create(message);
+        const params = {
+          memberId: supportUser._id.toString(),
+          message:
+            'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
+          userId: user._id.toString(),
+        };
+        await ConversationModel.addOrUpdate(
+          { userId: params.userId, memberId: params.memberId },
+          params
+        );
+        params['userId'] = supportUser._id.toString();
+        params['memberId'] = user._id.toString();
+        await ConversationModel.addOrUpdate(
+          { userId: params.userId, memberId: params.memberId },
+          params
+        );
+      }
     } catch (err) {
       console.log(err);
     }
