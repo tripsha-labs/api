@@ -4,6 +4,7 @@
  */
 import urldecode from 'urldecode';
 import { UserController } from './user.ctrl';
+import { MessageController } from '../messages/message.ctrl';
 import {
   success,
   failure,
@@ -124,6 +125,8 @@ export const updateUser = async (event, context) => {
     const result = await UserController.updateUser(urldecode(id), {
       ...data,
     });
+    // Add support user in the conversation
+    await MessageController.addSupportMember(urldecode(id));
     return success(result);
   } catch (error) {
     console.log(error);

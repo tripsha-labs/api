@@ -23,10 +23,25 @@ const tripSchema = {
     integer: true,
   },
   description: { type: 'string', empty: false, optional: true },
+  priceIncludes: { type: 'string', empty: false, optional: true },
+  priceExcludes: { type: 'string', empty: false, optional: true },
+  description: { type: 'string', empty: false, optional: true },
   destinations: {
     type: 'array',
     optional: true,
     items: 'string',
+  },
+  itenary: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        description: { type: 'string', require: true },
+        imageUrl: { type: 'string', require: true },
+      },
+    },
   },
   languages: {
     type: 'array',

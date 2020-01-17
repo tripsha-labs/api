@@ -39,12 +39,12 @@ provider:
   stage: staging
   # stage: prod-api
   region: us-east-1
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - 'execute-api:ManageConnections'
-      Resource:
-        - 'arn:aws:execute-api:*:*:**/@connections/*'
+  # iamRoleStatements:
+  #   - Effect: Allow
+  #     Action:
+  #       - 'execute-api:ManageConnections'
+  #     Resource:
+  #       - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
   individually: true
 

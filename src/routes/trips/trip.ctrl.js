@@ -4,15 +4,18 @@
  */
 import moment from 'moment';
 import _ from 'lodash';
-import { dbConnect, dbClose } from '../../utils/db-connect';
+import { dbConnect } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
   MemberModel,
   validateTripLength,
   UserModel,
+  ConversationModel,
+  MessageModel,
 } from '../../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
+
 export class TripController {
   static async listTrips(filter, memberId) {
     try {
@@ -34,12 +37,12 @@ export class TripController {
           maxGroupSize: { $lte: parseInt(filter.maxGroupSize) },
         });
 
-      if (filter.minCost)
+      if (filter.minCost && filter.minCost > 0)
         multiFilter.push({
           cost: { $gte: parseInt(filter.minCost) },
         });
 
-      if (filter.maxCost)
+      if (filter.maxCost && filter.maxCost < 10000)
         multiFilter.push({
           cost: { $lte: parseInt(filter.maxCost) },
         });
@@ -143,8 +146,6 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -165,15 +166,37 @@ export class TripController {
       params['tripLength'] = tripLength;
 
       await dbConnect();
-      params['ownerId'] = await UserModel.get({ awsUserId: params.ownerId });
+      const user = await UserModel.get({ awsUserId: params.ownerId });
+      params['ownerId'] = user;
       const trip = await TripModel.create(params);
       const addMemberParams = {
-        memberId: trip.ownerId,
+        memberId: user._id.toString(),
         tripId: trip._id,
         isOwner: true,
         isMember: true,
+        joinedOn: moment().unix(),
       };
       await MemberModel.create(addMemberParams);
+
+      const conversationParams = {
+        memberId: user._id.toString(),
+        tripId: trip._id.toString(),
+        joinedOn: moment().unix(),
+        message: params['title'] + ' created by ' + user['firstName'],
+        messageType: 'info',
+        isGroup: true,
+      };
+      await ConversationModel.create(conversationParams);
+
+      const messageParams = {
+        tripId: trip._id.toString(),
+        message: params['title'] + ' created by ' + user['firstName'],
+        messageType: 'info',
+        isGroupMessage: true,
+        fromMemberId: user._id.toString(),
+      };
+      await MessageModel.create(messageParams);
+
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
@@ -193,8 +216,6 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -271,8 +292,6 @@ export class TripController {
       return 'success';
     } catch (error) {
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -300,22 +319,17 @@ export class TripController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
   static async deleteTrip(tripId) {
     try {
       await dbConnect();
-      await TripModel.delete({ _id: tripId });
-      await MemberModel.delete({ tripId: tripId });
+      await TripModel.update(tripId, { isActive: false });
       //TODO: Delete members and other dependecies with the trip
       return 'success';
     } catch (error) {
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
@@ -403,8 +417,6 @@ export class TripController {
       };
     } catch (error) {
       throw error;
-    } finally {
-      dbClose();
     }
   }
 }

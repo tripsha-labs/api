@@ -16,7 +16,7 @@ export class MessageModel {
     return messages;
   }
 
-  static aggregate(params = {}) {
+  static aggregate(params) {
     return Message.aggregate(params);
   }
 
@@ -31,6 +31,10 @@ export class MessageModel {
 
   static update(id, params = {}) {
     return Message.updateOne({ _id: id }, { $set: params });
+  }
+
+  static updateMany(filter, update) {
+    return Message.updateMany(filter, { $set: update });
   }
 
   static delete(params = {}) {

@@ -60,4 +60,9 @@ export const ERROR_KEYS = {
       'Whoops! Looks like that username already exists! Please select a different one and try again.',
     code: 400,
   },
+  NOT_GROUP_MEMBER: {
+    type: 'notgroupmember',
+    message: 'You are not a group member.',
+    code: 400,
+  },
 };

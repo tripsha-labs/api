@@ -3,7 +3,7 @@
  * @description - This will handle all business logic for country
  */
 import { CountryModel } from '../../models';
-import { dbConnect, dbClose } from '../../utils/db-connect';
+import { dbConnect } from '../../utils';
 import { prepareCommonFilter } from '../../helpers';
 
 export class CountryController {
@@ -24,8 +24,6 @@ export class CountryController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 }

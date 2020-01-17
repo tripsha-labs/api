@@ -30,6 +30,8 @@ const userSchema = new mongoose.Schema(
     isLookingForTravel: { type: Boolean, default: true },
     spokenLanguages: [String],
     interests: [String],
+    isOnline: { type: Boolean, default: false },
+    lastOnlineTime: { type: String },
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
     isIdentityVerified: { type: Boolean, default: false },
