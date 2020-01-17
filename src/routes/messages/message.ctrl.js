@@ -266,6 +266,40 @@ export class MessageController {
     }
   }
 
+  static async addSupportMember() {
+    try {
+      await dbConnect();
+      const supportUser = await UserModel.get({ email: 'hello@tripsha.com' });
+      const user = await UserModel.get({ awsUserId: id });
+      const message = {
+        messageType: 'text',
+        isGroupMessage: false,
+        isEdited: false,
+        isRead: false,
+        toMemberId: user._id.toString(),
+        message: 'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
+        fromMemberId: supportUser._id.toString(),
+      };
+      await MessageModel.create(message);
+      const params = {
+        memberId: supportUser._id.toString(),
+        message: 'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
+        userId: user._id.toString(),
+      };
+      await ConversationModel.addOrUpdate(
+        { userId: params.userId, memberId: params.memberId },
+        params
+      );
+      params['userId'] = supportUser._id.toString();
+      params['memberId'] = user._id.toString();
+      await ConversationModel.addOrUpdate(
+        { userId: params.userId, memberId: params.memberId },
+        params
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
   static async sendMessageRest(message, event) {
     try {
       await dbConnect();
