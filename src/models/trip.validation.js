@@ -31,13 +31,15 @@ const tripSchema = {
     optional: true,
     items: 'string',
   },
-  itenary: {
+  itinerary: {
     type: 'array',
     optional: true,
     items: {
       type: 'object',
       optional: true,
       props: {
+        id: { type: 'string', require: true },
+        title: { type: 'string', require: true },
         description: { type: 'string', require: true },
         imageUrl: { type: 'string', require: true },
       },

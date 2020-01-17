@@ -17,7 +17,7 @@ const tripSchema = new mongoose.Schema(
     groupSize: { type: Number, default: 0 },
     favoriteCount: { type: Number, default: 0 },
     tripLength: { type: Number, default: 0 },
-    itenery: { type: Array, default: [] },
+    itinerary: { type: Array, default: [] },
     price_includes: { type: String },
     price_excludes: { type: String },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
