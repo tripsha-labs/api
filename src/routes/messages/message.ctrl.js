@@ -616,15 +616,14 @@ export class MessageController {
   static async readMessages(event, params) {
     // Update conversation
     const queryConversations = {
-      memberId: params['userId'],
+      memberId: params.sender,
       isRead: false,
     };
-    if (params.isGroupMessage) {
+    if (params.isGroup) {
       queryConversations['tripId'] = params['tripId'];
     } else {
-      queryConversations['userId'] = params['memberId'];
+      queryConversations.userId = params.receiver;
     }
-    console.log(queryConversations);
     await ConversationModel.updateMany(queryConversations, {
       isRead: true,
       lastReadAt: moment().unix(),

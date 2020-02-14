@@ -121,7 +121,8 @@ export const readMessageHandler = async (event, context) => {
     const user = await UserModel.get({ awsUsername: username });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
 
-    postData['userId'] = user._id.toString();
+    postData.sender = user._id.toString();
+    postData.receiver = postData.userId;
     await MessageController.readMessages(event, postData);
     return success({
       data: 'success',
