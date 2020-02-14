@@ -25,7 +25,6 @@ const tripSchema = {
   description: { type: 'string', empty: false, optional: true },
   priceIncludes: { type: 'string', empty: false, optional: true },
   priceExcludes: { type: 'string', empty: false, optional: true },
-  description: { type: 'string', empty: false, optional: true },
   destinations: {
     type: 'array',
     optional: true,
@@ -71,12 +70,16 @@ const tripSchema = {
     empty: true,
     positive: true,
   },
-
   isPublic: {
     type: 'boolean',
     optional: true,
     empty: false,
     values: ['true', 'false'],
+  },
+  spotsAvailable: {
+    type: 'number',
+    optional: false,
+    integer: true,
   },
   $$strict: true,
 };
@@ -99,6 +102,11 @@ const tripUpdateSchema = {
     positive: true,
     integer: true,
     optional: true,
+  },
+  spotsAvailable: {
+    type: 'number',
+    optional: true,
+    integer: true,
   },
 };
 export const validateTripLength = (startDate, endDate) => {

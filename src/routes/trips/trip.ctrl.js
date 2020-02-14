@@ -285,8 +285,7 @@ export class TripController {
       trip['spotsFilled'] = Math.round(
         (memberCount / maxGroupSize) * APP_CONSTANTS.SPOTSFILLED_PERCEENT
       );
-      trip['isFull'] =
-        trip['spotsFilled'] === APP_CONSTANTS.SPOTSFILLED_PERCEENT;
+      trip['isFull'] = trip['spotsAvailable'] === 0;
 
       await TripModel.update(tripId, trip);
       return 'success';

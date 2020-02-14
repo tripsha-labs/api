@@ -26,6 +26,7 @@ const tripSchema = new mongoose.Schema(
     isArchived: { type: Boolean, default: false },
     isFull: { type: Boolean, default: false },
     spotsFilled: { type: Number, default: 0 },
+    spotsAvailable: Number,
     destinations: [String],
     languages: [String],
     interests: [String],
