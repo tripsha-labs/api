@@ -617,7 +617,6 @@ export class MessageController {
     // Update conversation
     const queryConversations = {
       memberId: params.sender,
-      isRead: false,
     };
     if (params.isGroup) {
       queryConversations['tripId'] = params['tripId'];
@@ -628,15 +627,5 @@ export class MessageController {
       isRead: true,
       lastReadAt: moment().unix(),
     });
-
-    // Update messages
-    // if (!params.isGroupMessage) {
-    //   const queryMessages = {
-    //     'isRead': false,
-    //     'toMemberId': params['userId'],
-    //     'fromMemberId': params['memberId']
-    //   }
-    //   await MessageModel.updateMany(queryMessages, { isRead: true });
-    // }
   }
 }
