@@ -64,12 +64,6 @@ const tripSchema = {
     optional: true,
     empty: true,
   },
-  cost: {
-    type: 'number',
-    optional: true,
-    empty: true,
-    positive: true,
-  },
   isPublic: {
     type: 'boolean',
     optional: true,
@@ -80,6 +74,60 @@ const tripSchema = {
     type: 'number',
     optional: false,
     integer: true,
+  },
+  depositAmount: {
+    type: 'number',
+    optional: true,
+    integer: true,
+    positive: true,
+  },
+  depositExpirationDate: {
+    type: 'number',
+    optional: true,
+    integer: true,
+    positive: true,
+  },
+  depositAndAddOns: {
+    type: 'boolean',
+    optional: true,
+  },
+  rooms: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        cost: { type: 'number' },
+        available: { type: 'number' },
+      },
+    },
+  },
+  addOns: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        cost: { type: 'number' },
+        available: { type: 'number' },
+      },
+    },
+  },
+  discount: {
+    type: 'object',
+    optional: true,
+    props: {
+      discType: { type: 'enum', values: ['usd', 'percentage'] },
+      amount: { type: 'number' },
+      expirationDate: { type: 'number' },
+      includeAddOns: { type: 'boolean' },
+    },
   },
   $$strict: true,
 };
@@ -109,6 +157,7 @@ const tripUpdateSchema = {
     integer: true,
   },
 };
+
 export const validateTripLength = (startDate, endDate) => {
   try {
     startDate = moment(startDate, DATE_FORMAT);
