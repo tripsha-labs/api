@@ -157,6 +157,7 @@ export class MessageController {
         'trip.ownerId': 1,
         'trip.groupSize': 1,
         'trip._id': 1,
+        'trip.isActive': 1,
       };
       const userProjection = {
         'user.avatarUrl': 1,
