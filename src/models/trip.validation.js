@@ -64,6 +64,12 @@ const tripSchema = {
     optional: true,
     empty: true,
   },
+  cost: {
+    type: 'number',
+    optional: true,
+    empty: true,
+    positive: true,
+  },
   isPublic: {
     type: 'boolean',
     optional: true,

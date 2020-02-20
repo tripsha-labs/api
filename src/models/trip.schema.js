@@ -11,6 +11,7 @@ const tripSchema = new mongoose.Schema(
     startDate: { type: Number, required: true },
     endDate: { type: Number, required: true },
     focus: String,
+    cost: { type: Number, required: false },
     minGroupSize: Number,
     maxGroupSize: Number,
     groupSize: { type: Number, default: 0 },
