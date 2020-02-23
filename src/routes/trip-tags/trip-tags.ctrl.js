@@ -3,7 +3,7 @@
  * @description - This will handle trip tags business logic
  */
 import { TripTagModel } from '../../models';
-import { dbConnect, dbClose } from '../../utils/db-connect';
+import { dbConnect } from '../../utils';
 import { prepareCommonFilter } from '../../helpers';
 
 export class TripTagsController {
@@ -24,8 +24,6 @@ export class TripTagsController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 }

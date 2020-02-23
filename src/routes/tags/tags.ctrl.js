@@ -3,7 +3,7 @@
  * @description - This will hadle tags module business logic
  */
 import { TagModel } from '../../models';
-import { dbConnect, dbClose } from '../../utils/db-connect';
+import { dbConnect } from '../../utils';
 import { prepareCommonFilter } from '../../helpers';
 export class TagsController {
   static async listTags(filter) {
@@ -23,8 +23,6 @@ export class TagsController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 }

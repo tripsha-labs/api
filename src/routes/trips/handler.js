@@ -32,6 +32,11 @@ export const listTrips = async (event, context) => {
 export const createTrip = async (event, context) => {
   try {
     const data = JSON.parse(event.body) || {};
+
+    if (typeof data.spotsAvailable === 'undefined') {
+      data.spotsAvailable = data.maxGroupSize - 1;
+    }
+
     const errors = createTripValidation(data);
     if (errors != true) throw errors.shift();
 

@@ -5,10 +5,16 @@
 import { Types } from 'mongoose';
 import _ from 'lodash';
 import moment from 'moment';
-import { MemberModel, TripModel } from '../../models';
-import { dbConnect, dbClose } from '../../utils/db-connect';
+import {
+  MemberModel,
+  TripModel,
+  ConversationModel,
+  UserModel,
+  MessageModel,
+} from '../../models';
+import { dbConnect } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
-import { APP_CONSTANTS } from '../../constants';
+import { APP_CONSTANTS, ERROR_KEYS } from '../../constants';
 
 export class MemberController {
   static async list(filter) {
@@ -70,42 +76,116 @@ export class MemberController {
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 
   static async memberAction(params) {
     try {
-      await dbConnect();
-      if (params['memberIds'] && params['memberIds'].length > 0) {
-        params['memberIds'] = params['memberIds'].map(id => Types.ObjectId(id));
-        params.tripId = Types.ObjectId(params.tripId);
-        const members = await MemberModel.aggregate([
-          {
-            $match: {
-              memberId: { $in: params['memberIds'] },
-              tripId: params.tripId,
-            },
-          },
-        ]);
+      const { memberIds, tripId } = params || { memberIds: [] };
+      if (memberIds.length > 0) {
+        await dbConnect();
+        const user = await UserModel.get({ awsUserId: params['awsUserId'] });
+        const objMemberIds = memberIds.map(id => Types.ObjectId(id));
+        const objTripId = Types.ObjectId(tripId);
+        const trip = await TripModel.getById(objTripId);
+        if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
 
-        const memberIds = members.map(member =>
-          JSON.stringify(member.memberId)
-        );
-
-        const actions = params['memberIds'].map(memberId => {
+        const actions = objMemberIds.map(async memberId => {
           const updateParams = {
-            memberId: memberId,
-            tripId: params.tripId,
+            memberId,
+            tripId: objTripId,
           };
+          const memberDetails = await UserModel.getById(memberId.toString());
+          const memberExists = await MemberModel.get({
+            memberId: memberId,
+            isMember: true,
+          });
           switch (params['action']) {
             case 'addMember':
               updateParams['isMember'] = true;
               updateParams['joinedOn'] = moment().unix();
+
+              if (!memberExists) {
+                // Message update
+                const messageParams = {
+                  tripId: trip._id.toString(),
+                  message: memberDetails['firstName'] + ' has joined the group',
+                  messageType: 'info',
+                  isGroupMessage: true,
+                  fromMemberId: user._id.toString(),
+                  isRead: true,
+                };
+                await MessageModel.create(messageParams);
+
+                // conversation update
+                const memberAddDetails = {
+                  memberId: memberDetails._id.toString(),
+                  tripId: trip._id.toString(),
+                  message: memberDetails['firstName'] + ' has joined the group',
+                  messageType: 'info',
+                  isGroup: true,
+                };
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                    memberId: memberId.toString(),
+                  },
+                  {
+                    ...memberAddDetails,
+                    joinedOn: moment().unix(),
+                    isArchived: false,
+                  }
+                );
+                delete memberAddDetails['memberId'];
+                delete memberAddDetails['tripId'];
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                  },
+                  memberAddDetails
+                );
+              }
               break;
             case 'removeMember':
               updateParams['isMember'] = false;
+              updateParams['leftOn'] = moment().unix();
+              // conversation update
+              if (memberExists) {
+                // Message update
+                const messageParams = {
+                  tripId: trip._id.toString(),
+                  message: memberDetails['firstName'] + ' has left the group',
+                  messageType: 'info',
+                  isGroupMessage: true,
+                  isRead: true,
+                  fromMemberId: user._id.toString(),
+                };
+                await MessageModel.create(messageParams);
+                // Conversation update
+                const memberRemoveDetails = {
+                  message: memberDetails['firstName'] + ' has left the group',
+                  messageType: 'info',
+                  isRead: false,
+                };
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                    memberId: memberId.toString(),
+                  },
+                  {
+                    ...memberRemoveDetails,
+                    isRead: true,
+                    leftOn: moment().unix(),
+                    isArchived: true,
+                  }
+                );
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                  },
+                  memberRemoveDetails
+                );
+              }
               break;
             case 'makeFavorite':
               updateParams['isFavorite'] = true;
@@ -113,44 +193,43 @@ export class MemberController {
               break;
             case 'makeUnFavorite':
               updateParams['isFavorite'] = false;
+              updateParams['unFavoriteOn'] = moment().unix();
               break;
           }
-
-          return _.indexOf(memberIds, JSON.stringify(memberId)) === -1
-            ? MemberModel.create(updateParams)
-            : MemberModel.update(
-                {
-                  memberId: memberId,
-                  tripId: params.tripId,
-                },
-                updateParams
-              );
+          return MemberModel.update(
+            {
+              memberId,
+              tripId: objTripId,
+            },
+            updateParams,
+            { upsert: true }
+          );
         });
 
         await Promise.all(actions);
-        const trip = await TripModel.getById(params.tripId);
-        if (trip) {
-          const memberCount = await MemberModel.count({
-            tripId: params.tripId,
-            isMember: true,
-            isActive: true,
-          });
-          const updateTrip = {
-            groupSize: memberCount,
-            isFull: memberCount >= trip['maxGroupSize'],
-            spotFilledRank: Math.round(
-              (memberCount / trip['maxGroupSize']) * 100
-            ),
-          };
-          await TripModel.update(params.tripId, updateTrip);
-        }
+
+        const memberCount = await MemberModel.count({
+          tripId: objTripId,
+          isMember: true,
+        });
+        const favoriteCount = await MemberModel.count({
+          tripId: objTripId,
+          isFavorite: true,
+        });
+        const updateTrip = {
+          groupSize: memberCount,
+          isFull: memberCount >= trip['maxGroupSize'],
+          favoriteCount: favoriteCount,
+          spotFilledRank: Math.round(
+            (memberCount / trip['maxGroupSize']) * 100
+          ),
+        };
+        await TripModel.update(objTripId, updateTrip);
       }
       return 'success';
     } catch (error) {
       console.log(error);
       throw error;
-    } finally {
-      dbClose();
     }
   }
 }

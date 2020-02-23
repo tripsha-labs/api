@@ -3,6 +3,8 @@
  * @description - Mongodb connector
  */
 import mongoose from 'mongoose';
+mongoose.Promise = global.Promise;
+let isConnected;
 
 export const dbConnect = () => {
   if (isConnected) {

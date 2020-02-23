@@ -38,6 +38,7 @@ export const memberActions = async (event, context) => {
     const params = JSON.parse(event.body) || {};
     const errors = memberActionValidation(params);
     if (errors != true) throw errors.shift();
+    params['awsUserId'] = event.requestContext.identity.cognitoIdentityId;
     const result = await MemberController.memberAction(params);
     return success(result);
   } catch (error) {
