@@ -69,16 +69,26 @@ export const createUser = async (event, context) => {
         username = username + generateRandomNumber();
       }
     }
-    const result = await UserController.createUser({
-      ...data,
-      username: username,
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
-    });
+    userExists = await UserController.isExists({ email: data['email'] });
+    let result = {};
+    if (userExists) {
+      result = await UserController.updateUserByEmail(data['email'], {
+        ...data,
+        username: username,
+        awsUserId: event.requestContext.identity.cognitoIdentityId,
+      });
+    } else {
+      result = await UserController.createUser({
+        ...data,
+        username: username,
+        awsUserId: event.requestContext.identity.cognitoIdentityId,
+      });
 
-    await subscribeUserToMailchimpAudience({
-      name: data.firstName + ' ' + data.lastName,
-      email: data.email,
-    });
+      await subscribeUserToMailchimpAudience({
+        name: data.firstName + ' ' + data.lastName,
+        email: data.email,
+      });
+    }
 
     return success(result);
   } catch (error) {
