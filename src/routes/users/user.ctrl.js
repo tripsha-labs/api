@@ -21,7 +21,7 @@ export class UserController {
   static async updateUserByEmail(email, user) {
     try {
       await dbConnect();
-      await UserModel.findOneAndUpdate({ email: email }, user);
+      await UserModel.update({ email: email }, user);
       return 'success';
     } catch (error) {
       console.log(error);
