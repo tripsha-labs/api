@@ -1,0 +1,24 @@
+createIntent:
+  handler: src/routes/payments/handler.createIntent
+  events:
+    - http:
+        path: payments/setup
+        method: get
+        cors: true
+        authorizer: aws_iam
+saveCard:
+  handler: src/routes/payments/handler.saveCard
+  events:
+    - http:
+        path: payments/save-card
+        method: post
+        cors: true
+        authorizer: aws_iam
+createPayment:
+  handler: src/routes/payments/handler.createPayment
+  events:
+    - http:
+        path: payments/charge
+        method: post
+        cors: true
+        authorizer: aws_iam
