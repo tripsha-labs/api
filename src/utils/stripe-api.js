@@ -4,8 +4,8 @@
  */
 import stripe from 'stripe';
 
-// Test keys
-const STRIPE_SECRET_KEY = 'sk_test_q9TlRhBG6Zrah9xD4ZOLYChu';
+const STRIPE_SECRET_KEY = 'sk_test_q9TlRhBG6Zrah9xD4ZOLYChu'; // test
+// const STRIPE_SECRET_KEY = 'sk_live_rWpYyDneJcw2NoTMCouIJnuh'; // production
 
 const createIntent = async () => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY);
