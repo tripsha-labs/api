@@ -105,46 +105,44 @@ export class MemberController {
               updateParams['isMember'] = true;
               updateParams['joinedOn'] = moment().unix();
 
-              if (!memberExists) {
-                // Message update
-                const messageParams = {
-                  tripId: trip._id.toString(),
-                  message: memberDetails['firstName'] + ' has joined the group',
-                  messageType: 'info',
-                  isGroupMessage: true,
-                  fromMemberId: user._id.toString(),
-                  isRead: true,
-                };
-                await MessageModel.create(messageParams);
+              // Message update
+              const messageParams = {
+                tripId: trip._id.toString(),
+                message: memberDetails['firstName'] + ' has joined the group',
+                messageType: 'info',
+                isGroupMessage: true,
+                fromMemberId: user._id.toString(),
+                isRead: true,
+              };
+              await MessageModel.create(messageParams);
 
-                // conversation update
-                const memberAddDetails = {
-                  memberId: memberDetails._id.toString(),
-                  tripId: trip._id.toString(),
-                  message: memberDetails['firstName'] + ' has joined the group',
-                  messageType: 'info',
-                  isGroup: true,
-                };
-                await ConversationModel.addOrUpdate(
-                  {
-                    tripId: tripId,
-                    memberId: memberId.toString(),
-                  },
-                  {
-                    ...memberAddDetails,
-                    joinedOn: moment().unix(),
-                    isArchived: false,
-                  }
-                );
-                delete memberAddDetails['memberId'];
-                delete memberAddDetails['tripId'];
-                await ConversationModel.addOrUpdate(
-                  {
-                    tripId: tripId,
-                  },
-                  memberAddDetails
-                );
-              }
+              // conversation update
+              const memberAddDetails = {
+                memberId: memberDetails._id.toString(),
+                tripId: trip._id.toString(),
+                message: memberDetails['firstName'] + ' has joined the group',
+                messageType: 'info',
+                isGroup: true,
+              };
+              await ConversationModel.addOrUpdate(
+                {
+                  tripId: tripId,
+                  memberId: memberId.toString(),
+                },
+                {
+                  ...memberAddDetails,
+                  joinedOn: moment().unix(),
+                  isArchived: false,
+                }
+              );
+              delete memberAddDetails['memberId'];
+              delete memberAddDetails['tripId'];
+              await ConversationModel.addOrUpdate(
+                {
+                  tripId: tripId,
+                },
+                memberAddDetails
+              );
               break;
             case 'removeMember':
               updateParams['isMember'] = false;
