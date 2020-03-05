@@ -39,23 +39,20 @@ export const createPayment = async (event, context) => {
   try {
     const data = JSON.parse(event.body) || {};
     const paymentMethods = await PaymentController.listPaymentMethods(
-      data.userId
+      data.stripeCustomerId
     );
 
     if (!paymentMethods || paymentMethods.length === 0) {
       throw new Error('No payment methods saved.');
     }
 
-    const paymentData = {
+    const paymentIntent = await PaymentController.createPaymentIntent({
       amount: data.amount,
       currency: data.currency,
-      userId: data.userId,
+      customerId: data.stripeCustomerId,
       paymentMethod: paymentMethods[0].id,
-    };
+    });
 
-    const paymentIntent = await PaymentController.createPaymentIntent(
-      paymentData
-    );
     return success(paymentIntent);
   } catch (error) {
     logError(error);

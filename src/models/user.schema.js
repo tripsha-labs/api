@@ -35,6 +35,8 @@ const userSchema = new mongoose.Schema(
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
     isIdentityVerified: { type: Boolean, default: false },
+    stripeCustomerId: String,
+    stripeAccountId: String,
   },
   {
     timestamps: true,
