@@ -7,3 +7,5 @@ export * from './response';
 export * from './aws-api';
 export * from './db-connect';
 export * from './mailchimp';
+export * from './stripe-api';
+export * from './log-error';
