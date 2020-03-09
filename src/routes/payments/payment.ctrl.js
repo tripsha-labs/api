@@ -53,4 +53,13 @@ export class PaymentController {
 
     return paymentIntent;
   }
+
+  static async validateCode(code) {
+    if (!code || typeof code !== 'string' || code.length === 0) {
+      throw new Error('Missing or invalid authorization code.');
+    }
+
+    const accountId = await StripeAPI.validateCode(code);
+    return accountId;
+  }
 }

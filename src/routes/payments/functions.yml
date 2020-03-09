@@ -22,3 +22,11 @@ createPayment:
         method: post
         cors: true
         authorizer: aws_iam
+verifyConnectAccount:
+  handler: src/routes/payments/handler.verifyConnectAccount
+  events:
+    - http:
+        path: payments/connect-oauth
+        method: post
+        cors: true
+        authorizer: aws_iam
