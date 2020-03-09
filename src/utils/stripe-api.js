@@ -49,9 +49,19 @@ const createPaymentIntent = async ({
   return paymentIntent;
 };
 
+const validateCode = async code => {
+  const stripeInstance = stripe(STRIPE_SECRET_KEY);
+  const resp = await stripeInstance.oauth.token({
+    grant_type: 'authorization_code',
+    code,
+  });
+  return resp.stripe_user_id;
+};
+
 export const StripeAPI = {
   createIntent,
   createCustomer,
   listPaymentMethods,
   createPaymentIntent,
+  validateCode,
 };
