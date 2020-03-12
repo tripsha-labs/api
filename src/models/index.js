@@ -32,3 +32,7 @@ export * from './conversation.model';
 
 export * from './connection.schema';
 export * from './connection.model';
+
+export * from './booking.schema';
+export * from './booking.model';
+export * from './booking.validation';

@@ -1,0 +1,32 @@
+createBooking:
+  handler: src/routes/trips/handler.createBooking
+  events:
+    - http:
+        path: booking
+        method: post
+        cors: true
+        authorizer: aws_iam
+listGuestBookings:
+  handler: src/routes/trips/handler.listGuestBookings
+  events:
+    - http:
+        path: bookings/guest
+        method: get
+        cors: true
+        authorizer: aws_iam
+listHostBookings:
+  handler: src/routes/trips/handler.listHostBookings
+  events:
+    - http:
+        path: bookings/host
+        method: get
+        cors: true
+        authorizer: aws_iam
+updateBooking:
+  handler: src/routes/trips/handler.updateBooking
+  events:
+    - http:
+        path: booking/{id}
+        method: put
+        cors: true
+        authorizer: aws_iam
