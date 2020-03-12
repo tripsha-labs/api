@@ -24,8 +24,13 @@ export const createIntent = async (event, context) => {
 export const saveCard = async (event, context) => {
   try {
     const data = JSON.parse(event.body) || {};
-    const stripeCustomer = await PaymentController.saveCard(data);
-    return success(stripeCustomer);
+    if (data.stripeCustomerId) {
+      const resp = await PaymentController.attachCard(data);
+      return success(resp);
+    } else {
+      const stripeCustomer = await PaymentController.saveCard(data);
+      return success(stripeCustomer);
+    }
   } catch (error) {
     logError(error);
     return failure(error);
@@ -38,21 +43,12 @@ export const saveCard = async (event, context) => {
 export const createPayment = async (event, context) => {
   try {
     const data = JSON.parse(event.body) || {};
-    const paymentMethods = await PaymentController.listPaymentMethods(
-      data.stripeCustomerId
-    );
-
-    if (!paymentMethods || paymentMethods.length === 0) {
-      throw new Error('No payment methods saved.');
-    }
-
     const paymentIntent = await PaymentController.createPaymentIntent({
       amount: data.amount,
       currency: data.currency,
       customerId: data.stripeCustomerId,
-      paymentMethod: paymentMethods[0].id,
+      paymentMethod: data.paymentMethod,
     });
-
     return success(paymentIntent);
   } catch (error) {
     logError(error);
@@ -68,6 +64,20 @@ export const verifyConnectAccount = async (event, context) => {
     const data = JSON.parse(event.body) || {};
     const stripeAccountId = await PaymentController.validateCode(data.code);
     return success(stripeAccountId);
+  } catch (error) {
+    logError(error);
+    return failure(error);
+  }
+};
+
+/**
+ * List payment methods
+ */
+export const listCards = async (event, context) => {
+  try {
+    const userId = event.requestContext.identity.cognitoIdentityId;
+    const paymentMethods = await PaymentController.listPaymentMethods(userId);
+    return success(paymentMethods);
   } catch (error) {
     logError(error);
     return failure(error);

@@ -30,3 +30,11 @@ verifyConnectAccount:
         method: post
         cors: true
         authorizer: aws_iam
+listCards:
+  handler: src/routes/payments/handler.listCards
+  events:
+    - http:
+        path: payments/list-cards
+        method: get
+        cors: true
+        authorizer: aws_iam

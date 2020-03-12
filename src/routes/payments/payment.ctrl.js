@@ -2,8 +2,9 @@
  * @name - Payment contoller
  * @description - This will handle business logic for Payment module
  */
-import { StripeAPI } from '../../utils';
+import { StripeAPI, dbConnect } from '../../utils';
 import { UserModel } from '../../models';
+import { ERROR_KEYS } from '../../constants';
 
 export class PaymentController {
   static async createIntent() {
@@ -19,9 +20,26 @@ export class PaymentController {
     return customer;
   }
 
-  static async listPaymentMethods(customerId) {
-    const paymentMethods = await StripeAPI.listPaymentMethods(customerId);
-    return paymentMethods.data;
+  static async attachCard(data) {
+    const { paymentMethod, stripeCustomerId } = data;
+    if (!paymentMethod) throw new Error('Missing payment method.');
+    if (!stripeCustomerId) throw new Error('Missing Stripe Customer ID.');
+    const resp = await StripeAPI.attachCard(paymentMethod, stripeCustomerId);
+    return resp;
+  }
+
+  static async listPaymentMethods(userId) {
+    try {
+      await dbConnect();
+      const user = await UserModel.get({ awsUserId: userId });
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      const paymentMethods = await StripeAPI.listPaymentMethods(
+        user.stripeCustomerId
+      );
+      return paymentMethods.data;
+    } catch (e) {
+      throw e;
+    }
   }
 
   static async createPaymentIntent({

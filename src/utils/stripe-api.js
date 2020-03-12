@@ -22,6 +22,14 @@ const createCustomer = async (paymentMethod, email) => {
   return customer;
 };
 
+const attachCard = async (paymentMethod, stripeCustomerId) => {
+  const stripeInstance = stripe(STRIPE_SECRET_KEY);
+  const resp = await stripeInstance.paymentMethods.attach(paymentMethod, {
+    customer: stripeCustomerId,
+  });
+  return resp;
+};
+
 const listPaymentMethods = async customerId => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY);
   const paymentMethods = await stripeInstance.paymentMethods.list({
@@ -61,6 +69,7 @@ const validateCode = async code => {
 export const StripeAPI = {
   createIntent,
   createCustomer,
+  attachCard,
   listPaymentMethods,
   createPaymentIntent,
   validateCode,
