@@ -58,6 +58,7 @@ functions:
   - ${file(src/routes/members/functions.yml)}
   - ${file(src/routes/seeds/functions.yml)}
   - ${file(src/routes/payments/functions.yml)}
+  - ${file(src/routes/bookings/functions.yml)}
 
 resources:
   # API Gateway Errors
