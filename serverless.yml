@@ -2,23 +2,23 @@ service: tripsha-app-api
 
 plugins:
   - serverless-webpack
-  - serverless-domain-manager
+  # - serverless-domain-manager
   - serverless-plugin-split-stacks
   - serverless-offline
 custom:
   stage: ${opt:stage, self:provider.stage}
-  customDomain:
-    domainName: ${self:provider.stage}-api.tripsha.com
-    basePath: ''
-    stage: ${self:provider.stage}
-    createRoute53Record: true
-    endpointType: 'REGIONAL'
-    websockets:
-      domainName: ${self:provider.stage}-api.tripsha.com
-      basePath: ''
-      createRoute53Record: true
-      endpointType: 'REGIONAL'
-      stage: '${self:provider.stage}'
+  # customDomain:
+  #   domainName: ${self:provider.stage}-api.tripsha.com
+  #   basePath: ''
+  #   stage: ${self:provider.stage}
+  #   createRoute53Record: true
+  #   endpointType: 'REGIONAL'
+  #   websockets:
+  #     domainName: ${self:provider.stage}-api.tripsha.com
+  #     basePath: ''
+  #     createRoute53Record: true
+  #     endpointType: 'REGIONAL'
+  #     stage: '${self:provider.stage}'
 
   webpack:
     webpackConfig: ./webpack.config.js
@@ -34,17 +34,17 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   # stage: dev
   stage: staging
   # stage: prod-api
   region: us-east-1
-  # iamRoleStatements:
-  #   - Effect: Allow
-  #     Action:
-  #       - 'execute-api:ManageConnections'
-  #     Resource:
-  #       - 'arn:aws:execute-api:*:*:**/@connections/*'
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - 'execute-api:ManageConnections'
+      Resource:
+        - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
   individually: true
 
