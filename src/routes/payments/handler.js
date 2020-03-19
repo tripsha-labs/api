@@ -48,6 +48,7 @@ export const createPayment = async (event, context) => {
       currency: data.currency,
       customerId: data.stripeCustomerId,
       paymentMethod: data.paymentMethod,
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
     return success(paymentIntent);
   } catch (error) {
