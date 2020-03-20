@@ -19,7 +19,7 @@ export const createBooking = async (event, context) => {
 
     const result = await BookingController.createBooking({
       ...data,
-      guestAwsId: event.requestContext.identity.cognitoIdentityId,
+      guestId: event.requestContext.identity.cognitoIdentityId,
     });
 
     return success(result);
@@ -45,13 +45,20 @@ export const listGuestBookings = async (event, context) => {
 };
 
 /**
- *  List all bookings for trips the user is hosting
+ *  List all bookings for a given trip ID
  */
 export const listHostBookings = async (event, context) => {
   try {
-    const result = await BookingController.listHostBookings(
-      event.requestContext.identity.cognitoIdentityId
-    );
+    const params = event.queryStringParameters
+      ? event.queryStringParameters
+      : {};
+
+    if (!params.tripId) {
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
+    }
+
+    const result = await BookingController.listHostBookings(params.tripId);
+
     return success(result);
   } catch (error) {
     logError(error);

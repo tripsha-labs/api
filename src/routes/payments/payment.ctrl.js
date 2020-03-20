@@ -47,6 +47,7 @@ export class PaymentController {
     currency,
     customerId,
     paymentMethod,
+    awsUserId,
   }) {
     if (!amount || Number.isNaN(amount)) {
       throw new Error('Invalid payment amount.');
@@ -62,11 +63,19 @@ export class PaymentController {
       throw new Error('Missing Stripe paymentMethodId.');
     }
 
+    await dbConnect();
+    const user = await UserModel.get({ awsUserId });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    if (!user.stripeAccountId)
+      throw new Error('Host does not have a Stripe account.');
+    const beneficiary = user.stripeAccountId;
+
     const paymentIntent = await StripeAPI.createPaymentIntent({
       amount,
       currency,
       customerId,
       paymentMethod,
+      beneficiary,
     });
 
     return paymentIntent;
