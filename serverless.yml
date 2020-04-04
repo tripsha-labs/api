@@ -47,6 +47,9 @@ provider:
         - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
   individually: true
+  exclude:
+    - .git/**
+    - tmp/**
 
 functions:
   - ${file(src/routes/users/functions.yml)}

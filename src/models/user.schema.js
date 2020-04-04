@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema(
     avatarUrl: String,
     bucketList: String,
     livesIn: String,
+    isAdmin: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     isLookingForTravel: { type: Boolean, default: true },
     spokenLanguages: [String],

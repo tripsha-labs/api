@@ -3,6 +3,7 @@
  * @description - This will handle all trip related API requests
  */
 import { TripController } from './trip.ctrl';
+import { UserController } from '../users/user.ctrl';
 import { success, failure } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { updateTripValidation, createTripValidation } from '../../models';
@@ -62,10 +63,13 @@ export const updateTrip = async (event, context) => {
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const errors = updateTripValidation(data);
     if (errors != true) throw errors.shift();
-
-    const result = await TripController.updateTrip(event.pathParameters.id, {
-      ...data,
-    });
+    const result = await TripController.updateTrip(
+      event.pathParameters.id,
+      {
+        ...data,
+      },
+      event.requestContext.identity.cognitoIdentityId
+    );
     return success(result);
   } catch (error) {
     console.log(error);
@@ -116,11 +120,13 @@ export const myTrips = async (event, context) => {
     const params = event.queryStringParameters
       ? event.queryStringParameters
       : {};
-    if (!params.memberId)
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
+    // if (!params.memberId)
+    //   throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
+
     const result = await TripController.myTrips({
-      isMember: true,
       ...params,
+      memberId: event.requestContext.identity.cognitoIdentityId,
+      isMember: true,
     });
     return success(result);
   } catch (error) {
@@ -138,9 +144,9 @@ export const savedTrips = async (event, context) => {
       ? event.queryStringParameters
       : {};
     const result = await TripController.myTrips({
+      ...params,
       memberId: event.requestContext.identity.cognitoIdentityId,
       isFavorite: true,
-      ...params,
     });
     return success(result);
   } catch (error) {

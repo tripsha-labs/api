@@ -65,4 +65,9 @@ export const ERROR_KEYS = {
     message: 'You are not a group member.',
     code: 400,
   },
+  UNAUTHORIZED: {
+    type: 'Unauthorized',
+    message: 'You do not have sufficient permission to perform this operation.',
+    code: 403,
+  },
 };
