@@ -67,6 +67,11 @@ export class UserController {
                 $regex: new RegExp('^' + (filter.search || ''), 'i'),
               },
             },
+            {
+              lastName: {
+                $regex: new RegExp('^' + (filter.search || ''), 'i'),
+              },
+            },
           ],
         },
         ...prepareCommonFilter(filter, ['username']),

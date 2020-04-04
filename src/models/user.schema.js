@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema(
     avatarUrl: String,
     bucketList: String,
     livesIn: String,
+    isAdmin: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     isLookingForTravel: { type: Boolean, default: true },
     spokenLanguages: [String],
@@ -35,6 +36,8 @@ const userSchema = new mongoose.Schema(
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
     isIdentityVerified: { type: Boolean, default: false },
+    stripeCustomerId: String,
+    stripeAccountId: String,
   },
   {
     timestamps: true,

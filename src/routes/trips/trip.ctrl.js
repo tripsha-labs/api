@@ -3,6 +3,7 @@
  * @description - This will handle business logic for Trip module
  */
 import moment from 'moment';
+import { Types } from 'mongoose';
 import _ from 'lodash';
 import { dbConnect } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
@@ -219,15 +220,22 @@ export class TripController {
     }
   }
 
-  static async updateTrip(tripId, trip) {
+  static async updateTrip(tripId, trip, awsUserId) {
     try {
       await dbConnect();
       const tripDetails = await TripModel.getById(tripId);
+      const user = await UserModel.get({ awsUserId: awsUserId });
+      if (!user) throw ERROR_KEYS.UNAUTHORIZED;
       if (!tripDetails) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      if (!(tripDetails['ownerId'] == user['_id'] || user['isAdmin'] == true)) {
+        throw ERROR_KEYS.UNAUTHORIZED;
+      }
+
       if (
         trip['startDate'] &&
         trip['startDate'] != '' &&
-        (trip['endDate'] && trip['endDate'] != '')
+        trip['endDate'] &&
+        trip['endDate'] != ''
       ) {
         trip['startDate'] = parseInt(trip['startDate']);
         trip['endDate'] = parseInt(trip['endDate']);
@@ -335,7 +343,7 @@ export class TripController {
   static async myTrips(filter) {
     try {
       await dbConnect();
-      const user = await UserModel.getById(filter.memberId);
+      const user = await UserModel.get({ awsUserId: filter.memberId });
       const filterParams = {
         memberId: user._id,
         isActive: true,
