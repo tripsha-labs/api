@@ -36,9 +36,16 @@ provider:
   name: aws
   runtime: nodejs12.x
   # stage: dev
-  stage: staging
-  # stage: prod-api
+  # stage: staging
+  stage: prod-api
   region: us-east-1
+  vpc:
+    securityGroupIds:
+      - sg-0d7f2af824304d447
+    subnetdIds:
+      - subnet-02a52987d09338cfd
+      - subnet-056dbb611b3a6002f
+      - subnet-0d09243da3929d92f
   iamRoleStatements:
     - Effect: Allow
       Action:
