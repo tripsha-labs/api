@@ -1,0 +1,47 @@
+{
+  "VpcEndpoint": {
+    "VpcEndpointId": "vpce-0a900087a18c2e766",
+    "VpcEndpointType": "Interface",
+    "VpcId": "vpc-0a4d811a9168b4b3b",
+    "ServiceName": "com.amazonaws.vpce.us-east-1.vpce-svc-0f768f20c24d646d8",
+    "State": "pendingAcceptance",
+    "RouteTableIds": [],
+    "SubnetIds": [
+      "subnet-02a52987d09338cfd",
+      "subnet-056dbb611b3a6002f",
+      "subnet-0d09243da3929d92f"
+    ],
+    "Groups": [
+      {
+        "GroupId": "sg-0d7f2af824304d447",
+        "GroupName": "default"
+      }
+    ],
+    "PrivateDnsEnabled": false,
+    "RequesterManaged": false,
+    "NetworkInterfaceIds": [
+      "eni-0171861bab0369c31",
+      "eni-09934a80d9c6bb100",
+      "eni-0912d85ab0ef2fade"
+    ],
+    "DnsEntries": [
+      {
+        "DnsName": "vpce-0a900087a18c2e766-vwtw0j1h.vpce-svc-0f768f20c24d646d8.us-east-1.vpce.amazonaws.com",
+        "HostedZoneId": "Z7HUB22UULQXV"
+      },
+      {
+        "DnsName": "vpce-0a900087a18c2e766-vwtw0j1h-us-east-1c.vpce-svc-0f768f20c24d646d8.us-east-1.vpce.amazonaws.com",
+        "HostedZoneId": "Z7HUB22UULQXV"
+      },
+      {
+        "DnsName": "vpce-0a900087a18c2e766-vwtw0j1h-us-east-1a.vpce-svc-0f768f20c24d646d8.us-east-1.vpce.amazonaws.com",
+        "HostedZoneId": "Z7HUB22UULQXV"
+      },
+      {
+        "DnsName": "vpce-0a900087a18c2e766-vwtw0j1h-us-east-1b.vpce-svc-0f768f20c24d646d8.us-east-1.vpce.amazonaws.com",
+        "HostedZoneId": "Z7HUB22UULQXV"
+      }
+    ],
+    "CreationTimestamp": "2020-04-05T09:43:17.748Z"
+  }
+}
