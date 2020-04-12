@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema(
     isIdentityVerified: { type: Boolean, default: false },
     stripeCustomerId: String,
     stripeAccountId: String,
+    showDashboardTutorial: Boolean,
   },
   {
     timestamps: true,

@@ -75,6 +75,11 @@ const updateUserSchema = {
     optional: true,
     empty: true,
   },
+  showDashboardTutorial: {
+    type: 'string',
+    optional: true,
+    empty: true,
+  },
   $$strict: true,
 };
 
