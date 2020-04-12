@@ -343,9 +343,9 @@ export class TripController {
   static async myTrips(filter) {
     try {
       await dbConnect();
-      const user = await UserModel.get({ awsUserId: filter.memberId });
+      // const user = await UserModel.getById(filter.userId);
       const filterParams = {
-        memberId: user._id,
+        memberId: Types.ObjectId(filter.memberId),
         isActive: true,
       };
       if (filter.isMember) filterParams['isMember'] = true;

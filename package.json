@@ -5,8 +5,8 @@
   "main": "handler.js",
   "scripts": {
     "offline": "sls offline start --debugOffline --noAuth --skipCacheInvalidation",
-    "deploy": "sls deploy",
-    "remove": "sls remove",
+    "deploy": "sls deploy --stage=staging",
+    "remove": "sls remove --stage=staging",
     "deploy:staging": "sls deploy --stage=staging",
     "remove:staging": "sls remove --stage=staging",
     "deploy:prod": "sls deploy --stage=prod-api",

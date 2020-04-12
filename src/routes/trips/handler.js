@@ -120,12 +120,12 @@ export const myTrips = async (event, context) => {
     const params = event.queryStringParameters
       ? event.queryStringParameters
       : {};
-    // if (!params.memberId)
-    //   throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
+    if (!params.memberId)
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
 
     const result = await TripController.myTrips({
       ...params,
-      memberId: event.requestContext.identity.cognitoIdentityId,
+      userId: event.requestContext.identity.cognitoIdentityId,
       isMember: true,
     });
     return success(result);
