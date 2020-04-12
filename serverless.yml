@@ -5,6 +5,7 @@ plugins:
   # - serverless-domain-manager
   - serverless-plugin-split-stacks
   - serverless-offline
+  - serverless-plugin-include-dependencies
 custom:
   stage: ${opt:stage, self:provider.stage}
   # customDomain:
@@ -34,10 +35,8 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs12.x
-  # stage: dev
-  # stage: staging
-  stage: prod-api
+  runtime: nodejs12.x 
+  stage: dev
   region: us-east-1
   vpc:
     securityGroupIds:
@@ -46,6 +45,12 @@ provider:
       - subnet-02a52987d09338cfd
       - subnet-056dbb611b3a6002f
       - subnet-0d09243da3929d92f
+  environment:
+    DB_CONN: ${file(./config/${self:custom.stage}.json):DB_CONN}
+    MAILCHIMP_INSTANCE: ${file(./config/${self:custom.stage}.json):MAILCHIMP_INSTANCE}
+    MAILCHIMP_API_KEY: ${file(./config/${self:custom.stage}.json):MAILCHIMP_API_KEY}
+    MAILCHIMP_AUDIENCE_LIST_ID: ${file(./config/${self:custom.stage}.json):MAILCHIMP_AUDIENCE_LIST_ID}
+    STRIPE_SECRET_KEY: ${file(./config/${self:custom.stage}.json):MAILCHIMP_AUDIENCE_LIST_ID}  
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -53,10 +58,30 @@ provider:
       Resource:
         - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
-  individually: true
+  individually: false
+  excludeDevDependencies: true    
   exclude:
-    - .git/**
-    - tmp/**
+    - 'node_modules/**' # no need to add this yourself, this plugin does it for you
+    - 'tests/**'
+    - 'tests-integration/**'
+    - '.idea/**'
+    - 'serverless-configs/**'
+    - 'envs/**'
+    - 'support/**'
+    - '.vscode/**'
+    - '.api-doc-dist/**'
+    - 'scripts/**'
+    - '.git/**'
+    - '.nyc_output'
+    - 'tmp/**'
+    - 'coverage/**'
+    - 'package-lock.json'
+    - 'yarn.lock'
+    - 'vpc.json'
+    - 'test-api-call.sh'
+    - '.prettirrc'
+    - '.eslintrc*'
+    - 'test-api-call.sh'
 
 functions:
   - ${file(src/routes/users/functions.yml)}

@@ -3,18 +3,18 @@
  */
 import axios from 'axios';
 import md5 from 'md5';
-const MAILCHIMP_INSTANCE = 'us7';
-const API_KEY = '1ae2fc7c478057aaf8a7568aedf145b8-us7';
-const AUDIENCE_LIST_ID = '885c7a853c';
+const MAILCHIMP_INSTANCE = process.env.MAILCHIMP_INSTANCE;
+const MAILCHIMP_API_KEY = process.env.MAILCHIMP_API_KEY;
+const MAILCHIMP_AUDIENCE_LIST_ID = process.env.MAILCHIMP_AUDIENCE_LIST_ID;
 
 export const subscribeUserToMailchimpAudience = async ({
   name,
   email,
-  audienceListId = AUDIENCE_LIST_ID,
+  audienceListId = MAILCHIMP_AUDIENCE_LIST_ID,
 }) => {
   const params = {
     headers: {
-      Authorization: `Basic ${API_KEY}`,
+      Authorization: `Basic ${MAILCHIMP_API_KEY}`,
       'Content-Type': 'application/json',
     },
   };
@@ -43,11 +43,11 @@ export const subscribeUserToMailchimpAudience = async ({
 export const unsubscribeUserToMailchimpAudience = async ({
   name,
   email,
-  audienceListId = AUDIENCE_LIST_ID,
+  audienceListId = MAILCHIMP_AUDIENCE_LIST_ID,
 }) => {
   const params = {
     headers: {
-      Authorization: `Basic ${API_KEY}`,
+      Authorization: `Basic ${MAILCHIMP_API_KEY}`,
       'Content-Type': 'application/json',
     },
   };
