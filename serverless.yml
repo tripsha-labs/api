@@ -35,7 +35,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs12.x 
+  runtime: nodejs12.x
   stage: dev
   region: us-east-1
   vpc:
@@ -50,7 +50,7 @@ provider:
     MAILCHIMP_INSTANCE: ${file(./config/${self:custom.stage}.json):MAILCHIMP_INSTANCE}
     MAILCHIMP_API_KEY: ${file(./config/${self:custom.stage}.json):MAILCHIMP_API_KEY}
     MAILCHIMP_AUDIENCE_LIST_ID: ${file(./config/${self:custom.stage}.json):MAILCHIMP_AUDIENCE_LIST_ID}
-    STRIPE_SECRET_KEY: ${file(./config/${self:custom.stage}.json):MAILCHIMP_AUDIENCE_LIST_ID}  
+    STRIPE_SECRET_KEY: ${file(./config/${self:custom.stage}.json):STRIPE_SECRET_KEY}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -59,7 +59,7 @@ provider:
         - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
   individually: false
-  excludeDevDependencies: true    
+  excludeDevDependencies: true
   exclude:
     - 'node_modules/**' # no need to add this yourself, this plugin does it for you
     - 'tests/**'
