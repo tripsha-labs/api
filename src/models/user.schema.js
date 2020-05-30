@@ -38,7 +38,9 @@ const userSchema = new mongoose.Schema(
     isIdentityVerified: { type: Boolean, default: false },
     stripeCustomerId: String,
     stripeAccountId: String,
-    showDashboardTutorial: Boolean,
+    isStripeAccountConnected: { type: Boolean, default: false },
+    showDashboardTutorial: { type: Boolean, default: true },
+    hasFirstBooking: { type: Boolean, default: false },
   },
   {
     timestamps: true,

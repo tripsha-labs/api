@@ -63,8 +63,13 @@ export const createPayment = async (event, context) => {
 export const verifyConnectAccount = async (event, context) => {
   try {
     const data = JSON.parse(event.body) || {};
-    const stripeAccountId = await PaymentController.validateCode(data.code);
-    return success(stripeAccountId);
+    if (!data.code || typeof data.code !== 'string' || data.code.length === 0)
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'code' };
+    await PaymentController.validateCode(
+      data.code,
+      event.requestContext.identity.cognitoIdentityId
+    );
+    return success('success');
   } catch (error) {
     logError(error);
     return failure(error);
