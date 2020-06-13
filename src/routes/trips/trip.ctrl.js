@@ -348,12 +348,17 @@ export class TripController {
 
   static async myTrips(filter) {
     try {
-      await dbConnect();
-      // const user = await UserModel.getById(filter.userId);
       const filterParams = {
-        memberId: Types.ObjectId(filter.memberId),
         isActive: true,
       };
+      await dbConnect();
+      if (filter.memberId && filter.memberId !== '') {
+        filterParams['memberId'] = Types.ObjectId(filter.memberId);
+      } else {
+        const user = await UserModel.get({ awsUserId: filter.awsUserId });
+        filterParams['memberId'] = user._id;
+      }
+
       if (filter.isMember) filterParams['isMember'] = true;
       else if (filter.isFavorite) filterParams['isFavorite'] = true;
       const params = [
