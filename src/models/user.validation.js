@@ -65,12 +65,12 @@ const updateUserSchema = {
     empty: true,
     max: 100,
   },
-  stripeCustomerId: {
+  showDashboardTutorial: {
     type: 'string',
     optional: true,
     empty: true,
   },
-  stripeAccountId: {
+  hasFirstBooking: {
     type: 'string',
     optional: true,
     empty: true,

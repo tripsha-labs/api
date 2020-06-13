@@ -8,41 +8,42 @@ import { DATE_FORMAT } from '../constants/constants';
 
 const tripSchema = {
   title: { type: 'string', empty: false },
+  description: { type: 'string', optional: true },
   startDate: { type: 'number', empty: false },
   endDate: { type: 'number', empty: false },
+  focus: {
+    type: 'string',
+    optional: true,
+    empty: true,
+  },
+  destinations: {
+    type: 'array',
+    optional: true,
+    items: 'string',
+  },
   minGroupSize: {
     type: 'number',
+    min: 2,
+    max: 20,
     empty: false,
     positive: true,
     integer: true,
   },
   maxGroupSize: {
     type: 'number',
+    min: 2,
+    max: 20,
     empty: false,
     positive: true,
     integer: true,
   },
-  description: { type: 'string', empty: false, optional: true },
-  priceIncludes: { type: 'string', empty: false, optional: true },
-  priceExcludes: { type: 'string', empty: false, optional: true },
-  destinations: {
-    type: 'array',
-    optional: true,
-    items: 'string',
-  },
-  itinerary: {
-    type: 'array',
-    optional: true,
-    items: {
-      type: 'object',
-      optional: true,
-      props: {
-        id: { type: 'string', require: true },
-        title: { type: 'string', require: true },
-        description: { type: 'string', require: true },
-        imageUrl: { type: 'string', require: true },
-      },
-    },
+  spotsAvailable: {
+    type: 'number',
+    min: 1,
+    max: 19,
+    empty: false,
+    positive: true,
+    integer: true,
   },
   languages: {
     type: 'array',
@@ -56,53 +57,29 @@ const tripSchema = {
   },
   interests: {
     type: 'array',
+    max: 18,
     optional: true,
     items: 'string',
   },
-  focus: {
-    type: 'string',
+  itineraries: {
+    type: 'array',
     optional: true,
-    empty: true,
-  },
-  cost: {
-    type: 'number',
-    optional: true,
-    empty: true,
-    positive: true,
-  },
-  isPublic: {
-    type: 'boolean',
-    optional: true,
-    empty: false,
-    values: ['true', 'false'],
-  },
-  spotsAvailable: {
-    type: 'number',
-    optional: false,
-    integer: true,
-  },
-  depositAmount: {
-    type: 'number',
-    optional: true,
-    integer: true,
-    positive: true,
-  },
-  depositExpirationDate: {
-    type: 'number',
-    optional: true,
-    integer: true,
-    positive: true,
-  },
-  depositAndAddOns: {
-    type: 'boolean',
-    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        title: { type: 'string' },
+        description: { type: 'string' },
+        imageUrl: { type: 'string' },
+      },
+    },
   },
   rooms: {
     type: 'array',
     optional: true,
     items: {
       type: 'object',
-      optional: true,
       props: {
         id: { type: 'string' },
         name: { type: 'string' },
@@ -116,7 +93,6 @@ const tripSchema = {
     optional: true,
     items: {
       type: 'object',
-      optional: true,
       props: {
         id: { type: 'string' },
         name: { type: 'string' },
@@ -125,42 +101,73 @@ const tripSchema = {
       },
     },
   },
-  discount: {
-    type: 'object',
+  isDepositApplicable: {
+    type: 'boolean',
+    empty: false,
+  },
+  deposit: {
     optional: true,
+    type: 'object',
     props: {
-      discType: { type: 'enum', values: ['usd', 'percentage'] },
-      amount: { type: 'number' },
+      amount: { type: 'number', positive: true },
       expirationDate: { type: 'number' },
       includeAddOns: { type: 'boolean' },
     },
   },
-  $$strict: true,
+  isDiscountApplicable: {
+    type: 'boolean',
+    empty: false,
+  },
+  discounts: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        name: { type: 'string' },
+        discType: { type: 'enum', values: ['amount', 'percentage'] },
+        amount: { type: 'number' },
+        expirationDate: { type: 'number' },
+        includeAddOns: { type: 'boolean' },
+      },
+    },
+  },
+  priceIncludes: { type: 'string', optional: true },
+  priceExcludes: { type: 'string', optional: true },
+  isPublic: { type: 'boolean', optional: true },
+  lastBookingDate: { type: 'number', optional: true },
+  status: { type: 'string' },
+  $$strict: 'remove',
 };
 
 const tripUpdateSchema = {
   ...tripSchema,
-  title: { type: 'string', empty: false, optional: true },
-  startDate: { type: 'number', empty: false, optional: true },
-  endDate: { type: 'number', empty: false, optional: true },
+  title: { ...tripSchema.title, optional: true },
+  startDate: { ...tripSchema.startDate, optional: true },
+  endDate: { ...tripSchema.endDate, optional: true },
   minGroupSize: {
-    type: 'number',
-    empty: false,
-    positive: true,
-    integer: true,
+    ...tripSchema.minGroupSize,
     optional: true,
   },
   maxGroupSize: {
-    type: 'number',
-    empty: false,
-    positive: true,
-    integer: true,
+    ...tripSchema.maxGroupSize,
     optional: true,
   },
   spotsAvailable: {
-    type: 'number',
+    ...tripSchema.spotsAvailable,
     optional: true,
-    integer: true,
+  },
+  rooms: {
+    ...tripSchema.rooms,
+    optional: true,
+  },
+  isDiscountApplicable: {
+    ...tripSchema.isDiscountApplicable,
+    optional: true,
+  },
+  isDepositApplicable: {
+    ...tripSchema.isDepositApplicable,
+    optional: true,
   },
 };
 

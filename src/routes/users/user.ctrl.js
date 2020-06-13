@@ -40,10 +40,10 @@ export class UserController {
     }
   }
 
-  static async getUser(id) {
+  static async getUser(id, select = {}) {
     try {
       await dbConnect();
-      const user = await UserModel.get({ awsUserId: id });
+      const user = await UserModel.get({ awsUserId: id }, select);
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       return user;
     } catch (error) {
@@ -74,6 +74,7 @@ export class UserController {
             },
           ],
         },
+        select: { stripeCustomerId: 0, stripeAccountId: 0 },
         ...prepareCommonFilter(filter, ['username']),
       };
       await dbConnect();
@@ -108,10 +109,10 @@ export class UserController {
     }
   }
 
-  static async get(params) {
+  static async get(params, select = {}) {
     try {
       await dbConnect();
-      const user = await UserModel.get(params);
+      const user = await UserModel.get(params, select);
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       return user;
     } catch (error) {

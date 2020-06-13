@@ -37,11 +37,11 @@ export class UserModel {
     return User.findById(id);
   }
 
-  static get(params) {
-    return User.findOne(params);
+  static get(params, select = {}) {
+    return User.findOne(params, select);
   }
 
-  static getUserByAWSUsername(username) {
-    return User.findOne({ awsUsername: username });
+  static getUserByAWSUsername(username, select = {}) {
+    return User.findOne({ awsUsername: username }, select);
   }
 }

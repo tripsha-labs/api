@@ -5,7 +5,7 @@
 import stripe from 'stripe';
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-
+const HOST_PAYMENT_PART = 0.72;
 const createIntent = async () => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY);
   const intent = await stripeInstance.setupIntents.create();
@@ -56,20 +56,19 @@ const createPaymentIntent = async ({
     confirm: true,
     // on_behalf_of: beneficiary,
     transfer_data: {
-      amount: amount * 0.9,
+      amount: amount * HOST_PAYMENT_PART,
       destination: beneficiary,
     },
   });
   return paymentIntent;
 };
 
-const validateCode = async code => {
+const validateCode = code => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY);
-  const resp = await stripeInstance.oauth.token({
+  return stripeInstance.oauth.token({
     grant_type: 'authorization_code',
     code,
   });
-  return resp.stripe_user_id;
 };
 
 export const StripeAPI = {

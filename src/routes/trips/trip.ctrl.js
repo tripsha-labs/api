@@ -227,7 +227,13 @@ export class TripController {
       const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.UNAUTHORIZED;
       if (!tripDetails) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      if (!(tripDetails['ownerId'] == user['_id'] || user['isAdmin'] == true)) {
+
+      if (
+        !(
+          tripDetails['ownerId'].toString() === user['_id'].toString() ||
+          user['isAdmin'] === true
+        )
+      ) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
 
@@ -342,12 +348,17 @@ export class TripController {
 
   static async myTrips(filter) {
     try {
-      await dbConnect();
-      const user = await UserModel.get({ awsUserId: filter.memberId });
       const filterParams = {
-        memberId: user._id,
         isActive: true,
       };
+      await dbConnect();
+      if (filter.memberId && filter.memberId !== '') {
+        filterParams['memberId'] = Types.ObjectId(filter.memberId);
+      } else {
+        const user = await UserModel.get({ awsUserId: filter.awsUserId });
+        filterParams['memberId'] = user._id;
+      }
+
       if (filter.isMember) filterParams['isMember'] = true;
       else if (filter.isFavorite) filterParams['isFavorite'] = true;
       const params = [

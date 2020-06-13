@@ -44,7 +44,10 @@ export const getUser = async (event, context) => {
       ? event.requestContext.identity.cognitoIdentityId
       : event.pathParameters.id;
   try {
-    const result = await UserController.getUser(urldecode(userId));
+    const result = await UserController.getUser(urldecode(userId), {
+      stripeCustomerId: 0,
+      stripeAccountId: 0,
+    });
     return success(result);
   } catch (error) {
     return failure(error);
@@ -107,9 +110,12 @@ export const getUserByUsername = async (event, context) => {
 
   const username = event.pathParameters.username;
   try {
-    const result = await UserController.get({
-      username: username,
-    });
+    const result = await UserController.get(
+      {
+        username: username,
+      },
+      { stripeCustomerId: 0, stripeAccountId: 0 }
+    );
     return success(result);
   } catch (error) {
     return failure(error);

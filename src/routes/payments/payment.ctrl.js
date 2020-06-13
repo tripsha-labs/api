@@ -69,7 +69,6 @@ export class PaymentController {
     if (!user.stripeAccountId)
       throw new Error('Host does not have a Stripe account.');
     const beneficiary = user.stripeAccountId;
-
     const paymentIntent = await StripeAPI.createPaymentIntent({
       amount,
       currency,
@@ -81,12 +80,20 @@ export class PaymentController {
     return paymentIntent;
   }
 
-  static async validateCode(code) {
-    if (!code || typeof code !== 'string' || code.length === 0) {
-      throw new Error('Missing or invalid authorization code.');
+  static async validateCode(code, awsUserId) {
+    try {
+      await dbConnect();
+      const user = await UserModel.get({ awsUserId: awsUserId });
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      const accountDetails = await StripeAPI.validateCode(code);
+      user_info = {
+        stripeAccountId: accountDetails.stripe_user_id,
+        isStripeAccountConnected: true,
+      };
+      await UserModel.update({ awsUserId: awsUserId }, user_info);
+      return 'success';
+    } catch (error) {
+      throw new Error('Invalid authorization code.');
     }
-
-    const accountId = await StripeAPI.validateCode(code);
-    return accountId;
   }
 }

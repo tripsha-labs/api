@@ -13,10 +13,7 @@
   },
   "servers": [
     {
-      "url": "https://dev-api.tripsha.com"
-    },
-    {
-      "url": "http://localhost:3000"
+      "url": "https://staging-api.tripsha.com"
     }
   ],
   "components": {
@@ -135,7 +132,7 @@
             "properties": {
               "errorCode": {
                 "type": "string",
-                "description": "Error code to handle internationalization(i18)"
+                "description": "Error code to handle internationalization(i18n)"
               },
               "message": {
                 "type": "string",
