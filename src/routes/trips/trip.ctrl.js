@@ -23,6 +23,8 @@ export class TripController {
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const filterParams = {
         isArchived: false,
+        isPublic: true,
+        status: 'published',
         endDate: { $gte: currentDate },
         isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
@@ -352,7 +354,10 @@ export class TripController {
         isActive: true,
       };
       await dbConnect();
-      if (filter.memberId && filter.memberId !== '') {
+      if (filter.memberId) {
+        if (!Types.ObjectId.isValid(filter.memberId)) {
+          throw 'Invalid memberID';
+        }
         filterParams['memberId'] = Types.ObjectId(filter.memberId);
       } else {
         const user = await UserModel.get({ awsUserId: filter.awsUserId });
@@ -360,7 +365,8 @@ export class TripController {
       }
 
       if (filter.isMember) filterParams['isMember'] = true;
-      else if (filter.isFavorite) filterParams['isFavorite'] = true;
+      if (filter.isFavorite) filterParams['isFavorite'] = true;
+
       const params = [
         {
           $match: filterParams,
@@ -397,9 +403,21 @@ export class TripController {
           newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
         },
       });
+      // Filter trips
       const currentDate = parseInt(moment().format('YYYYMMDD'));
-      const tripParams = { endDate: { $gte: currentDate } };
-      if (filter.pastTrips) tripParams['endDate'] = { $lt: currentDate };
+      const tripParams = {
+        isActive: true,
+        isPublic: filter.isPublic || true,
+        isArchived: filter.isArchived || false,
+        endDate: { $gte: currentDate },
+      };
+      if (!filter.isArchived) {
+        tripParams['status'] = filter.status || 'published';
+      }
+      if (filter.pastTrips || filter.isArchived) {
+        tripParams['endDate'] = { $lt: currentDate };
+      }
+
       params.push({
         $match: tripParams,
       });

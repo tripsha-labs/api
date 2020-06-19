@@ -42,6 +42,24 @@ components:
         bucketList:
           type: string
           desciption: List of interested countries
+        hasFirstBooking:
+          type: boolean
+        isAdmin:
+          type: boolean
+        isOnline:
+          type: boolean
+        lastOnlineTime:
+          type: number
+        isEmailVerified:
+          type: boolean
+        isPhoneVerified:
+          type: boolean
+        isIdentityVerified:
+          type: boolean
+        showDashboardTutorial:
+          type: boolean
+        isStripeAccountConnected:
+          type: boolean
         isActive:
           type: boolean
         createdAt:

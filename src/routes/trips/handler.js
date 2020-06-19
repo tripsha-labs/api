@@ -3,7 +3,6 @@
  * @description - This will handle all trip related API requests
  */
 import { TripController } from './trip.ctrl';
-import { UserController } from '../users/user.ctrl';
 import { success, failure } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { updateTripValidation, createTripValidation } from '../../models';
@@ -120,11 +119,10 @@ export const myTrips = async (event, context) => {
     const params = event.queryStringParameters
       ? event.queryStringParameters
       : {};
-
+    delete params['memberId'];
     const result = await TripController.myTrips({
       ...params,
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
-      isMember: true,
+      awsUserId: event.requestContext.identity.cognitoIdentityId      
     });
     return success(result);
   } catch (error) {
@@ -142,9 +140,8 @@ export const savedTrips = async (event, context) => {
       ? event.queryStringParameters
       : {};
     const result = await TripController.myTrips({
-      ...params,
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
-      isFavorite: true,
+      ...params,     
+      isPublic: true,
     });
     return success(result);
   } catch (error) {
