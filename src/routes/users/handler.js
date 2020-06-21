@@ -45,7 +45,6 @@ export const getUser = async (event, context) => {
       : event.pathParameters.id;
   try {
     const result = await UserController.getUser(urldecode(userId), {
-      stripeCustomerId: 0,
       stripeAccountId: 0,
     });
     return success(result);

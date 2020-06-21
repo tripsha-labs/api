@@ -78,7 +78,16 @@ paths:
       tags:
         - Trips
       parameters:
-        - $ref: '#/components/parameters/queryNextPageToken'
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
+        - $ref: '#/components/parameters/querySortBy'
+        - $ref: '#/components/parameters/querySortOrder'
+        - $ref: '#/components/parameters/querySearch'
+        - $ref: '#/components/parameters/queryIsMember'
+        - $ref: '#/components/parameters/queryIsFavorite'
+        - $ref: '#/components/parameters/queryIsPublic'
+        - $ref: '#/components/parameters/queryIsArchived'
+        - $ref: '#/components/parameters/queryStatus'
       responses:
         '200':
           description: Trip response
@@ -113,7 +122,15 @@ paths:
       tags:
         - Trips
       parameters:
-        - $ref: '#/components/parameters/queryNextPageToken'
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
+        - $ref: '#/components/parameters/querySortBy'
+        - $ref: '#/components/parameters/querySortOrder'
+        - $ref: '#/components/parameters/querySearch'
+        - $ref: '#/components/parameters/queryIsMember'
+        - $ref: '#/components/parameters/queryIsFavorite'
+        - $ref: '#/components/parameters/queryMemberId'
+        - $ref: '#/components/parameters/queryIsArchived'
       responses:
         '200':
           description: Trip response
