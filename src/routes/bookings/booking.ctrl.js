@@ -3,13 +3,41 @@
  * @description - This will handle business logic for Booking module
  */
 import { dbConnect } from '../../utils';
-import { BookingModel, UserModel } from '../../models';
+import {
+  getCosting,
+  getBookingValidity,
+  getDepositStatus,
+  getDiscountStatus,
+} from '../../helpers';
+
+import { BookingModel, UserModel, TripModel } from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
 export class BookingController {
-  static async createBooking(params) {
+  static async createBooking(params, awsUserId) {
     await dbConnect();
-    const booking = await BookingModel.create(params);
+    const bookingData = { ...params };
+    const trip = await TripModel.getById(params.tripId);
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    if (bookingData.attendees > trip.spotsAvailable)
+      throw ERROR_KEYS.TRIP_IS_FULL;
+
+    const user = await UserModel.get({ awsUserId: awsUserId });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    const tripOwner = await UserModel.get({ _id: trip.ownerId });
+    if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
+
+    bookingData['memberId'] = user._id.toString();
+    bookingData['ownerId'] = tripOwner._id.toString();
+    bookingData['onwerStripeId'] = tripOwner.stripeAccountId;
+    bookingData['memberStripeId'] = user.stripeCustomerId;
+    // Payment validation and calculation
+    bookingData['isDiscountApplicable'] = getDiscountStatus(trip);
+    bookingData['isDepositApplicable'] = getDepositStatus(trip);
+    if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
+    const costing = getCosting(bookingData);
+    const finalBookingData = { ...bookingData, ...costing };
+    const booking = await BookingModel.create(finalBookingData);
     return booking;
   }
 

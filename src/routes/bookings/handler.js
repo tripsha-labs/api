@@ -4,7 +4,7 @@
  */
 import { BookingController } from './booking.ctrl';
 import { success, failure, logError } from '../../utils';
-import { createBookingValidation, updateBookingValidation } from '../../models';
+import { createBookingValidation } from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
 /**
@@ -17,10 +17,10 @@ export const createBooking = async (event, context) => {
     const validation = createBookingValidation(data);
     if (validation != true) throw validation.shift();
 
-    const result = await BookingController.createBooking({
-      ...data,
-      guestId: event.requestContext.identity.cognitoIdentityId,
-    });
+    const result = await BookingController.createBooking(
+      data,
+      event.requestContext.identity.cognitoIdentityId
+    );
 
     return success(result);
   } catch (error) {
@@ -75,11 +75,10 @@ export const updateBooking = async (event, context) => {
     if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
     const data = JSON.parse(event.body) || {};
-    const validation = updateBookingValidation(data);
     if (validation != true) throw validation.shift();
 
     const result = await BookingController.updateBooking(bookingId, data);
-    return success(result);
+    return success();
   } catch (error) {
     logError(error);
     return failure(error);
