@@ -122,7 +122,7 @@ export const myTrips = async (event, context) => {
     delete params['memberId'];
     const result = await TripController.myTrips({
       ...params,
-      awsUserId: event.requestContext.identity.cognitoIdentityId      
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
     return success(result);
   } catch (error) {
@@ -140,7 +140,7 @@ export const savedTrips = async (event, context) => {
       ? event.queryStringParameters
       : {};
     const result = await TripController.myTrips({
-      ...params,     
+      ...params,
       isPublic: true,
     });
     return success(result);

@@ -100,8 +100,8 @@ paths:
       operationId: sendmessage
       tags:
         - Messages
-      parameters:
-        - $ref: '#/components/parameters/SendMessage'
+      requestBody:
+        $ref: '#/components/requestBodies/SendMessage'
       responses:
         '200':
           description: Message response

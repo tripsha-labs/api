@@ -1,26 +1,26 @@
 components:
-  parameters:
+  requestBodies:
     MemberAction:
-      in: path
-      name: body
       description: Perform Member Actions
       required: true
-      schema:
-        required:
-          - tripId
-          - memberIds
-          - action
-        properties:
-          tripId:
-            type: string
-          memberIds:
-            type: array
-            items:
-              type: string
-          action:
-            type: string
-            enum:
-              - addMember
-              - makeFavorite
-              - removeMember
-              - makeUnFavorite
+      content:
+        application/json:
+          schema:
+            required:
+              - tripId
+              - memberIds
+              - action
+            properties:
+              tripId:
+                type: string
+              memberIds:
+                type: array
+                items:
+                  type: string
+              action:
+                type: string
+                enum:
+                  - addMember
+                  - makeFavorite
+                  - removeMember
+                  - makeUnFavorite

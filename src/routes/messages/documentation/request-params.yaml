@@ -13,11 +13,11 @@ components:
           type: string
           enum:
             - text
-  parameters:
+  requestBodies:
     SendMessage:
-      in: path
-      name: body
-      description: Create trip payload
+      description: Send message payload
       required: true
-      schema:
-        $ref: '#/components/schemas/SendMessage'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SendMessage'

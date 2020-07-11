@@ -52,8 +52,8 @@ paths:
       operationId: memberActions
       tags:
         - Members
-      parameters:
-        - $ref: '#/components/parameters/MemberAction'
+      requestBody:
+        $ref: '#/components/requestBodies/MemberAction'
       responses:
         '200':
           description: Members response

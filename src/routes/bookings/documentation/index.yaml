@@ -1,12 +1,49 @@
 paths:
   /booking:
+    get:
+      description: Returns list of bookings related to logged in user
+      operationId: listBookings
+      tags:
+        - Bookings
+      parameters:
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
+        - $ref: '#/components/parameters/querySortBy'
+        - $ref: '#/components/parameters/querySortOrder'
+      responses:
+        '200':
+          description: Booking list response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      count:
+                        type: number
+                        description: Current records count
+                      total:
+                        type: number
+                        description: Total number of records.
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/BookingModel'
     post:
       description: Creates a booking
       operationId: createBooking
       tags:
         - Bookings
-      parameters:
-        - $ref: '#/components/parameters/createTrip'
+      requestBody:
+        $ref: '#/components/requestBodies/createBooking'
       responses:
         '200':
           description: Booking response
@@ -19,6 +56,72 @@ paths:
                   result:
                     type: string
                     description: Booking id
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+  /booking/{bookingId}:
+    get:
+      description: Returns a booking based on a booking ID
+      operationId: findBookingById
+      tags:
+        - Bookings
+      parameters:
+        - $ref: '#/components/parameters/pathBookingId'
+      responses:
+        '200':
+          description: Booking response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    $ref: '#/components/schemas/BookingModel'
+    put:
+      description: Updates a single booking based on the ID supplied and data
+      operationId: updateBooking
+      tags:
+        - Bookings
+      parameters:
+        - $ref: '#/components/parameters/pathBookingId'
+      requestBody:
+        $ref: '#/components/requestBodies/updateBooking'
+      responses:
+        '204':
+          description: Booking updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonSuccessFormat'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+    delete:
+      description: deletes a single booking based on the ID supplied
+      operationId: deleteBooking
+      tags:
+        - Bookings
+      parameters:
+        - $ref: '#/components/parameters/pathBookingId'
+      responses:
+        '204':
+          description: Booking deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonSuccessFormat'
         default:
           description: Error Response
           content:

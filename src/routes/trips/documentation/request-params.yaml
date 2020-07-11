@@ -120,18 +120,18 @@ components:
           type: string
         isPublic:
           type: boolean
-  parameters:
+  requestBodies:
     createTrip:
-      in: path
-      name: body
       description: Create trip payload
       required: true
-      schema:
-        $ref: '#/components/schemas/CreateUpdateTrip'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateUpdateTrip'
     updateTrip:
-      in: path
-      name: body
       description: Update trip payload
       required: true
-      schema:
-        $ref: '#/components/schemas/CreateUpdateTrip'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateUpdateTrip'

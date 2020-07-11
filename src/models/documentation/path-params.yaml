@@ -21,3 +21,11 @@ components:
       required: true
       schema:
         type: 'string'
+
+    pathBookingId:
+      name: 'bookingId'
+      in: 'path'
+      description: 'Id of the booking request'
+      required: true
+      schema:
+        type: 'string'

@@ -64,8 +64,8 @@ paths:
       operationId: createUser
       tags:
         - Users
-      parameters:
-        - $ref: '#/components/parameters/createUser'
+      requestBody:
+        $ref: '#/components/requestBodies/createUser'
       responses:
         '200':
           description: Create User response
@@ -95,8 +95,8 @@ paths:
       operationId: checkExists
       tags:
         - Users
-      parameters:
-        - $ref: '#/components/parameters/checkUserExists'
+      requestBody:
+        $ref: '#/components/requestBodies/checkUserExists'
       responses:
         '200':
           description: User status
@@ -156,8 +156,8 @@ paths:
         - Users
       parameters:
         - $ref: '#/components/parameters/pathUserId'
-        - $ref: '#/components/parameters/updateUser'
-
+      requestBody:
+        $ref: '#/components/requestBodies/updateUser'
       responses:
         '204':
           description: User updated
