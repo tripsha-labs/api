@@ -1,8 +1,9 @@
-components:
-  examples:
-    trip-error:
-      status: 'error'
-      result:
-        - type: 'required'
-          message: 'Title field is required'
-          field: 'title'
+# components:
+#   examples:
+#     trip-error:
+#       type: object
+#       properties:
+#         result:
+#           - type: 'required'
+#             message: 'Title field is required'
+#             field: 'title'

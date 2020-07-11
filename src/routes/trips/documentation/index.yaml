@@ -51,8 +51,8 @@ paths:
       operationId: createTrip
       tags:
         - Trips
-      parameters:
-        - $ref: '#/components/parameters/createTrip'
+      requestBody:
+        $ref: '#/components/requestBodies/createTrip'
       responses:
         '200':
           description: Trip response
@@ -202,7 +202,8 @@ paths:
         - Trips
       parameters:
         - $ref: '#/components/parameters/pathTripId'
-        - $ref: '#/components/parameters/updateTrip'
+      requestBody:
+        $ref: '#/components/requestBodies/updateTrip'
       responses:
         '204':
           description: Trip updated

@@ -1,65 +1,65 @@
 components:
-  parameters:
+  requestBodies:
     createUser:
-      in: body
-      name: body
       description: Create user payload
       required: true
-      schema:
-        properties:
-          email:
-            type: string
-          dob:
-            type: number
-            format: 'YYYYMMDD'
-            description: Date of birth in `YYYYMMDD` format
-          firstName:
-            type: string
-          lastName:
-            type: string
+      content:
+        application/json:
+          schema:
+            properties:
+              email:
+                type: string
+              dob:
+                type: number
+                format: 'YYYYMMDD'
+                description: Date of birth in `YYYYMMDD` format
+              firstName:
+                type: string
+              lastName:
+                type: string
     updateUser:
-      in: body
-      name: body
       description: Update user payload
       required: true
-      schema:
-        properties:
-          firstName:
-            type: string
-          lastName:
-            type: string
-          userId:
-            type: string
-          dob:
-            type: date
-            format: 'YYYYMMDD'
-          livesIn:
-            type: string
-          gender:
-            type: string
-          spokenLanguages:
-            type: string
-            description: 'List of languages user can speak separated by comma'
-          bio:
-            type: string
-          isLookingForTravel:
-            type: boolean
-          avatarUrl:
-            type: string
-          interests:
-            type: array
-            items:
-              type: string
-          bucketList:
-            type: array
-            items:
-              type: string
+      content:
+        application/json:
+          schema:
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              userId:
+                type: string
+              dob:
+                type: number
+                format: 'YYYYMMDD'
+              livesIn:
+                type: string
+              gender:
+                type: string
+              spokenLanguages:
+                type: string
+                description: 'List of languages user can speak separated by comma'
+              bio:
+                type: string
+              isLookingForTravel:
+                type: boolean
+              avatarUrl:
+                type: string
+              interests:
+                type: array
+                items:
+                  type: string
+              bucketList:
+                type: array
+                items:
+                  type: string
     checkUserExists:
-      in: body
-      name: body
       description: Check user exists payload
       required: true
-      schema:
-        properties:
-          username:
-            type: string
+      content:
+        application/json:
+          schema:
+            properties:
+              username:
+                type: string

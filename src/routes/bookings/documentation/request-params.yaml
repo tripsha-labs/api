@@ -1,0 +1,100 @@
+components:
+  schemas:
+    bookingSchema:
+      properties:
+        tripId:
+          type: string
+        stripePaymentMethod:
+          type: object
+        currency:
+          type: string
+        attendees:
+          type: number
+        room:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            cost:
+              type: number
+            available:
+              type: number
+        addOns:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              cost:
+                type: number
+              available:
+                type: number
+        paymentStatus:
+          type: string
+          enum:
+            - full
+            - deposit
+            - payasyougo
+        message:
+          type: string
+        deposit:
+          type: object
+          properties:
+            amount:
+              type: number
+            expirationDate:
+              type: number
+            includeAddOns:
+              type: boolean
+        discount:
+          type: object
+          properties:
+            name:
+              type: string
+            discType:
+              type: string
+              enum:
+                - amount
+                - percentage
+            amount:
+              type: number
+            expirationDate:
+              type: number
+            includeAddOns:
+              type: number
+        guests:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              email:
+                type: string
+              relationship:
+                type: string
+              username:
+                type: string
+  requestBodies:
+    createBooking:
+      description: Create new booking payload
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/bookingSchema'
+
+    updateBooking:
+      description: Create new booking payload
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/bookingSchema'

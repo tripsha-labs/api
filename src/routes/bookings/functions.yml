@@ -6,6 +6,24 @@ createBooking:
         method: post
         cors: true
         authorizer: aws_iam
+listBookings:
+  handler: src/routes/bookings/handler.listBookings
+  events:
+    - http:
+        path: bookings
+        method: get
+        cors: true
+        authorizer: aws_iam
+
+hostBookingsAction:
+  handler: src/routes/bookings/handler.hostBookingsAction
+  events:
+    - http:
+        path: bookings/{id}
+        method: post
+        cors: true
+        authorizer: aws_iam
+
 listGuestBookings:
   handler: src/routes/bookings/handler.listGuestBookings
   events:

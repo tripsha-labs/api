@@ -1,0 +1,56 @@
+components:
+  schemas:
+    HostRequestModel:
+      type: object
+      properties:
+        awsUserId:
+          type: string
+        kindOfTripHostingOverview:
+          type: string
+          description: Describe type of trip you planning to host
+        hostingCapacity:
+          type: string
+          enum:
+            - '1'
+            - '2-3'
+            - '5-10'
+            - '10+'
+        hostingForCountries:
+          type: array
+          items:
+            type: string
+        targettingTypesOfTravelers:
+          type: string
+          description: Hosting trip for kind of audience group?
+          enum:
+            - true
+            - false
+        isActive:
+          type: boolean
+          description: If `isActive=true` host request is not deleted
+          enum:
+            - true
+            - false
+        groupTripHostingExperience:
+          type: string
+          description: Host trip hosting experience
+          enum:
+            - 'professional'
+            - 'intermediate'
+            - 'beginner'
+        pastAccomplishmentReferences:
+          type: string
+          description: Host past experiences reference links
+        status:
+          type: boolean
+          description: Request status
+          enum:
+            - pending
+            - approved
+            - declined
+        updatedAt:
+          type: number
+          format: Unix timestamp
+        createdAt:
+          type: number
+          format: Unix timestamp

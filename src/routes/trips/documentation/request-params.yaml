@@ -1,20 +1,24 @@
 components:
   schemas:
     CreateUpdateTrip:
+      required:
+        - title
+        - startDate
+        - endDate
+        - minGroupSize
+        - maxGroupSize
+        - spotsAvailable
       properties:
         title:
           type: string
-          required: true
         description:
           type: string
         startDate:
-          type: string
+          type: number
           format: 'YYYYMMDD'
-          required: true
         endDate:
-          type: string
+          type: number
           format: 'YYYYMMDD'
-          required: true
         focus:
           type: string
         destinations:
@@ -23,13 +27,10 @@ components:
             type: string
         minGroupSize:
           type: number
-          required: true
         maxGroupSize:
           type: number
-          required: true
         spotsAvailable:
           type: number
-          required: true
         languages:
           type: array
           items:
@@ -119,18 +120,18 @@ components:
           type: string
         isPublic:
           type: boolean
-  parameters:
+  requestBodies:
     createTrip:
-      in: body
-      name: body
       description: Create trip payload
       required: true
-      schema:
-        $ref: '#/components/schemas/CreateUpdateTrip'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateUpdateTrip'
     updateTrip:
-      in: body
-      name: body
       description: Update trip payload
       required: true
-      schema:
-        $ref: '#/components/schemas/CreateUpdateTrip'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateUpdateTrip'

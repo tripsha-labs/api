@@ -70,4 +70,30 @@ export const ERROR_KEYS = {
     message: 'You do not have sufficient permission to perform this operation.',
     code: 403,
   },
+  TRIP_IS_FULL: {
+    type: 'TripFull',
+    message: `Trip already full, we will keep your request in waitlist and let you know whenever a spot avaialble. 
+      You need to select your booking preferences once again while you booking again.`,
+    code: 400,
+  },
+  TRIP_BOOKING_CLOSED: {
+    type: 'TripBookingClosed',
+    message: `We are closed our bookings. For more details you may contact trip host or Tripsha administrator.`,
+    code: 400,
+  },
+  TRIP_RESOURCES_FULL: {
+    type: 'TripResourcesFull',
+    message: `The resources you are trying to book, already full, try changing other options.`,
+    code: 400,
+  },
+  BOOKING_NOT_FOUND: {
+    type: 'BookingNotFound',
+    message: `Ooops! looks like the booking id is invalid.`,
+    code: 400,
+  },
+  INVALID_ACTION: {
+    type: 'InvalidAction',
+    message: `Ooops! looks you are trying to perform invalid action.`,
+    code: 400,
+  },
 };

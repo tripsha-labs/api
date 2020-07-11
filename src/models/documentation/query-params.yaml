@@ -97,14 +97,14 @@ components:
       in: 'query'
       description: 'Search for minStartDate. Format: `YYYYMMDD`'
       schema:
-        type: 'date'
+        type: 'number'
         format: 'YYYYMMDD'
     queryMaxEndDate:
       name: 'endDate'
       in: 'query'
       description: 'Search for maxEndDate. Format: `YYYYMMDD`'
       schema:
-        type: 'date'
+        type: 'number'
         format: 'YYYYMMDD'
     queryMinTripLength:
       name: 'minTripLength'

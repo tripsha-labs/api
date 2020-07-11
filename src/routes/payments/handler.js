@@ -13,7 +13,7 @@ export const createIntent = async (event, context) => {
     const clientSecret = await PaymentController.createIntent();
     return success(clientSecret);
   } catch (error) {
-    logError(error);
+    console.log(error);
     return failure(error);
   }
 };
@@ -32,7 +32,7 @@ export const saveCard = async (event, context) => {
       return success(stripeCustomer);
     }
   } catch (error) {
-    logError(error);
+    console.log(error);
     return failure(error);
   }
 };
@@ -52,7 +52,7 @@ export const createPayment = async (event, context) => {
     });
     return success(paymentIntent);
   } catch (error) {
-    logError(error);
+    console.log(error);
     return failure(error);
   }
 };
@@ -71,7 +71,7 @@ export const verifyConnectAccount = async (event, context) => {
     );
     return success('success');
   } catch (error) {
-    logError(error);
+    console.log(error);
     return failure(error);
   }
 };
@@ -85,7 +85,7 @@ export const listCards = async (event, context) => {
     const paymentMethods = await PaymentController.listPaymentMethods(userId);
     return success(paymentMethods);
   } catch (error) {
-    logError(error);
+    console.log(error);
     return failure(error);
   }
 };

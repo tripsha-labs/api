@@ -86,13 +86,14 @@ export class PaymentController {
       const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const accountDetails = await StripeAPI.validateCode(code);
-      user_info = {
+      const user_info = {
         stripeAccountId: accountDetails.stripe_user_id,
         isStripeAccountConnected: true,
       };
       await UserModel.update({ awsUserId: awsUserId }, user_info);
       return 'success';
     } catch (error) {
+      console.log(error);
       throw new Error('Invalid authorization code.');
     }
   }

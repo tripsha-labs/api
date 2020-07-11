@@ -36,3 +36,7 @@ export * from './connection.model';
 export * from './booking.schema';
 export * from './booking.model';
 export * from './booking.validation';
+
+export * from './host-request.schema';
+export * from './host-request.model';
+export * from './host-request.validation';

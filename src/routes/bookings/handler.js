@@ -4,7 +4,10 @@
  */
 import { BookingController } from './booking.ctrl';
 import { success, failure, logError } from '../../utils';
-import { createBookingValidation, updateBookingValidation } from '../../models';
+import {
+  createBookingValidation,
+  hostBookingActionValidation,
+} from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
 /**
@@ -17,11 +20,52 @@ export const createBooking = async (event, context) => {
     const validation = createBookingValidation(data);
     if (validation != true) throw validation.shift();
 
-    const result = await BookingController.createBooking({
-      ...data,
-      guestId: event.requestContext.identity.cognitoIdentityId,
-    });
+    const result = await BookingController.createBooking(
+      data,
+      event.requestContext.identity.cognitoIdentityId
+    );
 
+    return success(result);
+  } catch (error) {
+    logError(error);
+    return failure(error);
+  }
+};
+
+/**
+ *  List all bookings created
+ */
+export const listBookings = async (event, context) => {
+  try {
+    const params = event.queryStringParameters
+      ? event.queryStringParameters
+      : {};
+    const result = await BookingController.listBookings(
+      params,
+      event.requestContext.identity.cognitoIdentityId
+    );
+    return success(result);
+  } catch (error) {
+    logError(error);
+    return failure(error);
+  }
+};
+
+/**
+ *  Accept/reject booking
+ */
+export const hostBookingsAction = async (event, context) => {
+  try {
+    const bookingId = event.pathParameters && event.pathParameters.id;
+    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = JSON.parse(event.body) || {};
+    const validation = hostBookingActionValidation(data);
+    if (validation != true) throw validation.shift();
+    const result = await BookingController.hostBookingsAction(
+      data,
+      bookingId,
+      event.requestContext.identity.cognitoIdentityId
+    );
     return success(result);
   } catch (error) {
     logError(error);
@@ -75,11 +119,10 @@ export const updateBooking = async (event, context) => {
     if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
     const data = JSON.parse(event.body) || {};
-    const validation = updateBookingValidation(data);
     if (validation != true) throw validation.shift();
 
     const result = await BookingController.updateBooking(bookingId, data);
-    return success(result);
+    return success();
   } catch (error) {
     logError(error);
     return failure(error);

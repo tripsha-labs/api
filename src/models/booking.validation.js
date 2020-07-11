@@ -6,35 +6,84 @@ import Validator from 'fastest-validator';
 
 const bookingSchema = {
   tripId: { type: 'string', empty: false },
-  guestId: { type: 'string', optional: true },
-  stripePaymentMethod: { type: 'string', empty: false },
-  status: {
-    type: 'enum',
-    values: [
-      'pending_approval',
-      'approved',
-      'deposit_paid',
-      'paid',
-      'rejected',
-      'canceled',
-    ],
+  stripePaymentMethod: { type: 'object', empty: false, optional: true },
+  currency: { type: 'string', optional: true, default: 'USD' },
+  attendees: { type: 'number', empty: false, min: 1 },
+  room: {
+    type: 'object',
     optional: true,
+    props: {
+      id: { type: 'string' },
+      name: { type: 'string' },
+      cost: { type: 'number' },
+      available: { type: 'number' },
+    },
   },
-  currency: { type: 'string', optional: true },
-  totalAmount: { type: 'number', positive: true },
-  deposit: { type: 'number', optional: true },
-  payments: { type: 'array', items: 'number', optional: true },
-  $$strict: true,
-};
-
-const bookingUpdateSchema = {
-  ...bookingSchema,
-  tripId: { type: 'string', empty: false, optional: true },
-  stripePaymentMethod: { type: 'string', empty: false, optional: true },
-  totalAmount: { type: 'number', positive: true, optional: true },
+  addOns: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        cost: { type: 'number' },
+        available: { type: 'number' },
+      },
+    },
+  },
+  paymentStatus: {
+    type: 'string',
+    enum: ['full', 'deposit', 'payasyougo'],
+    empty: false,
+  },
+  message: { type: 'string', optional: true },
+  deposit: {
+    optional: true,
+    type: 'object',
+    props: {
+      amount: { type: 'number', positive: true },
+      expirationDate: { type: 'number' },
+      includeAddOns: { type: 'boolean' },
+    },
+  },
+  discount: {
+    type: 'object',
+    props: {
+      name: { type: 'string' },
+      discType: { type: 'enum', values: ['amount', 'percentage'] },
+      amount: { type: 'number' },
+      expirationDate: { type: 'number' },
+      includeAddOns: { type: 'boolean' },
+    },
+  },
+  guests: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        relationship: { type: 'string' },
+        username: { type: 'string', optional: true },
+      },
+    },
+  },
+  $$strict: 'remove',
 };
 
 export const createBookingValidation = new Validator().compile(bookingSchema);
-export const updateBookingValidation = new Validator().compile(
-  bookingUpdateSchema
-);
+
+export const hostBookingActionValidation = new Validator().compile({
+  action: {
+    type: 'string',
+    enum: ['approve', 'decline', 'withdraw'],
+    empty: false,
+  },
+  tripId: {
+    type: 'string',
+  },
+  $$strict: 'remove',
+});

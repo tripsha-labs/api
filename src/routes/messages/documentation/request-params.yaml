@@ -1,22 +1,23 @@
 components:
   schemas:
     SendMessage:
+      required:
+        - toMemberId
+        - message
       properties:
         toMemberId:
           type: string
-          required: true
         message:
           type: string
-          required: true
         messsageType:
           type: string
           enum:
             - text
-  parameters:
+  requestBodies:
     SendMessage:
-      in: body
-      name: body
-      description: Create trip payload
+      description: Send message payload
       required: true
-      schema:
-        $ref: '#/components/schemas/SendMessage'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SendMessage'
