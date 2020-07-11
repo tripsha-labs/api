@@ -1,7 +1,7 @@
 components:
   parameters:
     createUser:
-      in: body
+      in: path
       name: body
       description: Create user payload
       required: true
@@ -18,7 +18,7 @@ components:
           lastName:
             type: string
     updateUser:
-      in: body
+      in: path
       name: body
       description: Update user payload
       required: true
@@ -31,7 +31,7 @@ components:
           userId:
             type: string
           dob:
-            type: date
+            type: number
             format: 'YYYYMMDD'
           livesIn:
             type: string
@@ -55,7 +55,7 @@ components:
             items:
               type: string
     checkUserExists:
-      in: body
+      in: path
       name: body
       description: Check user exists payload
       required: true

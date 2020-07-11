@@ -17,7 +17,7 @@ components:
         lastName:
           type: string
         dob:
-          type: date
+          type: number
           format: 'YYYYMMDD'
         livesIn:
           type: string
@@ -41,7 +41,6 @@ components:
             type: string
         bucketList:
           type: string
-          desciption: List of interested countries
         hasFirstBooking:
           type: boolean
         isAdmin:
@@ -64,7 +63,5 @@ components:
           type: boolean
         createdAt:
           type: 'string'
-          desciption: Datetime
         updatedAt:
           type: 'string'
-          desciption: Datetime

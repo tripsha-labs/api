@@ -44,6 +44,7 @@ const createPaymentIntent = async ({
   customerId,
   paymentMethod,
   beneficiary,
+  metadata,
 }) => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY);
   const paymentIntent = await stripeInstance.paymentIntents.create({
@@ -54,7 +55,7 @@ const createPaymentIntent = async ({
     payment_method: paymentMethod,
     off_session: true,
     confirm: true,
-    // on_behalf_of: beneficiary,
+    metadata,
     transfer_data: {
       amount: amount * HOST_PAYMENT_PART,
       destination: beneficiary,

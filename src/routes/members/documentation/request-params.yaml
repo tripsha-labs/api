@@ -1,23 +1,24 @@
 components:
   parameters:
     MemberAction:
-      in: body
+      in: path
       name: body
       description: Perform Member Actions
       required: true
       schema:
+        required:
+          - tripId
+          - memberIds
+          - action
         properties:
           tripId:
             type: string
-            required: true
           memberIds:
             type: array
-            required: true
             items:
               type: string
           action:
             type: string
-            required: true
             enum:
               - addMember
               - makeFavorite

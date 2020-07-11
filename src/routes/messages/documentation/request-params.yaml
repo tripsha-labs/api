@@ -1,20 +1,21 @@
 components:
   schemas:
     SendMessage:
+      required:
+        - toMemberId
+        - message
       properties:
         toMemberId:
           type: string
-          required: true
         message:
           type: string
-          required: true
         messsageType:
           type: string
           enum:
             - text
   parameters:
     SendMessage:
-      in: body
+      in: path
       name: body
       description: Create trip payload
       required: true

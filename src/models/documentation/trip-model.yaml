@@ -10,10 +10,10 @@ components:
         description:
           type: string
         startDate:
-          type: date
+          type: number
           format: 'YYYYMMDD'
         endDate:
-          type: date
+          type: number
           format: 'YYYYMMDD'
         focus:
           type: string
@@ -73,6 +73,8 @@ components:
                 type: number
               available:
                 type: number
+              filled:
+                type: number
         addOns:
           type: array
           items:
@@ -85,6 +87,8 @@ components:
               cost:
                 type: number
               available:
+                type: number
+              filled:
                 type: number
         isDepositApplicable:
           type: boolean
@@ -126,6 +130,8 @@ components:
           type: number
         favoriteCount:
           type: number
+        spotsReserved:
+          type: number
         isLocked:
           type: boolean
         showGroupHistory:
@@ -136,7 +142,6 @@ components:
           type: boolean
         isFull:
           type: boolean
-          desciption: groupsize=maxGroupSize
         isArchived:
           type: boolean
           description: Trip is expired, startDate less than todays date.

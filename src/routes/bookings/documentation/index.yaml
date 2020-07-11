@@ -1,0 +1,27 @@
+paths:
+  /booking:
+    post:
+      description: Creates a booking
+      operationId: createBooking
+      tags:
+        - Bookings
+      parameters:
+        - $ref: '#/components/parameters/createTrip'
+      responses:
+        '200':
+          description: Booking response
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                  result:
+                    type: string
+                    description: Booking id
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'

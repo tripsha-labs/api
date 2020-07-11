@@ -75,3 +75,15 @@ const bookingSchema = {
 };
 
 export const createBookingValidation = new Validator().compile(bookingSchema);
+
+export const hostBookingActionValidation = new Validator().compile({
+  action: {
+    type: 'string',
+    enum: ['approve', 'decline', 'withdraw'],
+    empty: false,
+  },
+  tripId: {
+    type: 'string',
+  },
+  $$strict: 'remove',
+});

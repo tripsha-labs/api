@@ -18,6 +18,97 @@
   ],
   "components": {
     "schemas": {
+      "BookingModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tripId": {
+            "type": "string"
+          },
+          "onwerId": {
+            "type": "string"
+          },
+          "memberId": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "attendees": {
+            "type": "string"
+          },
+          "room": {
+            "type": "object"
+          },
+          "addOns": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "guests": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "deposit": {
+            "type": "object"
+          },
+          "discount": {
+            "type": "object"
+          },
+          "status": {
+            "type": "string"
+          },
+          "nextPaymentDate": {
+            "type": "string"
+          },
+          "totalBaseFare": {
+            "type": "number"
+          },
+          "totalAddonFare": {
+            "type": "number"
+          },
+          "discountBaseFare": {
+            "type": "number"
+          },
+          "discountAddonFare": {
+            "type": "number"
+          },
+          "paidAmout": {
+            "type": "number"
+          },
+          "totalFare": {
+            "type": "number"
+          },
+          "pendingAmout": {
+            "type": "number"
+          },
+          "paymentHistory": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "createdAt": {
+            "type": "number",
+            "format": "unix timestamp"
+          },
+          "updatedAt": {
+            "type": "number",
+            "format": "unix timestamp"
+          }
+        }
+      },
       "CountryModel": {
         "type": "object",
         "properties": {
@@ -28,6 +119,60 @@
           "name": {
             "type": "string",
             "description": "Name of country"
+          }
+        }
+      },
+      "HostRequestModel": {
+        "type": "object",
+        "properties": {
+          "awsUserId": {
+            "type": "string"
+          },
+          "kindOfTripHostingOverview": {
+            "type": "string",
+            "description": "Describe type of trip you planning to host"
+          },
+          "hostingCapacity": {
+            "type": "string",
+            "enum": ["1", "2-3", "5-10", "10+"]
+          },
+          "hostingForCountries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "targettingTypesOfTravelers": {
+            "type": "string",
+            "description": "Hosting trip for kind of audience group?",
+            "enum": [true, false]
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "If `isActive=true` host request is not deleted",
+            "enum": [true, false]
+          },
+          "groupTripHostingExperience": {
+            "type": "string",
+            "description": "Host trip hosting experience",
+            "enum": ["professional", "intermediate", "beginner"]
+          },
+          "pastAccomplishmentReferences": {
+            "type": "string",
+            "description": "Host past experiences reference links"
+          },
+          "status": {
+            "type": "boolean",
+            "description": "Request status",
+            "enum": ["pending", "approved", "declined"]
+          },
+          "updatedAt": {
+            "type": "number",
+            "format": "Unix timestamp"
+          },
+          "createdAt": {
+            "type": "number",
+            "format": "Unix timestamp"
           }
         }
       },
@@ -43,34 +188,22 @@
           "isFavorite": {
             "type": "boolean",
             "description": "If `true`, the user has saved this trip for future reference",
-            "enum": [
-              true,
-              false
-            ]
+            "enum": [true, false]
           },
           "isMember": {
             "type": "boolean",
             "description": "Is member of the trip, if `true` then counted as active member of the trip",
-            "enum": [
-              true,
-              false
-            ]
+            "enum": [true, false]
           },
           "isActive": {
             "type": "boolean",
             "description": "If `isMember=true` then this value applies",
-            "enum": [
-              true,
-              false
-            ]
+            "enum": [true, false]
           },
           "isOwner": {
             "type": "boolean",
             "description": "Member is owner of the trip or not",
-            "enum": [
-              true,
-              false
-            ]
+            "enum": [true, false]
           },
           "updatedAt": {
             "type": "number",
@@ -102,9 +235,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "text"
-            ]
+            "enum": ["text"]
           }
         }
       },
@@ -134,10 +265,7 @@
       },
       "CommonErrorFormat": {
         "type": "object",
-        "required": [
-          "status",
-          "result"
-        ],
+        "required": ["status", "result"],
         "properties": {
           "status": {
             "type": "string",
@@ -145,10 +273,7 @@
           },
           "result": {
             "type": "object",
-            "required": [
-              "errorCode",
-              "message"
-            ],
+            "required": ["errorCode", "message"],
             "properties": {
               "errorCode": {
                 "type": "string",
@@ -168,10 +293,7 @@
       },
       "CommonSuccessFormat": {
         "type": "object",
-        "required": [
-          "status",
-          "result"
-        ],
+        "required": ["status", "result"],
         "properties": {
           "status": {
             "type": "string",
@@ -205,11 +327,11 @@
             "type": "string"
           },
           "startDate": {
-            "type": "date",
+            "type": "number",
             "format": "YYYYMMDD"
           },
           "endDate": {
-            "type": "date",
+            "type": "number",
             "format": "YYYYMMDD"
           },
           "focus": {
@@ -234,9 +356,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "english"
-              ]
+              "enum": ["english"]
             }
           },
           "interests": {
@@ -296,6 +416,9 @@
                 },
                 "available": {
                   "type": "number"
+                },
+                "filled": {
+                  "type": "number"
                 }
               }
             }
@@ -315,6 +438,9 @@
                   "type": "number"
                 },
                 "available": {
+                  "type": "number"
+                },
+                "filled": {
                   "type": "number"
                 }
               }
@@ -381,6 +507,9 @@
           "favoriteCount": {
             "type": "number"
           },
+          "spotsReserved": {
+            "type": "number"
+          },
           "isLocked": {
             "type": "boolean"
           },
@@ -394,8 +523,7 @@
             "type": "boolean"
           },
           "isFull": {
-            "type": "boolean",
-            "desciption": "groupsize=maxGroupSize"
+            "type": "boolean"
           },
           "isArchived": {
             "type": "boolean",
@@ -433,10 +561,7 @@
       },
       "UserModel": {
         "type": "object",
-        "required": [
-          "username",
-          "email"
-        ],
+        "required": ["username", "email"],
         "properties": {
           "id": {
             "type": "string"
@@ -454,7 +579,7 @@
             "type": "string"
           },
           "dob": {
-            "type": "date",
+            "type": "number",
             "format": "YYYYMMDD"
           },
           "livesIn": {
@@ -462,11 +587,7 @@
           },
           "gender": {
             "type": "string",
-            "enum": [
-              "male",
-              "female",
-              "other"
-            ]
+            "enum": ["male", "female", "other"]
           },
           "spokenLanguages": {
             "type": "string"
@@ -487,8 +608,7 @@
             }
           },
           "bucketList": {
-            "type": "string",
-            "desciption": "List of interested countries"
+            "type": "string"
           },
           "hasFirstBooking": {
             "type": "boolean"
@@ -521,51 +641,51 @@
             "type": "boolean"
           },
           "createdAt": {
-            "type": "string",
-            "desciption": "Datetime"
+            "type": "string"
           },
           "updatedAt": {
-            "type": "string",
-            "desciption": "Datetime"
+            "type": "string"
           }
         }
       },
       "SendMessage": {
+        "required": ["toMemberId", "message"],
         "properties": {
           "toMemberId": {
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "message": {
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "messsageType": {
             "type": "string",
-            "enum": [
-              "text"
-            ]
+            "enum": ["text"]
           }
         }
       },
       "CreateUpdateTrip": {
+        "required": [
+          "title",
+          "startDate",
+          "endDate",
+          "minGroupSize",
+          "maxGroupSize",
+          "spotsAvailable"
+        ],
         "properties": {
           "title": {
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "description": {
             "type": "string"
           },
           "startDate": {
-            "type": "string",
-            "format": "YYYYMMDD",
-            "required": true
+            "type": "number",
+            "format": "YYYYMMDD"
           },
           "endDate": {
-            "type": "string",
-            "format": "YYYYMMDD",
-            "required": true
+            "type": "number",
+            "format": "YYYYMMDD"
           },
           "focus": {
             "type": "string"
@@ -577,16 +697,13 @@
             }
           },
           "minGroupSize": {
-            "type": "number",
-            "required": true
+            "type": "number"
           },
           "maxGroupSize": {
-            "type": "number",
-            "required": true
+            "type": "number"
           },
           "spotsAvailable": {
-            "type": "number",
-            "required": true
+            "type": "number"
           },
           "languages": {
             "type": "array",
@@ -728,6 +845,15 @@
       }
     },
     "parameters": {
+      "createBooking": {
+        "in": "path",
+        "name": "body",
+        "description": "Create booking payload",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/CreateUpdateTrip"
+        }
+      },
       "pathUserId": {
         "name": "userId",
         "in": "path",
@@ -741,6 +867,15 @@
         "name": "tripId",
         "in": "path",
         "description": "Id of the trip",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "pathHostRequestId": {
+        "name": "hostRequestId",
+        "in": "path",
+        "description": "Id of the host request",
         "required": true,
         "schema": {
           "type": "string"
@@ -798,9 +933,7 @@
         "schema": {
           "type": "string",
           "default": "updatedAt",
-          "enum": [
-            "updatedAt"
-          ]
+          "enum": ["updatedAt"]
         }
       },
       "querySortByUser": {
@@ -810,9 +943,7 @@
         "schema": {
           "type": "string",
           "default": "username",
-          "enum": [
-            "username"
-          ]
+          "enum": ["username"]
         }
       },
       "querySortByTrip": {
@@ -822,11 +953,7 @@
         "schema": {
           "type": "string",
           "default": "updatedAt",
-          "enum": [
-            "updatedAt",
-            "startDate",
-            "spotsFilled"
-          ]
+          "enum": ["updatedAt", "startDate", "spotsFilled"]
         }
       },
       "querySortOrder": {
@@ -835,10 +962,7 @@
         "description": "Sort order applied on `sortBy` fields",
         "schema": {
           "type": "number",
-          "enum": [
-            1,
-            -1
-          ],
+          "enum": [1, -1],
           "default": -1
         }
       },
@@ -871,7 +995,7 @@
         "in": "query",
         "description": "Search for minStartDate. Format: `YYYYMMDD`",
         "schema": {
-          "type": "date",
+          "type": "number",
           "format": "YYYYMMDD"
         }
       },
@@ -880,7 +1004,7 @@
         "in": "query",
         "description": "Search for maxEndDate. Format: `YYYYMMDD`",
         "schema": {
-          "type": "date",
+          "type": "number",
           "format": "YYYYMMDD"
         }
       },
@@ -956,35 +1080,77 @@
         "description": "List all the trips with status",
         "schema": {
           "type": "string",
-          "enum": [
-            "draft",
-            "published",
-            "completed",
-            "cancelled"
-          ]
+          "enum": ["draft", "published", "completed", "cancelled"]
+        }
+      },
+      "createHostRequest": {
+        "in": "path",
+        "name": "body",
+        "description": "Create host request payload",
+        "required": true,
+        "schema": {
+          "properties": {
+            "kindOfTripHostingOverview": {
+              "type": "string",
+              "description": "Describe type of trip you planning to host"
+            },
+            "hostingCapacity": {
+              "type": "string",
+              "enum": ["1", "2-3", "5-10", "10+"]
+            },
+            "hostingForCountries": {
+              "type": "array"
+            },
+            "targettingTypesOfTravelers": {
+              "type": "string",
+              "description": "Hosting trip for kind of audience group?",
+              "enum": [true, false]
+            },
+            "groupTripHostingExperience": {
+              "type": "string",
+              "description": "Host trip hosting experience",
+              "enum": ["professional", "intermediate", "beginner"]
+            },
+            "pastAccomplishmentReferences": {
+              "type": "string",
+              "description": "Host past experiences reference links"
+            }
+          }
+        }
+      },
+      "updateHostRequest": {
+        "in": "path",
+        "name": "body",
+        "description": "Update host request payload",
+        "required": true,
+        "schema": {
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": ["approved", "declined"]
+            }
+          }
         }
       },
       "MemberAction": {
-        "in": "body",
+        "in": "path",
         "name": "body",
         "description": "Perform Member Actions",
         "required": true,
         "schema": {
+          "required": ["tripId", "memberIds", "action"],
           "properties": {
             "tripId": {
-              "type": "string",
-              "required": true
+              "type": "string"
             },
             "memberIds": {
               "type": "array",
-              "required": true,
               "items": {
                 "type": "string"
               }
             },
             "action": {
               "type": "string",
-              "required": true,
               "enum": [
                 "addMember",
                 "makeFavorite",
@@ -996,7 +1162,7 @@
         }
       },
       "SendMessage": {
-        "in": "body",
+        "in": "path",
         "name": "body",
         "description": "Create trip payload",
         "required": true,
@@ -1005,7 +1171,7 @@
         }
       },
       "createTrip": {
-        "in": "body",
+        "in": "path",
         "name": "body",
         "description": "Create trip payload",
         "required": true,
@@ -1014,7 +1180,7 @@
         }
       },
       "updateTrip": {
-        "in": "body",
+        "in": "path",
         "name": "body",
         "description": "Update trip payload",
         "required": true,
@@ -1023,7 +1189,7 @@
         }
       },
       "createUser": {
-        "in": "body",
+        "in": "path",
         "name": "body",
         "description": "Create user payload",
         "required": true,
@@ -1047,7 +1213,7 @@
         }
       },
       "updateUser": {
-        "in": "body",
+        "in": "path",
         "name": "body",
         "description": "Update user payload",
         "required": true,
@@ -1063,7 +1229,7 @@
               "type": "string"
             },
             "dob": {
-              "type": "date",
+              "type": "number",
               "format": "YYYYMMDD"
             },
             "livesIn": {
@@ -1101,7 +1267,7 @@
         }
       },
       "checkUserExists": {
-        "in": "body",
+        "in": "path",
         "name": "body",
         "description": "Check user exists payload",
         "required": true,
@@ -1120,28 +1286,56 @@
         "name": "api_key",
         "in": "header"
       }
-    },
-    "examples": {
-      "trip-error": {
-        "status": "error",
-        "result": [
-          {
-            "type": "required",
-            "message": "Title field is required",
-            "field": "title"
-          }
-        ]
-      }
     }
   },
   "paths": {
+    "/booking": {
+      "post": {
+        "description": "Creates a booking",
+        "operationId": "createBooking",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/createTrip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "Booking id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/countries": {
       "get": {
         "description": "Return list of matching countries",
         "operationId": "listCountries",
-        "tags": [
-          "Countries"
-        ],
+        "tags": ["Countries"],
         "parameters": [
           {
             "$ref": "#/components/parameters/querySearch"
@@ -1160,10 +1354,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1192,13 +1383,214 @@
         }
       }
     },
+    "/host-requests": {
+      "get": {
+        "description": "Return list of matching host requests",
+        "operationId": "listHostRequests",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Host request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/HostRequestModel"
+                          }
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Count of the current records"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a host request",
+        "operationId": "createHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/createHostRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Create host request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "string",
+                      "default": "request id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{hostRequestId}": {
+      "get": {
+        "description": "Returns a host request based on a request ID",
+        "operationId": "getHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Host Request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "$ref": "#/components/schemas/HostRequestModel"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates a single host request based on the ID supplied, also it will update the status if request",
+        "operationId": "updateHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          },
+          {
+            "$ref": "#/components/parameters/updateHostRequest"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Host request updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single host request based on the ID supplied",
+        "operationId": "deleteHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Host request deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/trips/{tripId}/members": {
       "get": {
         "description": "Returns list of trip members",
         "operationId": "listMembers",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathTripId"
@@ -1217,10 +1609,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1228,11 +1617,7 @@
                     },
                     "result": {
                       "type": "object",
-                      "required": [
-                        "totalCount",
-                        "count",
-                        "data"
-                      ],
+                      "required": ["totalCount", "count", "data"],
                       "properties": {
                         "totalCount": {
                           "type": "number",
@@ -1272,9 +1657,7 @@
       "post": {
         "description": "Perform various operations on a member",
         "operationId": "memberActions",
-        "tags": [
-          "Members"
-        ],
+        "tags": ["Members"],
         "parameters": [
           {
             "$ref": "#/components/parameters/MemberAction"
@@ -1287,10 +1670,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1322,9 +1702,7 @@
       "get": {
         "description": "Returns list of user messages",
         "operationId": "listMessages",
-        "tags": [
-          "Messages"
-        ],
+        "tags": ["Messages"],
         "parameters": [
           {
             "$ref": "#/components/parameters/queryMemberId"
@@ -1343,10 +1721,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1354,11 +1729,7 @@
                     },
                     "result": {
                       "type": "object",
-                      "required": [
-                        "totalCount",
-                        "count",
-                        "data"
-                      ],
+                      "required": ["totalCount", "count", "data"],
                       "properties": {
                         "totalCount": {
                           "type": "number",
@@ -1398,9 +1769,7 @@
       "get": {
         "description": "Returns list of conversations",
         "operationId": "listConversations",
-        "tags": [
-          "Messages"
-        ],
+        "tags": ["Messages"],
         "parameters": [
           {
             "$ref": "#/components/parameters/queryPage"
@@ -1416,10 +1785,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1427,11 +1793,7 @@
                     },
                     "result": {
                       "type": "object",
-                      "required": [
-                        "totalCount",
-                        "count",
-                        "data"
-                      ],
+                      "required": ["totalCount", "count", "data"],
                       "properties": {
                         "totalCount": {
                           "type": "number",
@@ -1471,9 +1833,7 @@
       "post": {
         "description": "Send message",
         "operationId": "sendmessage",
-        "tags": [
-          "Messages"
-        ],
+        "tags": ["Messages"],
         "parameters": [
           {
             "$ref": "#/components/parameters/SendMessage"
@@ -1486,10 +1846,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1520,9 +1877,7 @@
       "get": {
         "description": "Return list of matching interest tags",
         "operationId": "listTags",
-        "tags": [
-          "Tags"
-        ],
+        "tags": ["Tags"],
         "parameters": [
           {
             "$ref": "#/components/parameters/querySearch"
@@ -1535,10 +1890,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1571,9 +1923,7 @@
       "get": {
         "description": "Return list of matching trip tags",
         "operationId": "listTripTags",
-        "tags": [
-          "Tags"
-        ],
+        "tags": ["Tags"],
         "parameters": [
           {
             "$ref": "#/components/parameters/querySearch"
@@ -1586,10 +1936,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1622,9 +1969,7 @@
       "get": {
         "description": "Returns list of trips",
         "operationId": "listTrips",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "$ref": "#/components/parameters/queryPage"
@@ -1673,10 +2018,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1711,9 +2053,7 @@
       "post": {
         "description": "Creates a trip",
         "operationId": "createTrip",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "$ref": "#/components/parameters/createTrip"
@@ -1755,9 +2095,7 @@
       "get": {
         "description": "Returns list of my trips",
         "operationId": "myTrips",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "$ref": "#/components/parameters/queryPage"
@@ -1797,10 +2135,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1837,9 +2172,7 @@
       "get": {
         "description": "Returns list of saved trips",
         "operationId": "savedTrips",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "$ref": "#/components/parameters/queryPage"
@@ -1876,10 +2209,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1926,9 +2256,7 @@
       "get": {
         "description": "Returns a trip based on a trip ID",
         "operationId": "findTripById",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathTripId"
@@ -1941,10 +2269,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -1973,9 +2298,7 @@
       "put": {
         "description": "Updates a single trip based on the ID supplied and data",
         "operationId": "updateTrip",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathTripId"
@@ -2010,9 +2333,7 @@
       "delete": {
         "description": "deletes a single trip based on the ID supplied",
         "operationId": "deleteTrip",
-        "tags": [
-          "Trips"
-        ],
+        "tags": ["Trips"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathTripId"
@@ -2046,9 +2367,7 @@
       "get": {
         "description": "Returns list of users",
         "operationId": "listUsers",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "$ref": "#/components/parameters/querySearch"
@@ -2073,10 +2392,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -2084,10 +2400,7 @@
                     },
                     "result": {
                       "type": "object",
-                      "required": [
-                        "total",
-                        "data"
-                      ],
+                      "required": ["total", "data"],
                       "properties": {
                         "count": {
                           "type": "number",
@@ -2144,9 +2457,7 @@
       "post": {
         "description": "Creates a user",
         "operationId": "createUser",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "$ref": "#/components/parameters/createUser"
@@ -2159,10 +2470,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -2194,9 +2502,7 @@
       "post": {
         "description": "Check username exists",
         "operationId": "checkExists",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "$ref": "#/components/parameters/checkUserExists"
@@ -2243,9 +2549,7 @@
       "get": {
         "description": "Returns a user based on a user ID",
         "operationId": "findUserById",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathUserId"
@@ -2258,10 +2562,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "result"
-                  ],
+                  "required": ["status", "result"],
                   "properties": {
                     "status": {
                       "type": "string",
@@ -2290,9 +2591,7 @@
       "put": {
         "description": "Updates a single user based on the ID supplied and data",
         "operationId": "updateUser",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathUserId"
@@ -2327,9 +2626,7 @@
       "delete": {
         "description": "Deletes a single user based on the ID supplied",
         "operationId": "deleteUser",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "$ref": "#/components/parameters/pathUserId"

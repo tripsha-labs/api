@@ -14,3 +14,10 @@ components:
       required: true
       schema:
         type: 'string'
+    pathHostRequestId:
+      name: 'hostRequestId'
+      in: 'path'
+      description: 'Id of the host request'
+      required: true
+      schema:
+        type: 'string'

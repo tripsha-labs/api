@@ -46,6 +46,7 @@ const tripSchema = new mongoose.Schema(
     isArchived: { type: Boolean, default: false },
     isLocked: { type: Boolean, default: false },
     isFull: { type: Boolean, default: false },
+    spotsReserved: { type: Number, default: 0 },
     showGroupHistory: { type: Boolean, default: true },
   },
   {

@@ -4,7 +4,10 @@
  */
 import { BookingController } from './booking.ctrl';
 import { success, failure, logError } from '../../utils';
-import { createBookingValidation } from '../../models';
+import {
+  createBookingValidation,
+  hostBookingActionValidation,
+} from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
 /**
@@ -22,6 +25,47 @@ export const createBooking = async (event, context) => {
       event.requestContext.identity.cognitoIdentityId
     );
 
+    return success(result);
+  } catch (error) {
+    logError(error);
+    return failure(error);
+  }
+};
+
+/**
+ *  List all bookings created
+ */
+export const listBookings = async (event, context) => {
+  try {
+    const params = event.queryStringParameters
+      ? event.queryStringParameters
+      : {};
+    const result = await BookingController.listBookings(
+      params,
+      event.requestContext.identity.cognitoIdentityId
+    );
+    return success(result);
+  } catch (error) {
+    logError(error);
+    return failure(error);
+  }
+};
+
+/**
+ *  Accept/reject booking
+ */
+export const hostBookingsAction = async (event, context) => {
+  try {
+    const bookingId = event.pathParameters && event.pathParameters.id;
+    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = JSON.parse(event.body) || {};
+    const validation = hostBookingActionValidation(data);
+    if (validation != true) throw validation.shift();
+    const result = await BookingController.hostBookingsAction(
+      data,
+      bookingId,
+      event.requestContext.identity.cognitoIdentityId
+    );
     return success(result);
   } catch (error) {
     logError(error);

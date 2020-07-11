@@ -1,0 +1,71 @@
+components:
+  schemas:
+    BookingModel:
+      type: object
+      properties:
+        id:
+          type: string
+        tripId:
+          type: string
+        onwerId:
+          type: string
+        memberId:
+          type: string
+        currency:
+          type: string
+        attendees:
+          type: string
+        room:
+          type: object
+        addOns:
+          type: array
+          items:
+            type: object
+        guests:
+          type: array
+          items:
+            type: object
+        message:
+          type: string
+        paymentStatus:
+          type: string
+        deposit:
+          type: object
+        discount:
+          type: object
+        status:
+          type: string
+        nextPaymentDate:
+          type: string
+        totalBaseFare:
+          type: number
+        totalAddonFare:
+          type: number
+        discountBaseFare:
+          type: number
+        discountAddonFare:
+          type: number
+        paidAmout:
+          type: number
+        totalFare:
+          type: number
+        pendingAmout:
+          type: number
+        paymentHistory:
+          type: array
+          items:
+            type: object
+        createdAt:
+          type: number
+          format: unix timestamp
+        updatedAt:
+          type: number
+          format: unix timestamp
+  parameters:
+    createBooking:
+      in: path
+      name: body
+      description: Create booking payload
+      required: true
+      schema:
+        $ref: '#/components/schemas/CreateUpdateTrip'

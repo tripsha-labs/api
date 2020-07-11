@@ -1,0 +1,40 @@
+listHostRequests:
+  handler: src/routes/hosts/handler.listHostRequests
+  events:
+    - http:
+        path: host-requests
+        method: post
+        cors: true
+        authorizer: aws_iam
+
+createHostRequest:
+  handler: src/routes/hosts/handler.createHostRequest
+  events:
+    - http:
+        path: host-requests
+        method: post
+        cors: true
+
+getHostRequest:
+  handler: src/routes/hosts/handler.getHostRequest
+  events:
+    - http:
+        path: host-requests/{id}
+        method: get
+        cors: true
+
+updateHostRequest:
+  handler: src/routes/hosts/handler.updateHostRequest
+  events:
+    - http:
+        path: host-requests/{id}
+        method: put
+        cors: true
+
+deleteHostRequest:
+  handler: src/routes/hosts/handler.deleteHostRequest
+  events:
+    - http:
+        path: host-requests/{id}
+        method: delete
+        cors: true
