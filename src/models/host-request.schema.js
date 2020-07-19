@@ -31,4 +31,4 @@ const hostRequestSchema = new mongoose.Schema(
   }
 );
 export const HostRequest =
-  mongoose.models.Host || mongoose.model('Hosts', hostRequestSchema);
+  mongoose.models.Hosts || mongoose.model('Hosts', hostRequestSchema);

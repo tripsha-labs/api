@@ -14,7 +14,7 @@ const hostRequestSchema = {
   },
   targettingTypesOfTravelers: { type: 'string', required: true },
   groupTripHostingExperience: { type: 'string', required: true },
-  pastAccomplishmentReferences: { type: 'array', items: { type: 'string' } },
+  pastAccomplishmentReferences: { type: 'string' },
   $$strict: true,
 };
 

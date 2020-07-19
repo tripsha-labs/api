@@ -4,7 +4,7 @@
  */
 import { success, failure } from '../../utils';
 import { HostRequestController } from './host-request.ctrl';
-import { hostValidation } from '../../models';
+import { hostRequestValidation } from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
 /**
@@ -12,15 +12,8 @@ import { ERROR_KEYS } from '../../constants';
  */
 export const listHostRequests = async (event, context) => {
   try {
-    if (!(event.pathParameters && event.pathParameters.id))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     // Get search string from queryparams
-    const queryParams = event.queryStringParameters || {};
-
-    const params = {
-      tripId: event.pathParameters.id,
-      ...queryParams,
-    };
+    const params = event.queryStringParameters || {};
 
     const result = await HostRequestController.list(
       params,
@@ -39,7 +32,7 @@ export const listHostRequests = async (event, context) => {
 export const createHostRequest = async (event, context) => {
   try {
     const params = JSON.parse(event.body) || {};
-    const errors = hostValidation(params);
+    const errors = hostRequestValidation(params);
     if (errors != true) throw errors.shift();
     params['awsUserId'] = event.requestContext.identity.cognitoIdentityId;
     const result = await HostRequestController.createHostRequest(params);

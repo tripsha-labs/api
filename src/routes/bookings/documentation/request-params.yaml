@@ -98,3 +98,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/bookingSchema'
+
+    bookingAction:
+      description: Booking action payload
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              action:
+                type: string
+                enum: ['approve', 'decline', 'withdraw']

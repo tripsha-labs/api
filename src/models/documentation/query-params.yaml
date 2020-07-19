@@ -163,3 +163,16 @@ components:
       schema:
         type: 'string'
         enum: ['draft', 'published', 'completed', 'cancelled']
+    queryTripId:
+      name: 'tripId'
+      in: 'query'
+      description: 'Trip Id'
+      schema:
+        type: 'string'
+    queryIsHost:
+      name: 'isHost'
+      in: 'query'
+      description: 'This will list the details as per the host permissions else it will list the details as normal user.'
+      schema:
+        type: 'boolean'
+        enum: [true, false]

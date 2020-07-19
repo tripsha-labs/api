@@ -7,7 +7,7 @@ import { HostRequest } from '.';
 export class HostRequestModel {
   static list(params = {}) {
     const { filter, select, pagination, sort } = params;
-    const hostRequests = Host.find(filter, select || {});
+    const hostRequests = HostRequest.find(filter, select || {});
     if (sort) hosts.sort(sort);
     if (pagination) {
       hostRequests.limit(pagination.limit);

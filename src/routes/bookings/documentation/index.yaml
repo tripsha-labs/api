@@ -1,7 +1,7 @@
 paths:
-  /booking:
+  /bookings:
     get:
-      description: Returns list of bookings related to logged in user
+      description: Returns list of bookings related to logged in user.
       operationId: listBookings
       tags:
         - Bookings
@@ -10,6 +10,8 @@ paths:
         - $ref: '#/components/parameters/queryLimit'
         - $ref: '#/components/parameters/querySortBy'
         - $ref: '#/components/parameters/querySortOrder'
+        - $ref: '#/components/parameters/queryTripId'
+        - $ref: '#/components/parameters/queryIsHost'
       responses:
         '200':
           description: Booking list response
@@ -62,7 +64,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommonErrorFormat'
-  /booking/{bookingId}:
+  /bookings/{bookingId}:
     get:
       description: Returns a booking based on a booking ID
       operationId: findBookingById
@@ -122,6 +124,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommonSuccessFormat'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+  /bookings/{bookingId}/action:
+    post:
+      description: Perform action on the booking
+      operationId: bookingAction
+      tags:
+        - Bookings
+      parameters:
+        - $ref: '#/components/parameters/pathBookingId'
+      requestBody:
+        $ref: '#/components/requestBodies/bookingAction'
+      responses:
+        '200':
+          description: Booking action response
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                  result:
+                    type: string
         default:
           description: Error Response
           content:

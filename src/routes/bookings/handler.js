@@ -40,8 +40,49 @@ export const listBookings = async (event, context) => {
     const params = event.queryStringParameters
       ? event.queryStringParameters
       : {};
-    const result = await BookingController.listBookings(
-      params,
+    let result = [];
+    if (params.isHost == true || params.isHost == 'true')
+      result = await BookingController.listBookings(
+        params,
+        event.requestContext.identity.cognitoIdentityId
+      );
+    else
+      result = await BookingController.listGuestBookings(
+        event.requestContext.identity.cognitoIdentityId
+      );
+    return success(result);
+  } catch (error) {
+    console.log(error);
+    return failure(error);
+  }
+};
+
+/**
+ *  Get booking details
+ */
+export const getBooking = async (event, context) => {
+  try {
+    const data = JSON.parse(event.body) || {};
+    if (!(event.pathParameters && event.pathParameters.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await BookingController.getBooking(event.pathParameters.id);
+    return success(result);
+  } catch (error) {
+    logError(error);
+    return failure(error);
+  }
+};
+
+/**
+ *  Pay part payment
+ */
+export const doPartPayment = async (event, context) => {
+  try {
+    const data = JSON.parse(event.body) || {};
+    if (!(event.pathParameters && event.pathParameters.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await BookingController.doPartPayment(
+      event.pathParameters.id,
       event.requestContext.identity.cognitoIdentityId
     );
     return success(result);
@@ -54,55 +95,18 @@ export const listBookings = async (event, context) => {
 /**
  *  Accept/reject booking
  */
-export const hostBookingsAction = async (event, context) => {
+export const bookingsAction = async (event, context) => {
   try {
     const bookingId = event.pathParameters && event.pathParameters.id;
     if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const data = JSON.parse(event.body) || {};
     const validation = hostBookingActionValidation(data);
     if (validation != true) throw validation.shift();
-    const result = await BookingController.hostBookingsAction(
+    const result = await BookingController.bookingsAction(
       data,
       bookingId,
       event.requestContext.identity.cognitoIdentityId
     );
-    return success(result);
-  } catch (error) {
-    logError(error);
-    return failure(error);
-  }
-};
-
-/**
- *  List all bookings created by guest
- */
-export const listGuestBookings = async (event, context) => {
-  try {
-    const result = await BookingController.listGuestBookings(
-      event.requestContext.identity.cognitoIdentityId
-    );
-    return success(result);
-  } catch (error) {
-    logError(error);
-    return failure(error);
-  }
-};
-
-/**
- *  List all bookings for a given trip ID
- */
-export const listHostBookings = async (event, context) => {
-  try {
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
-
-    if (!params.tripId) {
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
-    }
-
-    const result = await BookingController.listHostBookings(params.tripId);
-
     return success(result);
   } catch (error) {
     logError(error);
