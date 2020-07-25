@@ -96,6 +96,11 @@ export const ERROR_KEYS = {
     message: `Ooops! looks like the host request id is invalid.`,
     code: 400,
   },
+  HOST_REQUEST_ALREADY_EXISTS: {
+    type: 'HostRequestAlreadyExists',
+    message: `Host request already exists.`,
+    code: 400,
+  },
   INVALID_ACTION: {
     type: 'InvalidAction',
     message: `Ooops! looks you are trying to perform invalid action.`,

@@ -16,13 +16,33 @@ export class HostRequestController {
       throw { ...ERROR_KEYS.UNAUTHORIZED };
     }
 
-    const params = { filter: { isActive: true } };
-    const hostRequests = await HostRequestModel.list(params);
+    const params = [{ $match: { isActive: true } }];
+    params.push({
+      $lookup: {
+        from: 'users',
+        localField: 'awsUserId',
+        foreignField: 'awsUserId',
+        as: 'ownerDetails',
+      },
+    });
+    params.push({
+      $unwind: {
+        path: '$ownerDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    });
+    const hostRequests = await HostRequestModel.aggregate(params);
     return { data: hostRequests, count: hostRequests.length };
   }
 
   static async createHostRequest(params) {
     await dbConnect();
+    const hostRequest = await HostRequestModel.get({
+      awsUserId: params.awsUserId,
+    });
+    if (hostRequest && hostRequest.status == 'pending') {
+      throw { ...ERROR_KEYS.HOST_REQUEST_ALREADY_EXISTS };
+    }
     const hostRequests = await HostRequestModel.create(params);
     return hostRequests;
   }
@@ -31,6 +51,10 @@ export class HostRequestController {
     await dbConnect();
     const hostRequest = await HostRequestModel.getById(hostId);
     if (!hostRequest) throw { ...ERROR_KEYS.HOST_REQUEST_NOT_FOUND };
+    const ownerDetails = await UserModel.get({
+      awsUserId: hostRequest.awsUserId,
+    });
+    hostRequest['ownerDetails'] = ownerDetails;
     return hostRequest;
   }
 
@@ -41,7 +65,8 @@ export class HostRequestController {
     if (!(user && user.isAdmin)) {
       throw { ...ERROR_KEYS.UNAUTHORIZED };
     }
-    if (data['action'] !== 'pending') {
+    const hostRequest = await HostRequestModel.getById(hostId);
+    if (hostRequest && hostRequest['status'] !== 'pending') {
       throw ERROR_KEYS.INVALID_ACTION;
     }
     await HostRequestModel.update(
@@ -50,7 +75,7 @@ export class HostRequestController {
     );
     if (data['action'] == 'approved') {
       await UserModel.update(
-        { awsUserId: awsUserId },
+        { awsUserId: hostRequest.awsUserId },
         { isIdentityVerified: true }
       );
     }

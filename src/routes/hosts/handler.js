@@ -2,6 +2,7 @@
  * @name - HostRequest handler
  * @description - This will handle API request for host request module
  */
+import urldecode from 'urldecode';
 import { success, failure } from '../../utils';
 import { HostRequestController } from './host-request.ctrl';
 import { hostRequestValidation } from '../../models';
@@ -76,16 +77,17 @@ export const updateHostRequest = async (event, context) => {
       data &&
       (data['action'] == 'approved' || data['action'] == 'declined')
     ) {
+      const result = await HostRequestController.updateHostRequest(
+        urldecode(id),
+        {
+          ...data,
+        },
+        event.requestContext.identity.cognitoIdentityId
+      );
+      return success(result);
+    } else {
       throw { ...ERROR_KEYS.BAD_REQUEST };
     }
-    const result = await HostRequestController.updateHostRequest(
-      urldecode(id),
-      {
-        ...data,
-      },
-      event.requestContext.identity.cognitoIdentityId
-    );
-    return success(result);
   } catch (error) {
     console.log(error);
     return failure(error);

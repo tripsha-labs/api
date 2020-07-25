@@ -143,13 +143,14 @@ export class BookingController {
               throw ERROR_KEYS.INVALID_ACTION;
             }
             const paymentIntent = await StripeAPI.createPaymentIntent({
-              amount: booking.pendingAmout,
+              amount: parseInt(booking.pendingAmout * 100),
               currency: booking.currency,
               customerId: booking.memberStripeId,
               paymentMethod: booking.stripePaymentMethod.id,
               confirm: true,
               beneficiary: booking.onwerStripeId,
             });
+
             if (paymentIntent) {
               booking.paymentHistory.push({
                 amount: booking.pendingAmout,

@@ -354,6 +354,7 @@ export class TripController {
         isActive: true,
       };
       await dbConnect();
+
       if (filter.memberId) {
         if (!Types.ObjectId.isValid(filter.memberId)) {
           throw 'Invalid memberID';
@@ -403,6 +404,7 @@ export class TripController {
           newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
         },
       });
+
       // Filter trips
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const tripParams = {
@@ -410,10 +412,9 @@ export class TripController {
         isPublic: filter.isPublic || true,
         isArchived: filter.isArchived || false,
         endDate: { $gte: currentDate },
+        status: filter.status || 'published',
       };
-      if (!filter.isArchived) {
-        tripParams['status'] = filter.status || 'published';
-      }
+
       if (filter.pastTrips || filter.isArchived) {
         tripParams['endDate'] = { $lt: currentDate };
       }
@@ -442,13 +443,13 @@ export class TripController {
           tripId: 0,
         },
       });
-
+      console.log(params);
       const resTrips = await MemberModel.aggregate(params);
-      const resCount = await MemberModel.count(filterParams);
+      // const resCount = await MemberModel.count(filterParams);
 
       return {
         data: resTrips,
-        totalCount: resCount,
+        // totalCount: resCount,
         count: resTrips.length,
       };
     } catch (error) {

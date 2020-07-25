@@ -17,7 +17,8 @@ const hostRequestSchema = new mongoose.Schema(
     },
     targettingTypesOfTravelers: { type: String, required: true },
     groupTripHostingExperience: { type: String, required: true },
-    pastAccomplishmentReferences: { type: Array, items: { type: String } },
+    pastAccomplishmentReferences: { type: String },
+    isActive: { type: Boolean, default: true },
     status: {
       type: String,
       default: 'pending',
