@@ -17,7 +17,8 @@ const hostRequestSchema = new mongoose.Schema(
     },
     targettingTypesOfTravelers: { type: String, required: true },
     groupTripHostingExperience: { type: String, required: true },
-    pastAccomplishmentReferences: { type: Array, items: { type: String } },
+    pastAccomplishmentReferences: { type: String },
+    isActive: { type: Boolean, default: true },
     status: {
       type: String,
       default: 'pending',
@@ -31,4 +32,4 @@ const hostRequestSchema = new mongoose.Schema(
   }
 );
 export const HostRequest =
-  mongoose.models.Host || mongoose.model('Hosts', hostRequestSchema);
+  mongoose.models.Hosts || mongoose.model('Hosts', hostRequestSchema);

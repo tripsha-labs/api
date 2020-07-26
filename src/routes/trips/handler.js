@@ -142,6 +142,7 @@ export const savedTrips = async (event, context) => {
     const result = await TripController.myTrips({
       ...params,
       isPublic: true,
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
     return success(result);
   } catch (error) {

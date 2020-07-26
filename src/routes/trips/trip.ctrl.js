@@ -350,10 +350,9 @@ export class TripController {
 
   static async myTrips(filter) {
     try {
-      const filterParams = {
-        isActive: true,
-      };
+      const filterParams = {};
       await dbConnect();
+
       if (filter.memberId) {
         if (!Types.ObjectId.isValid(filter.memberId)) {
           throw 'Invalid memberID';
@@ -361,29 +360,27 @@ export class TripController {
         filterParams['memberId'] = Types.ObjectId(filter.memberId);
       } else {
         const user = await UserModel.get({ awsUserId: filter.awsUserId });
+        if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
         filterParams['memberId'] = user._id;
       }
-
+      if (filter.isHost) filterParams['isOwner'] = true;
       if (filter.isMember) filterParams['isMember'] = true;
       if (filter.isFavorite) filterParams['isFavorite'] = true;
-
+      if (
+        !(
+          filterParams['isFavorite'] ||
+          filterParams['isMember'] ||
+          filterParams['isOwner']
+        )
+      ) {
+        filterParams['isMember'] = true;
+      }
       const params = [
         {
           $match: filterParams,
         },
       ];
 
-      params.push({
-        $sort: prepareSortFilter(
-          filter,
-          ['updatedAt', 'startDate', 'spotsFilled'],
-          'updatedAt'
-        ),
-      });
-      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
-      params.push({ $limit: limit });
-      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
-      params.push({ $skip: limit * page });
       params.push({
         $lookup: {
           from: 'trips',
@@ -403,24 +400,47 @@ export class TripController {
           newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
         },
       });
+
       // Filter trips
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const tripParams = {
         isActive: true,
-        isPublic: filter.isPublic || true,
-        isArchived: filter.isArchived || false,
-        endDate: { $gte: currentDate },
       };
-      if (!filter.isArchived) {
-        tripParams['status'] = filter.status || 'published';
+      if (filter.isPublic) {
+        tripParams['isPublic'] = filter.isPublic;
       }
+      if (filter.status) {
+        tripParams['status'] = filter.status;
+      }
+
       if (filter.pastTrips || filter.isArchived) {
-        tripParams['endDate'] = { $lt: currentDate };
+        tripParams['$or'] = [
+          { endDate: { $lt: currentDate } },
+          { status: { $in: ['completed', 'cancelled'] } },
+          { isArchived: true },
+        ];
+      } else {
+        tripParams['$and'] = [
+          { endDate: { $gte: currentDate } },
+          { status: { $nin: ['completed', 'cancelled'] } },
+          { isArchived: false },
+        ];
       }
 
       params.push({
         $match: tripParams,
       });
+      params.push({
+        $sort: prepareSortFilter(
+          filter,
+          ['updatedAt', 'startDate', 'spotsFilled'],
+          'updatedAt'
+        ),
+      });
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $limit: limit });
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
       params.push({
         $lookup: {
           from: 'users',
@@ -442,13 +462,13 @@ export class TripController {
           tripId: 0,
         },
       });
-
+      console.log(params);
       const resTrips = await MemberModel.aggregate(params);
-      const resCount = await MemberModel.count(filterParams);
+      // const resCount = await MemberModel.count(filterParams);
 
       return {
         data: resTrips,
-        totalCount: resCount,
+        // totalCount: resCount,
         count: resTrips.length,
       };
     } catch (error) {

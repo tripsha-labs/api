@@ -3,7 +3,7 @@ listHostRequests:
   events:
     - http:
         path: host-requests
-        method: post
+        method: get
         cors: true
         authorizer: aws_iam
 
@@ -14,6 +14,7 @@ createHostRequest:
         path: host-requests
         method: post
         cors: true
+        authorizer: aws_iam
 
 getHostRequest:
   handler: src/routes/hosts/handler.getHostRequest
@@ -22,6 +23,7 @@ getHostRequest:
         path: host-requests/{id}
         method: get
         cors: true
+        authorizer: aws_iam
 
 updateHostRequest:
   handler: src/routes/hosts/handler.updateHostRequest
@@ -30,6 +32,7 @@ updateHostRequest:
         path: host-requests/{id}
         method: put
         cors: true
+        authorizer: aws_iam
 
 deleteHostRequest:
   handler: src/routes/hosts/handler.deleteHostRequest
@@ -38,3 +41,4 @@ deleteHostRequest:
         path: host-requests/{id}
         method: delete
         cors: true
+        authorizer: aws_iam

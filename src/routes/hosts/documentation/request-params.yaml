@@ -22,9 +22,6 @@ components:
               targettingTypesOfTravelers:
                 type: string
                 description: Hosting trip for kind of audience group?
-                enum:
-                  - true
-                  - false
 
               groupTripHostingExperience:
                 type: string

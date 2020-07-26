@@ -1209,6 +1209,23 @@
           "type": "string",
           "enum": ["draft", "published", "completed", "cancelled"]
         }
+      },
+      "queryTripId": {
+        "name": "tripId",
+        "in": "query",
+        "description": "Trip Id",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "queryIsHost": {
+        "name": "isHost",
+        "in": "query",
+        "description": "This will list the details as per the host permissions else it will list the details as normal user.",
+        "schema": {
+          "type": "boolean",
+          "enum": [true, false]
+        }
       }
     },
     "securitySchemes": {
@@ -1241,6 +1258,22 @@
           }
         }
       },
+      "bookingAction": {
+        "description": "Booking action payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": ["approve", "decline", "withdraw"]
+                }
+              }
+            }
+          }
+        }
+      },
       "createHostRequest": {
         "description": "Create host request payload",
         "required": true,
@@ -1261,8 +1294,7 @@
                 },
                 "targettingTypesOfTravelers": {
                   "type": "string",
-                  "description": "Hosting trip for kind of audience group?",
-                  "enum": [true, false]
+                  "description": "Hosting trip for kind of audience group?"
                 },
                 "groupTripHostingExperience": {
                   "type": "string",
@@ -1458,9 +1490,9 @@
     }
   },
   "paths": {
-    "/booking": {
+    "/bookings": {
       "get": {
-        "description": "Returns list of bookings related to logged in user",
+        "description": "Returns list of bookings related to logged in user.",
         "operationId": "listBookings",
         "tags": ["Bookings"],
         "parameters": [
@@ -1475,6 +1507,12 @@
           },
           {
             "$ref": "#/components/parameters/querySortOrder"
+          },
+          {
+            "$ref": "#/components/parameters/queryTripId"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsHost"
           }
         ],
         "responses": {
@@ -1555,7 +1593,7 @@
         }
       }
     },
-    "/booking/{bookingId}": {
+    "/bookings/{bookingId}": {
       "get": {
         "description": "Returns a booking based on a booking ID",
         "operationId": "findBookingById",
@@ -1639,6 +1677,50 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{bookingId}/action": {
+      "post": {
+        "description": "Perform action on the booking",
+        "operationId": "bookingAction",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathBookingId"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/bookingAction"
+        },
+        "responses": {
+          "200": {
+            "description": "Booking action response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }

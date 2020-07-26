@@ -27,7 +27,7 @@ custom:
 
   splitStacks:
     nestedStackCount: 20
-    perFunction: false
+    perFunction: true
     perType: false
     perGroupFunction: true
 
@@ -38,13 +38,13 @@ provider:
   runtime: nodejs12.x
   stage: dev
   region: us-east-1
-  vpc:
-    securityGroupIds:
-      - sg-0d7f2af824304d447
-    subnetdIds:
-      - subnet-02a52987d09338cfd
-      - subnet-056dbb611b3a6002f
-      - subnet-0d09243da3929d92f
+  # vpc:
+  #   securityGroupIds:
+  #     - sg-0d7f2af824304d447
+  #   subnetdIds:
+  #     - subnet-02a52987d09338cfd
+  #     - subnet-056dbb611b3a6002f
+  #     - subnet-0d09243da3929d92f
   environment:
     DB_CONN: ${file(./config/${self:custom.stage}.json):DB_CONN}
     MAILCHIMP_INSTANCE: ${file(./config/${self:custom.stage}.json):MAILCHIMP_INSTANCE}
@@ -58,7 +58,7 @@ provider:
       Resource:
         - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
-  individually: false
+  individually: true
   excludeDevDependencies: true
   exclude:
     - 'node_modules/**' # no need to add this yourself, this plugin does it for you
@@ -94,6 +94,7 @@ functions:
   - ${file(src/routes/seeds/functions.yml)}
   - ${file(src/routes/payments/functions.yml)}
   - ${file(src/routes/bookings/functions.yml)}
+  - ${file(src/routes/hosts/functions.yml)}
   - ${file(src/schedules/trips/functions.yml)}
 
 resources:

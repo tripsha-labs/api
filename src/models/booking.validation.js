@@ -82,8 +82,5 @@ export const hostBookingActionValidation = new Validator().compile({
     enum: ['approve', 'decline', 'withdraw'],
     empty: false,
   },
-  tripId: {
-    type: 'string',
-  },
   $$strict: 'remove',
 });
