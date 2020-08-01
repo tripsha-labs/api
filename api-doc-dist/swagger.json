@@ -1880,7 +1880,7 @@
         }
       }
     },
-    "/users/{hostRequestId}": {
+    "/host-requests/{hostRequestId}": {
       "get": {
         "description": "Returns a host request based on a request ID",
         "operationId": "getHostRequest",
@@ -1933,7 +1933,7 @@
           }
         ],
         "requestBody": {
-          "$ref": "#/components/requestBodies/createHostRequest"
+          "$ref": "#/components/requestBodies/updateHostRequest"
         },
         "responses": {
           "204": {

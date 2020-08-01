@@ -49,6 +49,7 @@ const bookingSchema = {
   },
   discount: {
     type: 'object',
+    optional: true,
     props: {
       name: { type: 'string' },
       discType: { type: 'enum', values: ['amount', 'percentage'] },
