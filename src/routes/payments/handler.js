@@ -28,7 +28,10 @@ export const saveCard = async (event, context) => {
       const resp = await PaymentController.attachCard(data);
       return success(resp);
     } else {
-      const stripeCustomer = await PaymentController.saveCard(data);
+      const stripeCustomer = await PaymentController.saveCard(
+        data,
+        event.requestContext.identity.cognitoIdentityId
+      );
       return success(stripeCustomer);
     }
   } catch (error) {

@@ -12,12 +12,21 @@ export class PaymentController {
     return clientSecret;
   }
 
-  static async saveCard(data) {
+  static async saveCard(data, awsUserId) {
     const { paymentMethod, email } = data;
     if (!paymentMethod) throw new Error('Missing payment method.');
     if (!email) throw new Error('Missing email.');
     const customer = await StripeAPI.createCustomer(paymentMethod, email);
-    return customer;
+    if (customer && customer.id) {
+      await dbConnect();
+      const user = await UserModel.update(
+        { awsUserId: awsUserId },
+        { $set: { stripeCustomerId: customer.id } }
+      );
+      return customer;
+    } else {
+      throw new Error('Missing Stripe Customer ID.');
+    }
   }
 
   static async attachCard(data) {
