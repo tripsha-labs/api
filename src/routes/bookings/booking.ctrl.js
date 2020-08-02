@@ -86,17 +86,65 @@ export class BookingController {
     return booking;
   }
 
-  static async listBookings(params, awsUserId) {
+  static async listBookings(filters, awsUserId) {
     await dbConnect();
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    if (!params.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
-    const trip = await TripModel.getById(params.tripId);
+    if (!filters.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
+    const trip = await TripModel.getById(filters.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
     if (!(user.isAdmin || trip.ownerId.toString() === user._id.toString())) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
-    const bookingList = BookingModel.list({ tripId: params.tripId });
+    const bookingProjection = {
+      currency: 1,
+      addOns: 1,
+      guests: 1,
+      status: 1,
+      totalBaseFare: 1,
+      totalAddonFare: 1,
+      discountBaseFare: 1,
+      discountAddonFare: 1,
+      totalFare: 1,
+      currentDue: 1,
+      paidAmout: 1,
+      pendingAmout: 1,
+      paymentHistory: 1,
+      stripePaymentMethod: 1,
+      attendees: 1,
+      room: 1,
+      paymentStatus: 1,
+      message: 1,
+      deposit: 1,
+      discount: 1,
+      tripId: 1,
+      createdAt: 1,
+      updatedAt: 1,
+    };
+    const params = [{ $match: { tripId: filters.tripId, status: 'pending' } }];
+    params.push({
+      $project: {
+        memberId: {
+          $toObjectId: '$memberId',
+        },
+        ...bookingProjection,
+      },
+    });
+    params.push({
+      $lookup: {
+        from: 'users',
+        localField: 'memberId',
+        foreignField: '_id',
+        as: 'memberDetails',
+      },
+    });
+    params.push({
+      $unwind: {
+        path: '$memberDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    });
+    const bookingList = BookingModel.aggregate(params);
     return bookingList;
   }
 
@@ -336,8 +384,70 @@ export class BookingController {
     await dbConnect();
     const user = await UserModel.get({ awsUserId: guestAwsId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    console.log(user._id);
-    const bookings = await BookingModel.list({ memberId: user._id.toString() });
+    const bookingProjection = {
+      currency: 1,
+      addOns: 1,
+      guests: 1,
+      status: 1,
+      totalBaseFare: 1,
+      totalAddonFare: 1,
+      discountBaseFare: 1,
+      discountAddonFare: 1,
+      totalFare: 1,
+      currentDue: 1,
+      paidAmout: 1,
+      pendingAmout: 1,
+      paymentHistory: 1,
+      stripePaymentMethod: 1,
+      attendees: 1,
+      room: 1,
+      paymentStatus: 1,
+      message: 1,
+      deposit: 1,
+      discount: 1,
+      memberId: 1,
+      createdAt: 1,
+      updatedAt: 1,
+    };
+    const params = [{ $match: { memberId: user._id.toString() } }];
+    params.push({
+      $project: {
+        tripId: {
+          $toObjectId: '$tripId',
+        },
+        ...bookingProjection,
+      },
+    });
+    params.push({
+      $lookup: {
+        from: 'trips',
+        localField: 'tripId',
+        foreignField: '_id',
+        as: 'trip',
+      },
+    });
+    params.push({
+      $unwind: {
+        path: '$trip',
+        preserveNullAndEmptyArrays: true,
+      },
+    });
+
+    params.push({
+      $lookup: {
+        from: 'users',
+        localField: 'trip.ownerId',
+        foreignField: '_id',
+        as: 'ownerDetails',
+      },
+    });
+    params.push({
+      $unwind: {
+        path: '$ownerDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    });
+    const bookings = await BookingModel.aggregate(params);
     return bookings;
   }
 

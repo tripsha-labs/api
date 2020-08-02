@@ -66,12 +66,17 @@ const updateUserSchema = {
     max: 100,
   },
   showDashboardTutorial: {
-    type: 'string',
+    type: 'boolean',
     optional: true,
     empty: true,
   },
   hasFirstBooking: {
-    type: 'string',
+    type: 'boolean',
+    optional: true,
+    empty: true,
+  },
+  isHostFirstLogin: {
+    type: 'boolean',
     optional: true,
     empty: true,
   },

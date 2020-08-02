@@ -14,6 +14,7 @@ import {
   UserModel,
   ConversationModel,
   MessageModel,
+  BookingModel,
 } from '../../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 
@@ -313,7 +314,7 @@ export class TripController {
   static async getTrip(tripId, memberId) {
     try {
       await dbConnect();
-      let trip = await TripModel.get({ _id: tripId });
+      let trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       trip = JSON.parse(JSON.stringify(trip));
       trip['ownerDetails'] = await UserModel.getById(trip.ownerId);
@@ -326,8 +327,15 @@ export class TripController {
             isFavorite: true,
           };
           const member = await MemberModel.get(memberParams);
-
           trip['isFavorite'] = member && member.isFavorite ? true : false;
+          const booking = await BookingModel.get({
+            memeberId: user._id.toString(),
+            tripId: tripId,
+            status: { $in: ['pending', 'approved'] },
+          });
+          if (booking) {
+            trip['bookingId'] = booking._id;
+          }
         }
       }
       return trip;

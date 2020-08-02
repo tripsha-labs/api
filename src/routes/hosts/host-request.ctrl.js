@@ -16,7 +16,7 @@ export class HostRequestController {
       throw { ...ERROR_KEYS.UNAUTHORIZED };
     }
 
-    const params = [{ $match: { isActive: true } }];
+    const params = [{ $match: { isActive: true, status: 'pending' } }];
     params.push({
       $lookup: {
         from: 'users',
@@ -76,7 +76,7 @@ export class HostRequestController {
     if (data['action'] == 'approved') {
       await UserModel.update(
         { awsUserId: hostRequest.awsUserId },
-        { isIdentityVerified: true }
+        { isIdentityVerified: true, isHostFirstLogin: true }
       );
     }
     return 'success';

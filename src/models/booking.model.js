@@ -23,6 +23,10 @@ export class BookingModel {
     return Booking.updateOne({ _id: id }, { $set: params });
   }
 
+  static aggregate(params = {}) {
+    return Booking.aggregate(params);
+  }
+
   static delete(params = {}) {
     return Booking.deleteOne(params);
   }

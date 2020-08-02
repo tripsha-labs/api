@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema(
     isStripeAccountConnected: { type: Boolean, default: false },
     showDashboardTutorial: { type: Boolean, default: true },
     hasFirstBooking: { type: Boolean, default: false },
+    isHostFirstLogin: { type: Boolean, default: false },
   },
   {
     timestamps: true,

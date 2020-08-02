@@ -40,3 +40,6 @@ export * from './booking.validation';
 export * from './host-request.schema';
 export * from './host-request.model';
 export * from './host-request.validation';
+
+export * from './activity-logs.schema';
+export * from './activity-logs.model';

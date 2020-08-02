@@ -95,6 +95,7 @@ functions:
   - ${file(src/routes/payments/functions.yml)}
   - ${file(src/routes/bookings/functions.yml)}
   - ${file(src/routes/hosts/functions.yml)}
+  - ${file(src/routes/activity-logs/functions.yml)}
   - ${file(src/schedules/trips/functions.yml)}
 
 resources:

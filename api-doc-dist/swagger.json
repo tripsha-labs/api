@@ -1,23 +1,28 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "version": "v1.0",
-    "title": "Tripsha API documentation",
-    "description": "This is complete API documentation of all the API",
-    "termsOfService": "https://tripsha.com/terms/",
-    "contact": {
-      "name": "Tripsha API Team",
-      "email": "madanesanjay@yahoo.com",
-      "url": "https://tripsha.com"
-    }
-  },
-  "servers": [
-    {
-      "url": "https://staging-api.tripsha.com"
-    }
-  ],
   "components": {
     "schemas": {
+      "ActivityLogModel": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "number",
+            "format": "Unix timestamp"
+          },
+          "createdAt": {
+            "type": "number",
+            "format": "Unix timestamp"
+          }
+        }
+      },
       "BookingModel": {
         "type": "object",
         "properties": {
@@ -1489,7 +1494,83 @@
       }
     }
   },
+  "openapi": "3.0.0",
+  "info": {
+    "version": "v1.0",
+    "title": "Tripsha API documentation",
+    "description": "This is complete API documentation of all the API",
+    "termsOfService": "https://tripsha.com/terms/",
+    "contact": {
+      "name": "Tripsha API Team",
+      "email": "madanesanjay@yahoo.com",
+      "url": "https://tripsha.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://staging-api.tripsha.com"
+    }
+  ],
   "paths": {
+    "/activity-logs": {
+      "get": {
+        "description": "Returns list of activity logs related to logged in user.",
+        "operationId": "listActivityLogs",
+        "tags": ["Activity Logs"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          },
+          {
+            "$ref": "#/components/parameters/querySortBy"
+          },
+          {
+            "$ref": "#/components/parameters/querySortOrder"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Acitivity log list response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number",
+                          "description": "Current records count"
+                        },
+                        "total": {
+                          "type": "number",
+                          "description": "Total number of records."
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ActivityLogModel"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/bookings": {
       "get": {
         "description": "Returns list of bookings related to logged in user.",
