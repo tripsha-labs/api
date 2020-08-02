@@ -4,7 +4,7 @@
  */
 import { dbConnect } from '../../utils';
 
-import { ActivityLog, UserModel } from '../../models';
+import { ActivityLogModel, UserModel } from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
 export class ActivityLosController {
@@ -15,7 +15,7 @@ export class ActivityLosController {
 
     const params = { userId: user._id.toString() };
 
-    const bookingList = ActivityLog.get(params);
+    const bookingList = ActivityLogModel.list(params);
     return bookingList;
   }
 }

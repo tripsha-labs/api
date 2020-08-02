@@ -1,4 +1,4 @@
-createBooking:
+listActivities:
   handler: src/routes/activity-logs/handler.listActivities
   events:
     - http:
