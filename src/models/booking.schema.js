@@ -10,6 +10,7 @@ const bookingSchema = new mongoose.Schema(
     onwerId: { type: String },
     memberId: { type: String },
     stripePaymentMethod: { type: Object },
+    paymentMethod: { type: String },
     onwerStripeId: { type: String },
     memberStripeId: { type: String },
     // booking details

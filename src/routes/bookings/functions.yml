@@ -19,7 +19,7 @@ getBooking:
   handler: src/routes/bookings/handler.getBooking
   events:
     - http:
-        path: booking/{id}
+        path: bookings/{id}
         method: get
         cors: true
         authorizer: aws_iam
@@ -45,7 +45,7 @@ updateBooking:
   handler: src/routes/bookings/handler.updateBooking
   events:
     - http:
-        path: booking/{id}
+        path: bookings/{id}
         method: put
         cors: true
         authorizer: aws_iam

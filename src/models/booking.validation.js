@@ -7,6 +7,7 @@ import Validator from 'fastest-validator';
 const bookingSchema = {
   tripId: { type: 'string', empty: false },
   stripePaymentMethod: { type: 'object', empty: false, optional: true },
+  paymentMethod: { type: 'string', empty: false, optional: true },
   currency: { type: 'string', optional: true, default: 'USD' },
   attendees: { type: 'number', empty: false, min: 1 },
   room: {
