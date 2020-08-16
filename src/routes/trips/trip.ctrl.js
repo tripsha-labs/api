@@ -17,6 +17,7 @@ import {
   BookingModel,
 } from '../../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
+import { ObjectId } from 'mongodb';
 
 export class TripController {
   static async listTrips(filter, memberId) {
@@ -329,12 +330,13 @@ export class TripController {
           const member = await MemberModel.get(memberParams);
           trip['isFavorite'] = member && member.isFavorite ? true : false;
           const booking = await BookingModel.get({
-            memeberId: user._id.toString(),
+            memberId: user._id.toString(),
             tripId: tripId,
             status: { $in: ['pending', 'approved'] },
           });
           if (booking) {
             trip['bookingId'] = booking._id;
+            trip['bookingDetails'] = booking;
           }
         }
       }
@@ -345,11 +347,29 @@ export class TripController {
     }
   }
 
-  static async deleteTrip(tripId) {
+  static async deleteTrip(tripId, awsUserId) {
     try {
       await dbConnect();
-      await TripModel.update(tripId, { isActive: false });
-      //TODO: Delete members and other dependecies with the trip
+      const user = await UserModel.get({ awsUserId: awsUserId });
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      const trip = await TripModel.getById(tripId);
+      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      const members = await MemberModel.list({ tripId: tripId });
+      const bookings = await BookingModel.list({
+        tripId: tripId,
+        status: { $in: ['pending', 'approved'] },
+      });
+      if (trip.ownerId == user._id.toString()) {
+        if (
+          trip.status == 'draft' ||
+          members.length <= 1 ||
+          bookings.length == 0
+        ) {
+          await TripModel.update(tripId, { isActive: false });
+        } else {
+          throw ERROR_KEYS.CANNOT_DELETE_TRIP;
+        }
+      }
       return 'success';
     } catch (error) {
       throw error;

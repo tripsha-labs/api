@@ -106,4 +106,9 @@ export const ERROR_KEYS = {
     message: `Ooops! looks you are trying to perform invalid action.`,
     code: 400,
   },
+  CANNOT_DELETE_TRIP: {
+    type: 'CANNOT_DELETE_TRIP',
+    message: `Ooops! looks like there are some bookings or members associated with this trip. First cancel those and try again!`,
+    code: 400,
+  },
 };

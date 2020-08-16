@@ -31,13 +31,18 @@ export class BookingController {
 
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    if (bookingData.stripePaymentMethod)
+      await UserModel.update(
+        { _id: user._id },
+        { stripeCustomerId: bookingData.stripePaymentMethod.id }
+      );
     const tripOwner = await UserModel.get({ _id: trip.ownerId });
     if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
 
     bookingData['memberId'] = user._id.toString();
     bookingData['ownerId'] = tripOwner._id.toString();
     bookingData['onwerStripeId'] = tripOwner.stripeAccountId;
-    bookingData['memberStripeId'] = user.stripeCustomerId;
+    bookingData['memberStripeId'] = bookingData.stripePaymentMethod.id;
     // Payment validation and calculation
     bookingData['isDiscountApplicable'] = getDiscountStatus(trip);
     bookingData['isDepositApplicable'] = getDepositStatus(trip);
@@ -190,11 +195,19 @@ export class BookingController {
               console.log('Request alrady processed');
               throw ERROR_KEYS.INVALID_ACTION;
             }
+            console.log({
+              amount: parseInt(booking.pendingAmout * 100),
+              currency: booking.currency,
+              customerId: booking.memberStripeId,
+              paymentMethod: booking.paymentMethod,
+              confirm: true,
+              beneficiary: booking.onwerStripeId,
+            });
             const paymentIntent = await StripeAPI.createPaymentIntent({
               amount: parseInt(booking.pendingAmout * 100),
               currency: booking.currency,
               customerId: booking.memberStripeId,
-              paymentMethod: booking.stripePaymentMethod.id,
+              paymentMethod: booking.paymentMethod,
               confirm: true,
               beneficiary: booking.onwerStripeId,
             });
@@ -236,7 +249,9 @@ export class BookingController {
         // host
         case 'decline':
           validForUpdate = true;
-          if (!(user.isAdmin || trip.ownerId === user._id)) {
+          if (
+            !(user.isAdmin || trip.ownerId.toString() == user._id.toString())
+          ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
           if (booking.status !== 'pending') {
@@ -280,10 +295,10 @@ export class BookingController {
         // guest
         case 'withdraw':
           validForUpdate = true;
-          if (!(user.isAdmin || trip.memberId === user._id.toString())) {
+          if (!(user.isAdmin || booking.memberId === user._id.toString())) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
-          if (booking.status !== 'pending') {
+          if (!(booking.status == 'pending' || booking.status == 'approved')) {
             console.log('Request alrady processed');
             throw ERROR_KEYS.INVALID_ACTION;
           }
@@ -346,11 +361,19 @@ export class BookingController {
           console.log('Request alrady processed');
           throw ERROR_KEYS.INVALID_ACTION;
         }
+        console.log({
+          amount: booking.pendingAmout,
+          currency: booking.currency,
+          customerId: booking.memberStripeId,
+          paymentMethod: booking.paymentMethod,
+          confirm: true,
+          beneficiary: booking.onwerStripeId,
+        });
         const paymentIntent = await StripeAPI.createPaymentIntent({
           amount: booking.pendingAmout,
           currency: booking.currency,
           customerId: booking.memberStripeId,
-          paymentMethod: booking.stripePaymentMethod.id,
+          paymentMethod: booking.paymentMethod,
           confirm: true,
           beneficiary: booking.onwerStripeId,
         });

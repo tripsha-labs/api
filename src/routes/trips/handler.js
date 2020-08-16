@@ -103,7 +103,10 @@ export const deleteTrip = async (event, context) => {
     if (!(event.pathParameters && event.pathParameters.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
-    const result = await TripController.deleteTrip(event.pathParameters.id);
+    const result = await TripController.deleteTrip(
+      event.pathParameters.id,
+      event.requestContext.identity.cognitoIdentityId
+    );
     return success(result);
   } catch (error) {
     console.log(error);
