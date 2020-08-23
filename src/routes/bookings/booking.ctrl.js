@@ -195,14 +195,6 @@ export class BookingController {
               console.log('Request alrady processed');
               throw ERROR_KEYS.INVALID_ACTION;
             }
-            console.log({
-              amount: parseInt(booking.pendingAmout * 100),
-              currency: booking.currency,
-              customerId: booking.memberStripeId,
-              paymentMethod: booking.paymentMethod,
-              confirm: true,
-              beneficiary: booking.onwerStripeId,
-            });
             const paymentIntent = await StripeAPI.createPaymentIntent({
               amount: parseInt(booking.pendingAmout * 100),
               currency: booking.currency,
@@ -239,6 +231,7 @@ export class BookingController {
                 tripId: booking.tripId,
                 action: 'addMember',
                 memberIds: [booking.memberId],
+                bookingId: bookingId,
                 awsUserId: awsUserId,
               });
             }

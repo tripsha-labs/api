@@ -65,6 +65,21 @@ const updateUserSchema = {
     empty: true,
     max: 100,
   },
+  travelStyle: {
+    type: 'string',
+    optional: true,
+    empty: false,
+  },
+  travelWithHostReason: {
+    type: 'string',
+    optional: true,
+    empty: false,
+  },
+  itemsTravelWith: {
+    type: 'string',
+    optional: true,
+    empty: false,
+  },
   showDashboardTutorial: {
     type: 'boolean',
     optional: true,
