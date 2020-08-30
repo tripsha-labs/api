@@ -103,7 +103,7 @@ export class MemberController {
           switch (params['action']) {
             case 'addMember':
               if (params['bookingId']) {
-                updateParams['updateParams'] = params['bookingId'];
+                updateParams['bookingId'] = params['bookingId'];
               }
               updateParams['isMember'] = true;
               updateParams['joinedOn'] = moment().unix();

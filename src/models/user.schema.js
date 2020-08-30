@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema(
     travelStyle: String,
     travelWithHostReason: String,
     itemsTravelWith: String,
+    isTripAgreed: { type: Boolean, default: false },
     isStripeAccountConnected: { type: Boolean, default: false },
     showDashboardTutorial: { type: Boolean, default: true },
     hasFirstBooking: { type: Boolean, default: false },

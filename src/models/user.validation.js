@@ -68,15 +68,20 @@ const updateUserSchema = {
   travelStyle: {
     type: 'string',
     optional: true,
-    empty: false,
+    empty: true,
   },
   travelWithHostReason: {
     type: 'string',
     optional: true,
-    empty: false,
+    empty: true,
   },
   itemsTravelWith: {
     type: 'string',
+    optional: true,
+    empty: true,
+  },
+  isTripAgreed: {
+    type: 'boolean',
     optional: true,
     empty: false,
   },

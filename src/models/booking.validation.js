@@ -35,7 +35,7 @@ const bookingSchema = {
   },
   paymentStatus: {
     type: 'string',
-    enum: ['full', 'deposit', 'payasyougo'],
+    enum: ['full', 'deposit', 'payasyougo', 'free'],
     empty: false,
   },
   message: { type: 'string', optional: true },

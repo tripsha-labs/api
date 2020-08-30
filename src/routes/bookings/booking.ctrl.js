@@ -34,20 +34,25 @@ export class BookingController {
     if (bookingData.stripePaymentMethod)
       await UserModel.update(
         { _id: user._id },
-        { stripeCustomerId: bookingData.stripePaymentMethod.id }
+        { stripeCustomerId: bookingData.stripePaymentMethod.customer }
       );
     const tripOwner = await UserModel.get({ _id: trip.ownerId });
     if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
-
+    if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
     bookingData['memberId'] = user._id.toString();
     bookingData['ownerId'] = tripOwner._id.toString();
-    bookingData['onwerStripeId'] = tripOwner.stripeAccountId;
-    bookingData['memberStripeId'] = bookingData.stripePaymentMethod.id;
-    // Payment validation and calculation
-    bookingData['isDiscountApplicable'] = getDiscountStatus(trip);
-    bookingData['isDepositApplicable'] = getDepositStatus(trip);
-    if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
-    const costing = getCosting(bookingData);
+    let costing = {};
+    if (
+      params['paymentStatus'] == 'full' ||
+      params['paymentStatus'] == 'deposit'
+    ) {
+      bookingData['onwerStripeId'] = tripOwner.stripeAccountId;
+      bookingData['memberStripeId'] = bookingData.stripePaymentMethod.customer;
+      // Payment validation and calculation
+      bookingData['isDiscountApplicable'] = getDiscountStatus(trip);
+      bookingData['isDepositApplicable'] = getDepositStatus(trip);
+      costing = getCosting(bookingData);
+    }
     const finalBookingData = { ...bookingData, ...costing };
     const tripUpdate = {
       spotsReserved: spotsReserved,
@@ -180,6 +185,7 @@ export class BookingController {
     };
     console.log(params);
     let validForUpdate = false;
+    let bookingUpdate = {};
     if (params['action']) {
       switch (params['action']) {
         // host
@@ -190,52 +196,60 @@ export class BookingController {
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
-          if (booking.totalFare && booking.totalFare > 0) {
+          if (
+            booking.totalFare &&
+            booking.totalFare > 0 &&
+            (booking.paymentStatus == 'full' ||
+              booking.paymentStatus == 'deposit')
+          ) {
             if (booking.status !== 'pending') {
               console.log('Request alrady processed');
               throw ERROR_KEYS.INVALID_ACTION;
             }
             const paymentIntent = await StripeAPI.createPaymentIntent({
-              amount: parseInt(booking.pendingAmout * 100),
+              amount: parseInt(booking.currentDue * 100),
               currency: booking.currency,
               customerId: booking.memberStripeId,
-              paymentMethod: booking.paymentMethod,
+              paymentMethod: booking.stripePaymentMethod.id,
               confirm: true,
               beneficiary: booking.onwerStripeId,
             });
 
             if (paymentIntent) {
               booking.paymentHistory.push({
-                amount: booking.pendingAmout,
+                amount: booking.currentDue,
                 paymentMethod: booking.stripePaymentMethod,
                 currency: booking.currency,
                 paymentIntent: paymentIntent,
               });
-              const bookingUpdate = {
+              bookingUpdate = {
                 paymentHistory: booking.paymentHistory,
-                paidAmout: booking.pendingAmout,
+                paidAmout: booking.currentDue,
+                currentDue: booking.pendingAmout,
+                pendingAmout: 0,
                 status: 'approved',
               };
-              if (booking.paymentStatus == 'deposit') {
-                bookingUpdate['paidAmout'] = booking.pendingAmout;
-                bookingUpdate['pendingAmout'] = booking.currentDue;
-                bookingUpdate['currentDue'] = 0;
-              } else {
-                bookingUpdate['paidAmout'] = booking.pendingAmout;
-                bookingUpdate['pendingAmout'] = 0;
-                bookingUpdate['currentDue'] = 0;
+              if (!(booking.paymentStatus == 'deposit')) {
                 bookingUpdate['paymentStatus'] = 'full';
               }
-              await BookingModel.update(booking._id, bookingUpdate);
-              await MemberController.memberAction({
-                tripId: booking.tripId,
-                action: 'addMember',
-                memberIds: [booking.memberId],
-                bookingId: bookingId,
-                awsUserId: awsUserId,
-              });
             }
+          } else {
+            bookingUpdate = {
+              status: 'approved',
+              paidAmout: 0,
+              currentDue: 0,
+              pendingAmout: 0,
+            };
           }
+          await BookingModel.update(booking._id, bookingUpdate);
+
+          await MemberController.memberAction({
+            tripId: booking.tripId,
+            action: 'addMember',
+            memberIds: [booking.memberId],
+            bookingId: bookingId,
+            awsUserId: awsUserId,
+          });
 
           break;
 
@@ -280,7 +294,7 @@ export class BookingController {
               tripUpdate['addOns'].push(addOn);
             });
           }
-          const bookingUpdate = {
+          bookingUpdate = {
             status: 'declined',
           };
           await BookingModel.update(booking._id, bookingUpdate);

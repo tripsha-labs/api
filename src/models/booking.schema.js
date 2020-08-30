@@ -22,7 +22,7 @@ const bookingSchema = new mongoose.Schema(
     message: { type: String },
     paymentStatus: {
       type: String,
-      enum: ['full', 'deposit', 'payasyougo'],
+      enum: ['full', 'deposit', 'payasyougo', 'free'],
     },
     deposit: { type: Object },
     discount: { type: Object },
