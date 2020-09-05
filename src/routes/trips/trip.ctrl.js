@@ -17,7 +17,6 @@ import {
   BookingModel,
 } from '../../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
-import { ObjectId } from 'mongodb';
 
 export class TripController {
   static async listTrips(filter, memberId) {
@@ -392,7 +391,10 @@ export class TripController {
         filterParams['memberId'] = user._id;
       }
       if (filter.isHost) filterParams['isOwner'] = true;
-      if (filter.isMember) filterParams['isMember'] = true;
+      if (filter.isMember) {
+        filterParams['isOwner'] = false;
+        filterParams['isMember'] = true;
+      }
       if (filter.isFavorite) filterParams['isFavorite'] = true;
       if (
         !(

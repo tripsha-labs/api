@@ -183,7 +183,6 @@ export class BookingController {
     const tripUpdate = {
       spotsReserved: trip.spotsReserved - booking.attendees,
     };
-    console.log(params);
     let validForUpdate = false;
     let bookingUpdate = {};
     if (params['action']) {
@@ -196,16 +195,12 @@ export class BookingController {
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
-          if (
-            booking.totalFare &&
-            booking.totalFare > 0 &&
-            (booking.paymentStatus == 'full' ||
-              booking.paymentStatus == 'deposit')
-          ) {
+          if (booking.totalFare && booking.totalFare > 0) {
             if (booking.status !== 'pending') {
               console.log('Request alrady processed');
               throw ERROR_KEYS.INVALID_ACTION;
             }
+
             const paymentIntent = await StripeAPI.createPaymentIntent({
               amount: parseInt(booking.currentDue * 100),
               currency: booking.currency,
@@ -222,6 +217,7 @@ export class BookingController {
                 currency: booking.currency,
                 paymentIntent: paymentIntent,
               });
+
               bookingUpdate = {
                 paymentHistory: booking.paymentHistory,
                 paidAmout: booking.currentDue,
@@ -229,8 +225,8 @@ export class BookingController {
                 pendingAmout: 0,
                 status: 'approved',
               };
-              if (!(booking.paymentStatus == 'deposit')) {
-                bookingUpdate['paymentStatus'] = 'full';
+              if (booking.paymentStatus == 'deposit') {
+              } else {
               }
             }
           } else {
@@ -364,39 +360,30 @@ export class BookingController {
     const booking = await BookingModel.getById(bookingId);
     if (user._id.toString() === booking.memberId) {
       if (booking.totalFare && booking.totalFare > 0) {
-        if (booking.status !== 'approved' && booking.pendingAmout <= 0) {
+        if (booking.status !== 'approved' && booking.currentDue <= 0) {
           console.log('Request alrady processed');
           throw ERROR_KEYS.INVALID_ACTION;
         }
-        console.log({
-          amount: booking.pendingAmout,
-          currency: booking.currency,
-          customerId: booking.memberStripeId,
-          paymentMethod: booking.paymentMethod,
-          confirm: true,
-          beneficiary: booking.onwerStripeId,
-        });
         const paymentIntent = await StripeAPI.createPaymentIntent({
-          amount: booking.pendingAmout,
+          amount: parseInt(booking.currentDue * 100),
           currency: booking.currency,
           customerId: booking.memberStripeId,
-          paymentMethod: booking.paymentMethod,
+          paymentMethod: booking.stripePaymentMethod.id,
           confirm: true,
           beneficiary: booking.onwerStripeId,
         });
         if (paymentIntent) {
           booking.paymentHistory.push({
-            amount: booking.pendingAmout,
+            amount: booking.currentDue,
             paymentMethod: booking.stripePaymentMethod,
             currency: booking.currency,
             paymentIntent: paymentIntent,
           });
           const bookingUpdate = {
             paymentHistory: booking.paymentHistory,
-            paidAmout: booking.paidAmout + booking.pendingAmout,
           };
 
-          bookingUpdate['paidAmout'] = booking.paidAmout + booking.pendingAmout;
+          bookingUpdate['paidAmout'] = booking.paidAmout + booking.currentDue;
           bookingUpdate['pendingAmout'] = 0;
           bookingUpdate['currentDue'] = 0;
           bookingUpdate['paymentStatus'] = 'full';
@@ -407,7 +394,7 @@ export class BookingController {
     } else {
       throw ERROR_KEYS.INVALID_ACTION;
     }
-    return bookings;
+    return booking;
   }
 
   static async listGuestBookings(guestAwsId) {

@@ -46,7 +46,7 @@ export const getCosting = preferences => {
 
   let paynowAmount = discountedGrandTotal;
   if (
-    preferences.payment === 'deposit' &&
+    preferences.paymentStatus === 'deposit' &&
     preferences.isDepositApplicable &&
     preferences.deposit
   ) {
