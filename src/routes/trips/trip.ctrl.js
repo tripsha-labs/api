@@ -439,9 +439,9 @@ export class TripController {
       if (filter.isPublic) {
         tripParams['isPublic'] = filter.isPublic;
       }
-      if (filter.status) {
-        tripParams['status'] = filter.status;
-      }
+      if (filter.status) tripParams['status'] = filter.status;
+
+      if (filter.status !== 'draft') tripParams['status'] = { $nin: ['draft'] };
 
       if (filter.pastTrips || filter.isArchived) {
         tripParams['$or'] = [
