@@ -322,7 +322,7 @@
       "TripModel": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string"
           },
           "title": {
@@ -375,15 +375,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "spotFilledRank": {
-            "type": "number"
-          },
-          "tripLength": {
-            "type": "number"
-          },
-          "groupSize": {
-            "type": "number"
           },
           "itineraries": {
             "type": "array",
@@ -504,7 +495,18 @@
             "type": "number"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "enum": ["draft", "published", "completed", "cancelled"]
+          },
+          "tripPaymentType": {
+            "type": "string",
+            "enum": ["pay", "payasyougo", "free"]
+          },
+          "tripLength": {
+            "type": "number"
+          },
+          "groupSize": {
+            "type": "number"
           },
           "spotsFilled": {
             "type": "number"
@@ -548,7 +550,7 @@
           "ownerId": {
             "type": "string"
           },
-          "createdBy": {
+          "updatedBy": {
             "type": "object",
             "properties": {
               "firstName": {
@@ -568,10 +570,17 @@
         "type": "object",
         "required": ["username", "email"],
         "properties": {
-          "id": {
-            "type": "string"
+          "_id": {
+            "type": "string",
+            "description": "User Id"
           },
           "username": {
+            "type": "string"
+          },
+          "awsUsername": {
+            "type": "string"
+          },
+          "awsUserId": {
             "type": "string"
           },
           "email": {
@@ -636,9 +645,6 @@
           "isIdentityVerified": {
             "type": "boolean"
           },
-          "showDashboardTutorial": {
-            "type": "boolean"
-          },
           "isStripeAccountConnected": {
             "type": "boolean"
           },
@@ -650,6 +656,24 @@
           },
           "updatedAt": {
             "type": "string"
+          },
+          "travelStyle": {
+            "type": "string"
+          },
+          "travelWithHostReason": {
+            "type": "string"
+          },
+          "itemsTravelWith": {
+            "type": "string"
+          },
+          "isTripAgreed": {
+            "type": "boolean"
+          },
+          "showDashboardTutorial": {
+            "type": "boolean"
+          },
+          "isHostFirstLogin": {
+            "type": "boolean"
           }
         }
       },
@@ -1279,6 +1303,17 @@
           }
         }
       },
+      "paymentAction": {
+        "description": "Booking part payment payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": null
+            }
+          }
+        }
+      },
       "createHostRequest": {
         "description": "Create host request payload",
         "required": true,
@@ -1791,6 +1826,50 @@
         "responses": {
           "200": {
             "description": "Booking action response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{bookingId}/payment": {
+      "post": {
+        "description": "Complete remamining payment action",
+        "operationId": "paymentAction",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathBookingId"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/paymentAction"
+        },
+        "responses": {
+          "200": {
+            "description": "Booking remamining payment response",
             "content": {
               "application/json": {
                 "schema": {

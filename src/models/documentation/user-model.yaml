@@ -6,9 +6,14 @@ components:
         - username
         - email
       properties:
-        id:
+        _id:
           type: string
+          description: User Id
         username:
+          type: string
+        awsUsername:
+          type: string
+        awsUserId:
           type: string
         email:
           type: string
@@ -54,14 +59,28 @@ components:
         isPhoneVerified:
           type: boolean
         isIdentityVerified:
-          type: boolean
-        showDashboardTutorial:
-          type: boolean
+          type: boolean    
         isStripeAccountConnected:
           type: boolean
         isActive:
           type: boolean
         createdAt:
-          type: 'string'
+          type: string
         updatedAt:
-          type: 'string'
+          type: string
+        travelStyle:
+          type: string
+        travelWithHostReason:
+          type: string
+        itemsTravelWith:
+          type: string
+        isTripAgreed:
+          type: boolean
+        isStripeAccountConnected:
+          type: boolean
+        showDashboardTutorial:
+          type: boolean
+        hasFirstBooking:
+          type: boolean
+        isHostFirstLogin:
+          type: boolean

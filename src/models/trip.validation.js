@@ -21,6 +21,10 @@ const tripSchema = {
     optional: true,
     items: 'string',
   },
+  tripPaymentType: {
+    type: 'string',
+    enum: ['pay', 'payasyougo', 'free'],
+  },
   minGroupSize: {
     type: 'number',
     min: 2,

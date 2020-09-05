@@ -3,7 +3,7 @@ components:
     TripModel:
       type: object
       properties:
-        id:
+        _id:
           type: string
         title:
           type: string
@@ -41,12 +41,6 @@ components:
           type: array
           items:
             type: string
-        spotFilledRank:
-          type: number
-        tripLength:
-          type: number
-        groupSize:
-          type: number
         itineraries:
           type: array
           items:
@@ -126,6 +120,21 @@ components:
           type: number
         status:
           type: string
+          enum:
+            - draft
+            - published
+            - completed
+            - cancelled
+        tripPaymentType:
+          type: string
+          enum:
+            - pay
+            - payasyougo
+            - free
+        tripLength:
+          type: number
+        groupSize:
+          type: number
         spotsFilled:
           type: number
         favoriteCount:
@@ -155,7 +164,7 @@ components:
           format: unix timestamp
         ownerId:
           type: string
-        createdBy:
+        updatedBy:
           type: object
           properties:
             firstName:
