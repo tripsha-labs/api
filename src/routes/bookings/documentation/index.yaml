@@ -157,3 +157,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommonErrorFormat'
+  /bookings/{bookingId}/payment:
+    post:
+      description: Complete remamining payment action
+      operationId: paymentAction
+      tags:
+        - Bookings
+      parameters:
+        - $ref: '#/components/parameters/pathBookingId'
+      requestBody:
+        $ref: '#/components/requestBodies/paymentAction'
+      responses:
+        '200':
+          description: Booking remamining payment response
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                  result:
+                    type: string
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'

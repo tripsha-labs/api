@@ -59,8 +59,31 @@ export class MemberController {
           username: 1,
           updatedAt: 1,
           awsUserId: 1,
+          isMember: 1,
+          bookingId: {
+            $toObjectId: '$bookingId',
+          },
+          tripId: 1,
+          joinedOn: 1,
+          memberId: 1,
         },
       });
+      if (filter['includeBooking']) {
+        params.push({
+          $lookup: {
+            from: 'bookings',
+            localField: 'bookingId',
+            foreignField: '_id',
+            as: 'booking',
+          },
+        });
+        params.push({
+          $unwind: {
+            path: '$booking',
+            preserveNullAndEmptyArrays: true,
+          },
+        });
+      }
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       params.push({ $limit: limit });
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
@@ -100,8 +123,12 @@ export class MemberController {
             memberId: memberId,
             isMember: true,
           });
+          console.log(params);
           switch (params['action']) {
             case 'addMember':
+              if (params['bookingId']) {
+                updateParams['bookingId'] = params['bookingId'];
+              }
               updateParams['isMember'] = true;
               updateParams['joinedOn'] = moment().unix();
 

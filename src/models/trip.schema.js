@@ -26,6 +26,10 @@ const tripSchema = new mongoose.Schema(
     discounts: { type: Object },
     isDepositApplicable: { type: Boolean, default: false },
     isDiscountApplicable: { type: Boolean, default: false },
+    tripPaymentType: {
+      type: String,
+      enum: ['pay', 'payasyougo', 'free'],
+    },
     priceIncludes: { type: String },
     priceExcludes: { type: String },
     lastBookingDate: Number,

@@ -2,7 +2,7 @@
  * @name - Booking contoller
  * @description - This will handle business logic for Booking module
  */
-import { dbConnect, StripeAPI } from '../../utils';
+import { dbConnect, StripeAPI, logActivity } from '../../utils';
 
 import {
   getCosting,
@@ -12,8 +12,9 @@ import {
 } from '../../helpers';
 
 import { BookingModel, UserModel, TripModel } from '../../models';
-import { ERROR_KEYS } from '../../constants';
+import { ERROR_KEYS, LogMessages } from '../../constants';
 import { MemberController } from '../members/member.ctrl';
+import { ObjectID } from 'mongodb';
 
 export class BookingController {
   static async createBooking(params, awsUserId) {
@@ -34,20 +35,25 @@ export class BookingController {
     if (bookingData.stripePaymentMethod)
       await UserModel.update(
         { _id: user._id },
-        { stripeCustomerId: bookingData.stripePaymentMethod.id }
+        { stripeCustomerId: bookingData.stripePaymentMethod.customer }
       );
     const tripOwner = await UserModel.get({ _id: trip.ownerId });
     if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
-
+    if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
     bookingData['memberId'] = user._id.toString();
     bookingData['ownerId'] = tripOwner._id.toString();
-    bookingData['onwerStripeId'] = tripOwner.stripeAccountId;
-    bookingData['memberStripeId'] = bookingData.stripePaymentMethod.id;
-    // Payment validation and calculation
-    bookingData['isDiscountApplicable'] = getDiscountStatus(trip);
-    bookingData['isDepositApplicable'] = getDepositStatus(trip);
-    if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
-    const costing = getCosting(bookingData);
+    let costing = {};
+    if (
+      params['paymentStatus'] == 'full' ||
+      params['paymentStatus'] == 'deposit'
+    ) {
+      bookingData['onwerStripeId'] = tripOwner.stripeAccountId;
+      bookingData['memberStripeId'] = bookingData.stripePaymentMethod.customer;
+      // Payment validation and calculation
+      bookingData['isDiscountApplicable'] = getDiscountStatus(trip);
+      bookingData['isDepositApplicable'] = getDepositStatus(trip);
+      costing = getCosting(bookingData);
+    }
     const finalBookingData = { ...bookingData, ...costing };
     const tripUpdate = {
       spotsReserved: spotsReserved,
@@ -88,6 +94,12 @@ export class BookingController {
     }
     const booking = await BookingModel.create(finalBookingData);
     await TripModel.update(trip._id, tripUpdate);
+    await logActivity({
+      ...LogMessages.BOOKING_REQUEST_TRAVELLER(trip['title']),
+      tripId: trip._id.toString(),
+      audienceIds: [user._id.toString()],
+      userId: user._id.toString(),
+    });
     return booking;
   }
 
@@ -178,8 +190,11 @@ export class BookingController {
     const tripUpdate = {
       spotsReserved: trip.spotsReserved - booking.attendees,
     };
-    console.log(params);
     let validForUpdate = false;
+    let bookingUpdate = {};
+    const memberInfo = await UserModel.get({
+      _id: ObjectID(booking.memberId),
+    });
     if (params['action']) {
       switch (params['action']) {
         // host
@@ -195,55 +210,68 @@ export class BookingController {
               console.log('Request alrady processed');
               throw ERROR_KEYS.INVALID_ACTION;
             }
-            console.log({
-              amount: parseInt(booking.pendingAmout * 100),
-              currency: booking.currency,
-              customerId: booking.memberStripeId,
-              paymentMethod: booking.paymentMethod,
-              confirm: true,
-              beneficiary: booking.onwerStripeId,
-            });
+
             const paymentIntent = await StripeAPI.createPaymentIntent({
-              amount: parseInt(booking.pendingAmout * 100),
+              amount: parseInt(booking.currentDue * 100),
               currency: booking.currency,
               customerId: booking.memberStripeId,
-              paymentMethod: booking.paymentMethod,
+              paymentMethod: booking.stripePaymentMethod.id,
               confirm: true,
               beneficiary: booking.onwerStripeId,
             });
 
             if (paymentIntent) {
               booking.paymentHistory.push({
-                amount: booking.pendingAmout,
+                amount: booking.currentDue,
                 paymentMethod: booking.stripePaymentMethod,
                 currency: booking.currency,
                 paymentIntent: paymentIntent,
               });
-              const bookingUpdate = {
+
+              bookingUpdate = {
                 paymentHistory: booking.paymentHistory,
-                paidAmout: booking.pendingAmout,
+                paidAmout: booking.currentDue,
+                currentDue: booking.pendingAmout,
+                pendingAmout: 0,
                 status: 'approved',
               };
               if (booking.paymentStatus == 'deposit') {
-                bookingUpdate['paidAmout'] = booking.pendingAmout;
-                bookingUpdate['pendingAmout'] = booking.currentDue;
-                bookingUpdate['currentDue'] = 0;
               } else {
-                bookingUpdate['paidAmout'] = booking.pendingAmout;
-                bookingUpdate['pendingAmout'] = 0;
-                bookingUpdate['currentDue'] = 0;
-                bookingUpdate['paymentStatus'] = 'full';
               }
-              await BookingModel.update(booking._id, bookingUpdate);
-              await MemberController.memberAction({
-                tripId: booking.tripId,
-                action: 'addMember',
-                memberIds: [booking.memberId],
-                awsUserId: awsUserId,
-              });
             }
+          } else {
+            bookingUpdate = {
+              status: 'approved',
+              paidAmout: 0,
+              currentDue: 0,
+              pendingAmout: 0,
+            };
           }
+          await BookingModel.update(booking._id, bookingUpdate);
 
+          await MemberController.memberAction({
+            tripId: booking.tripId,
+            action: 'addMember',
+            memberIds: [booking.memberId],
+            bookingId: bookingId,
+            awsUserId: awsUserId,
+          });
+
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_APPROVE_TRAVELLER(trip['title']),
+            tripId: trip._id.toString(),
+            audienceIds: [memberInfo._id.toString()],
+            userId: user._id.toString(),
+          });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_APPROVE_HOST(
+              `${memberInfo.firstName} ${memberInfo.lastName}`,
+              trip['title']
+            ),
+            tripId: trip._id.toString(),
+            audienceIds: [user._id.toString()],
+            userId: user._id.toString(),
+          });
           break;
 
         // host
@@ -287,10 +315,26 @@ export class BookingController {
               tripUpdate['addOns'].push(addOn);
             });
           }
-          const bookingUpdate = {
+          bookingUpdate = {
             status: 'declined',
           };
           await BookingModel.update(booking._id, bookingUpdate);
+
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELLER(trip['title']),
+            tripId: trip._id.toString(),
+            audienceIds: [memberInfo._id.toString()],
+            userId: user._id.toString(),
+          });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
+              `${memberInfo.firstName} ${memberInfo.lastName}`,
+              trip['title']
+            ),
+            tripId: trip._id.toString(),
+            audienceIds: [user._id.toString()],
+            userId: user._id.toString(),
+          });
           break;
         // guest
         case 'withdraw':
@@ -335,6 +379,21 @@ export class BookingController {
           await BookingModel.update(booking._id, {
             status: 'withdrawn',
           });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELLER(trip['title']),
+            tripId: trip._id.toString(),
+            audienceIds: [user._id.toString()],
+            userId: user._id.toString(),
+          });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_WITHDRAW_HOST(
+              `${user.firstName} ${user.lastName}`,
+              trip['title']
+            ),
+            tripId: trip._id.toString(),
+            audienceIds: [trip.ownerId.toString()],
+            userId: user._id.toString(),
+          });
           break;
 
         default:
@@ -357,39 +416,30 @@ export class BookingController {
     const booking = await BookingModel.getById(bookingId);
     if (user._id.toString() === booking.memberId) {
       if (booking.totalFare && booking.totalFare > 0) {
-        if (booking.status !== 'approved' && booking.pendingAmout <= 0) {
+        if (booking.status !== 'approved' && booking.currentDue <= 0) {
           console.log('Request alrady processed');
           throw ERROR_KEYS.INVALID_ACTION;
         }
-        console.log({
-          amount: booking.pendingAmout,
-          currency: booking.currency,
-          customerId: booking.memberStripeId,
-          paymentMethod: booking.paymentMethod,
-          confirm: true,
-          beneficiary: booking.onwerStripeId,
-        });
         const paymentIntent = await StripeAPI.createPaymentIntent({
-          amount: booking.pendingAmout,
+          amount: parseInt(booking.currentDue * 100),
           currency: booking.currency,
           customerId: booking.memberStripeId,
-          paymentMethod: booking.paymentMethod,
+          paymentMethod: booking.stripePaymentMethod.id,
           confirm: true,
           beneficiary: booking.onwerStripeId,
         });
         if (paymentIntent) {
           booking.paymentHistory.push({
-            amount: booking.pendingAmout,
+            amount: booking.currentDue,
             paymentMethod: booking.stripePaymentMethod,
             currency: booking.currency,
             paymentIntent: paymentIntent,
           });
           const bookingUpdate = {
             paymentHistory: booking.paymentHistory,
-            paidAmout: booking.paidAmout + booking.pendingAmout,
           };
 
-          bookingUpdate['paidAmout'] = booking.paidAmout + booking.pendingAmout;
+          bookingUpdate['paidAmout'] = booking.paidAmout + booking.currentDue;
           bookingUpdate['pendingAmout'] = 0;
           bookingUpdate['currentDue'] = 0;
           bookingUpdate['paymentStatus'] = 'full';
@@ -400,7 +450,7 @@ export class BookingController {
     } else {
       throw ERROR_KEYS.INVALID_ACTION;
     }
-    return bookings;
+    return booking;
   }
 
   static async listGuestBookings(guestAwsId) {

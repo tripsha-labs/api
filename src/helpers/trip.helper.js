@@ -40,15 +40,13 @@ export const getCosting = preferences => {
     }
   }
   // Total before discount
-  const grandTotal = totalAddOnCost + totalRoomCost;
+  const total = totalAddOnCost + totalRoomCost;
   // Total discounted price
   const discountedGrandTotal = discountedAddOnCost + discountedRoomCost;
-  // Total discount
-  const discountTotal = grandTotal - discountedGrandTotal;
 
-  let paynowAmount = discountedAddOnCost;
+  let paynowAmount = discountedGrandTotal;
   if (
-    preferences.payment === 'deposit' &&
+    preferences.paymentStatus === 'deposit' &&
     preferences.isDepositApplicable &&
     preferences.deposit
   ) {
@@ -64,14 +62,14 @@ export const getCosting = preferences => {
     paynowAmount = discountedGrandTotal;
   }
   return {
-    currentDue: paynowAmount,
     discountedTotalFare: discountedGrandTotal,
-    totalFare: grandTotal,
+    totalFare: total,
     discountAddonFare: discountedAddOnCost,
     discountBaseFare: discountedRoomCost,
     totalBaseFare: totalRoomCost,
     totalAddonFare: totalAddOnCost,
-    pendingAmout: discountTotal,
+    pendingAmout: discountedGrandTotal - paynowAmount,
+    currentDue: paynowAmount,
   };
 };
 export const getDiscountStatus = trip => {

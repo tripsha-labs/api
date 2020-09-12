@@ -5,7 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { dbConnect } from '../../utils';
+import { dbConnect, logActivity } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -16,8 +16,7 @@ import {
   MessageModel,
   BookingModel,
 } from '../../models';
-import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
-import { ObjectId } from 'mongodb';
+import { ERROR_KEYS, APP_CONSTANTS, LogMessages } from '../../constants';
 
 export class TripController {
   static async listTrips(filter, memberId) {
@@ -25,6 +24,7 @@ export class TripController {
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const filterParams = {
         isArchived: false,
+        isActive: true,
         isPublic: true,
         status: 'published',
         endDate: { $gte: currentDate },
@@ -201,7 +201,16 @@ export class TripController {
         fromMemberId: user._id.toString(),
       };
       await MessageModel.create(messageParams);
-
+      const tripMessage =
+        params['status'] == 'draft'
+          ? LogMessages.CREATE_DRAFT_TRIP_HOST
+          : LogMessages.CREATE_TRIP_HOST;
+      await logActivity({
+        ...tripMessage(params['title']),
+        tripId: trip._id.toString(),
+        audienceIds: [user._id.toString()],
+        userId: user._id.toString(),
+      });
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
@@ -306,6 +315,17 @@ export class TripController {
       trip['isFull'] = trip['spotsAvailable'] === 0;
 
       await TripModel.update(tripId, trip);
+      const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
+      const logMessage =
+        tripDetails['status'] == 'draft' && trip['status'] == 'published'
+          ? LogMessages.TRIP_PUBLISHED
+          : LogMessages.UPDATE_TRIP_HOST;
+      await logActivity({
+        ...logMessage(tripName),
+        tripId: tripId,
+        audienceIds: [user._id.toString()],
+        userId: user._id.toString(),
+      });
       return 'success';
     } catch (error) {
       throw error;
@@ -366,6 +386,12 @@ export class TripController {
           bookings.length == 0
         ) {
           await TripModel.update(tripId, { isActive: false });
+          await logActivity({
+            ...LogMessages.DELETE_TRIP_HOST(trip['title']),
+            tripId: trip._id.toString(),
+            audienceIds: [user._id.toString()],
+            userId: user._id.toString(),
+          });
         } else {
           throw ERROR_KEYS.CANNOT_DELETE_TRIP;
         }
@@ -392,7 +418,10 @@ export class TripController {
         filterParams['memberId'] = user._id;
       }
       if (filter.isHost) filterParams['isOwner'] = true;
-      if (filter.isMember) filterParams['isMember'] = true;
+      if (filter.isMember) {
+        filterParams['isOwner'] = false;
+        filterParams['isMember'] = true;
+      }
       if (filter.isFavorite) filterParams['isFavorite'] = true;
       if (
         !(
@@ -437,9 +466,9 @@ export class TripController {
       if (filter.isPublic) {
         tripParams['isPublic'] = filter.isPublic;
       }
-      if (filter.status) {
-        tripParams['status'] = filter.status;
-      }
+      if (filter.status) tripParams['status'] = filter.status;
+
+      if (filter.status !== 'draft') tripParams['status'] = { $nin: ['draft'] };
 
       if (filter.pastTrips || filter.isArchived) {
         tripParams['$or'] = [
