@@ -32,11 +32,11 @@ export class BookingController {
 
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    if (bookingData.stripePaymentMethod)
-      await UserModel.update(
-        { _id: user._id },
-        { stripeCustomerId: bookingData.stripePaymentMethod.customer }
-      );
+    // if (bookingData.stripePaymentMethod)
+    //   await UserModel.update(
+    //     { _id: user._id },
+    //     { stripeCustomerId: bookingData.stripePaymentMethod.customer }
+    //   );
     const tripOwner = await UserModel.get({ _id: trip.ownerId });
     if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
