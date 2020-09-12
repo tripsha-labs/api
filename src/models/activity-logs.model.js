@@ -6,8 +6,14 @@ import { ActivityLog } from '.';
 
 export class ActivityLogModel {
   static list(params = {}) {
-    const bookings = ActivityLog.find(params);
-    return bookings;
+    const { filter, select, pagination, sort } = params;
+    const activities = ActivityLog.find(filter, select || {});
+    if (sort) activities.sort(sort);
+    if (pagination) {
+      activities.limit(pagination.limit);
+      activities.skip(pagination.skip);
+    }
+    return activities;
   }
 
   static count(params = {}) {

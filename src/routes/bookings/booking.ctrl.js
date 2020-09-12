@@ -2,7 +2,7 @@
  * @name - Booking contoller
  * @description - This will handle business logic for Booking module
  */
-import { dbConnect, StripeAPI } from '../../utils';
+import { dbConnect, StripeAPI, logActivity } from '../../utils';
 
 import {
   getCosting,
@@ -12,8 +12,9 @@ import {
 } from '../../helpers';
 
 import { BookingModel, UserModel, TripModel } from '../../models';
-import { ERROR_KEYS } from '../../constants';
+import { ERROR_KEYS, LogMessages } from '../../constants';
 import { MemberController } from '../members/member.ctrl';
+import { ObjectID } from 'mongodb';
 
 export class BookingController {
   static async createBooking(params, awsUserId) {
@@ -93,6 +94,12 @@ export class BookingController {
     }
     const booking = await BookingModel.create(finalBookingData);
     await TripModel.update(trip._id, tripUpdate);
+    await logActivity({
+      ...LogMessages.BOOKING_REQUEST_TRAVELLER(trip['title']),
+      tripId: trip._id.toString(),
+      audienceIds: [user._id.toString()],
+      userId: user._id.toString(),
+    });
     return booking;
   }
 
@@ -185,6 +192,9 @@ export class BookingController {
     };
     let validForUpdate = false;
     let bookingUpdate = {};
+    const memberInfo = await UserModel.get({
+      _id: ObjectID(booking.memberId),
+    });
     if (params['action']) {
       switch (params['action']) {
         // host
@@ -247,6 +257,21 @@ export class BookingController {
             awsUserId: awsUserId,
           });
 
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_APPROVE_TRAVELLER(trip['title']),
+            tripId: trip._id.toString(),
+            audienceIds: [memberInfo._id.toString()],
+            userId: user._id.toString(),
+          });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_APPROVE_HOST(
+              `${memberInfo.firstName} ${memberInfo.lastName}`,
+              trip['title']
+            ),
+            tripId: trip._id.toString(),
+            audienceIds: [user._id.toString()],
+            userId: user._id.toString(),
+          });
           break;
 
         // host
@@ -294,6 +319,22 @@ export class BookingController {
             status: 'declined',
           };
           await BookingModel.update(booking._id, bookingUpdate);
+
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELLER(trip['title']),
+            tripId: trip._id.toString(),
+            audienceIds: [memberInfo._id.toString()],
+            userId: user._id.toString(),
+          });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
+              `${memberInfo.firstName} ${memberInfo.lastName}`,
+              trip['title']
+            ),
+            tripId: trip._id.toString(),
+            audienceIds: [user._id.toString()],
+            userId: user._id.toString(),
+          });
           break;
         // guest
         case 'withdraw':
@@ -337,6 +378,21 @@ export class BookingController {
 
           await BookingModel.update(booking._id, {
             status: 'withdrawn',
+          });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELLER(trip['title']),
+            tripId: trip._id.toString(),
+            audienceIds: [user._id.toString()],
+            userId: user._id.toString(),
+          });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_WITHDRAW_HOST(
+              `${user.firstName} ${user.lastName}`,
+              trip['title']
+            ),
+            tripId: trip._id.toString(),
+            audienceIds: [trip.ownerId.toString()],
+            userId: user._id.toString(),
           });
           break;
 

@@ -6,10 +6,12 @@ import mongoose from 'mongoose';
 
 const activityLogsSchema = new mongoose.Schema(
   {
-    userId: { type: String },
+    audienceIds: { type: Array },
     message: { type: String },
     type: { type: String },
     tripId: { type: String },
+    bookingId: { type: String },
+    userId: { type: String },
   },
   {
     timestamps: true,

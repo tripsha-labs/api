@@ -6,16 +6,23 @@ import { dbConnect } from '../../utils';
 
 import { ActivityLogModel, UserModel } from '../../models';
 import { ERROR_KEYS } from '../../constants';
+import { prepareCommonFilter } from '../../helpers';
 
 export class ActivityLosController {
-  static async listActivites(filters, awsUserId) {
+  static async listActivites(filter, awsUserId) {
     await dbConnect();
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-
-    const params = { userId: user._id.toString() };
-
-    const bookingList = ActivityLogModel.list(params);
-    return bookingList;
+    const query = { audienceIds: { $in: user._id.toString() } };
+    const params = {
+      filter: query,
+      ...prepareCommonFilter(filter, ['created_at']),
+    };
+    const bookingList = await ActivityLogModel.list(params);
+    const bookingCount = await ActivityLogModel.count(query);
+    return {
+      data: bookingList,
+      count: bookingCount,
+    };
   }
 }
