@@ -16,7 +16,7 @@ export class ActivityLosController {
     const query = { audienceIds: { $in: user._id.toString() } };
     const params = {
       filter: query,
-      ...prepareCommonFilter(filter, ['created_at']),
+      ...prepareCommonFilter(filter, ['createdAt', 'updatedAt']),
     };
     const bookingList = await ActivityLogModel.list(params);
     const bookingCount = await ActivityLogModel.count(query);
