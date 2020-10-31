@@ -3,7 +3,7 @@ logs
 *.log
 npm-debug.log*
 # Env
-env.yml
+# env.yml
 config/*
 # Runtime data
 pids

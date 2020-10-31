@@ -48,6 +48,7 @@ export const listBookings = async (event, context) => {
       );
     else
       result = await BookingController.listGuestBookings(
+        params,
         event.requestContext.identity.cognitoIdentityId
       );
     return success(result);
