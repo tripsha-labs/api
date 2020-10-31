@@ -23,6 +23,7 @@ const tripSchema = {
   },
   tripPaymentType: {
     type: 'string',
+    empty: false,
     enum: ['pay', 'payasyougo', 'free'],
   },
   minGroupSize: {
@@ -108,6 +109,7 @@ const tripSchema = {
   isDepositApplicable: {
     type: 'boolean',
     empty: false,
+    optional: true,
   },
   deposit: {
     optional: true,
@@ -121,6 +123,7 @@ const tripSchema = {
   isDiscountApplicable: {
     type: 'boolean',
     empty: false,
+    optional: true,
   },
   discounts: {
     type: 'array',
@@ -149,6 +152,7 @@ const tripUpdateSchema = {
   title: { ...tripSchema.title, optional: true },
   startDate: { ...tripSchema.startDate, optional: true },
   endDate: { ...tripSchema.endDate, optional: true },
+  tripPaymentType: { ...tripSchema.tripPaymentType, optional: true },
   minGroupSize: {
     ...tripSchema.minGroupSize,
     optional: true,

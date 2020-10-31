@@ -37,7 +37,10 @@ export const createTrip = async (event, context) => {
       data.spotsAvailable = data.maxGroupSize - 1;
     }
 
-    const errors = createTripValidation(data);
+    const errors =
+      data.status === 'draft'
+        ? updateTripValidation(data)
+        : createTripValidation(data);
     if (errors != true) throw errors.shift();
 
     const result = await TripController.createTrip({

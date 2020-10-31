@@ -9,10 +9,10 @@ import {
   getBookingValidity,
   getDepositStatus,
   getDiscountStatus,
+  prepareSortFilter,
 } from '../../helpers';
-
 import { BookingModel, UserModel, TripModel } from '../../models';
-import { ERROR_KEYS, LogMessages } from '../../constants';
+import { ERROR_KEYS, LogMessages, APP_CONSTANTS } from '../../constants';
 import { MemberController } from '../members/member.ctrl';
 import { ObjectID } from 'mongodb';
 
@@ -32,11 +32,6 @@ export class BookingController {
 
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    if (bookingData.stripePaymentMethod)
-      await UserModel.update(
-        { _id: user._id },
-        { stripeCustomerId: bookingData.stripePaymentMethod.customer }
-      );
     const tripOwner = await UserModel.get({ _id: trip.ownerId });
     if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
@@ -139,6 +134,18 @@ export class BookingController {
       updatedAt: 1,
     };
     const params = [{ $match: { tripId: filters.tripId, status: 'pending' } }];
+    params.push({
+      $sort: prepareSortFilter(
+        filters,
+        ['createdAt', 'updatedAt'],
+        'updatedAt',
+        -1
+      ),
+    });
+    const limit = filters.limit ? parseInt(filters.limit) : APP_CONSTANTS.LIMIT;
+    params.push({ $limit: limit });
+    const page = filters.page ? parseInt(filters.page) : APP_CONSTANTS.PAGE;
+    params.push({ $skip: limit * page });
     params.push({
       $project: {
         memberId: {
@@ -453,7 +460,7 @@ export class BookingController {
     return booking;
   }
 
-  static async listGuestBookings(guestAwsId) {
+  static async listGuestBookings(filters, guestAwsId) {
     await dbConnect();
     const user = await UserModel.get({ awsUserId: guestAwsId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
@@ -483,6 +490,18 @@ export class BookingController {
       updatedAt: 1,
     };
     const params = [{ $match: { memberId: user._id.toString() } }];
+    params.push({
+      $sort: prepareSortFilter(
+        filters,
+        ['createdAt', 'updatedAt'],
+        'updatedAt',
+        -1
+      ),
+    });
+    const limit = filters.limit ? parseInt(filters.limit) : APP_CONSTANTS.LIMIT;
+    params.push({ $limit: limit });
+    const page = filters.page ? parseInt(filters.page) : APP_CONSTANTS.PAGE;
+    params.push({ $skip: limit * page });
     params.push({
       $project: {
         tripId: {

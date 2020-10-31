@@ -19,9 +19,9 @@ export class PaymentController {
     const customer = await StripeAPI.createCustomer(paymentMethod, email);
     if (customer && customer.id) {
       await dbConnect();
-      const user = await UserModel.update(
+      await UserModel.update(
         { awsUserId: awsUserId },
-        { $set: { stripeCustomerId: customer.id } }
+        { stripeCustomerId: customer.id }
       );
       return customer;
     } else {

@@ -157,19 +157,20 @@ export class TripController {
   static async createTrip(params) {
     try {
       // Validate trip fields against the strict schema
-      const tripLength = validateTripLength(
-        params['startDate'],
-        params['endDate']
-      );
-      if (
-        tripLength <= 0 ||
-        tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
-        isNaN(tripLength)
-      )
-        throw ERROR_KEYS.INVALID_DATES;
+      if (params.status !== 'draft') {
+        const tripLength = validateTripLength(
+          params['startDate'],
+          params['endDate']
+        );
+        if (
+          tripLength <= 0 ||
+          tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
+          isNaN(tripLength)
+        )
+          throw ERROR_KEYS.INVALID_DATES;
 
-      params['tripLength'] = tripLength;
-
+        params['tripLength'] = tripLength;
+      }
       await dbConnect();
       const user = await UserModel.get({ awsUserId: params.ownerId });
       params['ownerId'] = user;

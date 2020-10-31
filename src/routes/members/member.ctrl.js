@@ -242,6 +242,8 @@ export class MemberController {
           isFavorite: true,
         });
         const updateTrip = {
+          spotsFilled: memberCount,
+          spotsAvailable: trip['maxGroupSize'] - memberCount,
           groupSize: memberCount,
           isFull: memberCount >= trip['maxGroupSize'],
           favoriteCount: favoriteCount,
