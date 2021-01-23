@@ -56,4 +56,76 @@ export const LogMessages = {
       type: 'Booking',
     };
   },
+  BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `Partial payment for ${traveller_name} booking on ${trip_name} received.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_TRAVELLER: trip_name => {
+    return {
+      message: `You made partial payment for ${trip_name}.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `Full payment for ${traveller_name} booking on ${trip_name} received.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_TRAVELLER: trip_name => {
+    return {
+      message: `You made full payment for ${trip_name}.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `Partial payment for ${traveller_name} booking on ${trip_name} received.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_TRAVELLER: trip_name => {
+    return {
+      message: `You made partial payment for ${trip_name}.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_FULL_PAYMENT_FAILED_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `Full payment for ${traveller_name} booking on ${trip_name} received.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_FULL_PAYMENT_FAILED_TRAVELLER: trip_name => {
+    return {
+      message: `You made full payment for ${trip_name}.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `${traveller_name} balance payment towards ${trip_name} was successful.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELLER: trip_name => {
+    return {
+      message: `Your balance payment towards ${trip_name} was successful.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELLER: trip_name => {
+    return {
+      message: `Your balance payment towards ${trip_name} was unsuccessful.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `A balance payment by ${traveller_name} towards ${trip_name} was unsuccessful.`,
+      type: 'Booking',
+    };
+  },
 };

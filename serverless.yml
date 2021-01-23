@@ -58,7 +58,7 @@ provider:
       Resource:
         - 'arn:aws:execute-api:*:*:**/@connections/*'
 package:
-  individually: true
+  individually: false
   excludeDevDependencies: true
   exclude:
     - 'node_modules/**' # no need to add this yourself, this plugin does it for you

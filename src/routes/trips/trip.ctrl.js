@@ -1,5 +1,5 @@
 /**
- * @name - Trip contoller
+ * @name - Trip controller
  * @description - This will handle business logic for Trip module
  */
 import moment from 'moment';
