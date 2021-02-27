@@ -128,4 +128,52 @@ export const LogMessages = {
       type: 'Booking',
     };
   },
+  TRAVELLER_LEFT_TRIP_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `Your traveler ${traveller_name} has left the ${trip_name}.`,
+      type: 'Membership',
+    };
+  },
+  TRAVELLER_LEFT_TRIP_TRAVELLER: trip_name => {
+    return {
+      message: `You have successfully left the trip ${trip_name}.`,
+      type: 'Membership',
+    };
+  },
+  HOST_MEMBER_REMOVAL_REQUEST_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `Your request for the removal of ${traveller_name} from your trip ${trip_name} has been sent. You will be notified shortly by the Tripsha Team the status of the request.`,
+      type: 'Membership',
+    };
+  },
+  TRAVELLER_MEMBER_REMOVAL_REQUEST_APPROVED_HOST: (
+    traveller_name,
+    trip_name
+  ) => {
+    return {
+      message: `Your request for the removal ${traveller_name} traveler has been approved. This traveler is no longer attending ${trip_name}.`,
+      type: 'Membership',
+    };
+  },
+  TRAVELLER_MEMBER_REMOVAL_REQUEST_APPROVED_HOST: (
+    traveller_name,
+    trip_name
+  ) => {
+    return {
+      message: `Your request for the removal ${traveller_name} traveler has been approved. This traveler is no longer attending ${trip_name}.`,
+      type: 'Membership',
+    };
+  },
+  TRAVELLER_ADDED_IN_TRIP_BY_HOST: trip_name => {
+    return {
+      message: `You have been added to  ${trip_name} by the host.`,
+      type: 'Membership',
+    };
+  },
+  HOST_LINKED_TO_STRIPE_ACCOUNT: () => {
+    return {
+      message: `You have successfully been linked to a Stripe account with Tripsha.`,
+      type: 'StripeConnect',
+    };
+  },
 };
