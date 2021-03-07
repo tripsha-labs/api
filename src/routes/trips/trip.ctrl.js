@@ -5,7 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { dbConnect, logActivity } from '../../utils';
+import { dbConnect, logActivity, sendEmail } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -212,6 +212,14 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
+      if (params['status'] == 'published') {
+        sendEmail({
+          emails: [user['email']],
+          name: user['firstName'],
+          subject: `Greetings ${user['firstName']}`,
+          message: `Trip ${params['title']} published.`,
+        });
+      }
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
@@ -327,6 +335,20 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
+      console.log('status', trip['status']);
+      if (trip['status'] == 'published') {
+        try {
+          await sendEmail({
+            emails: [user['email']],
+            name: user['firstName'],
+            subject: `Greetings ${user['firstName']}`,
+            message: `Trip ${tripName} published.`,
+          });
+          console.log('Email sent');
+        } catch (err) {
+          console.log(err);
+        }
+      }
       return 'success';
     } catch (error) {
       throw error;

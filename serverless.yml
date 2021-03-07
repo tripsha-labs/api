@@ -57,6 +57,18 @@ provider:
         - 'execute-api:ManageConnections'
       Resource:
         - 'arn:aws:execute-api:*:*:**/@connections/*'
+    - Effect: 'Allow'
+      Action:
+        - 'SES:*'
+      Resource:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:ses:'
+            - Ref: AWS::Region
+            - ':'
+            - Ref: AWS::AccountId
+            - ':identity/*'
+
 package:
   individually: false
   excludeDevDependencies: true

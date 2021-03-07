@@ -3,7 +3,7 @@
  * @description - This will handle all trip related API requests
  */
 import { TripController } from './trip.ctrl';
-import { success, failure } from '../../utils';
+import { success, failure, sendEmail } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { updateTripValidation, createTripValidation } from '../../models';
 
@@ -155,4 +155,18 @@ export const savedTrips = async (event, context) => {
     console.log(error);
     return failure(error);
   }
+};
+
+export const sendEmails = async (event, context) => {
+  const params = event.queryStringParameters ? event.queryStringParameters : {};
+  const data = {
+    emails: ['madanesanjayraj@gmail.com'],
+    name: 'Sunita',
+    subject: 'Greetings Sunita',
+    message:
+      'The host changed an aspect of Blue Marine. Check the trip page to see the new information and let the host know if they no longer work for you.',
+  };
+  await sendEmail(data);
+  console.log(params);
+  return success({});
 };

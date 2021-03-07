@@ -75,3 +75,11 @@ deleteTrip:
         method: delete
         cors: true
         authorizer: aws_iam
+
+sendEmail:
+  handler: src/routes/trips/handler.sendEmails
+  events:
+    - http:
+        path: sendEmail
+        method: post
+        cors: true
