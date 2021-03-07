@@ -11,3 +11,4 @@ export * from './stripe-api';
 export * from './log-error';
 export * from './activity';
 export * from './email';
+export * from './email-template';

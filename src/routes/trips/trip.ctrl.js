@@ -5,7 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { dbConnect, logActivity, sendEmail } from '../../utils';
+import { dbConnect, logActivity, sendEmail, EmailButton } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -175,6 +175,7 @@ export class TripController {
       const user = await UserModel.get({ awsUserId: params.ownerId });
       params['ownerId'] = user;
       const trip = await TripModel.create(params);
+      console.log(trip);
       const addMemberParams = {
         memberId: user._id.toString(),
         tripId: trip._id,
@@ -212,13 +213,21 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
-      if (params['status'] == 'published') {
-        sendEmail({
-          emails: [user['email']],
-          name: user['firstName'],
-          subject: `Greetings ${user['firstName']}`,
-          message: `Trip ${params['title']} published.`,
-        });
+      if (params['status'] === 'published') {
+        try {
+          const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${trip['_id']}`;
+          await sendEmail({
+            emails: [user['email']],
+            name: user['firstName'],
+            subject: `Greetings ${user['firstName']}`,
+            message: `Trip <b>${params['title']}</b> published. ${EmailButton(
+              'View Trip',
+              trip_url
+            )}`,
+          });
+        } catch (err) {
+          console.log(err);
+        }
       }
       const memberCount = await MemberModel.count({
         tripId: trip._id,
@@ -335,14 +344,17 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
-      console.log('status', trip['status']);
       if (trip['status'] == 'published') {
         try {
+          const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
           await sendEmail({
             emails: [user['email']],
             name: user['firstName'],
             subject: `Greetings ${user['firstName']}`,
-            message: `Trip ${tripName} published.`,
+            message: `Trip <b>${tripName}</b> published. ${EmailButton(
+              'View Trip',
+              trip_url
+            )}`,
           });
           console.log('Email sent');
         } catch (err) {
@@ -415,6 +427,17 @@ export class TripController {
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
+          try {
+            await sendEmail({
+              emails: [user['email']],
+              name: user['firstName'],
+              subject: `Greetings ${user['firstName']}`,
+              message: `Trip <b>${trip['title']}</b> removed.`,
+            });
+            console.log('Email sent');
+          } catch (err) {
+            console.log(err);
+          }
         } else {
           throw ERROR_KEYS.CANNOT_DELETE_TRIP;
         }

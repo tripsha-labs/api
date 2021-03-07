@@ -51,6 +51,7 @@ provider:
     MAILCHIMP_API_KEY: ${file(./config/${self:custom.stage}.json):MAILCHIMP_API_KEY}
     MAILCHIMP_AUDIENCE_LIST_ID: ${file(./config/${self:custom.stage}.json):MAILCHIMP_AUDIENCE_LIST_ID}
     STRIPE_SECRET_KEY: ${file(./config/${self:custom.stage}.json):STRIPE_SECRET_KEY}
+    CLIENT_BASE_URL: ${file(./config/${self:custom.stage}.json):CLIENT_BASE_URL}
   iamRoleStatements:
     - Effect: Allow
       Action:
