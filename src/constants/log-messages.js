@@ -9,7 +9,7 @@ export const LogMessages = {
     return { message: `You updated ${trip_name}.`, type: 'Trip' };
   },
   DELETE_TRIP_HOST: trip_name => {
-    return { message: `You deleted ${trip_name}.`, type: 'Trip' };
+    return { message: `Draft trip ${trip_name} deleted.`, type: 'Trip' };
   },
   TRIP_PUBLISHED: trip_name => {
     return { message: `Trip ${trip_name} published.`, type: 'Trip' };

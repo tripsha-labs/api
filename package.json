@@ -7,7 +7,7 @@
     "individually": false
   },
   "scripts": {
-    "offline": "sls offline start --debugOffline --noAuth --stage=staging",
+    "offline": "sls offline start --debugOffline --stage=dev",
     "deploy": "sls deploy --stage=staging",
     "remove": "sls remove --stage=staging",
     "deploy:staging": "sls deploy --stage=staging",
@@ -46,7 +46,7 @@
     "prettier": "^1.19.1",
     "serverless-domain-manager": "^3.3.2",
     "serverless-hooks-plugin": "^1.1.0",
-    "serverless-offline": "^3.25.6",
+    "serverless-offline": "^6.9.0",
     "serverless-plugin-include-dependencies": "^4.1.0",
     "serverless-webpack": "^5.3.5",
     "serverless-websockets-plugin": "^1.0.0",

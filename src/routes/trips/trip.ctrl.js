@@ -157,25 +157,23 @@ export class TripController {
   static async createTrip(params) {
     try {
       // Validate trip fields against the strict schema
-      if (params.status !== 'draft') {
-        const tripLength = validateTripLength(
-          params['startDate'],
-          params['endDate']
-        );
-        if (
-          tripLength <= 0 ||
-          tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
-          isNaN(tripLength)
-        )
-          throw ERROR_KEYS.INVALID_DATES;
+      const tripLength = validateTripLength(
+        params['startDate'],
+        params['endDate']
+      );
+      if (
+        tripLength <= 0 ||
+        tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
+        isNaN(tripLength)
+      )
+        throw ERROR_KEYS.INVALID_DATES;
 
-        params['tripLength'] = tripLength;
-      }
+      params['tripLength'] = tripLength + 1;
+
       await dbConnect();
       const user = await UserModel.get({ awsUserId: params.ownerId });
       params['ownerId'] = user;
       const trip = await TripModel.create(params);
-      console.log(trip);
       const addMemberParams = {
         memberId: user._id.toString(),
         tripId: trip._id,
@@ -420,7 +418,7 @@ export class TripController {
           members.length <= 1 ||
           bookings.length == 0
         ) {
-          await TripModel.update(tripId, { isActive: false });
+          await TripModel.update(tripId, { isArchived: true, isDeleted: true });
           await logActivity({
             ...LogMessages.DELETE_TRIP_HOST(trip['title']),
             tripId: trip._id.toString(),
@@ -432,7 +430,7 @@ export class TripController {
               emails: [user['email']],
               name: user['firstName'],
               subject: `Greetings ${user['firstName']}`,
-              message: `Trip <b>${trip['title']}</b> removed.`,
+              message: `Draft Trip <b>${trip['title']}</b> deleted.`,
             });
             console.log('Email sent');
           } catch (err) {
