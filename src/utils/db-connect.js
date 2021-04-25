@@ -14,6 +14,7 @@ export const dbConnect = () => {
   console.log('Creating new database connection');
   return mongoose
     .connect(process.env.DB_CONN, {
+      // ssl: process.env.IS_OFFLINE ? false : true,
       ssl: true,
       useNewUrlParser: true,
       useCreateIndex: true,

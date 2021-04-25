@@ -108,6 +108,7 @@ const createUserSchema = {
   dob: { type: 'string', optional: true, empty: false },
   firstName: { type: 'string', empty: false },
   lastName: { type: 'string', empty: false, optional: true },
+  avatarUrl: { type: 'string', empty: true, optional: true },
   $$strict: true,
 };
 

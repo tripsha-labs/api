@@ -1,0 +1,7 @@
+runMigrations:
+  handler: src/routes/migrations/handler.runMigrations
+  events:
+    - http:
+        path: migrations
+        method: post
+        cors: true
