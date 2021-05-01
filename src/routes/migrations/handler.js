@@ -10,7 +10,7 @@ import { updateProfilePic, updateTripUrl } from '../../migrations';
  */
 export const runMigrations = async (event, context) => {
   try {
-    // await updateProfilePic();
+    await updateProfilePic();
     await updateTripUrl();
     return success('success');
   } catch (error) {

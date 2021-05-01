@@ -448,34 +448,33 @@ export class TripController {
 
   static async myTrips(filter) {
     try {
-      const filterParams = {};
+      const filterParams = {
+        isMember: true,
+      };
       await dbConnect();
-
+      const user = await UserModel.get({ awsUserId: filter.awsUserId });
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       if (filter.memberId) {
         if (!Types.ObjectId.isValid(filter.memberId)) {
           throw 'Invalid memberID';
         }
         filterParams['memberId'] = Types.ObjectId(filter.memberId);
       } else {
-        const user = await UserModel.get({ awsUserId: filter.awsUserId });
-        if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
         filterParams['memberId'] = user._id;
       }
-      if (filter.isHost) filterParams['isOwner'] = true;
-      if (filter.isMember) {
-        filterParams['isOwner'] = false;
-        filterParams['isMember'] = true;
-      }
-      if (filter.isFavorite) filterParams['isFavorite'] = true;
+      // Active trips and draft trips
       if (
-        !(
-          filterParams['isFavorite'] ||
-          filterParams['isMember'] ||
-          filterParams['isOwner']
-        )
-      ) {
-        filterParams['isMember'] = true;
+        (filter.isHost || filter.status == 'draft') &&
+        filterParams['memberId'] == user._id
+      )
+        filterParams['isOwner'] = true;
+      else filterParams['isOwner'] = { $exists: false };
+      // Favorite trips
+      if (filter.isFavorite) {
+        delete filterParams['isMember'];
+        filterParams['isFavorite'] = true;
       }
+
       const params = [
         {
           $match: filterParams,
@@ -507,13 +506,9 @@ export class TripController {
       const tripParams = {
         isActive: true,
       };
-      if (filter.isPublic) {
-        tripParams['isPublic'] = filter.isPublic;
-      }
+      if (filter.isPublic) tripParams['isPublic'] = filter.isPublic;
       if (filter.status) tripParams['status'] = filter.status;
-
       if (filter.status !== 'draft') tripParams['status'] = { $nin: ['draft'] };
-
       if (filter.pastTrips || filter.isArchived) {
         tripParams['$or'] = [
           { endDate: { $lt: currentDate } },
@@ -531,6 +526,7 @@ export class TripController {
       params.push({
         $match: tripParams,
       });
+
       params.push({
         $sort: prepareSortFilter(
           filter,
@@ -563,13 +559,9 @@ export class TripController {
           tripId: 0,
         },
       });
-      console.log(params);
       const resTrips = await MemberModel.aggregate(params);
-      // const resCount = await MemberModel.count(filterParams);
-
       return {
         data: resTrips,
-        // totalCount: resCount,
         count: resTrips.length,
       };
     } catch (error) {

@@ -22,7 +22,11 @@ export const updateProfilePic = async (skip = 0) => {
             'tripsha-app-api-prod-api-attachmentsbucket-183v474nekkjk';
           break;
       }
-      if (bucketUrl && user.avatarUrl.indexOf('https://') === -1) {
+      if (
+        bucketUrl &&
+        user.avatarUrl &&
+        user.avatarUrl.indexOf('https://') === -1
+      ) {
         const avatarUrl = `https://${bucketUrl}.s3.amazonaws.com/private/${user.awsUserId}/${user.avatarUrl}`;
         await UserModel.update({ _id: user._id }, { avatarUrl: avatarUrl });
       }

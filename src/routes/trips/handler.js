@@ -125,7 +125,6 @@ export const myTrips = async (event, context) => {
     const params = event.queryStringParameters
       ? event.queryStringParameters
       : {};
-    delete params['memberId'];
     const result = await TripController.myTrips({
       ...params,
       awsUserId: event.requestContext.identity.cognitoIdentityId,

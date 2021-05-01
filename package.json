@@ -7,7 +7,7 @@
     "individually": false
   },
   "scripts": {
-    "offline": "sls offline start --debugOffline --stage=staging",
+    "offline": "sls offline start --debugOffline --stage=prod-api",
     "deploy": "sls deploy --stage=staging",
     "remove": "sls remove --stage=staging",
     "deploy:staging": "sls deploy --stage=staging",

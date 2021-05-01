@@ -3,7 +3,7 @@
  * @description - This will handle business logic for Booking module
  */
 import { dbConnect, StripeAPI, logActivity } from '../../utils';
-
+import moment from 'moment';
 import {
   getCosting,
   getBookingValidity,
@@ -618,7 +618,14 @@ export class BookingController {
       createdAt: 1,
       updatedAt: 1,
     };
-    const params = [{ $match: { memberId: user._id.toString() } }];
+    const params = [
+      {
+        $match: {
+          status: 'pending',
+          memberId: user._id.toString(),
+        },
+      },
+    ];
     params.push({
       $sort: prepareSortFilter(
         filters,
