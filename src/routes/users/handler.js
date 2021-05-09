@@ -10,12 +10,12 @@ import {
   failure,
   subscribeUserToMailchimpAudience,
   unsubscribeUserToMailchimpAudience,
+  getCurrentUser,
 } from '../../utils';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 import { generateRandomNumber } from '../../helpers';
 
-import { createUserValidation, updateUserValidation } from '../../models';
-
+import { updateUserValidation } from '../../models';
 /**
  * List users
  */
@@ -31,7 +31,81 @@ export const listUser = async (event, context) => {
     return failure(error);
   }
 };
+/**
+ * Create user
+ */
+export const createUser = async (event, context) => {
+  try {
+    const userInfo = await getCurrentUser(event);
+    console.log(userInfo);
+    if (!userInfo) throw 'Create User failed';
+    const createUserPayload = {
+      email: userInfo.email,
+      isEmailVerified: userInfo.email_verified,
+    };
+    if (userInfo.identities) {
+      createUserPayload['firstName'] = userInfo.given_name;
+      createUserPayload['lastName'] = userInfo.family_name;
+      createUserPayload['avatarUrl'] = userInfo.picture;
+    } else {
+      createUserPayload['firstName'] = userInfo['custom:firstName'];
+      createUserPayload['lastName'] = userInfo['custom:lastName'];
+      createUserPayload['dob'] = userInfo['custom:dob'];
+    }
+    let user = false;
+    try {
+      user = await UserController.get({
+        email: createUserPayload['email'],
+      });
+    } catch (err) {
+      user = false;
+    }
+    let result = null;
+    if (user) {
+      if (
+        Array.isArray(user.awsUserId) &&
+        user.awsUserId.indexOf(userInfo.awsUserId) === -1
+      ) {
+        user.awsUserId.push(userInfo.awsUserId);
+        createUserPayload['awsUserId'] = user.awsUserId;
+      } else if (
+        Array.isArray(user.awsUserId) &&
+        user.awsUserId.indexOf(userInfo.awsUserId) > -1
+      ) {
+        createUserPayload['awsUserId'] = user.awsUserId;
+      } else if (typeof user.awsUserId == 'string') {
+        user.awsUserId != userInfo.awsUserId;
 
+        createUserPayload['awsUserId'] =
+          user.awsUserId != userInfo.awsUserId
+            ? [user.awsUserId, userInfo.awsUserId]
+            : [userInfo.awsUserId];
+      }
+      result = await UserController.updateUserByEmail(
+        user.email,
+        createUserPayload
+      );
+    } else {
+      const username = await _get_unique_username(
+        createUserPayload['email'],
+        createUserPayload['email'].split('@')[0]
+      );
+      createUserPayload['username'] = username;
+      createUserPayload['awsUserId'] = [userInfo.awsUserId];
+      console.log(createUserPayload);
+      result = await UserController.createUser(createUserPayload);
+      await subscribeUserToMailchimpAudience({
+        name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
+        email: createUserPayload.email,
+      });
+    }
+
+    return success(result);
+  } catch (error) {
+    console.log(error);
+    return failure(error);
+  }
+};
 /**
  * Get user
  */
@@ -49,54 +123,32 @@ export const getUser = async (event, context) => {
     });
     return success(result);
   } catch (error) {
-    return failure(error);
+    if (event.pathParameters.id != 'me') {
+      return failure(error);
+    }
+  }
+  console.log('User not found creating new user');
+  try {
+    await createUser(event, context);
+    const result = await UserController.getUser(urldecode(userId), {
+      stripeAccountId: 0,
+    });
+    return success(result);
+  } catch (err) {
+    return failure(err);
   }
 };
 
-/**
- * Create user
- */
-export const createUser = async (event, context) => {
-  try {
-    const data = JSON.parse(event.body);
-    // Validate user fields against the strict schema
-    const errors = createUserValidation(data);
-    if (errors != true) throw errors.shift();
-    // Generate username
-    let username = data['email'].split('@')[0];
-    let userExists = await UserController.isExists({ username: username });
-    if (userExists) {
-      username = username + generateRandomNumber();
-      userExists = await UserController.isExists({ username: username });
-      if (userExists) {
-        username = username + generateRandomNumber();
-      }
-    }
-    userExists = await UserController.isExists({ email: data['email'] });
-    let result = {};
-    if (userExists) {
-      result = await UserController.updateUserByEmail(data['email'], {
-        ...data,
-        username: username,
-        awsUserId: event.requestContext.identity.cognitoIdentityId,
-      });
-    } else {
-      result = await UserController.createUser({
-        ...data,
-        username: username,
-        awsUserId: event.requestContext.identity.cognitoIdentityId,
-      });
-
-      await subscribeUserToMailchimpAudience({
-        name: data.firstName + ' ' + data.lastName,
-        email: data.email,
-      });
-    }
-
-    return success(result);
-  } catch (error) {
-    console.log(error);
-    return failure(error);
+const _get_unique_username = async (email, username) => {
+  let userExists = await UserController.isExists({
+    username: username,
+    email: { $ne: email },
+  });
+  if (userExists) {
+    username = username + generateRandomNumber();
+    _get_unique_username(email, username);
+  } else {
+    return username;
   }
 };
 
@@ -155,10 +207,14 @@ export const updateUser = async (event, context) => {
 export const signin = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
-    await UserController.get({
+    const user = await UserController.get({
       email: data.email,
     });
-    return success('success');
+    if (
+      user &&
+      user.awsUserId === event.requestContext.identity.cognitoIdentityId
+    )
+      return success('success');
   } catch (error) {
     console.log(error);
     return failure(error);

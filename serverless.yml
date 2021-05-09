@@ -40,25 +40,42 @@ provider:
   region: us-east-1
   # vpc:
   #   securityGroupIds:
-  #     - sg-0d7f2af824304d447
+  #     - sg-067be5b7ef9f631a2
   #   subnetdIds:
-  #     - subnet-02a52987d09338cfd
-  #     - subnet-056dbb611b3a6002f
-  #     - subnet-0d09243da3929d92f
+  #     - subnet-0803c091167df1253
   environment:
     DB_CONN: ${file(./config/${self:custom.stage}.json):DB_CONN}
     MAILCHIMP_INSTANCE: ${file(./config/${self:custom.stage}.json):MAILCHIMP_INSTANCE}
     MAILCHIMP_API_KEY: ${file(./config/${self:custom.stage}.json):MAILCHIMP_API_KEY}
     MAILCHIMP_AUDIENCE_LIST_ID: ${file(./config/${self:custom.stage}.json):MAILCHIMP_AUDIENCE_LIST_ID}
     STRIPE_SECRET_KEY: ${file(./config/${self:custom.stage}.json):STRIPE_SECRET_KEY}
+    CLIENT_BASE_URL: ${file(./config/${self:custom.stage}.json):CLIENT_BASE_URL}
+    ENV: ${self:custom.stage}
   iamRoleStatements:
+    - Action:
+        - 'cognito-idp:ListUsers'
+      Resource:
+        - 'arn:aws:cognito-idp:*'
+      Effect: Allow
     - Effect: Allow
       Action:
         - 'execute-api:ManageConnections'
       Resource:
         - 'arn:aws:execute-api:*:*:**/@connections/*'
+    - Effect: 'Allow'
+      Action:
+        - 'SES:*'
+      Resource:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:ses:'
+            - Ref: AWS::Region
+            - ':'
+            - Ref: AWS::AccountId
+            - ':identity/*'
+
 package:
-  individually: true
+  individually: false
   excludeDevDependencies: true
   exclude:
     - 'node_modules/**' # no need to add this yourself, this plugin does it for you
@@ -97,6 +114,7 @@ functions:
   - ${file(src/routes/hosts/functions.yml)}
   - ${file(src/routes/activity-logs/functions.yml)}
   - ${file(src/schedules/trips/functions.yml)}
+  - ${file(src/routes/migrations/functions.yml)}
 
 resources:
   # API Gateway Errors

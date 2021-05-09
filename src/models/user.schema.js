@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
 
     username: { type: String, index: true },
     awsUsername: { type: String },
-    awsUserId: { type: String },
+    awsUserId: { type: Array },
     phone: String,
     identity: Object,
     firstName: String,

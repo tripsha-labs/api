@@ -57,7 +57,7 @@ const createPaymentIntent = async ({
     confirm: true,
     metadata,
     transfer_data: {
-      amount: amount * HOST_PAYMENT_PART,
+      amount: parseInt(amount * HOST_PAYMENT_PART),
       destination: beneficiary,
     },
   });

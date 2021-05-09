@@ -43,7 +43,7 @@ export class UserController {
   static async getUser(id, select = {}) {
     try {
       await dbConnect();
-      const user = await UserModel.get({ awsUserId: id }, select);
+      const user = await UserModel.get({ awsUserId: { $in: [id] } }, select);
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       return user;
     } catch (error) {

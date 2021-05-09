@@ -1,9 +1,9 @@
 /**
- * @name - Booking contoller
+ * @name - Booking controller
  * @description - This will handle business logic for Booking module
  */
 import { dbConnect, StripeAPI, logActivity } from '../../utils';
-
+import moment from 'moment';
 import {
   getCosting,
   getBookingValidity,
@@ -214,37 +214,122 @@ export class BookingController {
           }
           if (booking.totalFare && booking.totalFare > 0) {
             if (booking.status !== 'pending') {
-              console.log('Request alrady processed');
+              console.log('Request already processed');
               throw ERROR_KEYS.INVALID_ACTION;
             }
-
-            const paymentIntent = await StripeAPI.createPaymentIntent({
-              amount: parseInt(booking.currentDue * 100),
-              currency: booking.currency,
-              customerId: booking.memberStripeId,
-              paymentMethod: booking.stripePaymentMethod.id,
-              confirm: true,
-              beneficiary: booking.onwerStripeId,
-            });
-
-            if (paymentIntent) {
-              booking.paymentHistory.push({
-                amount: booking.currentDue,
-                paymentMethod: booking.stripePaymentMethod,
+            try {
+              console.log({
+                amount: parseInt(booking.currentDue * 100),
                 currency: booking.currency,
-                paymentIntent: paymentIntent,
+                customerId: booking.memberStripeId,
+                paymentMethod: booking.stripePaymentMethod.id,
+                confirm: true,
+                beneficiary: booking.onwerStripeId,
+              });
+              const paymentIntent = await StripeAPI.createPaymentIntent({
+                amount: parseInt(booking.currentDue * 100),
+                currency: booking.currency,
+                customerId: booking.memberStripeId,
+                paymentMethod: booking.stripePaymentMethod.id,
+                confirm: true,
+                beneficiary: booking.onwerStripeId,
               });
 
-              bookingUpdate = {
-                paymentHistory: booking.paymentHistory,
-                paidAmout: booking.currentDue,
-                currentDue: booking.pendingAmout,
-                pendingAmout: 0,
-                status: 'approved',
-              };
-              if (booking.paymentStatus == 'deposit') {
+              if (paymentIntent) {
+                booking.paymentHistory.push({
+                  amount: booking.currentDue,
+                  paymentMethod: booking.stripePaymentMethod,
+                  currency: booking.currency,
+                  paymentIntent: paymentIntent,
+                });
+
+                bookingUpdate = {
+                  paymentHistory: booking.paymentHistory,
+                  paidAmout: booking.currentDue,
+                  currentDue: booking.pendingAmout,
+                  pendingAmout: 0,
+                  status: 'approved',
+                };
+                if (booking.paymentStatus == 'deposit') {
+                  await logActivity({
+                    ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_HOST(
+                      `${memberInfo.firstName} ${memberInfo.lastName}`,
+                      trip['title']
+                    ),
+                    tripId: trip._id.toString(),
+                    audienceIds: [user._id.toString()],
+                    userId: user._id.toString(),
+                  });
+                  await logActivity({
+                    ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_TRAVELLER(
+                      trip['title']
+                    ),
+                    tripId: trip._id.toString(),
+                    audienceIds: [memberInfo._id.toString()],
+                    userId: user._id.toString(),
+                  });
+                } else {
+                  await logActivity({
+                    ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_HOST(
+                      `${memberInfo.firstName} ${memberInfo.lastName}`,
+                      trip['title']
+                    ),
+                    tripId: trip._id.toString(),
+                    audienceIds: [user._id.toString()],
+                    userId: user._id.toString(),
+                  });
+                  await logActivity({
+                    ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_TRAVELLER(
+                      trip['title']
+                    ),
+                    tripId: trip._id.toString(),
+                    audienceIds: [memberInfo._id.toString()],
+                    userId: user._id.toString(),
+                  });
+                }
               } else {
+                throw 'payment failed';
               }
+            } catch (err) {
+              console.log(err);
+              if (booking.paymentStatus == 'deposit') {
+                await logActivity({
+                  ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_HOST(
+                    `${memberInfo.firstName} ${memberInfo.lastName}`,
+                    trip['title']
+                  ),
+                  tripId: trip._id.toString(),
+                  audienceIds: [user._id.toString()],
+                  userId: user._id.toString(),
+                });
+                await logActivity({
+                  ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_TRAVELLER(
+                    trip['title']
+                  ),
+                  tripId: trip._id.toString(),
+                  audienceIds: [memberInfo._id.toString()],
+                  userId: user._id.toString(),
+                });
+              } else {
+                await logActivity({
+                  ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_FAILED_HOST(
+                    `${memberInfo.firstName} ${memberInfo.lastName}`,
+                    trip['title']
+                  ),
+                  tripId: trip._id.toString(),
+                  audienceIds: [user._id.toString()],
+                  userId: user._id.toString(),
+                });
+                await logActivity({
+                  ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_FAILED_TRAVELLER(
+                    trip['title']
+                  ),
+                  tripId: trip._id.toString(),
+                  audienceIds: [memberInfo._id.toString()],
+                  userId: user._id.toString(),
+                });
+              }
+              throw ERROR_KEYS.PAYMENT_FAILED;
             }
           } else {
             bookingUpdate = {
@@ -350,7 +435,7 @@ export class BookingController {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
           if (!(booking.status == 'pending' || booking.status == 'approved')) {
-            console.log('Request alrady processed');
+            console.log('Request already processed');
             throw ERROR_KEYS.INVALID_ACTION;
           }
           if (booking.room) {
@@ -421,37 +506,81 @@ export class BookingController {
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const booking = await BookingModel.getById(bookingId);
+    const memberInfo = await UserModel.get({
+      _id: ObjectID(booking.memberId),
+    });
     if (user._id.toString() === booking.memberId) {
       if (booking.totalFare && booking.totalFare > 0) {
         if (booking.status !== 'approved' && booking.currentDue <= 0) {
-          console.log('Request alrady processed');
+          console.log('Request already processed');
           throw ERROR_KEYS.INVALID_ACTION;
         }
-        const paymentIntent = await StripeAPI.createPaymentIntent({
-          amount: parseInt(booking.currentDue * 100),
-          currency: booking.currency,
-          customerId: booking.memberStripeId,
-          paymentMethod: booking.stripePaymentMethod.id,
-          confirm: true,
-          beneficiary: booking.onwerStripeId,
-        });
-        if (paymentIntent) {
-          booking.paymentHistory.push({
-            amount: booking.currentDue,
-            paymentMethod: booking.stripePaymentMethod,
+        try {
+          const paymentIntent = await StripeAPI.createPaymentIntent({
+            amount: parseInt(booking.currentDue * 100),
             currency: booking.currency,
-            paymentIntent: paymentIntent,
+            customerId: booking.memberStripeId,
+            paymentMethod: booking.stripePaymentMethod.id,
+            confirm: true,
+            beneficiary: booking.onwerStripeId,
           });
-          const bookingUpdate = {
-            paymentHistory: booking.paymentHistory,
-          };
+          if (paymentIntent) {
+            booking.paymentHistory.push({
+              amount: booking.currentDue,
+              paymentMethod: booking.stripePaymentMethod,
+              currency: booking.currency,
+              paymentIntent: paymentIntent,
+            });
+            const bookingUpdate = {
+              paymentHistory: booking.paymentHistory,
+            };
 
-          bookingUpdate['paidAmout'] = booking.paidAmout + booking.currentDue;
-          bookingUpdate['pendingAmout'] = 0;
-          bookingUpdate['currentDue'] = 0;
-          bookingUpdate['paymentStatus'] = 'full';
+            bookingUpdate['paidAmout'] = booking.paidAmout + booking.currentDue;
+            bookingUpdate['pendingAmout'] = 0;
+            bookingUpdate['currentDue'] = 0;
+            bookingUpdate['paymentStatus'] = 'full';
 
-          await BookingModel.update(booking._id, bookingUpdate);
+            await BookingModel.update(booking._id, bookingUpdate);
+            await logActivity({
+              ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST(
+                `${memberInfo.firstName} ${memberInfo.lastName}`,
+                trip['title']
+              ),
+              tripId: trip._id.toString(),
+              audienceIds: [user._id.toString()],
+              userId: user._id.toString(),
+            });
+            await logActivity({
+              ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELLER(
+                trip['title']
+              ),
+              tripId: trip._id.toString(),
+              audienceIds: [memberInfo._id.toString()],
+              userId: user._id.toString(),
+            });
+          } else {
+            throw 'payment failed';
+          }
+        } catch (err) {
+          console.log(err);
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_HOST(
+              `${memberInfo.firstName} ${memberInfo.lastName}`,
+              trip['title']
+            ),
+            tripId: trip._id.toString(),
+            audienceIds: [user._id.toString()],
+            userId: user._id.toString(),
+          });
+          await logActivity({
+            ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELLER(
+              trip['title']
+            ),
+            tripId: trip._id.toString(),
+            audienceIds: [memberInfo._id.toString()],
+            userId: user._id.toString(),
+          });
+          throw ERROR_KEYS.PAYMENT_FAILED;
         }
       }
     } else {
@@ -489,7 +618,14 @@ export class BookingController {
       createdAt: 1,
       updatedAt: 1,
     };
-    const params = [{ $match: { memberId: user._id.toString() } }];
+    const params = [
+      {
+        $match: {
+          status: 'pending',
+          memberId: user._id.toString(),
+        },
+      },
+    ];
     params.push({
       $sort: prepareSortFilter(
         filters,

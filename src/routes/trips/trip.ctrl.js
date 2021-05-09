@@ -1,11 +1,11 @@
 /**
- * @name - Trip contoller
+ * @name - Trip controller
  * @description - This will handle business logic for Trip module
  */
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { dbConnect, logActivity } from '../../utils';
+import { dbConnect, logActivity, sendEmail, EmailButton } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -157,20 +157,19 @@ export class TripController {
   static async createTrip(params) {
     try {
       // Validate trip fields against the strict schema
-      if (params.status !== 'draft') {
-        const tripLength = validateTripLength(
-          params['startDate'],
-          params['endDate']
-        );
-        if (
-          tripLength <= 0 ||
-          tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
-          isNaN(tripLength)
-        )
-          throw ERROR_KEYS.INVALID_DATES;
+      const tripLength = validateTripLength(
+        params['startDate'],
+        params['endDate']
+      );
+      if (
+        tripLength <= 0 ||
+        tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
+        isNaN(tripLength)
+      )
+        throw ERROR_KEYS.INVALID_DATES;
 
-        params['tripLength'] = tripLength;
-      }
+      params['tripLength'] = tripLength + 1;
+
       await dbConnect();
       const user = await UserModel.get({ awsUserId: params.ownerId });
       params['ownerId'] = user;
@@ -212,6 +211,22 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
+      if (params['status'] === 'published') {
+        try {
+          const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${trip['_id']}`;
+          await sendEmail({
+            emails: [user['email']],
+            name: user['firstName'],
+            subject: `Greetings ${user['firstName']}`,
+            message: `Trip <b>${params['title']}</b> published. ${EmailButton(
+              'View Trip',
+              trip_url
+            )}`,
+          });
+        } catch (err) {
+          console.log(err);
+        }
+      }
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
@@ -327,6 +342,23 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
+      if (trip['status'] == 'published') {
+        try {
+          const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
+          await sendEmail({
+            emails: [user['email']],
+            name: user['firstName'],
+            subject: `Greetings ${user['firstName']}`,
+            message: `Trip <b>${tripName}</b> published. ${EmailButton(
+              'View Trip',
+              trip_url
+            )}`,
+          });
+          console.log('Email sent');
+        } catch (err) {
+          console.log(err);
+        }
+      }
       return 'success';
     } catch (error) {
       throw error;
@@ -386,13 +418,24 @@ export class TripController {
           members.length <= 1 ||
           bookings.length == 0
         ) {
-          await TripModel.update(tripId, { isActive: false });
+          await TripModel.update(tripId, { isArchived: true, isDeleted: true });
           await logActivity({
             ...LogMessages.DELETE_TRIP_HOST(trip['title']),
             tripId: trip._id.toString(),
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
+          try {
+            await sendEmail({
+              emails: [user['email']],
+              name: user['firstName'],
+              subject: `Greetings ${user['firstName']}`,
+              message: `Draft Trip <b>${trip['title']}</b> deleted.`,
+            });
+            console.log('Email sent');
+          } catch (err) {
+            console.log(err);
+          }
         } else {
           throw ERROR_KEYS.CANNOT_DELETE_TRIP;
         }
@@ -405,34 +448,33 @@ export class TripController {
 
   static async myTrips(filter) {
     try {
-      const filterParams = {};
+      const filterParams = {
+        isMember: true,
+      };
       await dbConnect();
-
+      const user = await UserModel.get({ awsUserId: filter.awsUserId });
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       if (filter.memberId) {
         if (!Types.ObjectId.isValid(filter.memberId)) {
           throw 'Invalid memberID';
         }
         filterParams['memberId'] = Types.ObjectId(filter.memberId);
       } else {
-        const user = await UserModel.get({ awsUserId: filter.awsUserId });
-        if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
         filterParams['memberId'] = user._id;
       }
-      if (filter.isHost) filterParams['isOwner'] = true;
-      if (filter.isMember) {
-        filterParams['isOwner'] = false;
-        filterParams['isMember'] = true;
-      }
-      if (filter.isFavorite) filterParams['isFavorite'] = true;
+      // Active trips and draft trips
       if (
-        !(
-          filterParams['isFavorite'] ||
-          filterParams['isMember'] ||
-          filterParams['isOwner']
-        )
-      ) {
-        filterParams['isMember'] = true;
+        (filter.isHost || filter.status == 'draft') &&
+        filterParams['memberId'] == user._id
+      )
+        filterParams['isOwner'] = true;
+      else filterParams['isOwner'] = { $exists: false };
+      // Favorite trips
+      if (filter.isFavorite) {
+        delete filterParams['isMember'];
+        filterParams['isFavorite'] = true;
       }
+
       const params = [
         {
           $match: filterParams,
@@ -464,13 +506,9 @@ export class TripController {
       const tripParams = {
         isActive: true,
       };
-      if (filter.isPublic) {
-        tripParams['isPublic'] = filter.isPublic;
-      }
+      if (filter.isPublic) tripParams['isPublic'] = filter.isPublic;
       if (filter.status) tripParams['status'] = filter.status;
-
       if (filter.status !== 'draft') tripParams['status'] = { $nin: ['draft'] };
-
       if (filter.pastTrips || filter.isArchived) {
         tripParams['$or'] = [
           { endDate: { $lt: currentDate } },
@@ -488,6 +526,7 @@ export class TripController {
       params.push({
         $match: tripParams,
       });
+
       params.push({
         $sort: prepareSortFilter(
           filter,
@@ -520,13 +559,9 @@ export class TripController {
           tripId: 0,
         },
       });
-      console.log(params);
       const resTrips = await MemberModel.aggregate(params);
-      // const resCount = await MemberModel.count(filterParams);
-
       return {
         data: resTrips,
-        // totalCount: resCount,
         count: resTrips.length,
       };
     } catch (error) {

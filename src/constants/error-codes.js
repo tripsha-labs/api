@@ -111,4 +111,10 @@ export const ERROR_KEYS = {
     message: `Ooops! looks like there are some bookings or members associated with this trip. First cancel those and try again!`,
     code: 400,
   },
+  PAYMENT_FAILED: {
+    type: 'PAYMENT_FAILED',
+    message:
+      'Oops, the payment method you provided did not go through. This request will remain active for another 72 hours. Please try an alternative payment method',
+    code: 400,
+  },
 };
