@@ -278,7 +278,10 @@ export class MessageController {
         isEdited: false,
         isRead: false,
         toMemberId: user._id.toString(),
-        message: 'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
+        message:
+          'Hi ' +
+          user.firstName +
+          ', welcome to Tripsha! Feel free to reply with any questions, feedback on the site, or suggestions you have.',
         fromMemberId: supportUser._id.toString(),
       };
       const messageCount = await MessageModel.count({
@@ -290,7 +293,9 @@ export class MessageController {
         const params = {
           memberId: supportUser._id.toString(),
           message:
-            'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
+            'Hi ' +
+            user.firstName +
+            ', welcome to Tripsha! Feel free to reply with any questions, feedback on the site, or suggestions you have.',
           userId: user._id.toString(),
         };
         await ConversationModel.addOrUpdate(

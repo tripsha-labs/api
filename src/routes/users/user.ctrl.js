@@ -72,14 +72,30 @@ export class UserController {
                 $regex: new RegExp('^' + (filter.search || ''), 'i'),
               },
             },
+            {
+              email: {
+                $regex: new RegExp('^' + (filter.search || ''), 'i'),
+              },
+            },
           ],
         },
         select: { stripeCustomerId: 0, stripeAccountId: 0 },
-        ...prepareCommonFilter(filter, ['username']),
+        ...prepareCommonFilter(filter, ['username', 'email', 'createdAt']),
       };
+
+      if (filter.isHost) {
+        params.filter['isHost'] = true;
+      }
+      if (filter.showDeleted) {
+        params.filter['isActive'] = false;
+      }
+      if (filter.isBlocked) {
+        params.filter['isBlocked'] = true;
+      }
       await dbConnect();
+      const userCount = await UserModel.count(params.filter);
       const users = await UserModel.list(params);
-      return { data: users, count: users.length };
+      return { data: users, count: userCount };
     } catch (error) {
       console.log(error);
       throw error;
@@ -119,5 +135,9 @@ export class UserController {
       console.log(error);
       throw error;
     }
+  }
+
+  static async getCurrentUser(prams) {
+    return UserController.get(prams);
   }
 }

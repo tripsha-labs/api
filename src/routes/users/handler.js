@@ -21,11 +21,18 @@ import { updateUserValidation } from '../../models';
  */
 export const listUser = async (event, context) => {
   try {
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
-    const users = await UserController.listUser(params);
-    return success(users);
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser && currentUser.isAdmin) {
+      const params = event.queryStringParameters
+        ? event.queryStringParameters
+        : {};
+      const users = await UserController.listUser(params);
+      return success(users);
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
   } catch (error) {
     console.log(error);
     return failure(error);
@@ -37,7 +44,6 @@ export const listUser = async (event, context) => {
 export const createUser = async (event, context) => {
   try {
     const userInfo = await getCurrentUser(event);
-    console.log(userInfo);
     if (!userInfo) throw 'Create User failed';
     const createUserPayload = {
       email: userInfo.email,
@@ -195,26 +201,6 @@ export const updateUser = async (event, context) => {
     // Add support user in the conversation
     await MessageController.addSupportMember(urldecode(id));
     return success(result);
-  } catch (error) {
-    console.log(error);
-    return failure(error);
-  }
-};
-
-/**
- * Sign in user
- */
-export const signin = async (event, context) => {
-  try {
-    const data = JSON.parse(event.body);
-    const user = await UserController.get({
-      email: data.email,
-    });
-    if (
-      user &&
-      user.awsUserId === event.requestContext.identity.cognitoIdentityId
-    )
-      return success('success');
   } catch (error) {
     console.log(error);
     return failure(error);

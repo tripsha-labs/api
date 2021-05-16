@@ -84,6 +84,7 @@ subscribeUser:
     - http:
         path: subscribe
         method: post
+        authorizer: aws_iam
         cors: true
 
 unsubscribeUser:
@@ -92,4 +93,5 @@ unsubscribeUser:
     - http:
         path: unsubscribe
         method: post
+        authorizer: aws_iam
         cors: true

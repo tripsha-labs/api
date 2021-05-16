@@ -41,7 +41,7 @@ provider:
   # vpc:
   #   securityGroupIds:
   #     - sg-067be5b7ef9f631a2
-  #   subnetdIds:
+  #   subnetIds:
   #     - subnet-0803c091167df1253
   environment:
     DB_CONN: ${file(./config/${self:custom.stage}.json):DB_CONN}

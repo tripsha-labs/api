@@ -35,6 +35,22 @@ const updateUserSchema = {
     empty: true,
     max: 100,
   },
+  facebook_url: {
+    type: 'string',
+    optional: true,
+  },
+  instagram_url: {
+    type: 'string',
+    optional: true,
+  },
+  twitter_url: {
+    type: 'string',
+    optional: true,
+  },
+  isBlocked: {
+    type: 'boolean',
+    optional: true,
+  },
   bio: { type: 'string', optional: true },
   isLookingForTravel: {
     type: 'boolean',
