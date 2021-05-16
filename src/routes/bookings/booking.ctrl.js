@@ -2,7 +2,7 @@
  * @name - Booking controller
  * @description - This will handle business logic for Booking module
  */
-import { dbConnect, StripeAPI, logActivity } from '../../utils';
+import { dbConnect, StripeAPI, logActivity, sendEmail } from '../../utils';
 import moment from 'moment';
 import {
   getCosting,
@@ -12,14 +12,21 @@ import {
   prepareSortFilter,
 } from '../../helpers';
 import { BookingModel, UserModel, TripModel } from '../../models';
-import { ERROR_KEYS, LogMessages, APP_CONSTANTS } from '../../constants';
+import {
+  ERROR_KEYS,
+  LogMessages,
+  APP_CONSTANTS,
+  EmailMessages,
+} from '../../constants';
 import { MemberController } from '../members/member.ctrl';
 import { ObjectID } from 'mongodb';
 
 export class BookingController {
   static async createBooking(params, awsUserId) {
     await dbConnect();
-    const bookingData = { ...params };
+    const bookingData = {
+      ...params,
+    };
     const trip = await TripModel.getById(params.tripId);
     const spotsReserved = trip.spotsReserved + bookingData.attendees;
     const spotsFilled = trip.spotsFilled + spotsReserved;
@@ -49,7 +56,10 @@ export class BookingController {
       bookingData['isDepositApplicable'] = getDepositStatus(trip);
       costing = getCosting(bookingData);
     }
-    const finalBookingData = { ...bookingData, ...costing };
+    const finalBookingData = {
+      ...bookingData,
+      ...costing,
+    };
     const tripUpdate = {
       spotsReserved: spotsReserved,
       isLocked: true,
@@ -88,12 +98,42 @@ export class BookingController {
       });
     }
     const booking = await BookingModel.create(finalBookingData);
+
     await TripModel.update(trip._id, tripUpdate);
+    // Traveller activity record
     await logActivity({
       ...LogMessages.BOOKING_REQUEST_TRAVELLER(trip['title']),
       tripId: trip._id.toString(),
       audienceIds: [user._id.toString()],
       userId: user._id.toString(),
+    });
+    // Host activity record
+    await logActivity({
+      ...LogMessages.BOOKING_REQUEST_HOST(user['firstName'], trip['title']),
+      tripId: trip._id.toString(),
+      audienceIds: [tripOwner._id.toString()],
+      userId: user._id.toString(),
+    });
+    // Traveller email
+    await sendEmail({
+      emails: [user['email']],
+      name: user['firstName'],
+      subject: EmailMessages.BOOKING_REQUEST_TRAVELLER.subject,
+      message: EmailMessages.BOOKING_REQUEST_TRAVELLER.message(
+        booking._id,
+        trip._id.toString(),
+        trip['title']
+      ),
+    });
+    //Host email
+    await sendEmail({
+      emails: [tripOwner['email']],
+      name: tripOwner['firstName'],
+      subject: EmailMessages.BOOKING_REQUEST_HOST.subject,
+      message: EmailMessages.BOOKING_REQUEST_HOST.message(
+        trip._id.toString(),
+        trip['title']
+      ),
     });
     return booking;
   }
@@ -287,6 +327,28 @@ export class BookingController {
                     userId: user._id.toString(),
                   });
                 }
+                // Traveller
+                await sendEmail({
+                  emails: [memberInfo['email']],
+                  name: memberInfo['firstName'],
+                  subject:
+                    EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELLER.subject,
+                  message: EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELLER.message(
+                    trip._id.toString(),
+                    trip['title']
+                  ),
+                });
+                // host
+                await sendEmail({
+                  emails: [user['email']],
+                  name: user['firstName'],
+                  subject: EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST.subject,
+                  message: EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST.message(
+                    trip._id.toString(),
+                    trip['title'],
+                    memberInfo['firstName']
+                  ),
+                });
               } else {
                 throw 'payment failed';
               }
@@ -411,13 +473,14 @@ export class BookingController {
             status: 'declined',
           };
           await BookingModel.update(booking._id, bookingUpdate);
-
+          // Traveller
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELLER(trip['title']),
             tripId: trip._id.toString(),
             audienceIds: [memberInfo._id.toString()],
             userId: user._id.toString(),
           });
+          // Host
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
               `${memberInfo.firstName} ${memberInfo.lastName}`,
@@ -427,10 +490,33 @@ export class BookingController {
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
+          // Traveller
+          await sendEmail({
+            emails: [memberInfo['email']],
+            name: memberInfo['firstName'],
+            subject: EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELLER.subject,
+            message: EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELLER.message(
+              trip._id.toString(),
+              trip['title']
+            ),
+          });
+          // host
+          await sendEmail({
+            emails: [user['email']],
+            name: user['firstName'],
+            subject: EmailMessages.BOOKING_REQUEST_DECLINED_HOST.subject,
+            message: EmailMessages.BOOKING_REQUEST_DECLINED_HOST.message(
+              trip._id.toString(),
+              trip['title'],
+              memberInfo['firstName']
+            ),
+          });
           break;
         // guest
         case 'withdraw':
           validForUpdate = true;
+          const tripOwner = await UserModel.get({ _id: trip.ownerId });
+          if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
           if (!(user.isAdmin || booking.memberId === user._id.toString())) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -471,12 +557,14 @@ export class BookingController {
           await BookingModel.update(booking._id, {
             status: 'withdrawn',
           });
+          // traveller
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELLER(trip['title']),
             tripId: trip._id.toString(),
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
+          // host
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_WITHDRAW_HOST(
               `${user.firstName} ${user.lastName}`,
@@ -485,6 +573,27 @@ export class BookingController {
             tripId: trip._id.toString(),
             audienceIds: [trip.ownerId.toString()],
             userId: user._id.toString(),
+          });
+          // Traveller
+          await sendEmail({
+            emails: [memberInfo['email']],
+            name: memberInfo['firstName'],
+            subject: EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELLER.subject,
+            message: EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELLER.message(
+              trip._id.toString(),
+              trip['title']
+            ),
+          });
+          // host
+          await sendEmail({
+            emails: [tripOwner['email']],
+            name: tripOwner['firstName'],
+            subject: EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST.subject,
+            message: EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST.message(
+              trip._id.toString(),
+              trip['title'],
+              memberInfo['firstName']
+            ),
           });
           break;
 

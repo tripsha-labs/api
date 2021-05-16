@@ -6,7 +6,13 @@ import { Booking } from './';
 
 export class BookingModel {
   static list(params = {}) {
-    const bookings = Booking.find(params);
+    const { filter, select, pagination, sort } = params;
+    const bookings = Booking.find(filter, select || {});
+    if (sort) bookings.sort(sort);
+    if (pagination) {
+      bookings.limit(pagination.limit);
+      bookings.skip(pagination.skip);
+    }
     return bookings;
   }
 
@@ -21,6 +27,10 @@ export class BookingModel {
 
   static update(id, params = {}) {
     return Booking.updateOne({ _id: id }, { $set: params });
+  }
+
+  static updateMany(filter, params) {
+    return Booking.updateMany(filter, { $set: params });
   }
 
   static aggregate(params = {}) {

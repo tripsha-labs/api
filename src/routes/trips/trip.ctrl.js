@@ -5,7 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { dbConnect, logActivity, sendEmail, EmailButton } from '../../utils';
+import { dbConnect, logActivity, sendEmail } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -16,7 +16,12 @@ import {
   MessageModel,
   BookingModel,
 } from '../../models';
-import { ERROR_KEYS, APP_CONSTANTS, LogMessages } from '../../constants';
+import {
+  ERROR_KEYS,
+  APP_CONSTANTS,
+  LogMessages,
+  EmailMessages,
+} from '../../constants';
 
 export class TripController {
   static async listTrips(filter, memberId) {
@@ -213,15 +218,14 @@ export class TripController {
       });
       if (params['status'] === 'published') {
         try {
-          const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${trip['_id']}`;
           await sendEmail({
             emails: [user['email']],
             name: user['firstName'],
-            subject: `Greetings ${user['firstName']}`,
-            message: `Trip <b>${params['title']}</b> published. ${EmailButton(
-              'View Trip',
-              trip_url
-            )}`,
+            subject: EmailMessages.TRIP_PUBLISHED.subject,
+            message: EmailMessages.TRIP_PUBLISHED.message(
+              trip['_id'],
+              params['title']
+            ),
           });
         } catch (err) {
           console.log(err);
@@ -344,15 +348,11 @@ export class TripController {
       });
       if (trip['status'] == 'published') {
         try {
-          const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
           await sendEmail({
             emails: [user['email']],
             name: user['firstName'],
-            subject: `Greetings ${user['firstName']}`,
-            message: `Trip <b>${tripName}</b> published. ${EmailButton(
-              'View Trip',
-              trip_url
-            )}`,
+            subject: EmailMessages.TRIP_PUBLISHED.subject,
+            message: EmailMessages.TRIP_PUBLISHED.message(tripId, tripName),
           });
           console.log('Email sent');
         } catch (err) {
