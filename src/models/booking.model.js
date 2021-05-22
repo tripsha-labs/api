@@ -48,4 +48,7 @@ export class BookingModel {
   static get(params) {
     return Booking.findOne(params);
   }
+  static addOrUpdate(filter, update) {
+    return Booking.updateMany(filter, { $set: update }, { upsert: true });
+  }
 }
