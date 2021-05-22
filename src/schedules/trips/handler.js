@@ -208,6 +208,7 @@ export const tripsWatcher = async (event, context) => {
     await archiveTrip();
     await archiveConversation();
     await archiveBookingRequest();
+    await notifyBookingRequest();
   } catch (err) {
     console.log(err);
   }

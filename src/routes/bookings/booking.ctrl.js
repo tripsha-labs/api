@@ -258,14 +258,6 @@ export class BookingController {
               throw ERROR_KEYS.INVALID_ACTION;
             }
             try {
-              console.log({
-                amount: parseInt(booking.currentDue * 100),
-                currency: booking.currency,
-                customerId: booking.memberStripeId,
-                paymentMethod: booking.stripePaymentMethod.id,
-                confirm: true,
-                beneficiary: booking.onwerStripeId,
-              });
               const paymentIntent = await StripeAPI.createPaymentIntent({
                 amount: parseInt(booking.currentDue * 100),
                 currency: booking.currency,
