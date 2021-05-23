@@ -115,6 +115,7 @@ functions:
   - ${file(src/routes/activity-logs/functions.yml)}
   - ${file(src/schedules/trips/functions.yml)}
   - ${file(src/routes/migrations/functions.yml)}
+  - ${file(src/routes/approvals/functions.yml)}
 
 resources:
   # API Gateway Errors

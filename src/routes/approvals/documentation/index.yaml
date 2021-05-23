@@ -1,0 +1,140 @@
+paths:
+  /host-requests:
+    get:
+      description: Return list of matching host requests
+      operationId: listHostRequests
+      tags:
+        - HostRequests
+      parameters:
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
+      responses:
+        '200':
+          description: Host request response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/HostRequestModel'
+                      count:
+                        type: number
+                        description: Count of the current records
+    post:
+      description: Creates a host request
+      operationId: createHostRequest
+      tags:
+        - HostRequests
+      # parameters:
+      #   - $ref: '#/components/parameters/createHostRequest'
+      requestBody:
+        $ref: '#/components/requestBodies/createHostRequest'
+      responses:
+        '200':
+          description: Create host request response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: string
+                    default: request id
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+
+  /host-requests/{hostRequestId}:
+    get:
+      description: Returns a host request based on a request ID
+      operationId: getHostRequest
+      tags:
+        - HostRequests
+      parameters:
+        - $ref: '#/components/parameters/pathHostRequestId'
+      responses:
+        '200':
+          description: Host Request response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    $ref: '#/components/schemas/HostRequestModel'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+    put:
+      description: Updates a single host request based on the ID supplied, also it will update the status if request
+      operationId: updateHostRequest
+      tags:
+        - HostRequests
+      parameters:
+        - $ref: '#/components/parameters/pathHostRequestId'
+      requestBody:
+        $ref: '#/components/requestBodies/updateHostRequest'
+
+      responses:
+        '204':
+          description: Host request updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonSuccessFormat'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+    delete:
+      description: Deletes a single host request based on the ID supplied
+      operationId: deleteHostRequest
+      tags:
+        - HostRequests
+      parameters:
+        - $ref: '#/components/parameters/pathHostRequestId'
+      responses:
+        '204':
+          description: Host request deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonSuccessFormat'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'

@@ -1,0 +1,48 @@
+components:
+  requestBodies:
+    createHostRequest:
+      description: Create host request payload
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              kindOfTripHostingOverview:
+                type: string
+                description: Describe type of trip you planning to host
+              hostingCapacity:
+                type: string
+                enum:
+                  - '1'
+                  - '2-3'
+                  - '5-10'
+                  - '10+'
+              hostingForCountries:
+                type: array
+              targettingTypesOfTravelers:
+                type: string
+                description: Hosting trip for kind of audience group?
+
+              groupTripHostingExperience:
+                type: string
+                description: Host trip hosting experience
+                enum:
+                  - 'professional'
+                  - 'intermediate'
+                  - 'beginner'
+              pastAccomplishmentReferences:
+                type: string
+                description: Host past experiences reference links
+
+    updateHostRequest:
+      description: Update host request payload
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              action:
+                type: string
+                enum:
+                  - approved
+                  - declined

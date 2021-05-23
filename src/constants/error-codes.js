@@ -96,6 +96,11 @@ export const ERROR_KEYS = {
     message: `Ooops! looks like the host request id is invalid.`,
     code: 400,
   },
+  APPROVAL_NOT_FOUND: {
+    type: 'ApprovalNotFound',
+    message: `Ooops! looks like the approval id is invalid.`,
+    code: 400,
+  },
   HOST_REQUEST_ALREADY_EXISTS: {
     type: 'HostRequestAlreadyExists',
     message: `Host request already exists.`,

@@ -102,5 +102,9 @@ export const getBookingValidity = trip => {
     const expiration = moment(trip.lastBookingDate, 'YYYYMMDD');
     const today = moment(new Date(), 'YYYYMMDD');
     return expiration.diff(today, 'days') >= 0;
+  } else if (trip.startDate) {
+    const expiration = moment(trip.startDate, 'YYYYMMDD');
+    const today = moment(new Date(), 'YYYYMMDD');
+    return expiration.diff(today, 'days') >= 0;
   } else return false;
 };

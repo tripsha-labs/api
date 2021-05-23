@@ -228,7 +228,7 @@ export class MemberController {
                 }
                 break;
               case 'removeMember':
-                if (isOwner || user.isAdmin === true) {
+                if (isOwner || user.isAdmin == true) {
                   updateParams['isMember'] = false;
                   updateParams['leftOn'] = moment().unix();
                   // conversation update
@@ -272,7 +272,7 @@ export class MemberController {
                   }
                   await logActivity({
                     ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
-                      `${memberInfo.firstName} ${memberInfo.lastName}`,
+                      `${memberDetails.firstName} ${memberDetails.lastName}`,
                       trip['title']
                     ),
                     tripId: trip._id.toString(),
@@ -307,6 +307,7 @@ export class MemberController {
         try {
           await Promise.all(actions);
         } catch (err) {
+          console.log(err);
           if (err && err.type) throw err;
           else throw ERROR_KEYS.UNAUTHORIZED;
         }
