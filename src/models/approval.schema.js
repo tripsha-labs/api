@@ -7,24 +7,20 @@ import mongoose from 'mongoose';
 
 const approvalSchema = new mongoose.Schema(
   {
-    tripId: { type: String, required: true },
+    tripId: { type: String },
     memberId: { type: String },
     type: {
       type: String,
-      required: true,
       enum: ['TripRemove', 'MemberRemove'],
     },
     userId: {
       type: String,
-      required: true,
     },
     message: {
       type: String,
-      required: true,
     },
     status: {
       type: String,
-      required: true,
       default: 'pending',
       enum: ['pending', 'approve', 'decline', 'cancel'],
     },

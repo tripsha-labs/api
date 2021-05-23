@@ -6,7 +6,7 @@ import Validator from 'fastest-validator';
 
 const approvalSchema = {
   tripId: { type: 'string', required: true },
-  memberId: { type: 'string' },
+  memberId: { type: 'string', optional: true },
   type: {
     type: 'string',
     required: true,

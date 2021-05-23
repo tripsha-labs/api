@@ -7,6 +7,7 @@ import { dbConnect } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { Types } from 'mongoose';
 import { MemberController } from '../members/member.ctrl';
+import { TripController } from '../trips/trip.ctrl';
 
 export class ApprovalsController {
   static async list(filter, awsUserId) {
@@ -99,6 +100,24 @@ export class ApprovalsController {
 
   static async createApproval(params) {
     await dbConnect();
+    let queryParams = null;
+    switch (params.type) {
+      case 'MemberRemove':
+        queryParams = {
+          tripId: Types.ObjectId(params.tripId),
+          memberId: Types.ObjectId(params.memberId),
+          isMember: true,
+        };
+        await MemberController.markForRemove(queryParams, true);
+        break;
+      case 'TripRemove':
+        queryParams = {
+          _id: Types.ObjectId(params.tripId),
+        };
+        await TripController.markForRemove(queryParams, true);
+        break;
+      default:
+    }
     return await ApprovalModel.create(params);
   }
 
@@ -113,12 +132,13 @@ export class ApprovalsController {
     }
     const approval = await ApprovalModel.getById(approvalId);
     if (!approval) throw { ...ERROR_KEYS.APPROVAL_NOT_FOUND };
+    let queryParams = null;
+    let updateStatus = false;
     switch (params.action) {
       case 'approve':
-        let updateStatus = false;
         switch (approval.type) {
           case 'MemberRemove':
-            const queryParams = {
+            queryParams = {
               awsUserId: params.awsUserId,
               memberIds: [approval.memberId],
               action: 'removeMember',
@@ -128,6 +148,8 @@ export class ApprovalsController {
             updateStatus = true;
             break;
           case 'TripRemove':
+            await TripController.deleteTrip(approval.tripId, params.awsUserId);
+            updateStatus = true;
             break;
           default:
         }
@@ -140,10 +162,31 @@ export class ApprovalsController {
         break;
       case 'decline':
       case 'cancel':
-        await ApprovalModel.update(
-          { _id: Types.ObjectId(approvalId) },
-          { status: 'decline' }
-        );
+        switch (approval.type) {
+          case 'MemberRemove':
+            queryParams = {
+              tripId: Types.ObjectId(approval.tripId),
+              memberId: Types.ObjectId(approval.memberId),
+              isMember: true,
+            };
+            await MemberController.markForRemove(queryParams, false);
+            updateStatus = true;
+            break;
+          case 'TripRemove':
+            queryParams = {
+              _id: Types.ObjectId(approval.tripId),
+            };
+            await TripController.markForRemove(queryParams, false);
+            updateStatus = true;
+            break;
+          default:
+        }
+        if (updateStatus) {
+          await ApprovalModel.update(
+            { _id: Types.ObjectId(approvalId) },
+            { status: 'decline' }
+          );
+        }
         break;
       default:
         throw ERROR_KEYS.BAD_REQUEST;

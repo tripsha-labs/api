@@ -24,6 +24,11 @@ import {
 } from '../../constants';
 
 export class TripController {
+  static async markForRemove(params, remove_requested) {
+    return TripModel.update(params, {
+      removeRequested: remove_requested,
+    });
+  }
   static async listTrips(filter, memberId) {
     try {
       const currentDate = parseInt(moment().format('YYYYMMDD'));
@@ -439,6 +444,27 @@ export class TripController {
         } else {
           throw ERROR_KEYS.CANNOT_DELETE_TRIP;
         }
+      } else if (user.isAdmin) {
+        await TripModel.update(tripId, { isArchived: true, isDeleted: true });
+        await logActivity({
+          ...LogMessages.DELETE_TRIP_HOST(trip['title']),
+          tripId: trip._id.toString(),
+          audienceIds: [trip.owner_id],
+          userId: user._id.toString(),
+        });
+        // try {
+        //   await sendEmail({
+        //     emails: [user['email']],
+        //     name: user['firstName'],
+        //     subject: `Greetings ${user['firstName']}`,
+        //     message: `Draft Trip <b>${trip['title']}</b> deleted.`,
+        //   });
+        //   console.log('Email sent');
+        // } catch (err) {
+        //   console.log(err);
+        // }
+      } else {
+        throw ERROR_KEYS.UNAUTHORIZED;
       }
       return 'success';
     } catch (error) {

@@ -67,6 +67,7 @@ export class MemberController {
           tripId: 1,
           joinedOn: 1,
           memberId: 1,
+          removeRequested: 1,
         },
       });
       if (filter['includeBooking']) {
@@ -103,12 +104,19 @@ export class MemberController {
     }
   }
 
+  static async markForRemove(params, remove_requested) {
+    return MemberModel.update(params, {
+      removeRequested: remove_requested,
+    });
+  }
   static async memberAction(params) {
     try {
       const { memberIds, tripId } = params || { memberIds: [] };
       if (memberIds.length > 0) {
         await dbConnect();
-        const user = await UserModel.get({ awsUserId: params['awsUserId'] });
+        const user = await UserModel.get({
+          awsUserId: params['awsUserId'],
+        });
         const objTripId = Types.ObjectId(tripId);
         const trip = await TripModel.getById(objTripId);
         if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
