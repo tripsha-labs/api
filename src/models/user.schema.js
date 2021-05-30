@@ -50,6 +50,8 @@ const userSchema = new mongoose.Schema(
     showDashboardTutorial: { type: Boolean, default: true },
     hasFirstBooking: { type: Boolean, default: false },
     isHostFirstLogin: { type: Boolean, default: false },
+    isHost: { type: Boolean, default: false },
+    hostShare: { type: Number, default: 72 },
   },
   {
     timestamps: true,

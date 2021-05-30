@@ -15,7 +15,59 @@ import {
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 import { generateRandomNumber } from '../../helpers';
 
-import { updateUserValidation } from '../../models';
+import { updateUserValidation, adminUpdateUserValidation } from '../../models';
+
+/**
+ * Invite Users
+ */
+
+export const inviteUser = async (event, context) => {
+  try {
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser && currentUser.isAdmin) {
+      const params = JSON.parse(event.body);
+      if (!params.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+      const username = await _get_unique_username(
+        params['email'],
+        params['email'].split('@')[0]
+      );
+      params['username'] = username;
+      const users = await UserController.inviteUser(params);
+      return success(users);
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
+  } catch (error) {
+    console.log(error);
+    return failure(error);
+  }
+};
+
+/**
+ * Invite Users
+ */
+
+export const updateUserAdmin = async (event, context) => {
+  try {
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser && currentUser.isAdmin) {
+      const params = JSON.parse(event.body);
+      const errors = adminUpdateUserValidation(params);
+      if (errors != true) throw errors.shift();
+      await UserController.updateUserAdmin(event.pathParameters.id, params);
+      return success('success');
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
+  } catch (error) {
+    console.log(error);
+    return failure(error);
+  }
+};
 /**
  * List users
  */
