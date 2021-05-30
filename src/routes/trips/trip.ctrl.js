@@ -412,12 +412,15 @@ export class TripController {
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      const members = await MemberModel.list({ tripId: tripId });
+      const members = await MemberModel.list({ filter: { tripId: tripId } });
       const bookings = await BookingModel.list({
-        tripId: tripId,
-        status: { $in: ['pending', 'approved'] },
+        filter: {
+          tripId: tripId,
+          status: { $in: ['pending', 'approved'] },
+        },
       });
       if (trip.ownerId == user._id.toString()) {
+        console.log(trip.status, members.length, bookings.length);
         if (
           trip.status == 'draft' ||
           members.length <= 1 ||

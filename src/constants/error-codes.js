@@ -78,7 +78,7 @@ export const ERROR_KEYS = {
   },
   TRIP_BOOKING_CLOSED: {
     type: 'TripBookingClosed',
-    message: `We are closed our bookings. For more details you may contact trip host or Tripsha administrator.`,
+    message: `This trip is closed for bookings. If you think this is in error, please message the trip host or Tripsha Team.`,
     code: 400,
   },
   TRIP_RESOURCES_FULL: {
