@@ -14,7 +14,7 @@ import {
 } from '../../utils';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 import { generateRandomNumber } from '../../helpers';
-
+import { createCognitoUser } from '../../utils';
 import { updateUserValidation, adminUpdateUserValidation } from '../../models';
 
 /**
@@ -29,18 +29,43 @@ export const inviteUser = async (event, context) => {
     if (currentUser && currentUser.isAdmin) {
       const params = JSON.parse(event.body);
       if (!params.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+      if (!params.password)
+        throw {
+          ...ERROR_KEYS.MISSING_FIELD,
+          field: 'password',
+        };
       const username = await _get_unique_username(
         params['email'],
         params['email'].split('@')[0]
       );
       params['username'] = username;
-      const users = await UserController.inviteUser(params);
-      return success(users);
+      params['isEmailVerified'] = true;
+      const createUserInfo = {
+        email: params.email,
+        password: params.password,
+        firstName: params.firstName || '',
+        lastName: params.lastName || '',
+      };
+      const user_result = await createCognitoUser(event, createUserInfo);
+      if (user_result) {
+        delete params['password'];
+        const user = await UserController.inviteUser(params);
+        await subscribeUserToMailchimpAudience({
+          name: createUserInfo.firstName + ' ' + createUserInfo.lastName,
+          email: createUserInfo.email,
+        });
+        return success(user);
+      } else {
+        throw ERROR_KEYS.USER_ADD_FAILED;
+      }
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
   } catch (error) {
     console.log(error);
+    if (error.code === 'UsernameExistsException') {
+      return failure(ERROR_KEYS.USER_ALREADY_EXISTS);
+    }
     return failure(error);
   }
 };
@@ -99,16 +124,21 @@ export const createUser = async (event, context) => {
     if (!userInfo) throw 'Create User failed';
     const createUserPayload = {
       email: userInfo.email,
-      isEmailVerified: userInfo.email_verified,
     };
     if (userInfo.identities) {
+      createUserPayload['isEmailVerified'] = true;
       createUserPayload['firstName'] = userInfo.given_name;
       createUserPayload['lastName'] = userInfo.family_name;
       createUserPayload['avatarUrl'] = userInfo.picture;
     } else {
-      createUserPayload['firstName'] = userInfo['custom:firstName'];
-      createUserPayload['lastName'] = userInfo['custom:lastName'];
-      createUserPayload['dob'] = userInfo['custom:dob'];
+      if (userInfo.email_verified)
+        createUserPayload['isEmailVerified'] = userInfo.email_verified;
+      if (userInfo['custom:firstName'])
+        createUserPayload['firstName'] = userInfo['custom:firstName'];
+      if (userInfo['custom:lastName'])
+        createUserPayload['lastName'] = userInfo['custom:lastName'];
+      if (userInfo['custom:dob'])
+        createUserPayload['dob'] = userInfo['custom:dob'];
     }
     let user = false;
     try {
@@ -150,7 +180,6 @@ export const createUser = async (event, context) => {
       );
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
-      console.log(createUserPayload);
       result = await UserController.createUser(createUserPayload);
       await subscribeUserToMailchimpAudience({
         name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
@@ -267,10 +296,10 @@ export const isUserExists = async (event, context) => {
     const data = JSON.parse(event.body);
     if (!(data && data.username))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
-    const result = await UserController.isExists(
-      data.username,
-      event.requestContext.identity.cognitoIdentityId
-    );
+    const result = await UserController.isExists({
+      awsUserId: { $nin: [event.requestContext.identity.cognitoIdentityId] },
+      username: user.username,
+    });
     return success(result);
   } catch (error) {
     return failure(error);

@@ -39,7 +39,7 @@ const archiveTrip = async (page = 0) => {
     });
     console.log('Acrhived trips:', trips.length);
     if (trips.length > 0) {
-      archiveTrip(page + 1);
+      archiveTrip(page);
     }
   } catch (err) {
     console.log(err);
@@ -56,7 +56,7 @@ const archiveConversation = async (page = 0) => {
             .format('YYYYMMDD')
         ),
       },
-      isArchived: false,
+      isArchived: true,
     };
     const select = {
       _id: 1,

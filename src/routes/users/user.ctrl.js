@@ -12,23 +12,24 @@ export class UserController {
   static async inviteUser(user) {
     try {
       await dbConnect();
-      if (user && user.email) {
-        const checkUser = await UserModel.get({ email: user.email });
-        if (checkUser) throw ERROR_KEYS.USER_ALREADY_EXISTS;
-        await UserModel.create({ email: user.email, isHost: user.isHost });
-        try {
-          await sendEmail({
-            emails: [user.email],
-            name: 'Tripsher',
-            subject: `Greetings!!!`,
-            message: `You are invited to join Tripsha.`,
-          });
-          console.log('Email sent');
-        } catch (err) {
-          console.log(err);
-        }
-        return 'success';
-      } else throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+      const checkUser = await UserModel.get({ email: user.email });
+      if (checkUser) {
+        await UserModel.update({ email: user.email }, { isHost: user.isHost });
+      } else {
+        await UserModel.create(user);
+      }
+      // try {
+      //   await sendEmail({
+      //     emails: [user.email],
+      //     name: 'Tripsher',
+      //     subject: `Greetings!!!`,
+      //     message: `You are invited to join Tripsha.`,
+      //   });
+      //   console.log('Email sent');
+      // } catch (err) {
+      //   console.log(err);
+      // }
+      return 'success';
     } catch (error) {
       throw error;
     }
@@ -68,6 +69,15 @@ export class UserController {
   static async updateUser(id, user) {
     try {
       await dbConnect();
+      if (user && user.username != '') {
+        const res = await UserModel.count({
+          awsUserId: { $nin: [id] },
+          username: user.username,
+        });
+        if (res && res > 0) {
+          throw ERROR_KEYS.USER_ALREADY_EXISTS;
+        }
+      }
       await UserModel.update({ awsUserId: id }, user);
       return 'success';
     } catch (error) {

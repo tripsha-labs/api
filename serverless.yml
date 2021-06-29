@@ -54,6 +54,8 @@ provider:
   iamRoleStatements:
     - Action:
         - 'cognito-idp:ListUsers'
+        - 'cognito-idp:AdminCreateUser'
+        - 'cognito-idp:AdminSetUserPassword'
       Resource:
         - 'arn:aws:cognito-idp:*'
       Effect: Allow

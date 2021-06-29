@@ -122,4 +122,14 @@ export const ERROR_KEYS = {
       'Oops, the payment method you provided did not go through. This request will remain active for another 72 hours. Please try an alternative payment method',
     code: 400,
   },
+  USER_INVITE_FAILED: {
+    type: 'USER_INVITE_FAILED',
+    message: 'Failed to invite user',
+    code: 400,
+  },
+  USER_ADD_FAILED: {
+    type: 'USER_ADD_FAILED',
+    message: 'Unable to add new user',
+    code: 400,
+  },
 };
