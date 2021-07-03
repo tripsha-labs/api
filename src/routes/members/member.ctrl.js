@@ -111,11 +111,13 @@ export class MemberController {
   }
   static async memberAction(params) {
     try {
-      const { memberIds, tripId } = params || { memberIds: [] };
+      const { memberIds, tripId, message, awsUserId } = params || {
+        memberIds: [],
+      };
       if (memberIds.length > 0) {
         await dbConnect();
         const user = await UserModel.get({
-          awsUserId: params['awsUserId'],
+          awsUserId: awsUserId,
         });
         const objTripId = Types.ObjectId(tripId);
         const trip = await TripModel.getById(objTripId);
@@ -203,6 +205,7 @@ export class MemberController {
                     messageType: 'info',
                     isGroup: true,
                   };
+                  // update to actionable member
                   await ConversationModel.addOrUpdate(
                     {
                       tripId: tripId,
@@ -216,6 +219,7 @@ export class MemberController {
                   );
                   delete memberAddDetails['memberId'];
                   delete memberAddDetails['tripId'];
+                  // update to all the members
                   await ConversationModel.addOrUpdate(
                     {
                       tripId: tripId,
@@ -236,7 +240,12 @@ export class MemberController {
                 }
                 break;
               case 'removeMember':
-                if (isOwner || user.isAdmin == true) {
+                if (
+                  isOwner ||
+                  user.isAdmin == true ||
+                  memberDetails._id.toString() == user._id.toString()
+                ) {
+                  console.log('Inside member info');
                   updateParams['isMember'] = false;
                   updateParams['leftOn'] = moment().unix();
                   // conversation update
@@ -259,6 +268,7 @@ export class MemberController {
                       messageType: 'info',
                       isRead: false,
                     };
+                    // update to actionable member
                     await ConversationModel.addOrUpdate(
                       {
                         tripId: tripId,
@@ -271,6 +281,7 @@ export class MemberController {
                         isArchived: true,
                       }
                     );
+                    // update to all the members
                     await ConversationModel.addOrUpdate(
                       {
                         tripId: tripId,
@@ -288,6 +299,7 @@ export class MemberController {
                     userId: user._id.toString(),
                   });
                 } else {
+                  console.log('Inside rejection');
                   return Promise.reject();
                 }
                 break;
@@ -309,6 +321,7 @@ export class MemberController {
               { upsert: true }
             );
           } else {
+            console.log('Inside MEMBER_NOT_FOUND info');
             return Promise.reject(ERROR_KEYS.MEMBER_NOT_FOUND);
           }
         });

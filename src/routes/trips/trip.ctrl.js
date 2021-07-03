@@ -240,17 +240,18 @@ export class TripController {
         tripId: trip._id,
         isMember: true,
       });
-      // Spots filled percent
-      const spotsFilled = Math.round(
-        ((memberCount - 1) / (params['maxGroupSize'] - 1)) *
-          APP_CONSTANTS.SPOTSFILLED_PERCEENT
-      );
-      const tripDetails = {
+
+      const updateTrip = {
+        spotsFilled: memberCount,
+        spotsAvailable: params['maxGroupSize'] - memberCount,
         groupSize: memberCount,
-        spotsFilled: spotsFilled,
-        isFull: spotsFilled === APP_CONSTANTS.SPOTSFILLED_PERCEENT,
+        isFull: memberCount >= params['maxGroupSize'],
+        spotFilledRank: Math.round(
+          (memberCount / params['maxGroupSize']) *
+            APP_CONSTANTS.SPOTSFILLED_PERCEENT
+        ),
       };
-      await TripModel.update(trip._id, tripDetails);
+      await TripModel.update(trip._id, updateTrip);
       return trip;
     } catch (error) {
       console.log(error);
@@ -334,10 +335,12 @@ export class TripController {
         ? trip['maxGroupSize']
         : tripDetails['maxGroupSize'];
       trip['groupSize'] = memberCount;
-      trip['spotsFilled'] = Math.round(
+      trip['spotsFilled'] = memberCount;
+      trip['spotsAvailable'] = maxGroupSize - memberCount;
+      trip['spotFilledRank'] = Math.round(
         (memberCount / maxGroupSize) * APP_CONSTANTS.SPOTSFILLED_PERCEENT
       );
-      trip['isFull'] = trip['spotsAvailable'] === 0;
+      trip['isFull'] = memberCount >= maxGroupSize;
 
       await TripModel.update(tripId, trip);
       const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
@@ -455,17 +458,6 @@ export class TripController {
           audienceIds: [trip.owner_id],
           userId: user._id.toString(),
         });
-        // try {
-        //   await sendEmail({
-        //     emails: [user['email']],
-        //     name: user['firstName'],
-        //     subject: `Greetings ${user['firstName']}`,
-        //     message: `Draft Trip <b>${trip['title']}</b> deleted.`,
-        //   });
-        //   console.log('Email sent');
-        // } catch (err) {
-        //   console.log(err);
-        // }
       } else {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
@@ -497,12 +489,13 @@ export class TripController {
         filterParams['memberId'] == user._id
       )
         filterParams['isOwner'] = true;
-      else filterParams['isOwner'] = { $exists: false };
       // Favorite trips
-      if (filter.isFavorite) {
+      else if (filter.isFavorite) {
         delete filterParams['isMember'];
         filterParams['isFavorite'] = true;
       }
+
+      // filterParams['isOwner'] = { $exists: false };
 
       const params = [
         {

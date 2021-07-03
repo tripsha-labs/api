@@ -12,6 +12,7 @@ const memberSchema = {
     empty: false,
     enum: ['addMember', 'makeFavorite', 'removeMember', 'makeUnFavorite'],
   },
+  message: { type: 'string', empty: true },
   $$strict: true,
 };
 

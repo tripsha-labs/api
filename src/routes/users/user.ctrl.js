@@ -69,7 +69,7 @@ export class UserController {
   static async updateUser(id, user) {
     try {
       await dbConnect();
-      if (user && user.username != '') {
+      if (user && user.username) {
         const res = await UserModel.count({
           awsUserId: { $nin: [id] },
           username: user.username,
