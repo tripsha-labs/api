@@ -107,9 +107,9 @@ export class TripController {
         ),
       });
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
-      params.push({ $limit: limit });
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
       params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
       params.push({
         $lookup: {
           from: 'users',
@@ -556,10 +556,11 @@ export class TripController {
           'updatedAt'
         ),
       });
-      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
-      params.push({ $limit: limit });
+
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
       params.push({
         $lookup: {
           from: 'users',

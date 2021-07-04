@@ -19,10 +19,9 @@ export class ActivityLosController {
       ...prepareCommonFilter(filter, ['createdAt', 'updatedAt']),
     };
     const bookingList = await ActivityLogModel.list(params);
-    const bookingCount = await ActivityLogModel.count(query);
     return {
       data: bookingList,
-      count: bookingCount,
+      count: bookingList.length,
     };
   }
 }

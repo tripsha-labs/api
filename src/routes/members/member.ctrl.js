@@ -162,7 +162,8 @@ export class MemberController {
                       paymentHistory: [],
                       tripId: tripId,
                       attendees: 1,
-                      paymentStatus: 'free',
+                      tripPaymentType: trip.tripPaymentType,
+                      addedByHost: true,
                       message: 'Member added by Host',
                       memberId: memberDetails._id.toString(),
                     };

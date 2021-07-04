@@ -1,7 +1,7 @@
 tripsWatcher:
   handler: src/schedules/trips/handler.tripsWatcher
   events:
-    - schedule: rate(5 seconds)
+    - schedule: rate(15 minutes)
 # conversationWatcher:
 #   handler: src/schedules/trips/handler.tripsWatcher
 #   events:

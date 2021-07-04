@@ -70,7 +70,7 @@ const archiveConversation = async (page = 0) => {
     let tripIds = trips.map(trip => trip._id.toString());
     if (tripIds && tripIds.length > 0)
       await ConversationModel.updateMany(
-        { tripId: { $in: tripIds } },
+        { tripId: { $in: tripIds }, isArchived: false },
         { isArchived: true }
       );
     console.log('Acrhived conversations:', tripIds.length);

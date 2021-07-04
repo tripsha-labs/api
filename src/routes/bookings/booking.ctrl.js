@@ -183,9 +183,9 @@ export class BookingController {
       ),
     });
     const limit = filters.limit ? parseInt(filters.limit) : APP_CONSTANTS.LIMIT;
-    params.push({ $limit: limit });
     const page = filters.page ? parseInt(filters.page) : APP_CONSTANTS.PAGE;
     params.push({ $skip: limit * page });
+    params.push({ $limit: limit });
     params.push({
       $project: {
         memberId: {
@@ -736,9 +736,9 @@ export class BookingController {
       ),
     });
     const limit = filters.limit ? parseInt(filters.limit) : APP_CONSTANTS.LIMIT;
-    params.push({ $limit: limit });
     const page = filters.page ? parseInt(filters.page) : APP_CONSTANTS.PAGE;
     params.push({ $skip: limit * page });
+    params.push({ $limit: limit });
     params.push({
       $project: {
         tripId: {
