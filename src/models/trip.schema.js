@@ -39,6 +39,7 @@ const tripSchema = new mongoose.Schema(
     },
 
     // Backend generated fields
+    guestCount: { type: Number, default: 0 },
     spotsFilled: { type: Number, default: 0 },
     favoriteCount: { type: Number, default: 0 },
     tripLength: { type: Number, default: 0 },

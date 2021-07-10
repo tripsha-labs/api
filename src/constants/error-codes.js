@@ -76,6 +76,11 @@ export const ERROR_KEYS = {
       You need to select your booking preferences once again while you booking again.`,
     code: 400,
   },
+  TRIP_IS_FULL_HOST: {
+    type: 'TripFull',
+    message: `Trip already full, incrase your spots avaialable count and max group size on edit trip page or try force add option. This will increase the max group size by one automatically.`,
+    code: 400,
+  },
   TRIP_BOOKING_CLOSED: {
     type: 'TripBookingClosed',
     message: `This trip is closed for bookings. If you think this is in error, please message the trip host or Tripsha Team.`,

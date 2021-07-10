@@ -18,7 +18,7 @@ export const sendEmail = data => {
     },
     Template: 'NotificationTemplate',
     TemplateData: JSON.stringify(data),
-    Source: 'noreply@tripsha.com',
+    Source: 'Tripsha <noreply@tripsha.com>',
     ReplyToAddresses: ['hello@tripsha.com'],
   };
   const result = new AWS.SES({ apiVersion: '2010-12-01' })

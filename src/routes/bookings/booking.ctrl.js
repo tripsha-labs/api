@@ -3,7 +3,6 @@
  * @description - This will handle business logic for Booking module
  */
 import { dbConnect, StripeAPI, logActivity, sendEmail } from '../../utils';
-import moment from 'moment';
 import {
   getCosting,
   getBookingValidity,
@@ -32,7 +31,7 @@ export class BookingController {
     const spotsFilled = trip.spotsFilled + spotsReserved;
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
     if (
-      bookingData.attendees > trip.spotsAvailable &&
+      bookingData.attendees > trip.spotsAvailable ||
       spotsFilled > trip.spotsAvailable
     )
       throw ERROR_KEYS.TRIP_IS_FULL;
@@ -242,8 +241,9 @@ export class BookingController {
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
-    if (params['action']) {
-      switch (params['action']) {
+    const { action, forceAddTraveller } = params || {};
+    if (action) {
+      switch (action) {
         // host
         case 'approve':
           validForUpdate = true;
@@ -251,6 +251,12 @@ export class BookingController {
             !(user.isAdmin || trip.ownerId.toString() === user._id.toString())
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
+          }
+          if (
+            trip.spotsAvailable - booking.attendees < 0 &&
+            !forceAddTraveller
+          ) {
+            throw ERROR_KEYS.TRIP_IS_FULL_HOST;
           }
           if (booking.totalFare && booking.totalFare > 0) {
             if (booking.status !== 'pending') {
@@ -394,10 +400,10 @@ export class BookingController {
             };
           }
           await BookingModel.update(booking._id, bookingUpdate);
-
           await MemberController.memberAction({
             tripId: booking.tripId,
             action: 'addMember',
+            forceAddTraveller: forceAddTraveller,
             memberIds: [booking.memberId],
             bookingId: bookingId,
             awsUserId: awsUserId,
@@ -594,6 +600,7 @@ export class BookingController {
       }
     }
     if (validForUpdate) await TripModel.update(trip._id, tripUpdate);
+    return 'success';
   }
 
   static async getBooking(bookingId) {
@@ -685,6 +692,7 @@ export class BookingController {
         }
       }
     } else {
+      console.log('Inside do part payment');
       throw ERROR_KEYS.INVALID_ACTION;
     }
     return booking;

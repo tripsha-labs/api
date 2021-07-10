@@ -38,7 +38,7 @@ export class TripController {
         isPublic: true,
         status: 'published',
         endDate: { $gte: currentDate },
-        isFull: false, // TBD: do we need to show or not, currently full trips not visible
+        // isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
       if (filter.pastTrips) filterParams['endDate'] = { $lt: currentDate };
       const multiFilter = [];

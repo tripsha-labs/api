@@ -111,7 +111,14 @@ export class MemberController {
   }
   static async memberAction(params) {
     try {
-      const { memberIds, tripId, message, awsUserId } = params || {
+      const {
+        memberIds,
+        tripId,
+        message,
+        awsUserId,
+        forceAddTraveller,
+        action,
+      } = params || {
         memberIds: [],
       };
       if (memberIds.length > 0) {
@@ -124,6 +131,7 @@ export class MemberController {
         if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
         if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
         const isOwner = trip.ownerId == user._id.toString();
+        let guestCount = trip['guestCount'] || 0;
         const actions = memberIds.map(async memberId => {
           const query = { $or: [] };
           if (Types.ObjectId.isValid(memberId))
@@ -140,11 +148,20 @@ export class MemberController {
               tripId: objTripId,
               isMember: true,
             });
-            switch (params['action']) {
+            switch (action) {
               case 'addMember':
                 if (isOwner || user.isAdmin === true) {
+                  if (trip.spotsAvailable <= 0 && !forceAddTraveller) {
+                    return Promise.reject(ERROR_KEYS.TRIP_IS_FULL_HOST);
+                  }
                   if (params['bookingId']) {
                     updateParams['bookingId'] = params['bookingId'];
+                    const booking = await BookingModel.getById(
+                      params['bookingId']
+                    );
+                    if (booking && booking.attendees > 1) {
+                      guestCount = guestCount + booking.attendees - 1;
+                    }
                   } else {
                     const bookingInfo = {
                       currency: 'US',
@@ -182,6 +199,8 @@ export class MemberController {
                     });
                     updateParams['bookingId'] = booking_res._id.toString();
                   }
+                  updateParams['removeRequested'] = false;
+                  updateParams['leftOn'] = -1;
                   updateParams['isMember'] = true;
                   updateParams['joinedOn'] = moment().unix();
 
@@ -237,7 +256,7 @@ export class MemberController {
                     userId: user._id.toString(),
                   });
                 } else {
-                  return Promise.reject();
+                  return Promise.reject('Access denied');
                 }
                 break;
               case 'removeMember':
@@ -247,6 +266,25 @@ export class MemberController {
                   memberDetails._id.toString() == user._id.toString()
                 ) {
                   console.log('Inside member info');
+                  const bookingStatus = {};
+                  if (memberDetails._id.toString() == user._id.toString()) {
+                    bookingStatus['status'] = 'cancelled';
+                  } else {
+                    bookingStatus['status'] = 'removed';
+                  }
+                  bookingStatus['reason'] = message;
+                  if (memberExists && memberExists['bookingId']) {
+                    await BookingModel.update(
+                      Types.ObjectId(memberExists['bookingId']),
+                      bookingStatus
+                    );
+                    const booking = await BookingModel.getById(
+                      memberExists['bookingId']
+                    );
+                    if (booking && booking.attendees > 1) {
+                      guestCount = guestCount - booking.attendees - 1;
+                    }
+                  }
                   updateParams['isMember'] = false;
                   updateParams['leftOn'] = moment().unix();
                   // conversation update
@@ -342,15 +380,20 @@ export class MemberController {
           tripId: objTripId,
           isFavorite: true,
         });
+
+        let maxGroupSize = trip['maxGroupSize'];
+        const totalMemberCount = guestCount + memberCount;
+        if (maxGroupSize - totalMemberCount < 0) {
+          maxGroupSize = totalMemberCount;
+        }
         const updateTrip = {
-          spotsFilled: memberCount,
-          spotsAvailable: trip['maxGroupSize'] - memberCount,
-          groupSize: memberCount,
-          isFull: memberCount >= trip['maxGroupSize'],
+          maxGroupSize: maxGroupSize,
+          spotsFilled: totalMemberCount,
+          spotsAvailable: maxGroupSize - totalMemberCount,
+          groupSize: totalMemberCount,
+          isFull: totalMemberCount >= maxGroupSize,
           favoriteCount: favoriteCount,
-          spotFilledRank: Math.round(
-            (memberCount / trip['maxGroupSize']) * 100
-          ),
+          spotFilledRank: Math.round((totalMemberCount / maxGroupSize) * 100),
         };
         await TripModel.update(objTripId, updateTrip);
       }

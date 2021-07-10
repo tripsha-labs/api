@@ -20,6 +20,7 @@ const bookingSchema = new mongoose.Schema(
     addOns: { type: Array },
     guests: { type: Array },
     message: { type: String },
+    reason: { type: String },
     paymentStatus: {
       type: String,
       enum: ['full', 'deposit', 'payasyougo', 'free'],
@@ -28,7 +29,15 @@ const bookingSchema = new mongoose.Schema(
     discount: { type: Object },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'declined', 'withdrawn', 'expired'],
+      enum: [
+        'pending',
+        'approved',
+        'declined',
+        'withdrawn',
+        'expired',
+        'cancelled',
+        'removed',
+      ],
       default: 'pending',
     },
     // Payment details
