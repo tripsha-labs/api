@@ -32,6 +32,11 @@ export const ERROR_KEYS = {
       'Whoops! One or both of your trip dates are invalid. Trips must within the next 24 months to be valid.',
     code: 400,
   },
+  INVALID_ETERNAL_COUNT: {
+    type: 'invalidExternalCount',
+    message: 'Whoops! Spots filled should not be greater than max group size.',
+    code: 400,
+  },
   TRIP_NOT_FOUND: {
     type: 'tripNotFound',
     message:

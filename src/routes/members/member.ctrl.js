@@ -61,6 +61,7 @@ export class MemberController {
           updatedAt: 1,
           awsUserId: 1,
           isMember: 1,
+          isOwner: 1,
           bookingId: {
             $toObjectId: '$bookingId',
           },
@@ -127,6 +128,7 @@ export class MemberController {
           awsUserId: awsUserId,
         });
         const objTripId = Types.ObjectId(tripId);
+        const tripUpdate = {};
         const trip = await TripModel.getById(objTripId);
         if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
         if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
@@ -161,6 +163,33 @@ export class MemberController {
                     );
                     if (booking && booking.attendees > 1) {
                       guestCount = guestCount + booking.attendees - 1;
+                    }
+                    if (booking.room) {
+                      tripUpdate['rooms'] = [];
+                      trip.rooms.forEach(room => {
+                        if (room.id == booking.room.id) {
+                          const filledCount = room['filled']
+                            ? room['filled'] + booking.attendees
+                            : booking.attendees;
+                          room['filled'] = filledCount;
+                        }
+                        tripUpdate['rooms'].push(room);
+                      });
+                    }
+                    if (booking.addOns && booking.addOns.length > 0) {
+                      tripUpdate['addOns'] = [];
+                      trip.addOns.forEach(addOn => {
+                        const bAddon = booking.addOns.find(
+                          bAddOn => bAddOn.id === addOn.id
+                        );
+                        if (bAddon) {
+                          const filledCount = addOn['filled']
+                            ? addOn['filled'] + bAddon.attendees
+                            : bAddon.attendees;
+                          addOn['filled'] = filledCount;
+                        }
+                        tripUpdate['addOns'].push(addOn);
+                      });
                     }
                   } else {
                     const bookingInfo = {
@@ -282,7 +311,37 @@ export class MemberController {
                       memberExists['bookingId']
                     );
                     if (booking && booking.attendees > 1) {
-                      guestCount = guestCount - booking.attendees - 1;
+                      guestCount = guestCount - (booking.attendees - 1);
+                      guestCount = guestCount < 0 ? 0 : guestCount;
+                    }
+                    if (booking.room) {
+                      tripUpdate['rooms'] = [];
+                      trip.rooms.forEach(room => {
+                        if (room.id == booking.room.id) {
+                          let filledCount = room['filled'] - booking.attendees;
+                          if (filledCount < 0) {
+                            filledCount = 0;
+                          }
+                          room['filled'] = filledCount;
+                        }
+                        tripUpdate['rooms'].push(room);
+                      });
+                    }
+                    if (booking.addOns && booking.addOns.length > 0) {
+                      tripUpdate['addOns'] = [];
+                      trip.addOns.forEach(addOn => {
+                        const bAddon = booking.addOns.find(
+                          bAddOn => bAddOn.id === addOn.id
+                        );
+                        if (bAddon) {
+                          let filledCount = addOn['filled'] - bAddon.attendees;
+                          if (filledCount < 0) {
+                            filledCount = 0;
+                          }
+                          addOn['filled'] = filledCount;
+                        }
+                        tripUpdate['addOns'].push(addOn);
+                      });
                     }
                   }
                   updateParams['isMember'] = false;
@@ -375,18 +434,21 @@ export class MemberController {
         const memberCount = await MemberModel.count({
           tripId: objTripId,
           isMember: true,
+          isOwner: { $ne: true },
         });
         const favoriteCount = await MemberModel.count({
           tripId: objTripId,
           isFavorite: true,
         });
-
         let maxGroupSize = trip['maxGroupSize'];
-        const totalMemberCount = guestCount + memberCount;
+        let externalCount = trip['externalCount'] || 0;
+        const totalMemberCount = guestCount + memberCount + externalCount;
         if (maxGroupSize - totalMemberCount < 0) {
           maxGroupSize = totalMemberCount;
         }
         const updateTrip = {
+          ...tripUpdate,
+          guestCount: guestCount,
           maxGroupSize: maxGroupSize,
           spotsFilled: totalMemberCount,
           spotsAvailable: maxGroupSize - totalMemberCount,

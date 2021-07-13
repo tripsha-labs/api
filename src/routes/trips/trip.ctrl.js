@@ -239,15 +239,17 @@ export class TripController {
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
+        isOwner: { $ne: true },
       });
 
+      const totalMemberCount = params['externalCount'] + memberCount;
       const updateTrip = {
-        spotsFilled: memberCount,
-        spotsAvailable: params['maxGroupSize'] - memberCount,
-        groupSize: memberCount,
-        isFull: memberCount >= params['maxGroupSize'],
+        spotsFilled: totalMemberCount,
+        spotsAvailable: params['maxGroupSize'] - totalMemberCount,
+        groupSize: totalMemberCount,
+        isFull: totalMemberCount >= params['maxGroupSize'],
         spotFilledRank: Math.round(
-          (memberCount / params['maxGroupSize']) *
+          (totalMemberCount / params['maxGroupSize']) *
             APP_CONSTANTS.SPOTSFILLED_PERCEENT
         ),
       };
@@ -329,18 +331,27 @@ export class TripController {
       const memberCount = await MemberModel.count({
         tripId: tripId,
         isMember: true,
+        isOwner: { $ne: true },
       });
-
+      const guestCount = tripDetails['guestCount'] || 0;
+      const externalCount = trip.hasOwnProperty('externalCount')
+        ? trip['externalCount']
+        : tripDetails['externalCount'] || 0;
+      const totalMemberCount = externalCount + memberCount + guestCount;
       const maxGroupSize = trip['maxGroupSize']
         ? trip['maxGroupSize']
         : tripDetails['maxGroupSize'];
-      trip['groupSize'] = memberCount;
-      trip['spotsFilled'] = memberCount;
-      trip['spotsAvailable'] = maxGroupSize - memberCount;
+      if (totalMemberCount > maxGroupSize) {
+        throw ERROR_KEYS.INVALID_ETERNAL_COUNT;
+      }
+      trip['guestCount'] = guestCount;
+      trip['groupSize'] = totalMemberCount;
+      trip['spotsFilled'] = totalMemberCount;
+      trip['spotsAvailable'] = maxGroupSize - totalMemberCount;
       trip['spotFilledRank'] = Math.round(
-        (memberCount / maxGroupSize) * APP_CONSTANTS.SPOTSFILLED_PERCEENT
+        (totalMemberCount / maxGroupSize) * APP_CONSTANTS.SPOTSFILLED_PERCEENT
       );
-      trip['isFull'] = memberCount >= maxGroupSize;
+      trip['isFull'] = totalMemberCount >= maxGroupSize;
 
       await TripModel.update(tripId, trip);
       const tripName = trip['title'] ? trip['title'] : tripDetails['title'];

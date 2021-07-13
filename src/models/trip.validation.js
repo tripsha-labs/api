@@ -42,12 +42,11 @@ const tripSchema = {
     positive: true,
     integer: true,
   },
-  spotsAvailable: {
+  externalCount: {
     type: 'number',
-    min: 1,
-    max: 19,
+    min: 0,
+    max: 20,
     empty: false,
-    positive: true,
     integer: true,
   },
   languages: {
@@ -161,8 +160,8 @@ const tripUpdateSchema = {
     ...tripSchema.maxGroupSize,
     optional: true,
   },
-  spotsAvailable: {
-    ...tripSchema.spotsAvailable,
+  externalCount: {
+    ...tripSchema.externalCount,
     optional: true,
   },
   rooms: {

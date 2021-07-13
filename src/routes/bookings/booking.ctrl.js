@@ -23,17 +23,10 @@ import { ObjectID } from 'mongodb';
 export class BookingController {
   static async createBooking(params, awsUserId) {
     await dbConnect();
-    const bookingData = {
-      ...params,
-    };
+    const bookingData = params;
     const trip = await TripModel.getById(params.tripId);
-    const spotsReserved = trip.spotsReserved + bookingData.attendees;
-    const spotsFilled = trip.spotsFilled + spotsReserved;
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    if (
-      bookingData.attendees > trip.spotsAvailable ||
-      spotsFilled > trip.spotsAvailable
-    )
+    if (bookingData.attendees > trip.spotsAvailable)
       throw ERROR_KEYS.TRIP_IS_FULL;
 
     const user = await UserModel.get({ awsUserId: awsUserId });
@@ -60,42 +53,8 @@ export class BookingController {
       ...costing,
     };
     const tripUpdate = {
-      spotsReserved: spotsReserved,
       isLocked: true,
     };
-    if (bookingData.room) {
-      tripUpdate['rooms'] = [];
-      trip.rooms.forEach(room => {
-        if (room.id == bookingData.room.id) {
-          const filledCount = room['filled']
-            ? room['filled'] + bookingData.attendees
-            : bookingData.attendees;
-          if (filledCount > room['available']) {
-            throw ERROR_KEYS.TRIP_RESOURCES_FULL;
-          }
-          room['filled'] = filledCount;
-        }
-        tripUpdate['rooms'].push(room);
-      });
-    }
-    if (bookingData.addOns && bookingData.addOns.length > 0) {
-      tripUpdate['addOns'] = [];
-      trip.addOns.forEach(addOn => {
-        const bAddon = bookingData.addOns.find(
-          bAddOn => bAddOn.id === addOn.id
-        );
-        if (bAddon) {
-          const filledCount = addOn['filled']
-            ? addOn['filled'] + bAddon.attendees
-            : bAddon.attendees;
-          if (filledCount > addOn['available']) {
-            throw ERROR_KEYS.TRIP_RESOURCES_FULL;
-          }
-          addOn['filled'] = filledCount;
-        }
-        tripUpdate['addOns'].push(addOn);
-      });
-    }
     const booking = await BookingModel.create(finalBookingData);
 
     await TripModel.update(trip._id, tripUpdate);
@@ -236,6 +195,8 @@ export class BookingController {
     const tripUpdate = {
       spotsReserved: trip.spotsReserved - booking.attendees,
     };
+    tripUpdate['spotsReserved'] =
+      tripUpdate['spotsReserved'] < 0 ? 0 : tripUpdate['spotsReserved'];
     let validForUpdate = false;
     let bookingUpdate = {};
     const memberInfo = await UserModel.get({
@@ -438,35 +399,6 @@ export class BookingController {
             console.log('Request alrady processed');
             throw ERROR_KEYS.INVALID_ACTION;
           }
-          if (booking.room) {
-            tripUpdate['rooms'] = [];
-            trip.rooms.forEach(room => {
-              if (room.id == booking.room.id) {
-                let filledCount = room['filled'] - booking.attendees;
-                if (filledCount < 0) {
-                  filledCount = 0;
-                }
-                room['filled'] = filledCount;
-              }
-              tripUpdate['rooms'].push(room);
-            });
-          }
-          if (booking.addOns && booking.addOns.length > 0) {
-            tripUpdate['addOns'] = [];
-            trip.addOns.forEach(addOn => {
-              const bAddon = booking.addOns.find(
-                bAddOn => bAddOn.id === addOn.id
-              );
-              if (bAddon) {
-                let filledCount = addOn['filled'] - bAddon.attendees;
-                if (filledCount < 0) {
-                  filledCount = 0;
-                }
-                addOn['filled'] = filledCount;
-              }
-              tripUpdate['addOns'].push(addOn);
-            });
-          }
           bookingUpdate = {
             status: 'declined',
           };
@@ -522,36 +454,6 @@ export class BookingController {
             console.log('Request already processed');
             throw ERROR_KEYS.INVALID_ACTION;
           }
-          if (booking.room) {
-            tripUpdate['rooms'] = [];
-            trip.rooms.forEach(room => {
-              if (room.id == booking.room.id) {
-                let filledCount = room['filled'] - booking.attendees;
-                if (filledCount < 0) {
-                  filledCount = 0;
-                }
-                room['filled'] = filledCount;
-              }
-              tripUpdate['rooms'].push(room);
-            });
-          }
-          if (booking.addOns && booking.addOns.length > 0) {
-            tripUpdate['addOns'] = [];
-            trip.addOns.forEach(addOn => {
-              const bAddon = booking.addOns.find(
-                bAddOn => bAddOn.id === addOn.id
-              );
-              if (bAddon) {
-                let filledCount = addOn['filled'] - bAddon.attendees;
-                if (filledCount < 0) {
-                  filledCount = 0;
-                }
-                addOn['filled'] = filledCount;
-              }
-              tripUpdate['addOns'].push(addOn);
-            });
-          }
-
           await BookingModel.update(booking._id, {
             status: 'withdrawn',
           });
