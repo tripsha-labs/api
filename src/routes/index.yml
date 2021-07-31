@@ -1,0 +1,5 @@
+app:
+  handler: src/routes/index.handler
+  events:
+    - http: ANY /
+    - http: 'ANY {proxy+}'

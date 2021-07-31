@@ -35,7 +35,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   stage: dev
   region: us-east-1
   # vpc:
@@ -103,12 +103,13 @@ package:
     - 'test-api-call.sh'
 
 functions:
+  - ${file(src/routes/index.yml)}
   - ${file(src/routes/users/functions.yml)}
   - ${file(src/routes/trips/functions.yml)}
-  - ${file(src/routes/trip-tags/functions.yml)}
-  - ${file(src/routes/tags/functions.yml)}
+  # - ${file(src/routes/trip-tags/functions.yml)}
+  # - ${file(src/routes/tags/functions.yml)}
   - ${file(src/routes/messages/functions.yml)}
-  - ${file(src/routes/countries/functions.yml)}
+  # - ${file(src/routes/countries/functions.yml)}
   - ${file(src/routes/members/functions.yml)}
   - ${file(src/routes/seeds/functions.yml)}
   - ${file(src/routes/payments/functions.yml)}
@@ -122,7 +123,7 @@ functions:
 resources:
   # API Gateway Errors
   - ${file(src/resources/api-gateway-errors.yml)}
-  # S3
+  # # S3
   - ${file(src/resources/s3-bucket.yml)}
   # Cognito
   - ${file(src/resources/cognito-user-pool.yml)}

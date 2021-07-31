@@ -8,16 +8,14 @@ import { TagsController } from './tags.ctrl';
 /**
  * List tags
  */
-export const listTags = async (event, context) => {
+export const listTags = async (req, res) => {
   try {
     // Get search string from queryparams
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.query ? req.query : {};
     const result = await TagsController.listTags(params);
-    return success(result);
+    return res.send(result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return res.send(error);
   }
 };

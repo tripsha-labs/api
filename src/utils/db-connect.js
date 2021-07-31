@@ -3,24 +3,26 @@
  * @description - Mongodb connector
  */
 import mongoose from 'mongoose';
-mongoose.Promise = global.Promise;
-let isConnected;
+// mongoose.Promise = global.Promise;
 
-export const dbConnect = () => {
-  if (isConnected) {
-    console.log('Re-using existing database connection');
-    return Promise.resolve();
-  }
-  console.log('Creating new database connection');
-  return mongoose
-    .connect(process.env.DB_CONN, {
-      // ssl: process.env.IS_OFFLINE ? false : true,
-      ssl: true,
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      useUnifiedTopology: true,
-    })
-    .then(db => {
-      isConnected = db.connections[0].readyState;
-    });
+export const dbConnect = async res => {
+  // if (mongoose.connection.readyState) {
+  //   console.log('Re-using existing database connection');
+  //   return Promise.resolve();
+  // }
+  await mongoose.connect(process.env.DB_CONN, {
+    ssl: true,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    poolSize: 1,
+  });
+  res.on('finish', function() {
+    if (mongoose.connection.readyState === 1) {
+      mongoose.connection.close();
+    }
+  });
+  // .then(db => {
+  //   console.log('Database connection esablished');
+  // });
 };

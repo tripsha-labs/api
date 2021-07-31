@@ -15,7 +15,6 @@ export class CountryController {
         },
         ...prepareCommonFilter(filter, ['name']),
       };
-      await dbConnect();
       const countries = await CountryModel.list(params);
       return {
         data: countries,
