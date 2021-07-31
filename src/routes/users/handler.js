@@ -2,6 +2,8 @@
  * @name - User handler
  * @description - This will handle user API requests
  */
+import { Types } from 'mongoose';
+import moment from 'moment';
 import urldecode from 'urldecode';
 import { UserController } from './user.ctrl';
 import { MessageController } from '../messages/message.ctrl';
@@ -13,8 +15,7 @@ import {
   getCurrentUser,
 } from '../../utils';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
-import { generateRandomNumber } from '../../helpers';
-import { createCognitoUser } from '../../utils';
+import { createCognitoUser, setUserPassword } from '../../utils';
 import { updateUserValidation, adminUpdateUserValidation } from '../../models';
 
 /**
@@ -83,6 +84,16 @@ export const updateUserAdmin = async (event, context) => {
       const params = JSON.parse(event.body);
       const errors = adminUpdateUserValidation(params);
       if (errors != true) throw errors.shift();
+      const user = await UserController.get({
+        _id: Types.ObjectId(event.pathParameters.id),
+      });
+      if (params['password'] && params['password'] != '') {
+        await setUserPassword(event, {
+          password: params['password'],
+          email: user.email,
+        });
+        delete params['password'];
+      }
       await UserController.updateUserAdmin(event.pathParameters.id, params);
       return success('success');
     } else {
@@ -232,8 +243,7 @@ const _get_unique_username = async (email, username) => {
     email: { $ne: email },
   });
   if (userExists) {
-    username = username + generateRandomNumber();
-    _get_unique_username(email, username);
+    username = username + '_' + moment().format('X');
   } else {
     return username;
   }

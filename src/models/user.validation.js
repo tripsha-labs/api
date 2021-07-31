@@ -145,6 +145,10 @@ const adminUpdateUserSchema = {
     type: 'number',
     optional: true,
   },
+  password: {
+    type: 'string',
+    optional: true,
+  },
   $$strict: true,
 };
 export const createUserValidation = new Validator().compile(createUserSchema);

@@ -19,6 +19,7 @@ const tripSchema = new mongoose.Schema(
     languages: [String],
     interests: [String],
     pictureUrls: [String],
+    thumbnailUrls: [String],
     itineraries: { type: Array, default: [] },
     rooms: { type: Array, default: [] },
     addOns: { type: Array, default: [] },

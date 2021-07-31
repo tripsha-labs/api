@@ -51,6 +51,21 @@ export const createCognitoUser = async (event, params) => {
     return createUserRes;
   } else return false;
 };
+export const setUserPassword = async (event, params) => {
+  const cognitoClient = new AWS.CognitoIdentityServiceProvider();
+  const authProvider =
+    event.requestContext.identity.cognitoAuthenticationProvider;
+  const IDP_REGEX = /.*\/.*,(.*)\/(.*):CognitoSignIn:(.*)/;
+  const [, , userPoolId, userSub] = authProvider.match(IDP_REGEX);
+  await cognitoClient
+    .adminSetUserPassword({
+      UserPoolId: userPoolId,
+      Username: params.email,
+      Password: params.password || 'Tripsha@123',
+      Permanent: true,
+    })
+    .promise();
+};
 export const getCurrentUser = async event => {
   try {
     const cognitoClient = new AWS.CognitoIdentityServiceProvider();

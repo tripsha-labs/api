@@ -86,6 +86,7 @@ export class PaymentController {
       customerId,
       paymentMethod,
       beneficiary,
+      hostShare: user.hostShare,
     });
 
     return paymentIntent;

@@ -232,6 +232,7 @@ export class BookingController {
                 paymentMethod: booking.stripePaymentMethod.id,
                 confirm: true,
                 beneficiary: booking.onwerStripeId,
+                hostShare: user.hostShare,
               });
 
               if (paymentIntent) {
@@ -519,12 +520,19 @@ export class BookingController {
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
+
     if (user._id.toString() === booking.memberId) {
       if (booking.totalFare && booking.totalFare > 0) {
         if (booking.status !== 'approved' && booking.currentDue <= 0) {
           console.log('Request already processed');
           throw ERROR_KEYS.INVALID_ACTION;
         }
+        const tripInfo = await TripModel.get({
+          _id: ObjectID(booking.tripId),
+        });
+        const ownerInfo = await UserModel.get({
+          _id: tripInfo.ownerId,
+        });
         try {
           const paymentIntent = await StripeAPI.createPaymentIntent({
             amount: parseInt(booking.currentDue * 100),
@@ -533,6 +541,7 @@ export class BookingController {
             paymentMethod: booking.stripePaymentMethod.id,
             confirm: true,
             beneficiary: booking.onwerStripeId,
+            hostShare: ownerInfo.hostShare,
           });
           if (paymentIntent) {
             booking.paymentHistory.push({

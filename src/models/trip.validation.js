@@ -59,6 +59,11 @@ const tripSchema = {
     optional: true,
     items: 'string',
   },
+  thumbnailUrls: {
+    type: 'array',
+    optional: true,
+    items: 'string',
+  },
   interests: {
     type: 'array',
     max: 18,

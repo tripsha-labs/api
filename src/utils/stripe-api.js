@@ -5,7 +5,7 @@
 import stripe from 'stripe';
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const HOST_PAYMENT_PART = 0.72;
+const HOST_PAYMENT_PART = 72;
 const createIntent = async () => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
   const intent = await stripeInstance.setupIntents.create();
@@ -45,6 +45,7 @@ const createPaymentIntent = async ({
   paymentMethod,
   beneficiary,
   metadata,
+  hostShare = HOST_PAYMENT_PART,
 }) => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
   const paymentIntent = await stripeInstance.paymentIntents.create({
@@ -57,7 +58,7 @@ const createPaymentIntent = async ({
     confirm: true,
     metadata,
     transfer_data: {
-      amount: parseInt(amount * HOST_PAYMENT_PART),
+      amount: parseInt((amount * hostShare) / 100),
       destination: beneficiary,
     },
   });
