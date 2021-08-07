@@ -112,7 +112,12 @@ export const listUser = async (event, context) => {
     const currentUser = await UserController.getCurrentUser({
       awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
-    if (currentUser && currentUser.isAdmin) {
+    if (
+      currentUser &&
+      (currentUser.isAdmin ||
+        currentUser.isHost ||
+        currentUser.isIdentityVerified)
+    ) {
       const params = event.queryStringParameters
         ? event.queryStringParameters
         : {};

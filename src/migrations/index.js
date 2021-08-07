@@ -1,8 +1,6 @@
-import { dbConnect } from '../utils';
-import { UserModel, TripModel } from '../models';
-
+import { UserModel, TripModel, MemberModel } from '../models';
+import { ERROR_KEYS, APP_CONSTANTS } from '../constants';
 export const updateProfilePic = async (skip = 0) => {
-  await dbConnect();
   const params = {
     filter: {},
     select: { awsUserId: 1, avatarUrl: 1 },
@@ -37,7 +35,6 @@ export const updateProfilePic = async (skip = 0) => {
 };
 
 export const updateTripUrl = async (skip = 0) => {
-  await dbConnect();
   const params = [
     {
       $lookup: {
@@ -109,10 +106,66 @@ export const updateTripUrl = async (skip = 0) => {
         }
       }
       if (updateRequired) {
-        await TripModel.update({ _id: trip._id }, trip);
+        await TripModel.update(trip._id, trip);
       }
     });
   }
   if (trips && trips.length === 1000) updateTripUrl(skip + 1000);
   return 'success';
+};
+
+export const updateTripStats = async (skip = 0) => {
+  const params = [];
+  if (skip > 0) {
+    params.push({
+      $skip: skip,
+    });
+  }
+  params.push({
+    $limit: 1000,
+  });
+  console.log(params);
+  const trips = await TripModel.aggregate(params);
+  const promises = [];
+  if (trips && trips.length > 0) {
+    trips.map(trip => {
+      promises.push(
+        new Promise(async resolve => {
+          try {
+            const memberCount = await MemberModel.count({
+              tripId: trip._id,
+              isMember: true,
+              isOwner: { $ne: true },
+            });
+            const guestCount = trip['guestCount'] || 0;
+            const externalCount = trip['externalCount'] || 0;
+            const totalMemberCount = externalCount + memberCount + guestCount;
+            const updateTrip = {};
+            let maxGroupSize = trip['maxGroupSize'];
+            if (totalMemberCount > maxGroupSize) {
+              maxGroupSize = totalMemberCount;
+            }
+            updateTrip['maxGroupSize'] = maxGroupSize;
+            updateTrip['guestCount'] = guestCount;
+            updateTrip['groupSize'] = totalMemberCount;
+            updateTrip['spotsFilled'] = totalMemberCount;
+            updateTrip['spotsAvailable'] = maxGroupSize - totalMemberCount;
+            updateTrip['spotFilledRank'] = Math.round(
+              (totalMemberCount / maxGroupSize) *
+                APP_CONSTANTS.SPOTSFILLED_PERCEENT
+            );
+            updateTrip['isFull'] = totalMemberCount >= maxGroupSize;
+            console.log(updateTrip);
+            await TripModel.update(trip._id, updateTrip);
+          } catch (err) {
+            console.log(err);
+          } finally {
+            return resolve();
+          }
+        })
+      );
+    });
+  }
+  await Promise.all(promises);
+  if (trips && trips.length === 1000) updateTripStats(skip + 1000);
 };

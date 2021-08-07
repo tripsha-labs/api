@@ -3,15 +3,23 @@
  * @description - This will handle migrations API requests
  */
 import { success, failure } from '../../utils';
-import { updateProfilePic, updateTripUrl } from '../../migrations';
+import { dbConnect } from '../../utils';
+import {
+  updateProfilePic,
+  updateTripUrl,
+  updateTripStats,
+} from '../../migrations';
 
 /**
  * runMigrations
  */
 export const runMigrations = async (event, context) => {
   try {
-    await updateProfilePic();
-    await updateTripUrl();
+    console.log('Running migrations');
+    await dbConnect();
+    await updateTripStats();
+    // await updateProfilePic();
+    // await updateTripUrl();
     return success('success');
   } catch (error) {
     console.log(error);
