@@ -2,7 +2,7 @@
  * @name - Tags handler
  * @description - This will handle tags API requests
  */
-import { success, failure } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
 import { TagsController } from './tags.ctrl';
 
 /**
@@ -13,9 +13,9 @@ export const listTags = async (req, res) => {
     // Get search string from queryparams
     const params = req.query ? req.query : {};
     const result = await TagsController.listTags(params);
-    return res.send(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return res.send(error);
+    return failureResponse(res, error);
   }
 };

@@ -3,26 +3,24 @@
  * @description - This will handle all trip related API requests
  */
 import { TripController } from './trip.ctrl';
-import { success, failure, sendEmail } from '../../utils';
+import { successResponse, failureResponse, sendEmail } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { updateTripValidation, createTripValidation } from '../../models';
 
 /**
  * List trips
  */
-export const listTrips = async (event, context) => {
+export const listTrips = async (req, res) => {
   try {
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.queryStringParameters ? req.queryStringParameters : {};
     const result = await TripController.listTrips(
       params,
-      event.requestContext.identity.cognitoIdentityId
+      req.requestContext.identity.cognitoIdentityId
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
