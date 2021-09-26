@@ -146,6 +146,18 @@ export const createUser = async (event, context) => {
       createUserPayload['firstName'] = userInfo.given_name;
       createUserPayload['lastName'] = userInfo.family_name;
       createUserPayload['avatarUrl'] = userInfo.picture;
+      try {
+        await createCognitoUser(event, {
+          ...createUserPayload,
+          password:
+            'T' +
+            Math.random()
+              .toString(30)
+              .substr(2, 20),
+        });
+      } catch (err) {
+        console.log('User already exists', err);
+      }
     } else {
       if (userInfo.email_verified)
         createUserPayload['isEmailVerified'] = userInfo.email_verified;
@@ -249,9 +261,8 @@ const _get_unique_username = async (email, username) => {
   });
   if (userExists) {
     username = username + '_' + moment().format('X');
-  } else {
-    return username;
   }
+  return username;
 };
 
 /**
@@ -313,10 +324,11 @@ export const isUserExists = async (event, context) => {
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
     const result = await UserController.isExists({
       awsUserId: { $nin: [event.requestContext.identity.cognitoIdentityId] },
-      username: user.username,
+      username: data.username,
     });
     return success(result);
   } catch (error) {
+    console.log(error);
     return failure(error);
   }
 };

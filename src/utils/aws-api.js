@@ -16,7 +16,16 @@ export const createCognitoUser = async (event, params) => {
     event.requestContext.identity.cognitoAuthenticationProvider;
   const IDP_REGEX = /.*\/.*,(.*)\/(.*):CognitoSignIn:(.*)/;
   const [, , userPoolId, userSub] = authProvider.match(IDP_REGEX);
-  const userAttributes = [];
+  const userAttributes = [
+    {
+      Name: 'email_verified',
+      Value: 'True',
+    },
+    {
+      Name: 'email',
+      Value: params.email,
+    },
+  ];
   if (params.firstName) {
     userAttributes.push({
       Name: 'custom:firstName',

@@ -31,16 +31,23 @@ export class TripController {
   }
   static async listTrips(filter, memberId) {
     try {
-      const currentDate = parseInt(moment().format('YYYYMMDD'));
+      let currentDate = parseInt(
+        moment()
+          .subtract(4, 'weeks')
+          .format('YYYYMMDD')
+      );
       const filterParams = {
-        isArchived: false,
+        // isArchived: false,
         isActive: true,
         isPublic: true,
-        status: 'published',
+        status: { $in: ['published', 'completed'] },
         endDate: { $gte: currentDate },
         // isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
-      if (filter.pastTrips) filterParams['endDate'] = { $lt: currentDate };
+      if (filter.pastTrips) {
+        currentDate = parseInt(moment().format('YYYYMMDD'));
+        filterParams['endDate'] = { $lt: currentDate };
+      }
       const multiFilter = [];
       if (filter.minGroupSize)
         multiFilter.push({
