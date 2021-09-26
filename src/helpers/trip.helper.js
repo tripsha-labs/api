@@ -2,7 +2,11 @@ import moment from 'moment';
 
 export const getCosting = preferences => {
   // Room costing
-  let totalRoomCost = preferences.room ? preferences.room.cost : 0;
+  let totalRoomCost = 0;
+  preferences.rooms &&
+    preferences.rooms.forEach(room => {
+      totalRoomCost += room.variant.cost;
+    });
   totalRoomCost = totalRoomCost > 0 ? totalRoomCost.toFixed(2) : 0;
   totalRoomCost *= preferences.attendees;
 

@@ -10,14 +10,25 @@ const bookingSchema = {
   paymentMethod: { type: 'string', empty: false, optional: true },
   currency: { type: 'string', optional: true, default: 'USD' },
   attendees: { type: 'number', empty: false, min: 1 },
-  room: {
-    type: 'object',
+  rooms: {
+    type: 'array',
     optional: true,
-    props: {
-      id: { type: 'string' },
-      name: { type: 'string' },
-      cost: { type: 'number' },
-      available: { type: 'number' },
+    items: {
+      type: 'object',
+      props: {
+        variant: {
+          type: 'object',
+          props: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            cost: { type: 'number' },
+            available: { type: 'number' },
+          },
+        },
+        room: {
+          type: 'object',
+        },
+      },
     },
   },
   addOns: {

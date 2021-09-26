@@ -16,7 +16,7 @@ const bookingSchema = new mongoose.Schema(
     // booking details
     currency: { type: String, default: 'US' },
     attendees: { type: Number },
-    room: { type: Object },
+    rooms: { type: Array },
     addOns: { type: Array },
     guests: { type: Array },
     message: { type: String },
