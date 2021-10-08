@@ -8,6 +8,7 @@ import {
   updateProfilePic,
   updateTripUrl,
   updateTripStats,
+  updateBookingOptions,
 } from '../../migrations';
 
 /**
@@ -17,9 +18,11 @@ export const runMigrations = async (event, context) => {
   try {
     console.log('Running migrations');
     await dbConnect();
-    await updateTripStats();
+    await updateBookingOptions();
+    // await updateTripStats();
     // await updateProfilePic();
     // await updateTripUrl();
+    console.log('Migrations completed');
     return success('success');
   } catch (error) {
     console.log(error);
