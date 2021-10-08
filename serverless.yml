@@ -41,7 +41,7 @@ provider:
   # vpc:
   #   securityGroupIds:
   #     - sg-067be5b7ef9f631a2
-  #   subnetdIds:
+  #   subnetIds:
   #     - subnet-0803c091167df1253
   environment:
     DB_CONN: ${file(./config/${self:custom.stage}.json):DB_CONN}
@@ -54,6 +54,8 @@ provider:
   iamRoleStatements:
     - Action:
         - 'cognito-idp:ListUsers'
+        - 'cognito-idp:AdminCreateUser'
+        - 'cognito-idp:AdminSetUserPassword'
       Resource:
         - 'arn:aws:cognito-idp:*'
       Effect: Allow
@@ -115,6 +117,7 @@ functions:
   - ${file(src/routes/activity-logs/functions.yml)}
   - ${file(src/schedules/trips/functions.yml)}
   - ${file(src/routes/migrations/functions.yml)}
+  - ${file(src/routes/approvals/functions.yml)}
 
 resources:
   # API Gateway Errors

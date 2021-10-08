@@ -66,6 +66,7 @@ export class MessageController {
         'fromMember.awsUserId': 1,
         'fromMember.awsUsername': 1,
         'fromMember.firstName': 1,
+        'fromMember.lastName': 1,
         'fromMember.username': 1,
         'fromMember.isOnline': 1,
         'fromMember.lastOnlineTime': 1,
@@ -165,6 +166,7 @@ export class MessageController {
         'user.awsUserId': 1,
         'user.awsUsername': 1,
         'user.firstName': 1,
+        'user.lastName': 1,
         'user.username': 1,
         'user.isOnline': 1,
         'user.lastOnlineTime': 1,
@@ -175,6 +177,7 @@ export class MessageController {
         'ownerDetails.awsUserId': 1,
         'ownerDetails.awsUsername': 1,
         'ownerDetails.firstName': 1,
+        'ownerDetails.lastName': 1,
         'ownerDetails.username': 1,
         'ownerDetails.isOnline': 1,
         'ownerDetails.lastOnlineTime': 1,
@@ -278,7 +281,10 @@ export class MessageController {
         isEdited: false,
         isRead: false,
         toMemberId: user._id.toString(),
-        message: 'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
+        message:
+          'Hi ' +
+          user.firstName +
+          ', welcome to Tripsha! Feel free to reply with any questions, feedback on the site, or suggestions you have.',
         fromMemberId: supportUser._id.toString(),
       };
       const messageCount = await MessageModel.count({
@@ -290,7 +296,9 @@ export class MessageController {
         const params = {
           memberId: supportUser._id.toString(),
           message:
-            'Hi ' + user.firstName + ', this is Cassie, Tripsha’s founder',
+            'Hi ' +
+            user.firstName +
+            ', welcome to Tripsha! Feel free to reply with any questions, feedback on the site, or suggestions you have.',
           userId: user._id.toString(),
         };
         await ConversationModel.addOrUpdate(

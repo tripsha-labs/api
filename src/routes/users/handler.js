@@ -2,6 +2,8 @@
  * @name - User handler
  * @description - This will handle user API requests
  */
+import { Types } from 'mongoose';
+import moment from 'moment';
 import urldecode from 'urldecode';
 import { UserController } from './user.ctrl';
 import { MessageController } from '../messages/message.ctrl';
@@ -13,19 +15,117 @@ import {
   getCurrentUser,
 } from '../../utils';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
-import { generateRandomNumber } from '../../helpers';
+import { createCognitoUser, setUserPassword } from '../../utils';
+import { updateUserValidation, adminUpdateUserValidation } from '../../models';
 
-import { updateUserValidation } from '../../models';
+/**
+ * Invite Users
+ */
+
+export const inviteUser = async (event, context) => {
+  try {
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser && currentUser.isAdmin) {
+      const params = JSON.parse(event.body);
+      if (!params.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+      if (!params.password)
+        throw {
+          ...ERROR_KEYS.MISSING_FIELD,
+          field: 'password',
+        };
+      const username = await _get_unique_username(
+        params['email'],
+        params['email'].split('@')[0]
+      );
+      params['username'] = username;
+      params['isEmailVerified'] = true;
+      const createUserInfo = {
+        email: params.email,
+        password: params.password,
+        firstName: params.firstName || '',
+        lastName: params.lastName || '',
+      };
+      const user_result = await createCognitoUser(event, createUserInfo);
+      if (user_result) {
+        delete params['password'];
+        const user = await UserController.inviteUser(params);
+        await subscribeUserToMailchimpAudience({
+          name: createUserInfo.firstName + ' ' + createUserInfo.lastName,
+          email: createUserInfo.email,
+        });
+        return success(user);
+      } else {
+        throw ERROR_KEYS.USER_ADD_FAILED;
+      }
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
+  } catch (error) {
+    console.log(error);
+    if (error.code === 'UsernameExistsException') {
+      return failure(ERROR_KEYS.USER_ALREADY_EXISTS);
+    }
+    return failure(error);
+  }
+};
+
+/**
+ * Invite Users
+ */
+
+export const updateUserAdmin = async (event, context) => {
+  try {
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser && currentUser.isAdmin) {
+      const params = JSON.parse(event.body);
+      const errors = adminUpdateUserValidation(params);
+      if (errors != true) throw errors.shift();
+      const user = await UserController.get({
+        _id: Types.ObjectId(event.pathParameters.id),
+      });
+      if (params['password'] && params['password'] != '') {
+        await setUserPassword(event, {
+          password: params['password'],
+          email: user.email,
+        });
+        delete params['password'];
+      }
+      await UserController.updateUserAdmin(event.pathParameters.id, params);
+      return success('success');
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
+  } catch (error) {
+    console.log(error);
+    return failure(error);
+  }
+};
 /**
  * List users
  */
 export const listUser = async (event, context) => {
   try {
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
-    const users = await UserController.listUser(params);
-    return success(users);
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: event.requestContext.identity.cognitoIdentityId,
+    });
+    if (
+      currentUser &&
+      (currentUser.isAdmin ||
+        currentUser.isHost ||
+        currentUser.isIdentityVerified)
+    ) {
+      const params = event.queryStringParameters
+        ? event.queryStringParameters
+        : {};
+      const users = await UserController.listUser(params);
+      return success(users);
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
   } catch (error) {
     console.log(error);
     return failure(error);
@@ -37,20 +137,36 @@ export const listUser = async (event, context) => {
 export const createUser = async (event, context) => {
   try {
     const userInfo = await getCurrentUser(event);
-    console.log(userInfo);
     if (!userInfo) throw 'Create User failed';
     const createUserPayload = {
       email: userInfo.email,
-      isEmailVerified: userInfo.email_verified,
     };
     if (userInfo.identities) {
+      createUserPayload['isEmailVerified'] = true;
       createUserPayload['firstName'] = userInfo.given_name;
       createUserPayload['lastName'] = userInfo.family_name;
       createUserPayload['avatarUrl'] = userInfo.picture;
+      try {
+        await createCognitoUser(event, {
+          ...createUserPayload,
+          password:
+            'T' +
+            Math.random()
+              .toString(30)
+              .substr(2, 20),
+        });
+      } catch (err) {
+        console.log('User already exists', err);
+      }
     } else {
-      createUserPayload['firstName'] = userInfo['custom:firstName'];
-      createUserPayload['lastName'] = userInfo['custom:lastName'];
-      createUserPayload['dob'] = userInfo['custom:dob'];
+      if (userInfo.email_verified)
+        createUserPayload['isEmailVerified'] = userInfo.email_verified;
+      if (userInfo['custom:firstName'])
+        createUserPayload['firstName'] = userInfo['custom:firstName'];
+      if (userInfo['custom:lastName'])
+        createUserPayload['lastName'] = userInfo['custom:lastName'];
+      if (userInfo['custom:dob'])
+        createUserPayload['dob'] = userInfo['custom:dob'];
     }
     let user = false;
     try {
@@ -92,7 +208,6 @@ export const createUser = async (event, context) => {
       );
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
-      console.log(createUserPayload);
       result = await UserController.createUser(createUserPayload);
       await subscribeUserToMailchimpAudience({
         name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
@@ -145,11 +260,9 @@ const _get_unique_username = async (email, username) => {
     email: { $ne: email },
   });
   if (userExists) {
-    username = username + generateRandomNumber();
-    _get_unique_username(email, username);
-  } else {
-    return username;
+    username = username + '_' + moment().format('X');
   }
+  return username;
 };
 
 /**
@@ -201,26 +314,6 @@ export const updateUser = async (event, context) => {
   }
 };
 
-/**
- * Sign in user
- */
-export const signin = async (event, context) => {
-  try {
-    const data = JSON.parse(event.body);
-    const user = await UserController.get({
-      email: data.email,
-    });
-    if (
-      user &&
-      user.awsUserId === event.requestContext.identity.cognitoIdentityId
-    )
-      return success('success');
-  } catch (error) {
-    console.log(error);
-    return failure(error);
-  }
-};
-
 // TODO: Handle user account close/disable flow
 export const deleteUser = async (event, context) => {};
 
@@ -229,12 +322,13 @@ export const isUserExists = async (event, context) => {
     const data = JSON.parse(event.body);
     if (!(data && data.username))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
-    const result = await UserController.isExists(
-      data.username,
-      event.requestContext.identity.cognitoIdentityId
-    );
+    const result = await UserController.isExists({
+      awsUserId: { $nin: [event.requestContext.identity.cognitoIdentityId] },
+      username: data.username,
+    });
     return success(result);
   } catch (error) {
+    console.log(error);
     return failure(error);
   }
 };

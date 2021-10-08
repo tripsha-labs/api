@@ -15,6 +15,15 @@ createUser:
         cors: true
         authorizer: aws_iam
 
+inviteUser:
+  handler: src/routes/users/handler.inviteUser
+  events:
+    - http:
+        path: users/invite
+        method: post
+        cors: true
+        authorizer: aws_iam
+
 signin:
   handler: src/routes/users/handler.signin
   events:
@@ -51,6 +60,15 @@ getUserByUsername:
         cors: true
         authorizer: aws_iam
 
+updateUserAdmin:
+  handler: src/routes/users/handler.updateUserAdmin
+  events:
+    - http:
+        path: admin/users/{id}
+        method: put
+        cors: true
+        authorizer: aws_iam
+
 updateUser:
   handler: src/routes/users/handler.updateUser
   events:
@@ -84,6 +102,7 @@ subscribeUser:
     - http:
         path: subscribe
         method: post
+        authorizer: aws_iam
         cors: true
 
 unsubscribeUser:
@@ -92,4 +111,5 @@ unsubscribeUser:
     - http:
         path: unsubscribe
         method: post
+        authorizer: aws_iam
         cors: true

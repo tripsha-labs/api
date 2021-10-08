@@ -2,12 +2,39 @@
  * @name - User controller
  * @description - THis will handle business logic for user module
  */
+import { Types } from 'mongoose';
 import { UserModel } from '../../models';
-import { dbConnect } from '../../utils';
+import { dbConnect, sendEmail } from '../../utils';
 import { prepareCommonFilter } from '../../helpers';
 import { ERROR_KEYS } from '../../constants';
 
 export class UserController {
+  static async inviteUser(user) {
+    try {
+      await dbConnect();
+      const checkUser = await UserModel.get({ email: user.email });
+      if (checkUser) {
+        await UserModel.update({ email: user.email }, { isHost: user.isHost });
+      } else {
+        await UserModel.create(user);
+      }
+      // try {
+      //   await sendEmail({
+      //     emails: [user.email],
+      //     name: 'Tripsher',
+      //     subject: `Greetings!!!`,
+      //     message: `You are invited to join Tripsha.`,
+      //   });
+      //   console.log('Email sent');
+      // } catch (err) {
+      //   console.log(err);
+      // }
+      return 'success';
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async createUser(user = {}) {
     try {
       await dbConnect();
@@ -29,10 +56,29 @@ export class UserController {
     }
   }
 
+  static async updateUserAdmin(id, user) {
+    try {
+      await dbConnect();
+      await UserModel.update({ _id: Types.ObjectId(id) }, user);
+      return 'success';
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
   static async updateUser(id, user) {
     try {
       await dbConnect();
-      await UserModel.update({ awsUserId: id }, user);
+      if (user && user.username) {
+        const res = await UserModel.count({
+          awsUserId: { $nin: [id] },
+          username: user.username,
+        });
+        if (res && res > 0) {
+          throw ERROR_KEYS.USER_ALREADY_EXISTS;
+        }
+      }
+      await UserModel.update({ awsUserId: { $in: [id] } }, user);
       return 'success';
     } catch (error) {
       console.log(error);
@@ -72,14 +118,49 @@ export class UserController {
                 $regex: new RegExp('^' + (filter.search || ''), 'i'),
               },
             },
+            {
+              email: {
+                $regex: new RegExp('^' + (filter.search || ''), 'i'),
+              },
+            },
           ],
         },
         select: { stripeCustomerId: 0, stripeAccountId: 0 },
-        ...prepareCommonFilter(filter, ['username']),
+        ...prepareCommonFilter(filter, ['username', 'email', 'createdAt']),
       };
+
+      // types
+      if (filter.userType) {
+        switch (filter.userType) {
+          case 'host':
+            params.filter['isHost'] = true;
+            break;
+          case 'admin':
+            params.filter['isAdmin'] = true;
+            break;
+          default:
+        }
+      }
+      // statuses
+      if (filter.userStatus) {
+        switch (filter.userStatus) {
+          case 'active':
+            params.filter['isBlocked'] = false;
+            params.filter['isActive'] = true;
+            break;
+          case 'deleted':
+            params.filter['isActive'] = false;
+            break;
+          case 'blocked':
+            params.filter['isBlocked'] = true;
+            break;
+          default:
+        }
+      }
       await dbConnect();
+      const userCount = await UserModel.count(params.filter);
       const users = await UserModel.list(params);
-      return { data: users, count: users.length };
+      return { data: users, count: userCount };
     } catch (error) {
       console.log(error);
       throw error;
@@ -119,5 +200,9 @@ export class UserController {
       console.log(error);
       throw error;
     }
+  }
+
+  static async getCurrentUser(prams) {
+    return UserController.get(prams);
   }
 }

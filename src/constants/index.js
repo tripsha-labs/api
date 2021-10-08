@@ -6,3 +6,4 @@
 export * from './constants';
 export * from './error-codes';
 export * from './log-messages';
+export * from './email-messages';

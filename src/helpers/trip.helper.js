@@ -2,8 +2,8 @@ import moment from 'moment';
 
 export const getCosting = preferences => {
   // Room costing
-  let totalRoomCost = preferences.room.cost || 0;
-  totalRoomCost = totalRoomCost.toFixed(2);
+  let totalRoomCost = preferences.room ? preferences.room.cost : 0;
+  totalRoomCost = totalRoomCost > 0 ? totalRoomCost.toFixed(2) : 0;
   totalRoomCost *= preferences.attendees;
 
   let discountedRoomCost = totalRoomCost;
@@ -18,12 +18,13 @@ export const getCosting = preferences => {
 
   // add on costing
   let totalAddOnCost = 0;
-  preferences.addOns.map(addOn => {
-    if (addOn.selected) {
-      totalAddOnCost += addOn.cost;
-    }
-    return addOn;
-  });
+  preferences.addOns &&
+    preferences.addOns.map(addOn => {
+      if (addOn.selected) {
+        totalAddOnCost += addOn.cost;
+      }
+      return addOn;
+    });
 
   let discountedAddOnCost = totalAddOnCost;
   if (
@@ -99,6 +100,10 @@ export const getDepositStatus = trip => {
 export const getBookingValidity = trip => {
   if (trip.lastBookingDate) {
     const expiration = moment(trip.lastBookingDate, 'YYYYMMDD');
+    const today = moment(new Date(), 'YYYYMMDD');
+    return expiration.diff(today, 'days') >= 0;
+  } else if (trip.startDate) {
+    const expiration = moment(trip.startDate, 'YYYYMMDD');
     const today = moment(new Date(), 'YYYYMMDD');
     return expiration.diff(today, 'days') >= 0;
   } else return false;

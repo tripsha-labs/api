@@ -2,7 +2,7 @@
   "Template": {
     "TemplateName": "NotificationTemplate",
     "SubjectPart": "{{subject}}",
-    "HtmlPart": "<div style='width: 500px;margin: 0 auto;'><h2 style='text-align: center;'><img src='https://uploads-ssl.webflow.com/5df2fb82be804bfe43840dcf/5e0dbdf26de938e426258f37_Screen%20Shot%202020-01-02%20at%2010.54.41%20PM.png' alt='' width='291' height='87' /></h2><hr /><p>Hi {{name}},</p><p>{{message}}</p><p>Thanks,<br /> Team Tripsha</p><br />",
-    "TextPart": "Hi {{name}}, {{message}} Thanks, Team Tripsha"
+    "HtmlPart": "<div style='width: 500px;margin: 0 auto;'><h2 style='text-align: center;'><img src='https://uploads-ssl.webflow.com/5df2fb82be804bfe43840dcf/5e0dbdf26de938e426258f37_Screen%20Shot%202020-01-02%20at%2010.54.41%20PM.png' alt='' width='291' height='87' /></h2><hr /><p>Hi {{name}},</p><p>{{message}}</p><p>Happy travels,<br /> Tripsha Team</p><br />",
+    "TextPart": "Hi {{name}}, {{message}} Thanks, Tripsha Team"
   }
 }

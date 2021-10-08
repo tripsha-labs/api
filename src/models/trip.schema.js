@@ -19,6 +19,7 @@ const tripSchema = new mongoose.Schema(
     languages: [String],
     interests: [String],
     pictureUrls: [String],
+    thumbnailUrls: [String],
     itineraries: { type: Array, default: [] },
     rooms: { type: Array, default: [] },
     addOns: { type: Array, default: [] },
@@ -39,6 +40,9 @@ const tripSchema = new mongoose.Schema(
     },
 
     // Backend generated fields
+    guestCount: { type: Number, default: 0 },
+    externalCount: { type: Number, default: 0 },
+    hostCount: { type: Number, default: 1 },
     spotsFilled: { type: Number, default: 0 },
     favoriteCount: { type: Number, default: 0 },
     tripLength: { type: Number, default: 0 },
@@ -52,6 +56,7 @@ const tripSchema = new mongoose.Schema(
     isFull: { type: Boolean, default: false },
     spotsReserved: { type: Number, default: 0 },
     showGroupHistory: { type: Boolean, default: true },
+    removeRequested: { type: Boolean, default: false },
   },
   {
     timestamps: true,

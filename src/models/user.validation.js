@@ -35,6 +35,18 @@ const updateUserSchema = {
     empty: true,
     max: 100,
   },
+  facebook_url: {
+    type: 'string',
+    optional: true,
+  },
+  instagram_url: {
+    type: 'string',
+    optional: true,
+  },
+  twitter_url: {
+    type: 'string',
+    optional: true,
+  },
   bio: { type: 'string', optional: true },
   isLookingForTravel: {
     type: 'boolean',
@@ -112,5 +124,35 @@ const createUserSchema = {
   $$strict: true,
 };
 
+const adminUpdateUserSchema = {
+  isBlocked: {
+    type: 'boolean',
+    optional: true,
+  },
+  isHost: {
+    type: 'boolean',
+    optional: true,
+  },
+  isAdmin: {
+    type: 'boolean',
+    optional: true,
+  },
+  isActive: {
+    type: 'boolean',
+    optional: true,
+  },
+  hostShare: {
+    type: 'number',
+    optional: true,
+  },
+  password: {
+    type: 'string',
+    optional: true,
+  },
+  $$strict: true,
+};
 export const createUserValidation = new Validator().compile(createUserSchema);
 export const updateUserValidation = new Validator().compile(updateUserSchema);
+export const adminUpdateUserValidation = new Validator().compile(
+  adminUpdateUserSchema
+);

@@ -1,6 +1,9 @@
 export const LogMessages = {
   CREATE_DRAFT_TRIP_HOST: trip_name => {
-    return { message: `Trip ${trip_name} saved as draft.`, type: 'Trip' };
+    return {
+      message: `Trip ${trip_name} saved as draft.`,
+      type: 'Trip',
+    };
   },
   CREATE_TRIP_HOST: trip_name => {
     return { message: `You created ${trip_name}.`, type: 'Trip' };
@@ -20,6 +23,12 @@ export const LogMessages = {
       type: 'Booking',
     };
   },
+  BOOKING_REQUEST_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `${traveller_name} submitted a booking request for ${trip_name}.`,
+      type: 'Booking',
+    };
+  },
   BOOKING_REQUEST_WITHDRAW_TRAVELLER: trip_name => {
     return {
       message: `You withdrew your booking request for ${trip_name}.`,
@@ -29,6 +38,18 @@ export const LogMessages = {
   BOOKING_REQUEST_WITHDRAW_HOST: (traveller_name, trip_name) => {
     return {
       message: `${traveller_name} withdrew a booking request for ${trip_name}.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_EXPIRED_TRAVELLER: trip_name => {
+    return {
+      message: `Your booking request for ${trip_name} expired.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_EXPIRED_HOST: (traveller_name, trip_name) => {
+    return {
+      message: `${traveller_name} booking request for ${trip_name} expired.`,
       type: 'Booking',
     };
   },

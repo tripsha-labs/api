@@ -32,6 +32,11 @@ export const ERROR_KEYS = {
       'Whoops! One or both of your trip dates are invalid. Trips must within the next 24 months to be valid.',
     code: 400,
   },
+  INVALID_ETERNAL_COUNT: {
+    type: 'invalidExternalCount',
+    message: 'Whoops! Spots filled should not be greater than max group size.',
+    code: 400,
+  },
   TRIP_NOT_FOUND: {
     type: 'tripNotFound',
     message:
@@ -76,9 +81,14 @@ export const ERROR_KEYS = {
       You need to select your booking preferences once again while you booking again.`,
     code: 400,
   },
+  TRIP_IS_FULL_HOST: {
+    type: 'TripFull',
+    message: `Trip already full, incrase your spots avaialable count and max group size on edit trip page or try force add option. This will increase the max group size by one automatically.`,
+    code: 400,
+  },
   TRIP_BOOKING_CLOSED: {
     type: 'TripBookingClosed',
-    message: `We are closed our bookings. For more details you may contact trip host or Tripsha administrator.`,
+    message: `This trip is closed for bookings. If you think this is in error, please message the trip host or Tripsha Team.`,
     code: 400,
   },
   TRIP_RESOURCES_FULL: {
@@ -94,6 +104,11 @@ export const ERROR_KEYS = {
   HOST_REQUEST_NOT_FOUND: {
     type: 'HostRequestNotFound',
     message: `Ooops! looks like the host request id is invalid.`,
+    code: 400,
+  },
+  APPROVAL_NOT_FOUND: {
+    type: 'ApprovalNotFound',
+    message: `Ooops! looks like the approval id is invalid.`,
     code: 400,
   },
   HOST_REQUEST_ALREADY_EXISTS: {
@@ -115,6 +130,16 @@ export const ERROR_KEYS = {
     type: 'PAYMENT_FAILED',
     message:
       'Oops, the payment method you provided did not go through. This request will remain active for another 72 hours. Please try an alternative payment method',
+    code: 400,
+  },
+  USER_INVITE_FAILED: {
+    type: 'USER_INVITE_FAILED',
+    message: 'Failed to invite user',
+    code: 400,
+  },
+  USER_ADD_FAILED: {
+    type: 'USER_ADD_FAILED',
+    message: 'Unable to add new user',
     code: 400,
   },
 };

@@ -43,3 +43,7 @@ export * from './host-request.validation';
 
 export * from './activity-logs.schema';
 export * from './activity-logs.model';
+
+export * from './approval.model';
+export * from './approval.schema';
+export * from './approval.validation';

@@ -1,0 +1,26 @@
+listApprovals:
+  handler: src/routes/approvals/handler.listApprovals
+  events:
+    - http:
+        path: approvals
+        method: get
+        cors: true
+        authorizer: aws_iam
+
+createApproval:
+  handler: src/routes/approvals/handler.createApproval
+  events:
+    - http:
+        path: approvals
+        method: post
+        cors: true
+        authorizer: aws_iam
+
+actionApproval:
+  handler: src/routes/approvals/handler.actionApproval
+  events:
+    - http:
+        path: approvals/{id}
+        method: put
+        cors: true
+        authorizer: aws_iam

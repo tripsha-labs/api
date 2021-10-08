@@ -5,7 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { dbConnect, logActivity, sendEmail, EmailButton } from '../../utils';
+import { dbConnect, logActivity, sendEmail } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -16,21 +16,38 @@ import {
   MessageModel,
   BookingModel,
 } from '../../models';
-import { ERROR_KEYS, APP_CONSTANTS, LogMessages } from '../../constants';
+import {
+  ERROR_KEYS,
+  APP_CONSTANTS,
+  LogMessages,
+  EmailMessages,
+} from '../../constants';
 
 export class TripController {
+  static async markForRemove(params, remove_requested) {
+    return TripModel.update(params, {
+      removeRequested: remove_requested,
+    });
+  }
   static async listTrips(filter, memberId) {
     try {
-      const currentDate = parseInt(moment().format('YYYYMMDD'));
+      let currentDate = parseInt(
+        moment()
+          .subtract(4, 'weeks')
+          .format('YYYYMMDD')
+      );
       const filterParams = {
-        isArchived: false,
+        // isArchived: false,
         isActive: true,
         isPublic: true,
-        status: 'published',
+        status: { $in: ['published', 'completed'] },
         endDate: { $gte: currentDate },
-        isFull: false, // TBD: do we need to show or not, currently full trips not visible
+        // isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
-      if (filter.pastTrips) filterParams['endDate'] = { $lt: currentDate };
+      if (filter.pastTrips) {
+        currentDate = parseInt(moment().format('YYYYMMDD'));
+        filterParams['endDate'] = { $lt: currentDate };
+      }
       const multiFilter = [];
       if (filter.minGroupSize)
         multiFilter.push({
@@ -97,9 +114,9 @@ export class TripController {
         ),
       });
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
-      params.push({ $limit: limit });
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
       params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
       params.push({
         $lookup: {
           from: 'users',
@@ -213,15 +230,14 @@ export class TripController {
       });
       if (params['status'] === 'published') {
         try {
-          const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${trip['_id']}`;
           await sendEmail({
             emails: [user['email']],
             name: user['firstName'],
-            subject: `Greetings ${user['firstName']}`,
-            message: `Trip <b>${params['title']}</b> published. ${EmailButton(
-              'View Trip',
-              trip_url
-            )}`,
+            subject: EmailMessages.TRIP_PUBLISHED.subject,
+            message: EmailMessages.TRIP_PUBLISHED.message(
+              trip['_id'],
+              params['title']
+            ),
           });
         } catch (err) {
           console.log(err);
@@ -230,18 +246,21 @@ export class TripController {
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
+        isOwner: { $ne: true },
       });
-      // Spots filled percent
-      const spotsFilled = Math.round(
-        ((memberCount - 1) / (params['maxGroupSize'] - 1)) *
-          APP_CONSTANTS.SPOTSFILLED_PERCEENT
-      );
-      const tripDetails = {
-        groupSize: memberCount,
-        spotsFilled: spotsFilled,
-        isFull: spotsFilled === APP_CONSTANTS.SPOTSFILLED_PERCEENT,
+
+      const totalMemberCount = params['externalCount'] + memberCount;
+      const updateTrip = {
+        spotsFilled: totalMemberCount,
+        spotsAvailable: params['maxGroupSize'] - totalMemberCount,
+        groupSize: totalMemberCount,
+        isFull: totalMemberCount >= params['maxGroupSize'],
+        spotFilledRank: Math.round(
+          (totalMemberCount / params['maxGroupSize']) *
+            APP_CONSTANTS.SPOTSFILLED_PERCEENT
+        ),
       };
-      await TripModel.update(trip._id, tripDetails);
+      await TripModel.update(trip._id, updateTrip);
       return trip;
     } catch (error) {
       console.log(error);
@@ -319,16 +338,27 @@ export class TripController {
       const memberCount = await MemberModel.count({
         tripId: tripId,
         isMember: true,
+        isOwner: { $ne: true },
       });
-
+      const guestCount = tripDetails['guestCount'] || 0;
+      const externalCount = trip.hasOwnProperty('externalCount')
+        ? trip['externalCount']
+        : tripDetails['externalCount'] || 0;
+      const totalMemberCount = externalCount + memberCount + guestCount;
       const maxGroupSize = trip['maxGroupSize']
         ? trip['maxGroupSize']
         : tripDetails['maxGroupSize'];
-      trip['groupSize'] = memberCount;
-      trip['spotsFilled'] = Math.round(
-        (memberCount / maxGroupSize) * APP_CONSTANTS.SPOTSFILLED_PERCEENT
+      if (totalMemberCount > maxGroupSize) {
+        throw ERROR_KEYS.INVALID_ETERNAL_COUNT;
+      }
+      trip['guestCount'] = guestCount;
+      trip['groupSize'] = totalMemberCount;
+      trip['spotsFilled'] = totalMemberCount;
+      trip['spotsAvailable'] = maxGroupSize - totalMemberCount;
+      trip['spotFilledRank'] = Math.round(
+        (totalMemberCount / maxGroupSize) * APP_CONSTANTS.SPOTSFILLED_PERCEENT
       );
-      trip['isFull'] = trip['spotsAvailable'] === 0;
+      trip['isFull'] = totalMemberCount >= maxGroupSize;
 
       await TripModel.update(tripId, trip);
       const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
@@ -344,15 +374,11 @@ export class TripController {
       });
       if (trip['status'] == 'published') {
         try {
-          const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
           await sendEmail({
             emails: [user['email']],
             name: user['firstName'],
-            subject: `Greetings ${user['firstName']}`,
-            message: `Trip <b>${tripName}</b> published. ${EmailButton(
-              'View Trip',
-              trip_url
-            )}`,
+            subject: EmailMessages.TRIP_PUBLISHED.subject,
+            message: EmailMessages.TRIP_PUBLISHED.message(tripId, tripName),
           });
           console.log('Email sent');
         } catch (err) {
@@ -407,12 +433,15 @@ export class TripController {
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      const members = await MemberModel.list({ tripId: tripId });
+      const members = await MemberModel.list({ filter: { tripId: tripId } });
       const bookings = await BookingModel.list({
-        tripId: tripId,
-        status: { $in: ['pending', 'approved'] },
+        filter: {
+          tripId: tripId,
+          status: { $in: ['pending', 'approved'] },
+        },
       });
       if (trip.ownerId == user._id.toString()) {
+        console.log(trip.status, members.length, bookings.length);
         if (
           trip.status == 'draft' ||
           members.length <= 1 ||
@@ -439,6 +468,16 @@ export class TripController {
         } else {
           throw ERROR_KEYS.CANNOT_DELETE_TRIP;
         }
+      } else if (user.isAdmin) {
+        await TripModel.update(tripId, { isArchived: true, isDeleted: true });
+        await logActivity({
+          ...LogMessages.DELETE_TRIP_HOST(trip['title']),
+          tripId: trip._id.toString(),
+          audienceIds: [trip.owner_id],
+          userId: user._id.toString(),
+        });
+      } else {
+        throw ERROR_KEYS.UNAUTHORIZED;
       }
       return 'success';
     } catch (error) {
@@ -468,12 +507,13 @@ export class TripController {
         filterParams['memberId'] == user._id
       )
         filterParams['isOwner'] = true;
-      else filterParams['isOwner'] = { $exists: false };
       // Favorite trips
-      if (filter.isFavorite) {
+      else if (filter.isFavorite) {
         delete filterParams['isMember'];
         filterParams['isFavorite'] = true;
       }
+
+      // filterParams['isOwner'] = { $exists: false };
 
       const params = [
         {
@@ -534,10 +574,11 @@ export class TripController {
           'updatedAt'
         ),
       });
-      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
-      params.push({ $limit: limit });
+
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
       params.push({
         $lookup: {
           from: 'users',

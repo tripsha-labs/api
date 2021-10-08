@@ -2,8 +2,7 @@
  * @name - Booking controller
  * @description - This will handle business logic for Booking module
  */
-import { dbConnect, StripeAPI, logActivity } from '../../utils';
-import moment from 'moment';
+import { dbConnect, StripeAPI, logActivity, sendEmail } from '../../utils';
 import {
   getCosting,
   getBookingValidity,
@@ -12,22 +11,22 @@ import {
   prepareSortFilter,
 } from '../../helpers';
 import { BookingModel, UserModel, TripModel } from '../../models';
-import { ERROR_KEYS, LogMessages, APP_CONSTANTS } from '../../constants';
+import {
+  ERROR_KEYS,
+  LogMessages,
+  APP_CONSTANTS,
+  EmailMessages,
+} from '../../constants';
 import { MemberController } from '../members/member.ctrl';
 import { ObjectID } from 'mongodb';
 
 export class BookingController {
   static async createBooking(params, awsUserId) {
     await dbConnect();
-    const bookingData = { ...params };
+    const bookingData = params;
     const trip = await TripModel.getById(params.tripId);
-    const spotsReserved = trip.spotsReserved + bookingData.attendees;
-    const spotsFilled = trip.spotsFilled + spotsReserved;
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    if (
-      bookingData.attendees > trip.spotsAvailable &&
-      spotsFilled > trip.spotsAvailable
-    )
+    if (bookingData.attendees > trip.spotsAvailable)
       throw ERROR_KEYS.TRIP_IS_FULL;
 
     const user = await UserModel.get({ awsUserId: awsUserId });
@@ -49,51 +48,50 @@ export class BookingController {
       bookingData['isDepositApplicable'] = getDepositStatus(trip);
       costing = getCosting(bookingData);
     }
-    const finalBookingData = { ...bookingData, ...costing };
+    const finalBookingData = {
+      ...bookingData,
+      ...costing,
+    };
     const tripUpdate = {
-      spotsReserved: spotsReserved,
       isLocked: true,
     };
-    if (bookingData.room) {
-      tripUpdate['rooms'] = [];
-      trip.rooms.forEach(room => {
-        if (room.id == bookingData.room.id) {
-          const filledCount = room['filled']
-            ? room['filled'] + bookingData.attendees
-            : bookingData.attendees;
-          if (filledCount > room['available']) {
-            throw ERROR_KEYS.TRIP_RESOURCES_FULL;
-          }
-          room['filled'] = filledCount;
-        }
-        tripUpdate['rooms'].push(room);
-      });
-    }
-    if (bookingData.addOns && bookingData.addOns.length > 0) {
-      tripUpdate['addOns'] = [];
-      trip.addOns.forEach(addOn => {
-        const bAddon = bookingData.addOns.find(
-          bAddOn => bAddOn.id === addOn.id
-        );
-        if (bAddon) {
-          const filledCount = addOn['filled']
-            ? addOn['filled'] + bAddon.attendees
-            : bAddon.attendees;
-          if (filledCount > addOn['available']) {
-            throw ERROR_KEYS.TRIP_RESOURCES_FULL;
-          }
-          addOn['filled'] = filledCount;
-        }
-        tripUpdate['addOns'].push(addOn);
-      });
-    }
     const booking = await BookingModel.create(finalBookingData);
+
     await TripModel.update(trip._id, tripUpdate);
+    // Traveller activity record
     await logActivity({
       ...LogMessages.BOOKING_REQUEST_TRAVELLER(trip['title']),
       tripId: trip._id.toString(),
       audienceIds: [user._id.toString()],
       userId: user._id.toString(),
+    });
+    // Host activity record
+    await logActivity({
+      ...LogMessages.BOOKING_REQUEST_HOST(user['firstName'], trip['title']),
+      tripId: trip._id.toString(),
+      audienceIds: [tripOwner._id.toString()],
+      userId: user._id.toString(),
+    });
+    // Traveller email
+    await sendEmail({
+      emails: [user['email']],
+      name: user['firstName'],
+      subject: EmailMessages.BOOKING_REQUEST_TRAVELLER.subject,
+      message: EmailMessages.BOOKING_REQUEST_TRAVELLER.message(
+        booking._id,
+        trip._id.toString(),
+        trip['title']
+      ),
+    });
+    //Host email
+    await sendEmail({
+      emails: [tripOwner['email']],
+      name: tripOwner['firstName'],
+      subject: EmailMessages.BOOKING_REQUEST_HOST.subject,
+      message: EmailMessages.BOOKING_REQUEST_HOST.message(
+        trip._id.toString(),
+        trip['title']
+      ),
     });
     return booking;
   }
@@ -143,9 +141,9 @@ export class BookingController {
       ),
     });
     const limit = filters.limit ? parseInt(filters.limit) : APP_CONSTANTS.LIMIT;
-    params.push({ $limit: limit });
     const page = filters.page ? parseInt(filters.page) : APP_CONSTANTS.PAGE;
     params.push({ $skip: limit * page });
+    params.push({ $limit: limit });
     params.push({
       $project: {
         memberId: {
@@ -197,13 +195,16 @@ export class BookingController {
     const tripUpdate = {
       spotsReserved: trip.spotsReserved - booking.attendees,
     };
+    tripUpdate['spotsReserved'] =
+      tripUpdate['spotsReserved'] < 0 ? 0 : tripUpdate['spotsReserved'];
     let validForUpdate = false;
     let bookingUpdate = {};
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
-    if (params['action']) {
-      switch (params['action']) {
+    const { action, forceAddTraveller } = params || {};
+    if (action) {
+      switch (action) {
         // host
         case 'approve':
           validForUpdate = true;
@@ -212,20 +213,18 @@ export class BookingController {
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
+          if (
+            trip.spotsAvailable - booking.attendees < 0 &&
+            !forceAddTraveller
+          ) {
+            throw ERROR_KEYS.TRIP_IS_FULL_HOST;
+          }
           if (booking.totalFare && booking.totalFare > 0) {
             if (booking.status !== 'pending') {
               console.log('Request already processed');
               throw ERROR_KEYS.INVALID_ACTION;
             }
             try {
-              console.log({
-                amount: parseInt(booking.currentDue * 100),
-                currency: booking.currency,
-                customerId: booking.memberStripeId,
-                paymentMethod: booking.stripePaymentMethod.id,
-                confirm: true,
-                beneficiary: booking.onwerStripeId,
-              });
               const paymentIntent = await StripeAPI.createPaymentIntent({
                 amount: parseInt(booking.currentDue * 100),
                 currency: booking.currency,
@@ -233,6 +232,7 @@ export class BookingController {
                 paymentMethod: booking.stripePaymentMethod.id,
                 confirm: true,
                 beneficiary: booking.onwerStripeId,
+                hostShare: user.hostShare,
               });
 
               if (paymentIntent) {
@@ -287,6 +287,28 @@ export class BookingController {
                     userId: user._id.toString(),
                   });
                 }
+                // Traveller
+                await sendEmail({
+                  emails: [memberInfo['email']],
+                  name: memberInfo['firstName'],
+                  subject:
+                    EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELLER.subject,
+                  message: EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELLER.message(
+                    trip._id.toString(),
+                    trip['title']
+                  ),
+                });
+                // host
+                await sendEmail({
+                  emails: [user['email']],
+                  name: user['firstName'],
+                  subject: EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST.subject,
+                  message: EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST.message(
+                    trip._id.toString(),
+                    trip['title'],
+                    memberInfo['firstName']
+                  ),
+                });
               } else {
                 throw 'payment failed';
               }
@@ -340,10 +362,10 @@ export class BookingController {
             };
           }
           await BookingModel.update(booking._id, bookingUpdate);
-
           await MemberController.memberAction({
             tripId: booking.tripId,
             action: 'addMember',
+            forceAddTraveller: forceAddTraveller,
             memberIds: [booking.memberId],
             bookingId: bookingId,
             awsUserId: awsUserId,
@@ -378,46 +400,18 @@ export class BookingController {
             console.log('Request alrady processed');
             throw ERROR_KEYS.INVALID_ACTION;
           }
-          if (booking.room) {
-            tripUpdate['rooms'] = [];
-            trip.rooms.forEach(room => {
-              if (room.id == booking.room.id) {
-                let filledCount = room['filled'] - booking.attendees;
-                if (filledCount < 0) {
-                  filledCount = 0;
-                }
-                room['filled'] = filledCount;
-              }
-              tripUpdate['rooms'].push(room);
-            });
-          }
-          if (booking.addOns && booking.addOns.length > 0) {
-            tripUpdate['addOns'] = [];
-            trip.addOns.forEach(addOn => {
-              const bAddon = booking.addOns.find(
-                bAddOn => bAddOn.id === addOn.id
-              );
-              if (bAddon) {
-                let filledCount = addOn['filled'] - bAddon.attendees;
-                if (filledCount < 0) {
-                  filledCount = 0;
-                }
-                addOn['filled'] = filledCount;
-              }
-              tripUpdate['addOns'].push(addOn);
-            });
-          }
           bookingUpdate = {
             status: 'declined',
           };
           await BookingModel.update(booking._id, bookingUpdate);
-
+          // Traveller
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELLER(trip['title']),
             tripId: trip._id.toString(),
             audienceIds: [memberInfo._id.toString()],
             userId: user._id.toString(),
           });
+          // Host
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
               `${memberInfo.firstName} ${memberInfo.lastName}`,
@@ -427,10 +421,33 @@ export class BookingController {
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
+          // Traveller
+          await sendEmail({
+            emails: [memberInfo['email']],
+            name: memberInfo['firstName'],
+            subject: EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELLER.subject,
+            message: EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELLER.message(
+              trip._id.toString(),
+              trip['title']
+            ),
+          });
+          // host
+          await sendEmail({
+            emails: [user['email']],
+            name: user['firstName'],
+            subject: EmailMessages.BOOKING_REQUEST_DECLINED_HOST.subject,
+            message: EmailMessages.BOOKING_REQUEST_DECLINED_HOST.message(
+              trip._id.toString(),
+              trip['title'],
+              memberInfo['firstName']
+            ),
+          });
           break;
         // guest
         case 'withdraw':
           validForUpdate = true;
+          const tripOwner = await UserModel.get({ _id: trip.ownerId });
+          if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
           if (!(user.isAdmin || booking.memberId === user._id.toString())) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -438,45 +455,17 @@ export class BookingController {
             console.log('Request already processed');
             throw ERROR_KEYS.INVALID_ACTION;
           }
-          if (booking.room) {
-            tripUpdate['rooms'] = [];
-            trip.rooms.forEach(room => {
-              if (room.id == booking.room.id) {
-                let filledCount = room['filled'] - booking.attendees;
-                if (filledCount < 0) {
-                  filledCount = 0;
-                }
-                room['filled'] = filledCount;
-              }
-              tripUpdate['rooms'].push(room);
-            });
-          }
-          if (booking.addOns && booking.addOns.length > 0) {
-            tripUpdate['addOns'] = [];
-            trip.addOns.forEach(addOn => {
-              const bAddon = booking.addOns.find(
-                bAddOn => bAddOn.id === addOn.id
-              );
-              if (bAddon) {
-                let filledCount = addOn['filled'] - bAddon.attendees;
-                if (filledCount < 0) {
-                  filledCount = 0;
-                }
-                addOn['filled'] = filledCount;
-              }
-              tripUpdate['addOns'].push(addOn);
-            });
-          }
-
           await BookingModel.update(booking._id, {
             status: 'withdrawn',
           });
+          // traveller
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELLER(trip['title']),
             tripId: trip._id.toString(),
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
+          // host
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_WITHDRAW_HOST(
               `${user.firstName} ${user.lastName}`,
@@ -486,6 +475,27 @@ export class BookingController {
             audienceIds: [trip.ownerId.toString()],
             userId: user._id.toString(),
           });
+          // Traveller
+          await sendEmail({
+            emails: [memberInfo['email']],
+            name: memberInfo['firstName'],
+            subject: EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELLER.subject,
+            message: EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELLER.message(
+              trip._id.toString(),
+              trip['title']
+            ),
+          });
+          // host
+          await sendEmail({
+            emails: [tripOwner['email']],
+            name: tripOwner['firstName'],
+            subject: EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST.subject,
+            message: EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST.message(
+              trip._id.toString(),
+              trip['title'],
+              memberInfo['firstName']
+            ),
+          });
           break;
 
         default:
@@ -493,6 +503,7 @@ export class BookingController {
       }
     }
     if (validForUpdate) await TripModel.update(trip._id, tripUpdate);
+    return 'success';
   }
 
   static async getBooking(bookingId) {
@@ -509,12 +520,19 @@ export class BookingController {
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
+
     if (user._id.toString() === booking.memberId) {
       if (booking.totalFare && booking.totalFare > 0) {
         if (booking.status !== 'approved' && booking.currentDue <= 0) {
           console.log('Request already processed');
           throw ERROR_KEYS.INVALID_ACTION;
         }
+        const tripInfo = await TripModel.get({
+          _id: ObjectID(booking.tripId),
+        });
+        const ownerInfo = await UserModel.get({
+          _id: tripInfo.ownerId,
+        });
         try {
           const paymentIntent = await StripeAPI.createPaymentIntent({
             amount: parseInt(booking.currentDue * 100),
@@ -523,6 +541,7 @@ export class BookingController {
             paymentMethod: booking.stripePaymentMethod.id,
             confirm: true,
             beneficiary: booking.onwerStripeId,
+            hostShare: ownerInfo.hostShare,
           });
           if (paymentIntent) {
             booking.paymentHistory.push({
@@ -584,6 +603,7 @@ export class BookingController {
         }
       }
     } else {
+      console.log('Inside do part payment');
       throw ERROR_KEYS.INVALID_ACTION;
     }
     return booking;
@@ -635,9 +655,9 @@ export class BookingController {
       ),
     });
     const limit = filters.limit ? parseInt(filters.limit) : APP_CONSTANTS.LIMIT;
-    params.push({ $limit: limit });
     const page = filters.page ? parseInt(filters.page) : APP_CONSTANTS.PAGE;
     params.push({ $skip: limit * page });
+    params.push({ $limit: limit });
     params.push({
       $project: {
         tripId: {

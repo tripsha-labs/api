@@ -17,6 +17,7 @@ const memberSchema = new mongoose.Schema(
     isFavorite: { type: Boolean, default: false },
     favoriteOn: { type: String },
     unFavoriteOn: { type: String },
+    removeRequested: { type: Boolean },
   },
   {
     timestamps: true,

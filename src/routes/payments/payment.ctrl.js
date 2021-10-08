@@ -18,12 +18,14 @@ export class PaymentController {
     if (!email) throw new Error('Missing email.');
     const customer = await StripeAPI.createCustomer(paymentMethod, email);
     if (customer && customer.id) {
+      if (!customer.id) throw new Error('Missing Stripe Customer ID.');
+      const resp = await StripeAPI.attachCard(paymentMethod, customer.id);
       await dbConnect();
       await UserModel.update(
         { awsUserId: awsUserId },
         { stripeCustomerId: customer.id }
       );
-      return customer;
+      return resp;
     } else {
       throw new Error('Missing Stripe Customer ID.');
     }
@@ -84,6 +86,7 @@ export class PaymentController {
       customerId,
       paymentMethod,
       beneficiary,
+      hostShare: user.hostShare,
     });
 
     return paymentIntent;
