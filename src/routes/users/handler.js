@@ -35,11 +35,11 @@ export const inviteUser = async (event, context) => {
           ...ERROR_KEYS.MISSING_FIELD,
           field: 'password',
         };
-      const username = await _get_unique_username(
-        params['email'],
-        params['email'].split('@')[0]
-      );
-      params['username'] = username;
+      params['username'] = params['username'] || params['email'].split('@')[0];
+      if (_check_username_exists(params['email'], params['username']))
+        throw {
+          ...ERROR_KEYS.USERNAME_ALREADY_EXISTS,
+        };
       params['isEmailVerified'] = true;
       const createUserInfo = {
         email: params.email,
@@ -72,7 +72,7 @@ export const inviteUser = async (event, context) => {
 };
 
 /**
- * Invite Users
+ * User update by admin
  */
 
 export const updateUserAdmin = async (event, context) => {
@@ -84,6 +84,12 @@ export const updateUserAdmin = async (event, context) => {
       const params = JSON.parse(event.body);
       const errors = adminUpdateUserValidation(params);
       if (errors != true) throw errors.shift();
+      if (params.username) {
+        if (_check_username_exists(params['email'], params['username']))
+          throw {
+            ...ERROR_KEYS.USERNAME_ALREADY_EXISTS,
+          };
+      }
       const user = await UserController.get({
         _id: Types.ObjectId(event.pathParameters.id),
       });
@@ -159,6 +165,11 @@ export const createUser = async (event, context) => {
         console.log('User already exists', err);
       }
     } else {
+      if (userInfo['username'])
+        if (_check_username_exists(userInfo['email'], userInfo['username']))
+          throw {
+            ...ERROR_KEYS.USERNAME_ALREADY_EXISTS,
+          };
       if (userInfo.email_verified)
         createUserPayload['isEmailVerified'] = userInfo.email_verified;
       if (userInfo['custom:firstName'])
@@ -204,7 +215,7 @@ export const createUser = async (event, context) => {
     } else {
       const username = await _get_unique_username(
         createUserPayload['email'],
-        createUserPayload['email'].split('@')[0]
+        userInfo.username || createUserPayload['email'].split('@')[0]
       );
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
@@ -213,6 +224,8 @@ export const createUser = async (event, context) => {
         name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
         email: createUserPayload.email,
       });
+      // Add support user in the conversation
+      await MessageController.addSupportMember(userInfo.awsUserId);
     }
 
     return success(result);
@@ -254,12 +267,16 @@ export const getUser = async (event, context) => {
   }
 };
 
-const _get_unique_username = async (email, username) => {
+const _check_username_exists = async (email, username) => {
   let userExists = await UserController.isExists({
     username: username,
     email: { $ne: email },
   });
-  if (userExists) {
+  return userExists ? true : false;
+};
+
+const _get_unique_username = async (email, username) => {
+  if (_check_username_exists(email, username)) {
     username = username + '_' + moment().format('X');
   }
   return username;
@@ -320,13 +337,9 @@ export const deleteUser = async (event, context) => {};
 export const isUserExists = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
-    if (!(data && data.username))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
-    const result = await UserController.isExists({
-      awsUserId: { $nin: [event.requestContext.identity.cognitoIdentityId] },
-      username: data.username,
-    });
-    return success(result);
+    if (!(data && data.username && data.email))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username or email' };
+    return success(_check_username_exists(data['email'], data['username']));
   } catch (error) {
     console.log(error);
     return failure(error);
