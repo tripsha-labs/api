@@ -35,11 +35,13 @@ export const inviteUser = async (event, context) => {
           ...ERROR_KEYS.MISSING_FIELD,
           field: 'password',
         };
+      params['email'] = params['email'].toLowerCase();
       params['username'] = params['username'] || params['email'].split('@')[0];
-      if (_check_username_exists(params['email'], params['username']))
-        throw {
-          ...ERROR_KEYS.USERNAME_ALREADY_EXISTS,
-        };
+      const exists = await _check_username_exists(
+        params['email'],
+        params['username']
+      );
+      if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
       params['isEmailVerified'] = true;
       const createUserInfo = {
         email: params.email,
@@ -84,19 +86,21 @@ export const updateUserAdmin = async (event, context) => {
       const params = JSON.parse(event.body);
       const errors = adminUpdateUserValidation(params);
       if (errors != true) throw errors.shift();
-      if (params.username) {
-        if (_check_username_exists(params['email'], params['username']))
-          throw {
-            ...ERROR_KEYS.USERNAME_ALREADY_EXISTS,
-          };
-      }
       const user = await UserController.get({
         _id: Types.ObjectId(event.pathParameters.id),
       });
+      if (params.username) {
+        const exists = await _check_username_exists(
+          user['email'],
+          params['username']
+        );
+        if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
+      }
+
       if (params['password'] && params['password'] != '') {
         await setUserPassword(event, {
           password: params['password'],
-          email: user.email,
+          email: user.email.toLowerCase(),
         });
         delete params['password'];
       }
@@ -144,6 +148,7 @@ export const createUser = async (event, context) => {
   try {
     const userInfo = await getCurrentUser(event);
     if (!userInfo) throw 'Create User failed';
+    userInfo['email'] = userInfo['email'].toLowerCase();
     const createUserPayload = {
       email: userInfo.email,
     };
@@ -165,11 +170,16 @@ export const createUser = async (event, context) => {
         console.log('User already exists', err);
       }
     } else {
-      if (userInfo['username'])
-        if (_check_username_exists(userInfo['email'], userInfo['username']))
+      if (userInfo['username']) {
+        const exists = await _check_username_exists(
+          userInfo['email'],
+          userInfo['username']
+        );
+        if (exists)
           throw {
             ...ERROR_KEYS.USERNAME_ALREADY_EXISTS,
           };
+      }
       if (userInfo.email_verified)
         createUserPayload['isEmailVerified'] = userInfo.email_verified;
       if (userInfo['custom:firstName'])
@@ -272,11 +282,12 @@ const _check_username_exists = async (email, username) => {
     username: username,
     email: { $ne: email },
   });
-  return userExists ? true : false;
+  return userExists;
 };
 
 const _get_unique_username = async (email, username) => {
-  if (_check_username_exists(email, username)) {
+  const exists = await _check_username_exists(email, username);
+  if (exists) {
     username = username + '_' + moment().format('X');
   }
   return username;
@@ -338,8 +349,12 @@ export const isUserExists = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
     if (!(data && data.username && data.email))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username or email' };
-    return success(_check_username_exists(data['email'], data['username']));
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
+    const exists = await _check_username_exists(
+      data['email'],
+      data['username']
+    );
+    return success(exists);
   } catch (error) {
     console.log(error);
     return failure(error);
