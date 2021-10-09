@@ -35,6 +35,7 @@ export const inviteUser = async (event, context) => {
           ...ERROR_KEYS.MISSING_FIELD,
           field: 'password',
         };
+      params['email'] = params['email'].toLowerCase();
       params['username'] = params['username'] || params['email'].split('@')[0];
       const exists = await _check_username_exists(
         params['email'],
@@ -99,7 +100,7 @@ export const updateUserAdmin = async (event, context) => {
       if (params['password'] && params['password'] != '') {
         await setUserPassword(event, {
           password: params['password'],
-          email: user.email,
+          email: user.email.toLowerCase(),
         });
         delete params['password'];
       }
@@ -147,6 +148,7 @@ export const createUser = async (event, context) => {
   try {
     const userInfo = await getCurrentUser(event);
     if (!userInfo) throw 'Create User failed';
+    userInfo['email'] = userInfo['email'].toLowerCase();
     const createUserPayload = {
       email: userInfo.email,
     };
@@ -347,7 +349,7 @@ export const isUserExists = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
     if (!(data && data.username && data.email))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username or email' };
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
     const exists = await _check_username_exists(
       data['email'],
       data['username']
