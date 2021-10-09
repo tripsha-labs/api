@@ -1265,55 +1265,6 @@
       }
     },
     "requestBodies": {
-      "createBooking": {
-        "description": "Create new booking payload",
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/bookingSchema"
-            }
-          }
-        }
-      },
-      "updateBooking": {
-        "description": "Create new booking payload",
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/bookingSchema"
-            }
-          }
-        }
-      },
-      "bookingAction": {
-        "description": "Booking action payload",
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "properties": {
-                "action": {
-                  "type": "string",
-                  "enum": ["approve", "decline", "withdraw"]
-                }
-              }
-            }
-          }
-        }
-      },
-      "paymentAction": {
-        "description": "Booking part payment payload",
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "properties": null
-            }
-          }
-        }
-      },
       "createHostRequest": {
         "description": "Create host request payload",
         "required": true,
@@ -1362,6 +1313,55 @@
                   "enum": ["approved", "declined"]
                 }
               }
+            }
+          }
+        }
+      },
+      "createBooking": {
+        "description": "Create new booking payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/bookingSchema"
+            }
+          }
+        }
+      },
+      "updateBooking": {
+        "description": "Create new booking payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/bookingSchema"
+            }
+          }
+        }
+      },
+      "bookingAction": {
+        "description": "Booking action payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": ["approve", "decline", "withdraw"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "paymentAction": {
+        "description": "Booking part payment payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": null
             }
           }
         }
@@ -1450,6 +1450,12 @@
                 },
                 "lastName": {
                   "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "avatarUrl": {
+                  "type": "string"
                 }
               }
             }
@@ -1469,12 +1475,12 @@
                 "lastName": {
                   "type": "string"
                 },
-                "userId": {
-                  "type": "string"
-                },
                 "dob": {
                   "type": "number",
                   "format": "YYYYMMDD"
+                },
+                "phone": {
+                  "type": "string"
                 },
                 "livesIn": {
                   "type": "string"
@@ -1489,10 +1495,22 @@
                 "bio": {
                   "type": "string"
                 },
+                "facebook_url": {
+                  "type": "string"
+                },
+                "instagram_url": {
+                  "type": "string"
+                },
+                "twitter_url": {
+                  "type": "string"
+                },
                 "isLookingForTravel": {
                   "type": "boolean"
                 },
                 "avatarUrl": {
+                  "type": "string"
+                },
+                "username": {
                   "type": "string"
                 },
                 "interests": {
@@ -1506,6 +1524,27 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "travelStyle": {
+                  "type": "string"
+                },
+                "travelWithHostReason": {
+                  "type": "string"
+                },
+                "itemsTravelWith": {
+                  "type": "string"
+                },
+                "isTripAgreed": {
+                  "type": "boolean"
+                },
+                "showDashboardTutorial": {
+                  "type": "boolean"
+                },
+                "hasFirstBooking": {
+                  "type": "boolean"
+                },
+                "isHostFirstLogin": {
+                  "type": "boolean"
                 }
               }
             }
@@ -1520,6 +1559,9 @@
             "schema": {
               "properties": {
                 "username": {
+                  "type": "string"
+                },
+                "email": {
                   "type": "string"
                 }
               }
@@ -1599,6 +1641,207 @@
                       }
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/host-requests": {
+      "get": {
+        "description": "Return list of matching host requests",
+        "operationId": "listHostRequests",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Host request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/HostRequestModel"
+                          }
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Count of the current records"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a host request",
+        "operationId": "createHostRequest",
+        "tags": ["HostRequests"],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createHostRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "Create host request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "string",
+                      "default": "request id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/host-requests/{hostRequestId}": {
+      "get": {
+        "description": "Returns a host request based on a request ID",
+        "operationId": "getHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Host Request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "$ref": "#/components/schemas/HostRequestModel"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates a single host request based on the ID supplied, also it will update the status if request",
+        "operationId": "updateHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/updateHostRequest"
+        },
+        "responses": {
+          "204": {
+            "description": "Host request updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single host request based on the ID supplied",
+        "operationId": "deleteHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Host request deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
                 }
               }
             }
@@ -1943,207 +2186,6 @@
                       }
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/host-requests": {
-      "get": {
-        "description": "Return list of matching host requests",
-        "operationId": "listHostRequests",
-        "tags": ["HostRequests"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/queryPage"
-          },
-          {
-            "$ref": "#/components/parameters/queryLimit"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Host request response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": ["status", "result"],
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "default": "success"
-                    },
-                    "result": {
-                      "type": "object",
-                      "properties": {
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/HostRequestModel"
-                          }
-                        },
-                        "count": {
-                          "type": "number",
-                          "description": "Count of the current records"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a host request",
-        "operationId": "createHostRequest",
-        "tags": ["HostRequests"],
-        "requestBody": {
-          "$ref": "#/components/requestBodies/createHostRequest"
-        },
-        "responses": {
-          "200": {
-            "description": "Create host request response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": ["status", "result"],
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "default": "success"
-                    },
-                    "result": {
-                      "type": "string",
-                      "default": "request id"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommonErrorFormat"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/host-requests/{hostRequestId}": {
-      "get": {
-        "description": "Returns a host request based on a request ID",
-        "operationId": "getHostRequest",
-        "tags": ["HostRequests"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/pathHostRequestId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Host Request response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": ["status", "result"],
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "default": "success"
-                    },
-                    "result": {
-                      "$ref": "#/components/schemas/HostRequestModel"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommonErrorFormat"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Updates a single host request based on the ID supplied, also it will update the status if request",
-        "operationId": "updateHostRequest",
-        "tags": ["HostRequests"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/pathHostRequestId"
-          }
-        ],
-        "requestBody": {
-          "$ref": "#/components/requestBodies/updateHostRequest"
-        },
-        "responses": {
-          "204": {
-            "description": "Host request updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommonSuccessFormat"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommonErrorFormat"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a single host request based on the ID supplied",
-        "operationId": "deleteHostRequest",
-        "tags": ["HostRequests"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/pathHostRequestId"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Host request deleted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommonSuccessFormat"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommonErrorFormat"
                 }
               }
             }
@@ -2990,6 +3032,90 @@
                               },
                               "isActive": {
                                 "type": "boolean"
+                              },
+                              "isAdmin": {
+                                "type": "boolean"
+                              },
+                              "isOnline": {
+                                "type": "boolean"
+                              },
+                              "spokenLanguages": {
+                                "type": "array"
+                              },
+                              "interests": {
+                                "type": "array"
+                              },
+                              "isEmailVerified": {
+                                "type": "boolean"
+                              },
+                              "isPhoneVerified": {
+                                "type": "boolean"
+                              },
+                              "isIdentityVerified": {
+                                "type": "boolean"
+                              },
+                              "isStripeAccountConnected": {
+                                "type": "boolean"
+                              },
+                              "showDashboardTutorial": {
+                                "type": "boolean"
+                              },
+                              "hasFirstBooking": {
+                                "type": "boolean"
+                              },
+                              "isHostFirstLogin": {
+                                "type": "boolean"
+                              },
+                              "dob": {
+                                "type": "string"
+                              },
+                              "awsUserId": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "type": "string"
+                              },
+                              "updatedAt": {
+                                "type": "string"
+                              },
+                              "gender": {
+                                "type": "string"
+                              },
+                              "livesIn": {
+                                "type": "string"
+                              },
+                              "awsUsername": {
+                                "type": "string"
+                              },
+                              "travelStyle": {
+                                "type": "string"
+                              },
+                              "travelWithHostReason": {
+                                "type": "string"
+                              },
+                              "bio": {
+                                "type": "string"
+                              },
+                              "itemsTravelWith": {
+                                "type": "string"
+                              },
+                              "isTripAgreed": {
+                                "type": "boolean"
+                              },
+                              "isHost": {
+                                "type": "boolean"
+                              },
+                              "isBlocked": {
+                                "type": "boolean"
+                              },
+                              "facebook_url": {
+                                "type": "string"
+                              },
+                              "instagram_url": {
+                                "type": "string"
+                              },
+                              "twitter_url": {
+                                "type": "string"
                               }
                             }
                           }
