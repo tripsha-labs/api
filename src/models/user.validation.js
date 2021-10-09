@@ -134,6 +134,14 @@ const adminUpdateUserSchema = {
     type: 'boolean',
     optional: true,
   },
+  firstName: {
+    type: 'string',
+    optional: true,
+  },
+  lastName: {
+    type: 'string',
+    optional: true,
+  },
   isAdmin: {
     type: 'boolean',
     optional: true,
