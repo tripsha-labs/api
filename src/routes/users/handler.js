@@ -258,6 +258,7 @@ export const getUser = async (event, context) => {
   try {
     const result = await UserController.getUser(urldecode(userId), {
       stripeAccountId: 0,
+      stripeCustomerId: 0,
     });
     return success(result);
   } catch (error) {
