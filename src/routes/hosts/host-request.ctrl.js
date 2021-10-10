@@ -97,6 +97,10 @@ export class HostRequestController {
       { _id: ObjectID(hostId), awsUserId: awsUserId },
       { isActive: false }
     );
+    await UserModel.update(
+      { awsUserId: params.awsUserId },
+      { hostRequestSent: false }
+    );
     return 'success';
   }
 }
