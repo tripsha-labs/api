@@ -52,6 +52,7 @@ const userSchema = new mongoose.Schema(
     isHostFirstLogin: { type: Boolean, default: false },
     isHost: { type: Boolean, default: false },
     hostShare: { type: Number, default: 72 },
+    hostRequestSent: { type: Boolean },
   },
   {
     timestamps: true,
