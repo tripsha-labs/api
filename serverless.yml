@@ -104,11 +104,8 @@ package:
 
 functions:
   - ${file(src/routes/index.yml)}
-  # - ${file(src/routes/users/functions.yml)}
-  # - ${file(src/routes/trips/functions.yml)}
-  # - ${file(src/routes/trip-tags/functions.yml)}
-  # - ${file(src/routes/tags/functions.yml)}
-  # - ${file(src/routes/messages/functions.yml)}
+  - ${file(src/routes/messages/functions.yml)}
+  - ${file(src/schedules/trips/functions.yml)}
   # - ${file(src/routes/countries/functions.yml)}
   # - ${file(src/routes/members/functions.yml)}
   # - ${file(src/routes/seeds/functions.yml)}
@@ -116,9 +113,12 @@ functions:
   # - ${file(src/routes/bookings/functions.yml)}
   # - ${file(src/routes/hosts/functions.yml)}
   # - ${file(src/routes/activity-logs/functions.yml)}
-  # - ${file(src/schedules/trips/functions.yml)}
   # - ${file(src/routes/migrations/functions.yml)}
   # - ${file(src/routes/approvals/functions.yml)}
+  # - ${file(src/routes/users/functions.yml)}
+  # - ${file(src/routes/trips/functions.yml)}
+  # - ${file(src/routes/trip-tags/functions.yml)}
+  # - ${file(src/routes/tags/functions.yml)}
 
 resources:
   # API Gateway Errors

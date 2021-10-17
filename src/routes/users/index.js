@@ -18,8 +18,8 @@ router.post('/invite', inviteUser);
 router.post('/check-user-exists', isUserExists);
 router.post('/subscribe', subscribeUser);
 router.post('/unsubscribe', unsubscribeUser);
-router.get('/{id}', getUser);
-router.put('/{id}', updateUser);
-router.delete('/{id}', deleteUser);
+router.get('/:id', getUser);
+router.put('/:id', updateUser);
+router.delete('/:id', deleteUser);
 
 export default router;

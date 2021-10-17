@@ -8,8 +8,8 @@ import urldecode from 'urldecode';
 import { UserController } from './user.ctrl';
 import { MessageController } from '../messages/message.ctrl';
 import {
-  success,
-  failure,
+  successResponse,
+  failureResponse,
   subscribeUserToMailchimpAudience,
   unsubscribeUserToMailchimpAudience,
   getCurrentUser,
@@ -22,13 +22,13 @@ import { updateUserValidation, adminUpdateUserValidation } from '../../models';
  * Invite Users
  */
 
-export const inviteUser = async (event, context) => {
+export const inviteUser = async (req, res) => {
   try {
     const currentUser = await UserController.getCurrentUser({
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
     if (currentUser && currentUser.isAdmin) {
-      const params = JSON.parse(event.body);
+      const params = JSON.parse(req.body);
       if (!params.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
       if (!params.password)
         throw {
@@ -49,7 +49,7 @@ export const inviteUser = async (event, context) => {
         firstName: params.firstName || '',
         lastName: params.lastName || '',
       };
-      const user_result = await createCognitoUser(event, createUserInfo);
+      const user_result = await createCognitoUser(req, createUserInfo);
       if (user_result) {
         delete params['password'];
         const user = await UserController.inviteUser(params);
@@ -57,7 +57,7 @@ export const inviteUser = async (event, context) => {
           name: createUserInfo.firstName + ' ' + createUserInfo.lastName,
           email: createUserInfo.email,
         });
-        return success(user);
+        return successResponse(res, user);
       } else {
         throw ERROR_KEYS.USER_ADD_FAILED;
       }
@@ -67,9 +67,9 @@ export const inviteUser = async (event, context) => {
   } catch (error) {
     console.log(error);
     if (error.code === 'UsernameExistsException') {
-      return failure(ERROR_KEYS.USER_ALREADY_EXISTS);
+      return failureResponse(res, ERROR_KEYS.USER_ALREADY_EXISTS);
     }
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
@@ -77,17 +77,17 @@ export const inviteUser = async (event, context) => {
  * User update by admin
  */
 
-export const updateUserAdmin = async (event, context) => {
+export const updateUserAdmin = async (req, res) => {
   try {
     const currentUser = await UserController.getCurrentUser({
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
     if (currentUser && currentUser.isAdmin) {
-      const params = JSON.parse(event.body);
+      const params = JSON.parse(req.body);
       const errors = adminUpdateUserValidation(params);
       if (errors != true) throw errors.shift();
       const user = await UserController.get({
-        _id: Types.ObjectId(event.pathParameters.id),
+        _id: Types.ObjectId(req.params.id),
       });
       if (params.username) {
         const exists = await _check_username_exists(
@@ -98,29 +98,29 @@ export const updateUserAdmin = async (event, context) => {
       }
 
       if (params['password'] && params['password'] != '') {
-        await setUserPassword(event, {
+        await setUserPassword(req, {
           password: params['password'],
           email: user.email.toLowerCase(),
         });
         delete params['password'];
       }
-      await UserController.updateUserAdmin(event.pathParameters.id, params);
-      return success('success');
+      await UserController.updateUserAdmin(req.params.id, params);
+      return successResponse(res, 'success');
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 /**
  * List users
  */
-export const listUser = async (event, context) => {
+export const listUser = async (req, res) => {
   try {
     const currentUser = await UserController.getCurrentUser({
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
     if (
       currentUser &&
@@ -128,25 +128,23 @@ export const listUser = async (event, context) => {
         currentUser.isHost ||
         currentUser.isIdentityVerified)
     ) {
-      const params = event.queryStringParameters
-        ? event.queryStringParameters
-        : {};
+      const params = req.query ? req.query : {};
       const users = await UserController.listUser(params);
-      return success(users);
+      return successResponse(res, users);
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 /**
  * Create user
  */
-export const createUser = async (event, context) => {
+export const createUser = async (req, res) => {
   try {
-    const userInfo = await getCurrentUser(event);
+    const userInfo = await getCurrentUser(req);
     if (!userInfo) throw 'Create User failed';
     userInfo['email'] = userInfo['email'].toLowerCase();
     const createUserPayload = {
@@ -158,7 +156,7 @@ export const createUser = async (event, context) => {
       createUserPayload['lastName'] = userInfo.family_name;
       createUserPayload['avatarUrl'] = userInfo.picture;
       try {
-        await createCognitoUser(event, {
+        await createCognitoUser(req, {
           ...createUserPayload,
           password:
             'T' +
@@ -238,43 +236,43 @@ export const createUser = async (event, context) => {
       await MessageController.addSupportMember(userInfo.awsUserId);
     }
 
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 /**
  * Get user
  */
-export const getUser = async (event, context) => {
-  if (!(event.pathParameters && event.pathParameters.id))
+export const getUser = async (req, res) => {
+  if (!(req.params && req.params.id))
     throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
   const userId =
-    event.pathParameters.id == 'me'
-      ? event.requestContext.identity.cognitoIdentityId
-      : event.pathParameters.id;
+    req.params.id == 'me'
+      ? req.requestContext.identity.cognitoIdentityId
+      : req.params.id;
   try {
     const result = await UserController.getUser(urldecode(userId), {
       stripeAccountId: 0,
       stripeCustomerId: 0,
     });
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
-    if (event.pathParameters.id != 'me') {
-      return failure(error);
+    if (req.params.id != 'me') {
+      return failureResponse(res, error);
     }
   }
   console.log('User not found creating new user');
   try {
-    await createUser(event, context);
+    await createUser(req, res);
     const result = await UserController.getUser(urldecode(userId), {
       stripeAccountId: 0,
     });
-    return success(result);
+    return successResponse(res, result);
   } catch (err) {
-    return failure(err);
+    return failureResponse(res, err);
   }
 };
 
@@ -297,11 +295,11 @@ const _get_unique_username = async (email, username) => {
 /**
  * Get user by username
  */
-export const getUserByUsername = async (event, context) => {
-  if (!(event.pathParameters && event.pathParameters.username))
+export const getUserByUsername = async (req, res) => {
+  if (!(req.params && req.params.username))
     throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
 
-  const username = event.pathParameters.username;
+  const username = req.params.username;
   try {
     const result = await UserController.get(
       {
@@ -309,25 +307,25 @@ export const getUserByUsername = async (event, context) => {
       },
       { stripeCustomerId: 0, stripeAccountId: 0 }
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * Update user
  */
-export const updateUser = async (event, context) => {
+export const updateUser = async (req, res) => {
   try {
-    if (!(event.pathParameters && event.pathParameters.id))
+    if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
     const id =
-      event.pathParameters.id === 'me'
-        ? event.requestContext.identity.cognitoIdentityId
-        : event.pathParameters.id;
-    const data = JSON.parse(event.body);
+      req.params.id === 'me'
+        ? req.requestContext.identity.cognitoIdentityId
+        : req.params.id;
+    const data = JSON.parse(req.body);
     const errors = updateUserValidation(data);
     if (errors != true) throw errors.shift();
 
@@ -336,35 +334,35 @@ export const updateUser = async (event, context) => {
     });
     // Add support user in the conversation
     await MessageController.addSupportMember(urldecode(id));
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 // TODO: Handle user account close/disable flow
-export const deleteUser = async (event, context) => {};
+export const deleteUser = async (req, res) => {};
 
-export const isUserExists = async (event, context) => {
+export const isUserExists = async (req, res) => {
   try {
-    const data = JSON.parse(event.body);
+    const data = JSON.parse(req.body);
     if (!(data && data.username && data.email))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
     const exists = await _check_username_exists(
       data['email'],
       data['username']
     );
-    return success(exists);
+    return successResponse(res, exists);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
-export const subscribeUser = async (event, context) => {
+export const subscribeUser = async (req, res) => {
   try {
-    const data = JSON.parse(event.body);
+    const data = JSON.parse(req.body);
     if (!(data && data.email))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
     try {
@@ -377,15 +375,15 @@ export const subscribeUser = async (event, context) => {
       console.log(error);
     }
 
-    return success('success');
+    return successResponse(res, 'success');
   } catch (error) {
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
-export const unsubscribeUser = async (event, context) => {
+export const unsubscribeUser = async (req, res) => {
   try {
-    const data = JSON.parse(event.body);
+    const data = JSON.parse(req.body);
     if (!(data && data.email))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
     try {
@@ -398,8 +396,8 @@ export const unsubscribeUser = async (event, context) => {
       console.log(error);
     }
 
-    return success('success');
+    return successResponse(res, 'success');
   } catch (error) {
-    return failure(error);
+    return failureResponse(res, error);
   }
 };

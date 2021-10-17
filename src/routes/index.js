@@ -14,6 +14,7 @@ import Members from './members';
 import Messages from './messages';
 import Migrations from './migrations';
 import Payments from './payments';
+import Users from './users';
 
 const app = express();
 app.use(cors());
@@ -36,5 +37,6 @@ app.use('/members', Members);
 app.use('/conversations', Messages);
 app.use('/migrations', Migrations);
 app.use('/payments', Payments);
+app.use('/users', Users);
 
 export const handler = serverless(app);
