@@ -125,7 +125,6 @@ export class TripController {
         },
       });
 
-      await dbConnect();
       let resTrips = await TripModel.aggregate(params);
       if (memberId) {
         const tripIds = resTrips.map(trip => trip._id);

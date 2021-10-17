@@ -104,8 +104,8 @@ package:
 
 functions:
   - ${file(src/routes/index.yml)}
-  - ${file(src/routes/users/functions.yml)}
-  - ${file(src/routes/trips/functions.yml)}
+  # - ${file(src/routes/users/functions.yml)}
+  # - ${file(src/routes/trips/functions.yml)}
   # - ${file(src/routes/trip-tags/functions.yml)}
   # - ${file(src/routes/tags/functions.yml)}
   # - ${file(src/routes/messages/functions.yml)}

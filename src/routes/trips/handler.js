@@ -14,8 +14,8 @@ export const listTrips = async (req, res) => {
   try {
     const params = req.queryStringParameters ? req.queryStringParameters : {};
     const result = await TripController.listTrips(
-      params,
-      req.requestContext.identity.cognitoIdentityId
+      params
+      // req.requestContext.identity.cognitoIdentityId
     );
     return successResponse(res, result);
   } catch (error) {
