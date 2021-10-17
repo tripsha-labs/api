@@ -12,10 +12,10 @@ import { updateTripValidation, createTripValidation } from '../../models';
  */
 export const listTrips = async (req, res) => {
   try {
-    const params = req.queryStringParameters ? req.queryStringParameters : {};
+    const params = req.query ? req.query : {};
     const result = await TripController.listTrips(
-      params
-      // req.requestContext.identity.cognitoIdentityId
+      params,
+      req.requestContext.identity.cognitoIdentityId
     );
     return successResponse(res, result);
   } catch (error) {
@@ -27,9 +27,9 @@ export const listTrips = async (req, res) => {
 /**
  * Create Trip
  */
-export const createTrip = async (event, context) => {
+export const createTrip = async (req, res) => {
   try {
-    const data = JSON.parse(event.body) || {};
+    const data = JSON.parse(req.body) || {};
 
     if (typeof data.spotsAvailable === 'undefined') {
       data.spotsAvailable = data.maxGroupSize - 1;
@@ -43,127 +43,145 @@ export const createTrip = async (event, context) => {
 
     const result = await TripController.createTrip({
       ...data,
-      ownerId: event.requestContext.identity.cognitoIdentityId,
+      ownerId: req.requestContext.identity.cognitoIdentityId,
     });
 
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * Update Trip
  */
-export const updateTrip = async (event, context) => {
+export const updateTrip = async (req, res) => {
   try {
     const data = JSON.parse(event.body) || {};
-    if (!(event.pathParameters && event.pathParameters.id))
+    if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const errors = updateTripValidation(data);
     if (errors != true) throw errors.shift();
     const result = await TripController.updateTrip(
-      event.pathParameters.id,
+      req.params.id,
       {
         ...data,
       },
-      event.requestContext.identity.cognitoIdentityId
+      req.requestContext.identity.cognitoIdentityId
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * Get Trip
  */
-export const getTrip = async (event, context) => {
+export const getTrip = async (req, res) => {
   try {
-    if (!(event.pathParameters && event.pathParameters.id))
+    if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
     const result = await TripController.getTrip(
-      event.pathParameters.id,
-      event.requestContext.identity.cognitoIdentityId
+      req.params.id,
+      req.requestContext.identity.cognitoIdentityId
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * Delete Trip
  */
-export const deleteTrip = async (event, context) => {
+export const deleteTrip = async (req, res) => {
   try {
-    if (!(event.pathParameters && event.pathParameters.id))
+    if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
     const result = await TripController.deleteTrip(
-      event.pathParameters.id,
-      event.requestContext.identity.cognitoIdentityId
+      req.params.id,
+      req.requestContext.identity.cognitoIdentityId
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * List my trips
  */
-export const myTrips = async (event, context) => {
+export const myTrips = async (req, res) => {
   try {
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.params ? req.params : {};
     const result = await TripController.myTrips({
       ...params,
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * List saved trips
  */
-export const savedTrips = async (event, context) => {
+export const savedTrips = async (req, res) => {
   try {
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.params ? req.params : {};
     const result = await TripController.myTrips({
       ...params,
       isPublic: true,
-      awsUserId: event.requestContext.identity.cognitoIdentityId,
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
-export const sendEmails = async (event, context) => {
-  const params = event.queryStringParameters ? event.queryStringParameters : {};
+export const sendEmails = async (req, res) => {
+  const params = req.params ? req.params : {};
   const data = {
     emails: ['madanesanjayraj@gmail.com'],
-    name: 'Sunita',
-    subject: 'Greetings Sunita',
+    name: 'Sanjay',
+    subject: 'Greetings Sanjay',
     message:
       'The host changed an aspect of Blue Marine. Check the trip page to see the new information and let the host know if they no longer work for you.',
   };
   await sendEmail(data);
-  console.log(params);
-  return success({});
+  return successResponse(res, {});
+};
+
+/**
+ * List trip members
+ */
+export const listMembers = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    // Get search string from queryparams
+    const queryParams = req.query || {};
+
+    const params = {
+      tripId: req.params.id,
+      ...queryParams,
+    };
+
+    const result = await TripController.listMembers(params);
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
 };

@@ -1,29 +1,29 @@
-listMessages:
-  handler: src/routes/messages/handler.listMessages
-  events:
-    - http:
-        path: messages
-        method: get
-        cors: true
-        authorizer: aws_iam
+# listMessages:
+#   handler: src/routes/messages/handler.listMessages
+#   events:
+#     - http:
+#         path: messages
+#         method: get
+#         cors: true
+#         authorizer: aws_iam
 
-listConversations:
-  handler: src/routes/messages/handler.listConversations
-  events:
-    - http:
-        path: conversations
-        method: get
-        cors: true
-        authorizer: aws_iam
+# listConversations:
+#   handler: src/routes/messages/handler.listConversations
+#   events:
+#     - http:
+#         path: conversations
+#         method: get
+#         cors: true
+#         authorizer: aws_iam
 
-sendMessages:
-  handler: src/routes/messages/handler.sendMessage
-  events:
-    - http:
-        path: send-message
-        method: post
-        cors: true
-        authorizer: aws_iam
+# sendMessages:
+#   handler: src/routes/messages/handler.sendMessage
+#   events:
+#     - http:
+#         path: send-message
+#         method: post
+#         cors: true
+#         authorizer: aws_iam
 
 connectionHandler:
   handler: src/routes/messages/handler.connectionHandler
@@ -53,4 +53,3 @@ readMessageHandler:
   events:
     - websocket:
         route: readMessage
-

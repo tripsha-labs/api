@@ -3,23 +3,21 @@
  * @description - This will handle all activity related API requests
  */
 import { ActivityLosController } from './activitylogs.ctrl';
-import { success, failure } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
 
 /**
  * List activities
  */
-export const listActivities = async (event, context) => {
+export const listActivities = async (req, res) => {
   try {
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.query ? req.query : {};
     const result = await ActivityLosController.listActivites(
       params,
-      event.requestContext.identity.cognitoIdentityId
+      req.requestContext.identity.cognitoIdentityId
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };

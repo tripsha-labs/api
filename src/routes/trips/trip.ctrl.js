@@ -5,7 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { dbConnect, logActivity, sendEmail } from '../../utils';
+import { logActivity, sendEmail } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -94,7 +94,9 @@ export class TripController {
         });
 
       if (filter.interests) {
-        multiFilter.push({ interests: { $in: filter.interests.split(',') } });
+        multiFilter.push({
+          interests: { $in: filter.interests.split(',') },
+        });
       }
 
       if (filter.destinations) {
@@ -186,7 +188,6 @@ export class TripController {
 
       params['tripLength'] = tripLength + 1;
 
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: params.ownerId });
       params['ownerId'] = user;
       const trip = await TripModel.create(params);
@@ -269,7 +270,6 @@ export class TripController {
 
   static async updateTrip(tripId, trip, awsUserId) {
     try {
-      await dbConnect();
       const tripDetails = await TripModel.getById(tripId);
       const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.UNAUTHORIZED;
@@ -392,8 +392,8 @@ export class TripController {
 
   static async getTrip(tripId, memberId) {
     try {
-      await dbConnect();
       let trip = await TripModel.getById(tripId);
+      console.log(trip);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       trip = JSON.parse(JSON.stringify(trip));
       trip['ownerDetails'] = await UserModel.getById(trip.ownerId);
@@ -427,12 +427,13 @@ export class TripController {
 
   static async deleteTrip(tripId, awsUserId) {
     try {
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      const members = await MemberModel.list({ filter: { tripId: tripId } });
+      const members = await MemberModel.list({
+        filter: { tripId: tripId },
+      });
       const bookings = await BookingModel.list({
         filter: {
           tripId: tripId,
@@ -446,7 +447,10 @@ export class TripController {
           members.length <= 1 ||
           bookings.length == 0
         ) {
-          await TripModel.update(tripId, { isArchived: true, isDeleted: true });
+          await TripModel.update(tripId, {
+            isArchived: true,
+            isDeleted: true,
+          });
           await logActivity({
             ...LogMessages.DELETE_TRIP_HOST(trip['title']),
             tripId: trip._id.toString(),
@@ -468,7 +472,10 @@ export class TripController {
           throw ERROR_KEYS.CANNOT_DELETE_TRIP;
         }
       } else if (user.isAdmin) {
-        await TripModel.update(tripId, { isArchived: true, isDeleted: true });
+        await TripModel.update(tripId, {
+          isArchived: true,
+          isDeleted: true,
+        });
         await logActivity({
           ...LogMessages.DELETE_TRIP_HOST(trip['title']),
           tripId: trip._id.toString(),
@@ -489,7 +496,6 @@ export class TripController {
       const filterParams = {
         isMember: true,
       };
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: filter.awsUserId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       if (filter.memberId) {
@@ -605,6 +611,92 @@ export class TripController {
         count: resTrips.length,
       };
     } catch (error) {
+      throw error;
+    }
+  }
+
+  static async listMembers(filter) {
+    try {
+      const filterParams = {
+        tripId: Types.ObjectId(filter.tripId),
+        isMember: true,
+      };
+      const params = [{ $match: filterParams }];
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'memberId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $replaceRoot: {
+          newRoot: { $mergeObjects: ['$$ROOT', '$user'] },
+        },
+      });
+      params.push({
+        $sort: prepareSortFilter(
+          filter,
+          ['updatedAt', 'username'],
+          'updatedAt'
+        ),
+      });
+      params.push({
+        $project: {
+          firstName: 1,
+          lastName: 1,
+          avatarUrl: 1,
+          username: 1,
+          updatedAt: 1,
+          awsUserId: 1,
+          isMember: 1,
+          isOwner: 1,
+          bookingId: {
+            $toObjectId: '$bookingId',
+          },
+          tripId: 1,
+          joinedOn: 1,
+          memberId: 1,
+          removeRequested: 1,
+        },
+      });
+      if (filter['includeBooking']) {
+        params.push({
+          $lookup: {
+            from: 'bookings',
+            localField: 'bookingId',
+            foreignField: '_id',
+            as: 'booking',
+          },
+        });
+        params.push({
+          $unwind: {
+            path: '$booking',
+            preserveNullAndEmptyArrays: true,
+          },
+        });
+      }
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $limit: limit });
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
+
+      const result = await MemberModel.aggregate(params);
+      const resultCount = await MemberModel.count(filterParams);
+      return {
+        data: result,
+        count: result.length,
+        totalCount: resultCount,
+      };
+    } catch (error) {
+      console.log(error);
       throw error;
     }
   }

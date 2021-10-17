@@ -4,7 +4,13 @@
  */
 import https from 'https';
 import jose from 'node-jose';
-import { success, failure, dbConnect } from '../../utils';
+import {
+  success,
+  failure,
+  successResponse,
+  failureResponse,
+  dbConnect,
+} from '../../utils';
 import { MessageController } from './message.ctrl';
 import { ERROR_KEYS } from '../../constants';
 import { createMessageValidation, UserModel, MemberModel } from '../../models';
@@ -176,55 +182,55 @@ export const sendMessageHandler = async (event, context) => {
   }
 };
 
-export const listMessages = async (event, context) => {
+export const listMessages = async (req, res) => {
   // Get search string from queryparams
-  const params = event.queryStringParameters || {};
+  const params = req.queryStringParameters || {};
   const { memberId, tripId } = params;
   try {
     if (memberId || tripId) {
-      params['awsUserId'] = event.requestContext.identity.cognitoIdentityId;
+      params['awsUserId'] = req.requestContext.identity.cognitoIdentityId;
       const result = await MessageController.listMessages(params);
-      return success(result);
+      return successResponse(res, result);
     } else {
       if (!memberId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'memberId' };
       else throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     }
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
-export const listConversations = async (event, context) => {
+export const listConversations = async (req, res) => {
   // Get search string from queryparams
-  const params = event.queryStringParameters || {};
-  params['userId'] = event.requestContext.identity.cognitoIdentityId;
+  const params = req.queryStringParameters || {};
+  params['userId'] = req.requestContext.identity.cognitoIdentityId;
 
   try {
     const result = await MessageController.listConversations(params);
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
-export const sendMessage = async (event, context) => {
+export const sendMessage = async (req, res) => {
   try {
-    const data = JSON.parse(event.body);
+    const data = JSON.parse(req.body);
     const errors = createMessageValidation(data);
     if (errors != true) throw errors.shift();
 
     const result = await MessageController.sendMessageRest(
       {
         ...data,
-        fromMemberId: event.requestContext.identity.cognitoIdentityId,
+        fromMemberId: req.requestContext.identity.cognitoIdentityId,
       },
-      event
+      req
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };

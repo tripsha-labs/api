@@ -3,7 +3,6 @@
  * @description - THis will handle business logic for hostRequest module
  */
 import { UserModel, ApprovalModel } from '../../models';
-import { dbConnect } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { Types } from 'mongoose';
 import { MemberController } from '../members/member.ctrl';
@@ -11,8 +10,6 @@ import { TripController } from '../trips/trip.ctrl';
 
 export class ApprovalsController {
   static async list(filter, awsUserId) {
-    await dbConnect();
-
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!(user && user.isAdmin)) {
       throw ERROR_KEYS.UNAUTHORIZED;
@@ -99,7 +96,6 @@ export class ApprovalsController {
   }
 
   static async createApproval(params) {
-    await dbConnect();
     let queryParams = null;
     switch (params.type) {
       case 'MemberRemove':
@@ -122,7 +118,6 @@ export class ApprovalsController {
   }
 
   static async actionApproval(approvalId, params) {
-    await dbConnect();
     const user = await UserModel.get({ awsUserId: params.awsUserId });
     if (!(user && user.isAdmin)) {
       throw ERROR_KEYS.UNAUTHORIZED;

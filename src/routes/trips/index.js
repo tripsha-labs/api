@@ -1,15 +1,23 @@
 const express = require('express');
-const trips = require('./handler');
+import {
+  createTrip,
+  listTrips,
+  getTrip,
+  myTrips,
+  savedTrips,
+  updateTrip,
+  deleteTrip,
+} from './handler';
 const router = express.Router();
 
-router.get('/', trips.listTrips);
-// router.post('/', trips.createTrip);
-// router.post('/invite', trips.inviteUser);
-// router.post('/check-user-exists', trips.isUserExists);
-// router.post('/subscribe', trips.subscribeUser);
-// router.post('/unsubscribe', trips.unsubscribeUser);
-// router.get('/{id}', trips.getTrip);
-// router.put('/{id}', trips.updateTrip);
-// router.delete('/{id}', trips.deleteTrip);
+router.get('/', listTrips);
+router.post('/', createTrip);
+router.get('/mytrips', myTrips);
+router.get('/saved-trips', savedTrips);
+router.get('private', listTrips);
+router.get('private/:id', getTrip);
+router.get('/:id', getTrip);
+router.put('/:id', updateTrip);
+router.delete('/:id', deleteTrip);
 
 export default router;

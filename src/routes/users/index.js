@@ -1,15 +1,25 @@
 const express = require('express');
-const users = require('./handler');
 const router = express.Router();
+import {
+  listUser,
+  createUser,
+  inviteUser,
+  isUserExists,
+  subscribeUser,
+  unsubscribeUser,
+  getUser,
+  updateUser,
+  deleteUser,
+} from './handler';
 
-router.get('/', users.listUser);
-router.post('/', users.createUser);
-router.post('/invite', users.inviteUser);
-router.post('/check-user-exists', users.isUserExists);
-router.post('/subscribe', users.subscribeUser);
-router.post('/unsubscribe', users.unsubscribeUser);
-router.get('/{id}', users.getUser);
-router.put('/{id}', users.updateUser);
-router.delete('/{id}', users.deleteUser);
+router.get('/', listUser);
+router.post('/', createUser);
+router.post('/invite', inviteUser);
+router.post('/check-user-exists', isUserExists);
+router.post('/subscribe', subscribeUser);
+router.post('/unsubscribe', unsubscribeUser);
+router.get('/{id}', getUser);
+router.put('/{id}', updateUser);
+router.delete('/{id}', deleteUser);
 
 export default router;
