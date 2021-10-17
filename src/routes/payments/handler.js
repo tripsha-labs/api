@@ -23,7 +23,7 @@ export const createIntent = async (req, res) => {
  */
 export const saveCard = async (req, res) => {
   try {
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
     if (data.stripeCustomerId) {
       const resp = await PaymentController.attachCard(data);
       return successResponse(res, resp);
@@ -45,7 +45,7 @@ export const saveCard = async (req, res) => {
  */
 export const createPayment = async (req, res) => {
   try {
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
     const paymentIntent = await PaymentController.createPaymentIntent({
       amount: data.amount,
       currency: data.currency,
@@ -65,7 +65,7 @@ export const createPayment = async (req, res) => {
  */
 export const verifyConnectAccount = async (req, res) => {
   try {
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
     if (!data.code || typeof data.code !== 'string' || data.code.length === 0)
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'code' };
     await PaymentController.validateCode(

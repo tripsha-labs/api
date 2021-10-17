@@ -6,6 +6,7 @@ import Countries from './countries';
 import Tags from './tags';
 import TripTags from './trip-tags';
 import Trips from './trips';
+import NoAuthTrips from './trips/noAuth';
 import Activities from './activity-logs';
 import HostRequests from './hosts';
 import Approvals from './approvals';
@@ -15,28 +16,48 @@ import Messages from './messages';
 import Migrations from './migrations';
 import Payments from './payments';
 import Users from './users';
+import Seeds from './seeds';
+import AdminApi from './users/admin';
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(async (req, res, next) => {
-  await dbConnect(res);
-  next();
-});
-app.use('/tags', Tags);
-app.use('/countries', Countries);
-app.use('/trip-tags', TripTags);
-app.use('/trips', Trips);
-app.use('/trips', Trips);
-app.use('/activities', Activities);
-app.use('/host-requests', HostRequests);
-app.use('/approvals', Approvals);
-app.use('/bookings', Bookings);
-app.use('/members', Members);
-app.use('/conversations', Messages);
-app.use('/migrations', Migrations);
-app.use('/payments', Payments);
-app.use('/users', Users);
+const noAuth = () => {
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(async (req, res, next) => {
+    await dbConnect(res);
+    next();
+  });
+  app.use('/public/tags', Tags);
+  app.use('/public/countries', Countries);
+  app.use('/public/migrations', Migrations);
+  app.use('/public/seeds', Seeds);
+  app.use('/public/trip-tags', TripTags);
+  app.use('/public/trips', NoAuthTrips);
+  return app;
+};
 
-export const handler = serverless(app);
+const auth = () => {
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(async (req, res, next) => {
+    await dbConnect(res);
+    next();
+  });
+  app.use('/trips', Trips);
+  app.use('/activities', Activities);
+  app.use('/host-requests', HostRequests);
+  app.use('/approvals', Approvals);
+  app.use('/bookings', Bookings);
+  app.use('/members', Members);
+  app.use('/conversations', Messages);
+  app.use('/payments', Payments);
+  app.use('/users', Users);
+  app.use('/admin', AdminApi);
+  return app;
+};
+
+export const PublicAPI = serverless(noAuth());
+export const API = serverless(auth());

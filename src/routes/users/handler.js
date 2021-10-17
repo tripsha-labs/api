@@ -28,7 +28,7 @@ export const inviteUser = async (req, res) => {
       awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
     if (currentUser && currentUser.isAdmin) {
-      const params = JSON.parse(req.body);
+      const params = req.body;
       if (!params.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
       if (!params.password)
         throw {
@@ -83,7 +83,7 @@ export const updateUserAdmin = async (req, res) => {
       awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
     if (currentUser && currentUser.isAdmin) {
-      const params = JSON.parse(req.body);
+      const params = req.body;
       const errors = adminUpdateUserValidation(params);
       if (errors != true) throw errors.shift();
       const user = await UserController.get({
@@ -173,10 +173,7 @@ export const createUser = async (req, res) => {
           userInfo['email'],
           userInfo['username']
         );
-        if (exists)
-          throw {
-            ...ERROR_KEYS.USERNAME_ALREADY_EXISTS,
-          };
+        if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
       }
       if (userInfo.email_verified)
         createUserPayload['isEmailVerified'] = userInfo.email_verified;
@@ -272,6 +269,7 @@ export const getUser = async (req, res) => {
     });
     return successResponse(res, result);
   } catch (err) {
+    console.log(err);
     return failureResponse(res, err);
   }
 };
@@ -325,10 +323,9 @@ export const updateUser = async (req, res) => {
       req.params.id === 'me'
         ? req.requestContext.identity.cognitoIdentityId
         : req.params.id;
-    const data = JSON.parse(req.body);
+    const data = req.body;
     const errors = updateUserValidation(data);
     if (errors != true) throw errors.shift();
-
     const result = await UserController.updateUser(urldecode(id), {
       ...data,
     });
@@ -346,7 +343,7 @@ export const deleteUser = async (req, res) => {};
 
 export const isUserExists = async (req, res) => {
   try {
-    const data = JSON.parse(req.body);
+    const data = req.body;
     if (!(data && data.username && data.email))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
     const exists = await _check_username_exists(
@@ -362,7 +359,7 @@ export const isUserExists = async (req, res) => {
 
 export const subscribeUser = async (req, res) => {
   try {
-    const data = JSON.parse(req.body);
+    const data = req.body;
     if (!(data && data.email))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
     try {
@@ -383,7 +380,7 @@ export const subscribeUser = async (req, res) => {
 
 export const unsubscribeUser = async (req, res) => {
   try {
-    const data = JSON.parse(req.body);
+    const data = req.body;
     if (!(data && data.email))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
     try {

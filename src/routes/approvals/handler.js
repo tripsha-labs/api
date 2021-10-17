@@ -32,7 +32,7 @@ export const listApprovals = async (req, res) => {
  */
 export const createApproval = async (req, res) => {
   try {
-    const params = JSON.parse(req.body) || {};
+    const params = req.body || {};
     const errors = approvalSchemaValidation(params);
     if (errors != true) throw errors.shift();
     params['awsUserId'] = req.requestContext.identity.cognitoIdentityId;
@@ -52,7 +52,7 @@ export const actionApproval = async (req, res) => {
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const approvalId = req.params.id;
-    const params = JSON.parse(req.body) || {};
+    const params = req.body || {};
     params['awsUserId'] = req.requestContext.identity.cognitoIdentityId;
     const result = await ApprovalsController.actionApproval(
       urldecode(approvalId),

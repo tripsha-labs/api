@@ -10,9 +10,11 @@ import { TagsController } from './tags.ctrl';
  */
 export const listTags = async (req, res) => {
   try {
+    console.log('===========================');
     // Get search string from queryparams
     const params = req.query ? req.query : {};
     const result = await TagsController.listTags(params);
+    console.log(result);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);

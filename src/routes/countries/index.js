@@ -1,7 +1,7 @@
 const express = require('express');
-const countries = require('./handler');
 const router = express.Router();
+import { listCountries } from './handler';
 
-router.get('/', countries.listCountries);
+router.get('/', listCountries);
 
 export default router;

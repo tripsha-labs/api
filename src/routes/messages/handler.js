@@ -184,7 +184,7 @@ export const sendMessageHandler = async (event, context) => {
 
 export const listMessages = async (req, res) => {
   // Get search string from queryparams
-  const params = req.queryStringParameters || {};
+  const params = req.query || {};
   const { memberId, tripId } = params;
   try {
     if (memberId || tripId) {
@@ -203,7 +203,7 @@ export const listMessages = async (req, res) => {
 
 export const listConversations = async (req, res) => {
   // Get search string from queryparams
-  const params = req.queryStringParameters || {};
+  const params = req.query || {};
   params['userId'] = req.requestContext.identity.cognitoIdentityId;
 
   try {
@@ -217,7 +217,7 @@ export const listConversations = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const data = JSON.parse(req.body);
+    const data = req.body;
     const errors = createMessageValidation(data);
     if (errors != true) throw errors.shift();
 

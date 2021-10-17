@@ -29,7 +29,7 @@ export const listTrips = async (req, res) => {
  */
 export const createTrip = async (req, res) => {
   try {
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
 
     if (typeof data.spotsAvailable === 'undefined') {
       data.spotsAvailable = data.maxGroupSize - 1;

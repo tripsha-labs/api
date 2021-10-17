@@ -31,7 +31,7 @@ export const listHostRequests = async (req, res) => {
  */
 export const createHostRequest = async (req, res) => {
   try {
-    const params = JSON.parse(req.body) || {};
+    const params = req.body || {};
     const errors = hostRequestValidation(params);
     if (errors != true) throw errors.shift();
     params['awsUserId'] = req.requestContext.identity.cognitoIdentityId;
@@ -71,7 +71,7 @@ export const updateHostRequest = async (req, res) => {
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
     const id = req.params.id;
-    const data = JSON.parse(req.body);
+    const data = req.body;
     if (
       data &&
       (data['action'] == 'approved' || data['action'] == 'declined')

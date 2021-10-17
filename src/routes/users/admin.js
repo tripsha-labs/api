@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-import { listTags } from './handler';
-router.get('/', listTags);
+import { updateUserAdmin } from './handler';
+
+router.put('users/:id', updateUserAdmin);
 
 export default router;

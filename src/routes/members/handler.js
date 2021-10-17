@@ -11,7 +11,7 @@ import { memberActionValidation } from '../../models';
  */
 export const memberActions = async (req, res) => {
   try {
-    const params = JSON.parse(req.body) || {};
+    const params = req.body || {};
     const errors = memberActionValidation(params);
     if (errors != true) throw errors.shift();
     params['awsUserId'] = req.requestContext.identity.cognitoIdentityId;

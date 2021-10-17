@@ -15,7 +15,7 @@ import { ERROR_KEYS } from '../../constants';
  */
 export const createBooking = async (req, res) => {
   try {
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
 
     const validation = createBookingValidation(data);
     if (validation != true) throw validation.shift();
@@ -61,7 +61,7 @@ export const listBookings = async (req, res) => {
  */
 export const getBooking = async (req, res) => {
   try {
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const result = await BookingController.getBooking(req.params.id);
@@ -77,7 +77,7 @@ export const getBooking = async (req, res) => {
  */
 export const doPartPayment = async (req, res) => {
   try {
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const result = await BookingController.doPartPayment(
@@ -98,7 +98,7 @@ export const bookingsAction = async (req, res) => {
   try {
     const bookingId = req.params && req.params.id;
     if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
     const validation = hostBookingActionValidation(data);
     if (validation != true) throw validation.shift();
     const result = await BookingController.bookingsAction(
@@ -121,7 +121,7 @@ export const updateBooking = async (req, res) => {
     const bookingId = req.params && req.params.id;
     if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
-    const data = JSON.parse(req.body) || {};
+    const data = req.body || {};
     if (validation != true) throw validation.shift();
 
     const result = await BookingController.updateBooking(bookingId, data);

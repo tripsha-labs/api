@@ -10,11 +10,14 @@ import {
   getUser,
   updateUser,
   deleteUser,
+  getUserByUsername,
 } from './handler';
 
 router.get('/', listUser);
 router.post('/', createUser);
 router.post('/invite', inviteUser);
+router.get('/search-users', listUser);
+router.get('/username/:username', getUserByUsername);
 router.post('/check-user-exists', isUserExists);
 router.post('/subscribe', subscribeUser);
 router.post('/unsubscribe', unsubscribeUser);

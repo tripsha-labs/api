@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-import { getSeeds } from './handler';
+import { seeds } from './handler';
 
-router.get('/', getSeeds);
+router.get('/', seeds);
 
 export default router;
