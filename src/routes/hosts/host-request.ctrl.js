@@ -44,6 +44,10 @@ export class HostRequestController {
       throw { ...ERROR_KEYS.HOST_REQUEST_ALREADY_EXISTS };
     }
     const hostRequests = await HostRequestModel.create(params);
+    await UserModel.update(
+      { awsUserId: params.awsUserId },
+      { hostRequestSent: true }
+    );
     return hostRequests;
   }
 
@@ -92,6 +96,10 @@ export class HostRequestController {
     await HostRequestModel.update(
       { _id: ObjectID(hostId), awsUserId: awsUserId },
       { isActive: false }
+    );
+    await UserModel.update(
+      { awsUserId: params.awsUserId },
+      { hostRequestSent: false }
     );
     return 'success';
   }

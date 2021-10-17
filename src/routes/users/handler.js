@@ -35,11 +35,13 @@ export const inviteUser = async (event, context) => {
           ...ERROR_KEYS.MISSING_FIELD,
           field: 'password',
         };
-      const username = await _get_unique_username(
+      params['email'] = params['email'].toLowerCase();
+      params['username'] = params['username'] || params['email'].split('@')[0];
+      const exists = await _check_username_exists(
         params['email'],
-        params['email'].split('@')[0]
+        params['username']
       );
-      params['username'] = username;
+      if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
       params['isEmailVerified'] = true;
       const createUserInfo = {
         email: params.email,
@@ -72,7 +74,7 @@ export const inviteUser = async (event, context) => {
 };
 
 /**
- * Invite Users
+ * User update by admin
  */
 
 export const updateUserAdmin = async (event, context) => {
@@ -87,10 +89,18 @@ export const updateUserAdmin = async (event, context) => {
       const user = await UserController.get({
         _id: Types.ObjectId(event.pathParameters.id),
       });
+      if (params.username) {
+        const exists = await _check_username_exists(
+          user['email'],
+          params['username']
+        );
+        if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
+      }
+
       if (params['password'] && params['password'] != '') {
         await setUserPassword(event, {
           password: params['password'],
-          email: user.email,
+          email: user.email.toLowerCase(),
         });
         delete params['password'];
       }
@@ -112,7 +122,12 @@ export const listUser = async (event, context) => {
     const currentUser = await UserController.getCurrentUser({
       awsUserId: event.requestContext.identity.cognitoIdentityId,
     });
-    if (currentUser && currentUser.isAdmin) {
+    if (
+      currentUser &&
+      (currentUser.isAdmin ||
+        currentUser.isHost ||
+        currentUser.isIdentityVerified)
+    ) {
       const params = event.queryStringParameters
         ? event.queryStringParameters
         : {};
@@ -133,6 +148,7 @@ export const createUser = async (event, context) => {
   try {
     const userInfo = await getCurrentUser(event);
     if (!userInfo) throw 'Create User failed';
+    userInfo['email'] = userInfo['email'].toLowerCase();
     const createUserPayload = {
       email: userInfo.email,
     };
@@ -141,7 +157,29 @@ export const createUser = async (event, context) => {
       createUserPayload['firstName'] = userInfo.given_name;
       createUserPayload['lastName'] = userInfo.family_name;
       createUserPayload['avatarUrl'] = userInfo.picture;
+      try {
+        await createCognitoUser(event, {
+          ...createUserPayload,
+          password:
+            'T' +
+            Math.random()
+              .toString(30)
+              .substr(2, 20),
+        });
+      } catch (err) {
+        console.log('User already exists', err);
+      }
     } else {
+      if (userInfo['username']) {
+        const exists = await _check_username_exists(
+          userInfo['email'],
+          userInfo['username']
+        );
+        if (exists)
+          throw {
+            ...ERROR_KEYS.USERNAME_ALREADY_EXISTS,
+          };
+      }
       if (userInfo.email_verified)
         createUserPayload['isEmailVerified'] = userInfo.email_verified;
       if (userInfo['custom:firstName'])
@@ -187,7 +225,7 @@ export const createUser = async (event, context) => {
     } else {
       const username = await _get_unique_username(
         createUserPayload['email'],
-        createUserPayload['email'].split('@')[0]
+        userInfo.username || createUserPayload['email'].split('@')[0]
       );
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
@@ -196,6 +234,8 @@ export const createUser = async (event, context) => {
         name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
         email: createUserPayload.email,
       });
+      // Add support user in the conversation
+      await MessageController.addSupportMember(userInfo.awsUserId);
     }
 
     return success(result);
@@ -218,6 +258,7 @@ export const getUser = async (event, context) => {
   try {
     const result = await UserController.getUser(urldecode(userId), {
       stripeAccountId: 0,
+      stripeCustomerId: 0,
     });
     return success(result);
   } catch (error) {
@@ -237,16 +278,20 @@ export const getUser = async (event, context) => {
   }
 };
 
-const _get_unique_username = async (email, username) => {
+const _check_username_exists = async (email, username) => {
   let userExists = await UserController.isExists({
     username: username,
     email: { $ne: email },
   });
-  if (userExists) {
+  return userExists;
+};
+
+const _get_unique_username = async (email, username) => {
+  const exists = await _check_username_exists(email, username);
+  if (exists) {
     username = username + '_' + moment().format('X');
-  } else {
-    return username;
   }
+  return username;
 };
 
 /**
@@ -304,14 +349,15 @@ export const deleteUser = async (event, context) => {};
 export const isUserExists = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
-    if (!(data && data.username))
+    if (!(data && data.username && data.email))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
-    const result = await UserController.isExists({
-      awsUserId: { $nin: [event.requestContext.identity.cognitoIdentityId] },
-      username: user.username,
-    });
-    return success(result);
+    const exists = await _check_username_exists(
+      data['email'],
+      data['username']
+    );
+    return success(exists);
   } catch (error) {
+    console.log(error);
     return failure(error);
   }
 };

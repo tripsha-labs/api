@@ -117,10 +117,11 @@ const updateUserSchema = {
 
 const createUserSchema = {
   email: { type: 'email', empty: false },
-  dob: { type: 'string', optional: true, empty: false },
-  firstName: { type: 'string', empty: false },
+  dob: { type: 'string', empty: false, optional: true },
+  firstName: { type: 'string', empty: false, optional: true },
   lastName: { type: 'string', empty: false, optional: true },
   avatarUrl: { type: 'string', empty: true, optional: true },
+  username: { type: 'string', empty: false, optional: true },
   $$strict: true,
 };
 
@@ -133,12 +134,24 @@ const adminUpdateUserSchema = {
     type: 'boolean',
     optional: true,
   },
+  firstName: {
+    type: 'string',
+    optional: true,
+  },
+  lastName: {
+    type: 'string',
+    optional: true,
+  },
   isAdmin: {
     type: 'boolean',
     optional: true,
   },
   isActive: {
     type: 'boolean',
+    optional: true,
+  },
+  username: {
+    type: 'string',
     optional: true,
   },
   hostShare: {

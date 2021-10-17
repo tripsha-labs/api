@@ -53,6 +53,62 @@ paths:
                               type: string
                             isActive:
                               type: boolean
+                            isAdmin:
+                              type: boolean
+                            isOnline:
+                              type: boolean
+                            spokenLanguages:
+                              type: array
+                            interests:
+                              type: array
+                            isEmailVerified:
+                              type: boolean
+                            isPhoneVerified:
+                              type: boolean
+                            isIdentityVerified:
+                              type: boolean
+                            isStripeAccountConnected:
+                              type: boolean
+                            showDashboardTutorial:
+                              type: boolean
+                            hasFirstBooking:
+                              type: boolean
+                            isHostFirstLogin:
+                              type: boolean
+                            dob:
+                              type: string
+                            awsUserId:
+                              type: string
+                            createdAt:
+                              type: string
+                            updatedAt:
+                              type: string
+                            gender:
+                              type: string
+                            livesIn:
+                              type: string
+                            awsUsername:
+                              type: string
+                            travelStyle:
+                              type: string
+                            travelWithHostReason:
+                              type: string
+                            bio:
+                              type: string
+                            itemsTravelWith:
+                              type: string
+                            isTripAgreed:
+                              type: boolean
+                            isHost:
+                              type: boolean
+                            isBlocked:
+                              type: boolean
+                            facebook_url:
+                              type: string
+                            instagram_url:
+                              type: string
+                            twitter_url:
+                              type: string
         default:
           description: Error response
           content:
