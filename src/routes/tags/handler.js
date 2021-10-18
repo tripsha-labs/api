@@ -2,22 +2,22 @@
  * @name - Tags handler
  * @description - This will handle tags API requests
  */
-import { success, failure } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
 import { TagsController } from './tags.ctrl';
 
 /**
  * List tags
  */
-export const listTags = async (event, context) => {
+export const listTags = async (req, res) => {
   try {
+    console.log('===========================');
     // Get search string from queryparams
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.query ? req.query : {};
     const result = await TagsController.listTags(params);
-    return success(result);
+    console.log(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };

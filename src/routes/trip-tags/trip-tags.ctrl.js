@@ -3,7 +3,6 @@
  * @description - This will handle trip tags business logic
  */
 import { TripTagModel } from '../../models';
-import { dbConnect } from '../../utils';
 import { prepareCommonFilter } from '../../helpers';
 
 export class TripTagsController {
@@ -15,7 +14,6 @@ export class TripTagsController {
         },
         ...prepareCommonFilter(filter, ['name']),
       };
-      await dbConnect();
       const tags = await TripTagModel.list(params);
       return {
         data: tags,

@@ -2,22 +2,20 @@
  * @name - Countries API Handler
  * @description - This handles API requests
  */
-import { success, failure } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
 import { CountryController } from './country.ctrl';
 
 /**
  * List tags
  */
-export const listCountries = async (event, context) => {
+export const listCountries = async (req, res) => {
   try {
     // Get search string from queryparams
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.query ? req.query : {};
     const result = await CountryController.listCountries(params);
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };

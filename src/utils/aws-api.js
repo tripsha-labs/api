@@ -77,6 +77,7 @@ export const setUserPassword = async (event, params) => {
 };
 export const getCurrentUser = async event => {
   try {
+    console.log(event.requestContext);
     const cognitoClient = new AWS.CognitoIdentityServiceProvider();
     const IDP_REGEX = /.*\/.*,(.*)\/(.*):CognitoSignIn:(.*)/;
     const authProvider =

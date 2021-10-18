@@ -20,8 +20,6 @@ import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 export class MessageController {
   static async listMessages(filter) {
     try {
-      await dbConnect();
-
       let filterParams = {};
       const user = await UserModel.get({
         awsUserId: filter.awsUserId,
@@ -132,7 +130,6 @@ export class MessageController {
 
   static async listConversations(filter) {
     try {
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: filter.userId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const filterParams = {
@@ -272,7 +269,6 @@ export class MessageController {
 
   static async addSupportMember(id) {
     try {
-      await dbConnect();
       const supportUser = await UserModel.get({ email: 'hello@tripsha.com' });
       const user = await UserModel.get({ awsUserId: id });
       const message = {
@@ -318,7 +314,6 @@ export class MessageController {
   }
   static async sendMessageRest(message, event) {
     try {
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: message.fromMemberId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       message['fromMemberId'] = user._id.toString();
@@ -338,12 +333,9 @@ export class MessageController {
         { userId: message.toMemberId, memberId: message.fromMemberId },
         params
       );
-      // const connParams = {
-      //   userId: message.toMemberId,
-      // };
-      // await MessageController.sendMessage(event, message, connParams);
       return resMessage;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }

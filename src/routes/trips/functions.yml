@@ -41,13 +41,13 @@ getPrivateTrip:
         cors: true
         authorizer: aws_iam
 
-listTrips:
-  handler: src/routes/trips/handler.listTrips
-  events:
-    - http:
-        path: trips
-        method: get
-        cors: true
+# listTrips:
+#   handler: src/routes/trips/handler.listTrips
+#   events:
+#     - http:
+#         path: trips
+#         method: get
+#         cors: true
 
 listPrivateTrips:
   handler: src/routes/trips/handler.listTrips

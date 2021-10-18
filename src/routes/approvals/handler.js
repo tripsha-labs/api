@@ -3,7 +3,7 @@
  * @description - This will handle API request for host request module
  */
 import urldecode from 'urldecode';
-import { success, failure } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
 import { ApprovalsController } from './approvals.ctrl';
 import { approvalSchemaValidation } from '../../models';
 import { ERROR_KEYS } from '../../constants';
@@ -11,56 +11,56 @@ import { ERROR_KEYS } from '../../constants';
 /**
  * List host requests
  */
-export const listApprovals = async (event, context) => {
+export const listApprovals = async (req, res) => {
   try {
     // Get search string from queryparams
-    const params = event.queryStringParameters || {};
+    const params = req.query || {};
 
     const result = await ApprovalsController.list(
       params,
-      event.requestContext.identity.cognitoIdentityId
+      req.requestContext.identity.cognitoIdentityId
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * create host request
  */
-export const createApproval = async (event, context) => {
+export const createApproval = async (req, res) => {
   try {
-    const params = JSON.parse(event.body) || {};
+    const params = req.body || {};
     const errors = approvalSchemaValidation(params);
     if (errors != true) throw errors.shift();
-    params['awsUserId'] = event.requestContext.identity.cognitoIdentityId;
+    params['awsUserId'] = req.requestContext.identity.cognitoIdentityId;
     const result = await ApprovalsController.createApproval(params);
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * get host request
  */
-export const actionApproval = async (event, context) => {
+export const actionApproval = async (req, res) => {
   try {
-    if (!(event.pathParameters && event.pathParameters.id))
+    if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-    const approvalId = event.pathParameters.id;
-    const params = JSON.parse(event.body) || {};
-    params['awsUserId'] = event.requestContext.identity.cognitoIdentityId;
+    const approvalId = req.params.id;
+    const params = req.body || {};
+    params['awsUserId'] = req.requestContext.identity.cognitoIdentityId;
     const result = await ApprovalsController.actionApproval(
       urldecode(approvalId),
       params
     );
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
