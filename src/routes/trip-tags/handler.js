@@ -2,22 +2,20 @@
  * @name - Trips tags handler
  * @description - This will handle trip tags API requests
  */
-import { success, failure } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
 import { TripTagsController } from './trip-tags.ctrl';
 
 /**
  * List tags
  */
-export const listTripTags = async (event, context) => {
+export const listTripTags = async (req, res) => {
   try {
     // Get search string from queryparams
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.query ? req.query : {};
     const result = await TripTagsController.listTags(params);
-    return success(result);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };

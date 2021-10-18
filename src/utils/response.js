@@ -36,3 +36,22 @@ export const failure = (body, httpCode = 400) => {
   }
   return _buildResponse(httpCode, { status: 'error', result: body });
 };
+
+export const successResponse = (res, body) => {
+  return res.send({ status: 'success', result: body });
+  // return _buildResponse(200, { status: 'success', result: body });
+};
+
+export const failureResponse = (res, body, httpCode = 400) => {
+  httpCode = body && body.code ? body.code : httpCode;
+  if (body && body.errors) {
+    const values = Object.values(body.errors);
+    body = values[0].properties;
+  } else if (body && body.type) {
+    body = body;
+  } else {
+    body = ERROR_KEYS.INTERNAL_SERVER_ERROR;
+  }
+  return res.status(httpCode).send({ status: 'error', result: body });
+  // return _buildResponse(httpCode, { status: 'error', result: body });
+};

@@ -2,7 +2,7 @@
  * @name - Payment contoller
  * @description - This will handle business logic for Payment module
  */
-import { StripeAPI, dbConnect } from '../../utils';
+import { StripeAPI } from '../../utils';
 import { UserModel } from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
@@ -20,7 +20,6 @@ export class PaymentController {
     if (customer && customer.id) {
       if (!customer.id) throw new Error('Missing Stripe Customer ID.');
       const resp = await StripeAPI.attachCard(paymentMethod, customer.id);
-      await dbConnect();
       await UserModel.update(
         { awsUserId: awsUserId },
         { stripeCustomerId: customer.id }
@@ -41,7 +40,6 @@ export class PaymentController {
 
   static async listPaymentMethods(userId) {
     try {
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: userId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const paymentMethods = await StripeAPI.listPaymentMethods(
@@ -74,7 +72,6 @@ export class PaymentController {
       throw new Error('Missing Stripe paymentMethodId.');
     }
 
-    await dbConnect();
     const user = await UserModel.get({ awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!user.stripeAccountId)
@@ -94,7 +91,6 @@ export class PaymentController {
 
   static async validateCode(code, awsUserId) {
     try {
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const accountDetails = await StripeAPI.validateCode(code);

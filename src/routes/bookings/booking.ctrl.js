@@ -2,7 +2,7 @@
  * @name - Booking controller
  * @description - This will handle business logic for Booking module
  */
-import { dbConnect, StripeAPI, logActivity, sendEmail } from '../../utils';
+import { StripeAPI, logActivity, sendEmail } from '../../utils';
 import {
   getCosting,
   getBookingValidity,
@@ -22,7 +22,6 @@ import { ObjectID } from 'mongodb';
 
 export class BookingController {
   static async createBooking(params, awsUserId) {
-    await dbConnect();
     const bookingData = params;
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
@@ -97,7 +96,6 @@ export class BookingController {
   }
 
   static async listBookings(filters, awsUserId) {
-    await dbConnect();
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!filters.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
@@ -171,7 +169,6 @@ export class BookingController {
   }
 
   static async payBalance(params, awsUserId) {
-    await dbConnect();
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!params.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
@@ -185,7 +182,6 @@ export class BookingController {
   }
 
   static async bookingsAction(params, bookingId, awsUserId) {
-    await dbConnect();
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const booking = await BookingModel.getById(bookingId);
@@ -507,13 +503,11 @@ export class BookingController {
   }
 
   static async getBooking(bookingId) {
-    await dbConnect();
     const booking = await BookingModel.getById(bookingId);
     return booking;
   }
 
   static async doPartPayment(bookingId, awsUserId) {
-    await dbConnect();
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const booking = await BookingModel.getById(bookingId);
@@ -610,7 +604,6 @@ export class BookingController {
   }
 
   static async listGuestBookings(filters, guestAwsId) {
-    await dbConnect();
     const user = await UserModel.get({ awsUserId: guestAwsId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const bookingProjection = {
@@ -700,7 +693,6 @@ export class BookingController {
   }
 
   static async updateBooking(id, params) {
-    await dbConnect();
     await BookingModel.update(id, params);
     return 'success';
   }

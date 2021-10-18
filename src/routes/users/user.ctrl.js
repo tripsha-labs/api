@@ -4,14 +4,12 @@
  */
 import { Types } from 'mongoose';
 import { UserModel } from '../../models';
-import { dbConnect, sendEmail } from '../../utils';
 import { prepareCommonFilter } from '../../helpers';
 import { ERROR_KEYS } from '../../constants';
 
 export class UserController {
   static async inviteUser(user) {
     try {
-      await dbConnect();
       const checkUser = await UserModel.get({ email: user.email });
       if (checkUser) {
         await UserModel.update({ email: user.email }, { isHost: user.isHost });
@@ -37,7 +35,6 @@ export class UserController {
 
   static async createUser(user = {}) {
     try {
-      await dbConnect();
       const result = await UserModel.create(user);
       return result;
     } catch (error) {
@@ -47,7 +44,6 @@ export class UserController {
 
   static async updateUserByEmail(email, user) {
     try {
-      await dbConnect();
       await UserModel.update({ email: email }, user);
       return 'success';
     } catch (error) {
@@ -58,7 +54,6 @@ export class UserController {
 
   static async updateUserAdmin(id, user) {
     try {
-      await dbConnect();
       await UserModel.update({ _id: Types.ObjectId(id) }, user);
       return 'success';
     } catch (error) {
@@ -68,7 +63,6 @@ export class UserController {
   }
   static async updateUser(id, user) {
     try {
-      await dbConnect();
       if (user && user.username) {
         const res = await UserModel.count({
           awsUserId: { $nin: [id] },
@@ -88,7 +82,6 @@ export class UserController {
 
   static async getUser(id, select = {}) {
     try {
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: { $in: [id] } }, select);
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       return user;
@@ -157,7 +150,6 @@ export class UserController {
           default:
         }
       }
-      await dbConnect();
       const userCount = await UserModel.count(params.filter);
       const users = await UserModel.list(params);
       return { data: users, count: userCount };
@@ -170,7 +162,6 @@ export class UserController {
   static async deleteUser(id) {
     try {
       if (!id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-      await dbConnect();
       await UserModel.delete(id);
       return 'success';
     } catch (error) {
@@ -181,7 +172,6 @@ export class UserController {
 
   static async isExists(params) {
     try {
-      await dbConnect();
       const res = await UserModel.count(params);
       return res && res > 0 ? true : false;
     } catch (error) {
@@ -192,7 +182,6 @@ export class UserController {
 
   static async get(params, select = {}) {
     try {
-      await dbConnect();
       const user = await UserModel.get(params, select);
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       return user;

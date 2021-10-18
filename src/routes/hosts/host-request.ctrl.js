@@ -3,14 +3,11 @@
  * @description - THis will handle business logic for hostRequest module
  */
 import { UserModel, HostRequestModel } from '../../models';
-import { dbConnect } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { ObjectID } from 'mongodb';
 
 export class HostRequestController {
   static async list(filter, awsUserId) {
-    await dbConnect();
-
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!(user && user.isAdmin)) {
       throw { ...ERROR_KEYS.UNAUTHORIZED };
@@ -36,7 +33,6 @@ export class HostRequestController {
   }
 
   static async createHostRequest(params) {
-    await dbConnect();
     const hostRequest = await HostRequestModel.get({
       awsUserId: params.awsUserId,
     });
@@ -52,7 +48,6 @@ export class HostRequestController {
   }
 
   static async getHostRequest(hostId) {
-    await dbConnect();
     const hostRequest = await HostRequestModel.getById(hostId);
     if (!hostRequest) throw { ...ERROR_KEYS.HOST_REQUEST_NOT_FOUND };
     const ownerDetails = await UserModel.get({
@@ -63,8 +58,6 @@ export class HostRequestController {
   }
 
   static async updateHostRequest(hostId, data, awsUserId) {
-    await dbConnect();
-
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!(user && user.isAdmin)) {
       throw { ...ERROR_KEYS.UNAUTHORIZED };
@@ -87,7 +80,6 @@ export class HostRequestController {
   }
 
   static async deleteHostRequest(hostId, awsUserId) {
-    await dbConnect();
     const hostRequest = await HostRequestModel.getById(hostId);
     if (!hostRequest) throw { ...ERROR_KEYS.HOST_REQUEST_NOT_FOUND };
     if (awsUserId !== hostRequest.memberId) {
