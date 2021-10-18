@@ -58,7 +58,7 @@ export const createTrip = async (req, res) => {
  */
 export const updateTrip = async (req, res) => {
   try {
-    const data = JSON.parse(event.body) || {};
+    const data = req.body || {};
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const errors = updateTripValidation(data);
@@ -120,7 +120,7 @@ export const deleteTrip = async (req, res) => {
  */
 export const myTrips = async (req, res) => {
   try {
-    const params = req.params ? req.params : {};
+    const params = req.query ? req.query : {};
     const result = await TripController.myTrips({
       ...params,
       awsUserId: req.requestContext.identity.cognitoIdentityId,
@@ -137,7 +137,7 @@ export const myTrips = async (req, res) => {
  */
 export const savedTrips = async (req, res) => {
   try {
-    const params = req.params ? req.params : {};
+    const params = req.query ? req.query : {};
     const result = await TripController.myTrips({
       ...params,
       isPublic: true,
@@ -151,7 +151,7 @@ export const savedTrips = async (req, res) => {
 };
 
 export const sendEmails = async (req, res) => {
-  const params = req.params ? req.params : {};
+  const params = req.query ? req.query : {};
   const data = {
     emails: ['madanesanjayraj@gmail.com'],
     name: 'Sanjay',

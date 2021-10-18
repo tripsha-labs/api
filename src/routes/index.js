@@ -1,6 +1,7 @@
 const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
+const morgan = require('morgan');
 import { dbConnect } from '../utils';
 import Countries from './countries';
 import Tags from './tags';
@@ -22,6 +23,7 @@ import AdminApi from './users/admin';
 const noAuth = () => {
   const app = express();
   app.use(cors());
+  app.use(morgan('tiny'));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(async (req, res, next) => {
@@ -40,6 +42,7 @@ const noAuth = () => {
 const auth = () => {
   const app = express();
   app.use(cors());
+  app.use(morgan('tiny'));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(async (req, res, next) => {
