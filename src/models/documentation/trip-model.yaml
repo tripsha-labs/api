@@ -3,43 +3,36 @@ components:
     TripModel:
       type: object
       properties:
-        id:
+        _id:
           type: string
         title:
           type: string
         description:
           type: string
+        startDate:
+          type: number
+          format: 'YYYYMMDD'
+        endDate:
+          type: number
+          format: 'YYYYMMDD'
+        focus:
+          type: string
         destinations:
           type: array
           items:
             type: string
-        startDate:
-          type: date
-          format: 'YYYYMMDD'
-        endDate:
-          type: date
-          format: 'YYYYMMDD'
+        minGroupSize:
+          type: number
+        maxGroupSize:
+          type: number
+        spotsAvailable:
+          type: number
         languages:
           type: array
           items:
             type: string
             enum:
               - english
-        budgets:
-          type: array
-          items:
-            type: string
-            enum: ['$', '$$', '$$$', '$$$$', '$$$$$']
-        spotFilledRank:
-          type: integer
-        tripLength:
-          type: integer
-        groupSize:
-          type: integer
-        minGroupSize:
-          type: integer
-        maxGroupSize:
-          type: integer
         interests:
           type: array
           items:
@@ -48,17 +41,121 @@ components:
           type: array
           items:
             type: string
+        itineraries:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              desciption:
+                type: string
+              imageUrl:
+                type: string
+        rooms:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              cost:
+                type: number
+              available:
+                type: number
+              filled:
+                type: number
+        addOns:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              cost:
+                type: number
+              available:
+                type: number
+              filled:
+                type: number
+        isDepositApplicable:
+          type: boolean
+        deposit:
+          type: object
+          properties:
+            amount:
+              type: number
+            expirationDate:
+              type: number
+            includeAddOns:
+              type: boolean
+        isDiscountApplicable:
+          type: boolean
+        discounts:
+          type: array
+          items:
+            type: object
+            properties:
+              discType:
+                type: string
+              name:
+                type: string
+              amount:
+                type: number
+              expirationDate:
+                type: number
+              includeAddOns:
+                type: boolean
+        priceIncludes:
+          type: string
+        priceExcludes:
+          type: string
+        lastBookingDate:
+          type: number
+        status:
+          type: string
+          enum:
+            - draft
+            - published
+            - completed
+            - cancelled
+        tripPaymentType:
+          type: string
+          enum:
+            - pay
+            - payasyougo
+            - free
+        tripLength:
+          type: number
+        groupSize:
+          type: number
+        spotsFilled:
+          type: number
+        favoriteCount:
+          type: number
+        spotsReserved:
+          type: number
+        isLocked:
+          type: boolean
+        showGroupHistory:
+          type: boolean
         isPublic:
           type: boolean
         isActive:
           type: boolean
         isFull:
           type: boolean
-          desciption: groupsize=maxGroupSize
         isArchived:
-          type: number
+          type: boolean
           description: Trip is expired, startDate less than todays date.
-          enum: [1, 0]
+        isFavorite:
+          type: boolean
         createdAt:
           type: number
           format: unix timestamp
@@ -67,7 +164,7 @@ components:
           format: unix timestamp
         ownerId:
           type: string
-        createdBy:
+        updatedBy:
           type: object
           properties:
             firstName:

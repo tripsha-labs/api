@@ -2,7 +2,7 @@
  * @name - Payment contoller
  * @description - This will handle business logic for Payment module
  */
-import { StripeAPI, dbConnect } from '../../utils';
+import { StripeAPI } from '../../utils';
 import { UserModel } from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
@@ -12,12 +12,22 @@ export class PaymentController {
     return clientSecret;
   }
 
-  static async saveCard(data) {
+  static async saveCard(data, awsUserId) {
     const { paymentMethod, email } = data;
     if (!paymentMethod) throw new Error('Missing payment method.');
     if (!email) throw new Error('Missing email.');
     const customer = await StripeAPI.createCustomer(paymentMethod, email);
-    return customer;
+    if (customer && customer.id) {
+      if (!customer.id) throw new Error('Missing Stripe Customer ID.');
+      const resp = await StripeAPI.attachCard(paymentMethod, customer.id);
+      await UserModel.update(
+        { awsUserId: awsUserId },
+        { stripeCustomerId: customer.id }
+      );
+      return resp;
+    } else {
+      throw new Error('Missing Stripe Customer ID.');
+    }
   }
 
   static async attachCard(data) {
@@ -30,7 +40,6 @@ export class PaymentController {
 
   static async listPaymentMethods(userId) {
     try {
-      await dbConnect();
       const user = await UserModel.get({ awsUserId: userId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const paymentMethods = await StripeAPI.listPaymentMethods(
@@ -63,30 +72,37 @@ export class PaymentController {
       throw new Error('Missing Stripe paymentMethodId.');
     }
 
-    await dbConnect();
     const user = await UserModel.get({ awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!user.stripeAccountId)
       throw new Error('Host does not have a Stripe account.');
     const beneficiary = user.stripeAccountId;
-
     const paymentIntent = await StripeAPI.createPaymentIntent({
       amount,
       currency,
       customerId,
       paymentMethod,
       beneficiary,
+      hostShare: user.hostShare,
     });
 
     return paymentIntent;
   }
 
-  static async validateCode(code) {
-    if (!code || typeof code !== 'string' || code.length === 0) {
-      throw new Error('Missing or invalid authorization code.');
+  static async validateCode(code, awsUserId) {
+    try {
+      const user = await UserModel.get({ awsUserId: awsUserId });
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      const accountDetails = await StripeAPI.validateCode(code);
+      const user_info = {
+        stripeAccountId: accountDetails.stripe_user_id,
+        isStripeAccountConnected: true,
+      };
+      await UserModel.update({ awsUserId: awsUserId }, user_info);
+      return 'success';
+    } catch (error) {
+      console.log(error);
+      throw new Error('Invalid authorization code.');
     }
-
-    const accountId = await StripeAPI.validateCode(code);
-    return accountId;
   }
 }

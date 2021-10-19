@@ -1,26 +1,119 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "version": "v1.0",
-    "title": "Tripsha API documentation",
-    "description": "This is complete API documentation of all the API",
-    "termsOfService": "https://tripsha.com/terms/",
-    "contact": {
-      "name": "Tripsha API Team",
-      "email": "madanesanjay@yahoo.com",
-      "url": "https://tripsha.com"
-    }
-  },
-  "servers": [
-    {
-      "url": "https://dev-api.tripsha.com"
-    },
-    {
-      "url": "http://localhost:3000"
-    }
-  ],
   "components": {
     "schemas": {
+      "ActivityLogModel": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "number",
+            "format": "Unix timestamp"
+          },
+          "createdAt": {
+            "type": "number",
+            "format": "Unix timestamp"
+          }
+        }
+      },
+      "BookingModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tripId": {
+            "type": "string"
+          },
+          "onwerId": {
+            "type": "string"
+          },
+          "memberId": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "attendees": {
+            "type": "string"
+          },
+          "room": {
+            "type": "object"
+          },
+          "addOns": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "guests": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "paymentStatus": {
+            "type": "string"
+          },
+          "deposit": {
+            "type": "object"
+          },
+          "discount": {
+            "type": "object"
+          },
+          "status": {
+            "type": "string"
+          },
+          "nextPaymentDate": {
+            "type": "string"
+          },
+          "totalBaseFare": {
+            "type": "number"
+          },
+          "totalAddonFare": {
+            "type": "number"
+          },
+          "discountBaseFare": {
+            "type": "number"
+          },
+          "discountAddonFare": {
+            "type": "number"
+          },
+          "paidAmout": {
+            "type": "number"
+          },
+          "totalFare": {
+            "type": "number"
+          },
+          "pendingAmout": {
+            "type": "number"
+          },
+          "paymentHistory": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "createdAt": {
+            "type": "number",
+            "format": "unix timestamp"
+          },
+          "updatedAt": {
+            "type": "number",
+            "format": "unix timestamp"
+          }
+        }
+      },
       "CountryModel": {
         "type": "object",
         "properties": {
@@ -31,6 +124,60 @@
           "name": {
             "type": "string",
             "description": "Name of country"
+          }
+        }
+      },
+      "HostRequestModel": {
+        "type": "object",
+        "properties": {
+          "awsUserId": {
+            "type": "string"
+          },
+          "kindOfTripHostingOverview": {
+            "type": "string",
+            "description": "Describe type of trip you planning to host"
+          },
+          "hostingCapacity": {
+            "type": "string",
+            "enum": ["1", "2-3", "5-10", "10+"]
+          },
+          "hostingForCountries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "targettingTypesOfTravelers": {
+            "type": "string",
+            "description": "Hosting trip for kind of audience group?",
+            "enum": [true, false]
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "If `isActive=true` host request is not deleted",
+            "enum": [true, false]
+          },
+          "groupTripHostingExperience": {
+            "type": "string",
+            "description": "Host trip hosting experience",
+            "enum": ["professional", "intermediate", "beginner"]
+          },
+          "pastAccomplishmentReferences": {
+            "type": "string",
+            "description": "Host past experiences reference links"
+          },
+          "status": {
+            "type": "boolean",
+            "description": "Request status",
+            "enum": ["pending", "approved", "declined"]
+          },
+          "updatedAt": {
+            "type": "number",
+            "format": "Unix timestamp"
+          },
+          "createdAt": {
+            "type": "number",
+            "format": "Unix timestamp"
           }
         }
       },
@@ -135,7 +282,7 @@
             "properties": {
               "errorCode": {
                 "type": "string",
-                "description": "Error code to handle internationalization(i18)"
+                "description": "Error code to handle internationalization(i18n)"
               },
               "message": {
                 "type": "string",
@@ -175,7 +322,7 @@
       "TripModel": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string"
           },
           "title": {
@@ -184,19 +331,31 @@
           "description": {
             "type": "string"
           },
+          "startDate": {
+            "type": "number",
+            "format": "YYYYMMDD"
+          },
+          "endDate": {
+            "type": "number",
+            "format": "YYYYMMDD"
+          },
+          "focus": {
+            "type": "string"
+          },
           "destinations": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "startDate": {
-            "type": "date",
-            "format": "YYYYMMDD"
+          "minGroupSize": {
+            "type": "number"
           },
-          "endDate": {
-            "type": "date",
-            "format": "YYYYMMDD"
+          "maxGroupSize": {
+            "type": "number"
+          },
+          "spotsAvailable": {
+            "type": "number"
           },
           "languages": {
             "type": "array",
@@ -204,28 +363,6 @@
               "type": "string",
               "enum": ["english"]
             }
-          },
-          "budgets": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": ["$", "$$", "$$$", "$$$$", "$$$$$"]
-            }
-          },
-          "spotFilledRank": {
-            "type": "integer"
-          },
-          "tripLength": {
-            "type": "integer"
-          },
-          "groupSize": {
-            "type": "integer"
-          },
-          "minGroupSize": {
-            "type": "integer"
-          },
-          "maxGroupSize": {
-            "type": "integer"
           },
           "interests": {
             "type": "array",
@@ -239,6 +376,153 @@
               "type": "string"
             }
           },
+          "itineraries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "desciption": {
+                  "type": "string"
+                },
+                "imageUrl": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "cost": {
+                  "type": "number"
+                },
+                "available": {
+                  "type": "number"
+                },
+                "filled": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "addOns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "cost": {
+                  "type": "number"
+                },
+                "available": {
+                  "type": "number"
+                },
+                "filled": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "isDepositApplicable": {
+            "type": "boolean"
+          },
+          "deposit": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "expirationDate": {
+                "type": "number"
+              },
+              "includeAddOns": {
+                "type": "boolean"
+              }
+            }
+          },
+          "isDiscountApplicable": {
+            "type": "boolean"
+          },
+          "discounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "discType": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "number"
+                },
+                "expirationDate": {
+                  "type": "number"
+                },
+                "includeAddOns": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "priceIncludes": {
+            "type": "string"
+          },
+          "priceExcludes": {
+            "type": "string"
+          },
+          "lastBookingDate": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["draft", "published", "completed", "cancelled"]
+          },
+          "tripPaymentType": {
+            "type": "string",
+            "enum": ["pay", "payasyougo", "free"]
+          },
+          "tripLength": {
+            "type": "number"
+          },
+          "groupSize": {
+            "type": "number"
+          },
+          "spotsFilled": {
+            "type": "number"
+          },
+          "favoriteCount": {
+            "type": "number"
+          },
+          "spotsReserved": {
+            "type": "number"
+          },
+          "isLocked": {
+            "type": "boolean"
+          },
+          "showGroupHistory": {
+            "type": "boolean"
+          },
           "isPublic": {
             "type": "boolean"
           },
@@ -246,13 +530,14 @@
             "type": "boolean"
           },
           "isFull": {
-            "type": "boolean",
-            "desciption": "groupsize=maxGroupSize"
+            "type": "boolean"
           },
           "isArchived": {
-            "type": "number",
-            "description": "Trip is expired, startDate less than todays date.",
-            "enum": [1, 0]
+            "type": "boolean",
+            "description": "Trip is expired, startDate less than todays date."
+          },
+          "isFavorite": {
+            "type": "boolean"
           },
           "createdAt": {
             "type": "number",
@@ -265,7 +550,7 @@
           "ownerId": {
             "type": "string"
           },
-          "createdBy": {
+          "updatedBy": {
             "type": "object",
             "properties": {
               "firstName": {
@@ -285,10 +570,17 @@
         "type": "object",
         "required": ["username", "email"],
         "properties": {
-          "id": {
-            "type": "string"
+          "_id": {
+            "type": "string",
+            "description": "User Id"
           },
           "username": {
+            "type": "string"
+          },
+          "awsUsername": {
+            "type": "string"
+          },
+          "awsUserId": {
             "type": "string"
           },
           "email": {
@@ -301,7 +593,7 @@
             "type": "string"
           },
           "dob": {
-            "type": "date",
+            "type": "number",
             "format": "YYYYMMDD"
           },
           "livesIn": {
@@ -330,31 +622,187 @@
             }
           },
           "bucketList": {
-            "type": "string",
-            "desciption": "List of interested countries"
+            "type": "string"
+          },
+          "hasFirstBooking": {
+            "type": "boolean"
+          },
+          "isAdmin": {
+            "type": "boolean"
+          },
+          "isOnline": {
+            "type": "boolean"
+          },
+          "lastOnlineTime": {
+            "type": "number"
+          },
+          "isEmailVerified": {
+            "type": "boolean"
+          },
+          "isPhoneVerified": {
+            "type": "boolean"
+          },
+          "isIdentityVerified": {
+            "type": "boolean"
+          },
+          "isStripeAccountConnected": {
+            "type": "boolean"
           },
           "isActive": {
             "type": "boolean"
           },
           "createdAt": {
-            "type": "string",
-            "desciption": "Datetime"
+            "type": "string"
           },
           "updatedAt": {
+            "type": "string"
+          },
+          "travelStyle": {
+            "type": "string"
+          },
+          "travelWithHostReason": {
+            "type": "string"
+          },
+          "itemsTravelWith": {
+            "type": "string"
+          },
+          "isTripAgreed": {
+            "type": "boolean"
+          },
+          "showDashboardTutorial": {
+            "type": "boolean"
+          },
+          "isHostFirstLogin": {
+            "type": "boolean"
+          }
+        }
+      },
+      "bookingSchema": {
+        "properties": {
+          "tripId": {
+            "type": "string"
+          },
+          "stripePaymentMethod": {
+            "type": "object"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "attendees": {
+            "type": "number"
+          },
+          "room": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "cost": {
+                "type": "number"
+              },
+              "available": {
+                "type": "number"
+              }
+            }
+          },
+          "addOns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "cost": {
+                  "type": "number"
+                },
+                "available": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "paymentStatus": {
             "type": "string",
-            "desciption": "Datetime"
+            "enum": ["full", "deposit", "payasyougo"]
+          },
+          "message": {
+            "type": "string"
+          },
+          "deposit": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "expirationDate": {
+                "type": "number"
+              },
+              "includeAddOns": {
+                "type": "boolean"
+              }
+            }
+          },
+          "discount": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "discType": {
+                "type": "string",
+                "enum": ["amount", "percentage"]
+              },
+              "amount": {
+                "type": "number"
+              },
+              "expirationDate": {
+                "type": "number"
+              },
+              "includeAddOns": {
+                "type": "number"
+              }
+            }
+          },
+          "guests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "relationship": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
       "SendMessage": {
+        "required": ["toMemberId", "message"],
         "properties": {
           "toMemberId": {
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "message": {
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "messsageType": {
             "type": "string",
@@ -363,14 +811,31 @@
         }
       },
       "CreateUpdateTrip": {
+        "required": [
+          "title",
+          "startDate",
+          "endDate",
+          "minGroupSize",
+          "maxGroupSize",
+          "spotsAvailable"
+        ],
         "properties": {
           "title": {
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "description": {
-            "type": "string",
-            "required": true
+            "type": "string"
+          },
+          "startDate": {
+            "type": "number",
+            "format": "YYYYMMDD"
+          },
+          "endDate": {
+            "type": "number",
+            "format": "YYYYMMDD"
+          },
+          "focus": {
+            "type": "string"
           },
           "destinations": {
             "type": "array",
@@ -379,37 +844,15 @@
             }
           },
           "minGroupSize": {
-            "type": "number",
-            "required": true
+            "type": "number"
           },
           "maxGroupSize": {
-            "type": "number",
-            "required": true
+            "type": "number"
           },
-          "startDate": {
-            "type": "string",
-            "format": "YYYYMMDD",
-            "required": true
-          },
-          "endDate": {
-            "type": "string",
-            "format": "YYYYMMDD",
-            "required": true
+          "spotsAvailable": {
+            "type": "number"
           },
           "languages": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "budgets": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": ["$", "$$", "$$$", "$$$$", "$$$$$"]
-            }
-          },
-          "connections": {
             "type": "array",
             "items": {
               "type": "string"
@@ -427,6 +870,121 @@
               "type": "string"
             }
           },
+          "itineraries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "desciption": {
+                  "type": "string"
+                },
+                "imageUrl": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "cost": {
+                  "type": "number"
+                },
+                "available": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "addOns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "cost": {
+                  "type": "number"
+                },
+                "available": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "isDepositApplicable": {
+            "type": "boolean"
+          },
+          "deposit": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "expirationDate": {
+                "type": "number"
+              },
+              "includeAddOns": {
+                "type": "boolean"
+              }
+            }
+          },
+          "isDiscountApplicable": {
+            "type": "boolean"
+          },
+          "discounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "discType": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "number"
+                },
+                "expirationDate": {
+                  "type": "number"
+                },
+                "includeAddOns": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "priceIncludes": {
+            "type": "string"
+          },
+          "priceExcludes": {
+            "type": "string"
+          },
+          "lastBookingDate": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
           "isPublic": {
             "type": "boolean"
           }
@@ -434,6 +992,15 @@
       }
     },
     "parameters": {
+      "createBooking": {
+        "in": "path",
+        "name": "body",
+        "description": "Create booking payload",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/CreateUpdateTrip"
+        }
+      },
       "pathUserId": {
         "name": "userId",
         "in": "path",
@@ -447,6 +1014,24 @@
         "name": "tripId",
         "in": "path",
         "description": "Id of the trip",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "pathHostRequestId": {
+        "name": "hostRequestId",
+        "in": "path",
+        "description": "Id of the host request",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "pathBookingId": {
+        "name": "bookingId",
+        "in": "path",
+        "description": "Id of the booking request",
         "required": true,
         "schema": {
           "type": "string"
@@ -495,6 +1080,16 @@
           "default": 25,
           "minimum": 25,
           "maximum": 100
+        }
+      },
+      "querySortBy": {
+        "name": "sortBy",
+        "in": "query",
+        "description": "Sort by",
+        "schema": {
+          "type": "string",
+          "default": "updatedAt",
+          "enum": ["updatedAt"]
         }
       },
       "querySortByUser": {
@@ -556,7 +1151,7 @@
         "in": "query",
         "description": "Search for minStartDate. Format: `YYYYMMDD`",
         "schema": {
-          "type": "date",
+          "type": "number",
           "format": "YYYYMMDD"
         }
       },
@@ -565,7 +1160,7 @@
         "in": "query",
         "description": "Search for maxEndDate. Format: `YYYYMMDD`",
         "schema": {
-          "type": "date",
+          "type": "number",
           "format": "YYYYMMDD"
         }
       },
@@ -601,153 +1196,64 @@
           "type": "string"
         }
       },
-      "MemberAction": {
-        "in": "body",
-        "name": "body",
-        "description": "Perform Member Actions",
-        "required": true,
+      "queryIsMember": {
+        "name": "isMember",
+        "in": "query",
+        "description": "List all the trips belong to user",
         "schema": {
-          "properties": {
-            "tripId": {
-              "type": "string",
-              "required": true
-            },
-            "memberIds": {
-              "type": "array",
-              "required": true,
-              "items": {
-                "type": "string"
-              }
-            },
-            "action": {
-              "type": "string",
-              "required": true,
-              "enum": [
-                "addMember",
-                "makeFavorite",
-                "removeMember",
-                "makeUnFavorite"
-              ]
-            }
-          }
+          "type": "boolean"
         }
       },
-      "SendMessage": {
-        "in": "body",
-        "name": "body",
-        "description": "Create trip payload",
-        "required": true,
+      "queryIsFavorite": {
+        "name": "isFavorite",
+        "in": "query",
+        "description": "List all the favorite trips of the user",
         "schema": {
-          "$ref": "#/components/schemas/SendMessage"
+          "type": "boolean"
         }
       },
-      "createTrip": {
-        "in": "body",
-        "name": "body",
-        "description": "Create trip payload",
-        "required": true,
+      "queryIsPublic": {
+        "name": "isPublic",
+        "in": "query",
+        "description": "List all the public trips of the user",
         "schema": {
-          "$ref": "#/components/schemas/CreateUpdateTrip"
+          "type": "boolean",
+          "default": true
         }
       },
-      "updateTrip": {
-        "in": "body",
-        "name": "body",
-        "description": "Update trip payload",
-        "required": true,
+      "queryIsArchived": {
+        "name": "isArchived",
+        "in": "query",
+        "description": "List all the archived trips of the user",
         "schema": {
-          "$ref": "#/components/schemas/CreateUpdateTrip"
+          "type": "boolean",
+          "default": false
         }
       },
-      "createUser": {
-        "in": "body",
-        "name": "body",
-        "description": "Create user payload",
-        "required": true,
+      "queryStatus": {
+        "name": "status",
+        "in": "query",
+        "description": "List all the trips with status",
         "schema": {
-          "properties": {
-            "email": {
-              "type": "string"
-            },
-            "dob": {
-              "type": "number",
-              "format": "YYYYMMDD",
-              "description": "Date of birth in `YYYYMMDD` format"
-            },
-            "firstName": {
-              "type": "string"
-            },
-            "lastName": {
-              "type": "string"
-            }
-          }
+          "type": "string",
+          "enum": ["draft", "published", "completed", "cancelled"]
         }
       },
-      "updateUser": {
-        "in": "body",
-        "name": "body",
-        "description": "Update user payload",
-        "required": true,
+      "queryTripId": {
+        "name": "tripId",
+        "in": "query",
+        "description": "Trip Id",
         "schema": {
-          "properties": {
-            "firstName": {
-              "type": "string"
-            },
-            "lastName": {
-              "type": "string"
-            },
-            "userId": {
-              "type": "string"
-            },
-            "dob": {
-              "type": "date",
-              "format": "YYYYMMDD"
-            },
-            "livesIn": {
-              "type": "string"
-            },
-            "gender": {
-              "type": "string"
-            },
-            "spokenLanguages": {
-              "type": "string",
-              "description": "List of languages user can speak separated by comma"
-            },
-            "bio": {
-              "type": "string"
-            },
-            "isLookingForTravel": {
-              "type": "boolean"
-            },
-            "avatarUrl": {
-              "type": "string"
-            },
-            "interests": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "bucketList": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
+          "type": "string"
         }
       },
-      "checkUserExists": {
-        "in": "body",
-        "name": "body",
-        "description": "Check user exists payload",
-        "required": true,
+      "queryIsHost": {
+        "name": "isHost",
+        "in": "query",
+        "description": "This will list the details as per the host permissions else it will list the details as normal user.",
         "schema": {
-          "properties": {
-            "username": {
-              "type": "string"
-            }
-          }
+          "type": "boolean",
+          "enum": [true, false]
         }
       }
     },
@@ -758,20 +1264,883 @@
         "in": "header"
       }
     },
-    "examples": {
-      "trip-error": {
-        "status": "error",
-        "result": [
-          {
-            "type": "required",
-            "message": "Title field is required",
-            "field": "title"
+    "requestBodies": {
+      "createHostRequest": {
+        "description": "Create host request payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "kindOfTripHostingOverview": {
+                  "type": "string",
+                  "description": "Describe type of trip you planning to host"
+                },
+                "hostingCapacity": {
+                  "type": "string",
+                  "enum": ["1", "2-3", "5-10", "10+"]
+                },
+                "hostingForCountries": {
+                  "type": "array"
+                },
+                "targettingTypesOfTravelers": {
+                  "type": "string",
+                  "description": "Hosting trip for kind of audience group?"
+                },
+                "groupTripHostingExperience": {
+                  "type": "string",
+                  "description": "Host trip hosting experience",
+                  "enum": ["professional", "intermediate", "beginner"]
+                },
+                "pastAccomplishmentReferences": {
+                  "type": "string",
+                  "description": "Host past experiences reference links"
+                }
+              }
+            }
           }
-        ]
+        }
+      },
+      "updateHostRequest": {
+        "description": "Update host request payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": ["approved", "declined"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "createBooking": {
+        "description": "Create new booking payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/bookingSchema"
+            }
+          }
+        }
+      },
+      "updateBooking": {
+        "description": "Create new booking payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/bookingSchema"
+            }
+          }
+        }
+      },
+      "bookingAction": {
+        "description": "Booking action payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": ["approve", "decline", "withdraw"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "paymentAction": {
+        "description": "Booking part payment payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": null
+            }
+          }
+        }
+      },
+      "MemberAction": {
+        "description": "Perform Member Actions",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": ["tripId", "memberIds", "action"],
+              "properties": {
+                "tripId": {
+                  "type": "string"
+                },
+                "memberIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "addMember",
+                    "makeFavorite",
+                    "removeMember",
+                    "makeUnFavorite"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "SendMessage": {
+        "description": "Send message payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SendMessage"
+            }
+          }
+        }
+      },
+      "createTrip": {
+        "description": "Create trip payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateUpdateTrip"
+            }
+          }
+        }
+      },
+      "updateTrip": {
+        "description": "Update trip payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateUpdateTrip"
+            }
+          }
+        }
+      },
+      "createUser": {
+        "description": "Create user payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "dob": {
+                  "type": "number",
+                  "format": "YYYYMMDD",
+                  "description": "Date of birth in `YYYYMMDD` format"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "avatarUrl": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateUser": {
+        "description": "Update user payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "dob": {
+                  "type": "number",
+                  "format": "YYYYMMDD"
+                },
+                "phone": {
+                  "type": "string"
+                },
+                "livesIn": {
+                  "type": "string"
+                },
+                "gender": {
+                  "type": "string"
+                },
+                "spokenLanguages": {
+                  "type": "string",
+                  "description": "List of languages user can speak separated by comma"
+                },
+                "bio": {
+                  "type": "string"
+                },
+                "facebook_url": {
+                  "type": "string"
+                },
+                "instagram_url": {
+                  "type": "string"
+                },
+                "twitter_url": {
+                  "type": "string"
+                },
+                "isLookingForTravel": {
+                  "type": "boolean"
+                },
+                "avatarUrl": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "interests": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "bucketList": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "travelStyle": {
+                  "type": "string"
+                },
+                "travelWithHostReason": {
+                  "type": "string"
+                },
+                "itemsTravelWith": {
+                  "type": "string"
+                },
+                "isTripAgreed": {
+                  "type": "boolean"
+                },
+                "showDashboardTutorial": {
+                  "type": "boolean"
+                },
+                "hasFirstBooking": {
+                  "type": "boolean"
+                },
+                "isHostFirstLogin": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "checkUserExists": {
+        "description": "Check user exists payload",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
+  "openapi": "3.0.0",
+  "info": {
+    "version": "v1.0",
+    "title": "Tripsha API documentation",
+    "description": "This is complete API documentation of all the API",
+    "termsOfService": "https://tripsha.com/terms/",
+    "contact": {
+      "name": "Tripsha API Team",
+      "email": "madanesanjay@yahoo.com",
+      "url": "https://tripsha.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://staging-api.tripsha.com"
+    }
+  ],
   "paths": {
+    "/activity-logs": {
+      "get": {
+        "description": "Returns list of activity logs related to logged in user.",
+        "operationId": "listActivityLogs",
+        "tags": ["Activity Logs"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          },
+          {
+            "$ref": "#/components/parameters/querySortBy"
+          },
+          {
+            "$ref": "#/components/parameters/querySortOrder"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Acitivity log list response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number",
+                          "description": "Current records count"
+                        },
+                        "total": {
+                          "type": "number",
+                          "description": "Total number of records."
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ActivityLogModel"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/host-requests": {
+      "get": {
+        "description": "Return list of matching host requests",
+        "operationId": "listHostRequests",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Host request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/HostRequestModel"
+                          }
+                        },
+                        "count": {
+                          "type": "number",
+                          "description": "Count of the current records"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a host request",
+        "operationId": "createHostRequest",
+        "tags": ["HostRequests"],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createHostRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "Create host request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "string",
+                      "default": "request id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/host-requests/{hostRequestId}": {
+      "get": {
+        "description": "Returns a host request based on a request ID",
+        "operationId": "getHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Host Request response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "$ref": "#/components/schemas/HostRequestModel"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates a single host request based on the ID supplied, also it will update the status if request",
+        "operationId": "updateHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/updateHostRequest"
+        },
+        "responses": {
+          "204": {
+            "description": "Host request updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single host request based on the ID supplied",
+        "operationId": "deleteHostRequest",
+        "tags": ["HostRequests"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathHostRequestId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Host request deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings": {
+      "get": {
+        "description": "Returns list of bookings related to logged in user.",
+        "operationId": "listBookings",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          },
+          {
+            "$ref": "#/components/parameters/querySortBy"
+          },
+          {
+            "$ref": "#/components/parameters/querySortOrder"
+          },
+          {
+            "$ref": "#/components/parameters/queryTripId"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsHost"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking list response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number",
+                          "description": "Current records count"
+                        },
+                        "total": {
+                          "type": "number",
+                          "description": "Total number of records."
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/BookingModel"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a booking",
+        "operationId": "createBooking",
+        "tags": ["Bookings"],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createBooking"
+        },
+        "responses": {
+          "200": {
+            "description": "Booking response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "Booking id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{bookingId}": {
+      "get": {
+        "description": "Returns a booking based on a booking ID",
+        "operationId": "findBookingById",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathBookingId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "result"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "default": "success"
+                    },
+                    "result": {
+                      "$ref": "#/components/schemas/BookingModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates a single booking based on the ID supplied and data",
+        "operationId": "updateBooking",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathBookingId"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/updateBooking"
+        },
+        "responses": {
+          "204": {
+            "description": "Booking updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "deletes a single booking based on the ID supplied",
+        "operationId": "deleteBooking",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathBookingId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Booking deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonSuccessFormat"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{bookingId}/action": {
+      "post": {
+        "description": "Perform action on the booking",
+        "operationId": "bookingAction",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathBookingId"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/bookingAction"
+        },
+        "responses": {
+          "200": {
+            "description": "Booking action response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{bookingId}/payment": {
+      "post": {
+        "description": "Complete remamining payment action",
+        "operationId": "paymentAction",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathBookingId"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/paymentAction"
+        },
+        "responses": {
+          "200": {
+            "description": "Booking remamining payment response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommonErrorFormat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/countries": {
       "get": {
         "description": "Return list of matching countries",
@@ -896,11 +2265,9 @@
         "description": "Perform various operations on a member",
         "operationId": "memberActions",
         "tags": ["Members"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/MemberAction"
-          }
-        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/MemberAction"
+        },
         "responses": {
           "200": {
             "description": "Members response",
@@ -1072,11 +2439,9 @@
         "description": "Send message",
         "operationId": "sendmessage",
         "tags": ["Messages"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/SendMessage"
-          }
-        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SendMessage"
+        },
         "responses": {
           "200": {
             "description": "Message response",
@@ -1292,11 +2657,9 @@
         "description": "Creates a trip",
         "operationId": "createTrip",
         "tags": ["Trips"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/createTrip"
-          }
-        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createTrip"
+        },
         "responses": {
           "200": {
             "description": "Trip response",
@@ -1336,7 +2699,34 @@
         "tags": ["Trips"],
         "parameters": [
           {
-            "$ref": "#/components/parameters/queryNextPageToken"
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          },
+          {
+            "$ref": "#/components/parameters/querySortBy"
+          },
+          {
+            "$ref": "#/components/parameters/querySortOrder"
+          },
+          {
+            "$ref": "#/components/parameters/querySearch"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsMember"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsFavorite"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsPublic"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsArchived"
+          },
+          {
+            "$ref": "#/components/parameters/queryStatus"
           }
         ],
         "responses": {
@@ -1386,7 +2776,31 @@
         "tags": ["Trips"],
         "parameters": [
           {
-            "$ref": "#/components/parameters/queryNextPageToken"
+            "$ref": "#/components/parameters/queryPage"
+          },
+          {
+            "$ref": "#/components/parameters/queryLimit"
+          },
+          {
+            "$ref": "#/components/parameters/querySortBy"
+          },
+          {
+            "$ref": "#/components/parameters/querySortOrder"
+          },
+          {
+            "$ref": "#/components/parameters/querySearch"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsMember"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsFavorite"
+          },
+          {
+            "$ref": "#/components/parameters/queryMemberId"
+          },
+          {
+            "$ref": "#/components/parameters/queryIsArchived"
           }
         ],
         "responses": {
@@ -1489,11 +2903,11 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/pathTripId"
-          },
-          {
-            "$ref": "#/components/parameters/updateTrip"
           }
         ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/updateTrip"
+        },
         "responses": {
           "204": {
             "description": "Trip updated",
@@ -1618,6 +3032,90 @@
                               },
                               "isActive": {
                                 "type": "boolean"
+                              },
+                              "isAdmin": {
+                                "type": "boolean"
+                              },
+                              "isOnline": {
+                                "type": "boolean"
+                              },
+                              "spokenLanguages": {
+                                "type": "array"
+                              },
+                              "interests": {
+                                "type": "array"
+                              },
+                              "isEmailVerified": {
+                                "type": "boolean"
+                              },
+                              "isPhoneVerified": {
+                                "type": "boolean"
+                              },
+                              "isIdentityVerified": {
+                                "type": "boolean"
+                              },
+                              "isStripeAccountConnected": {
+                                "type": "boolean"
+                              },
+                              "showDashboardTutorial": {
+                                "type": "boolean"
+                              },
+                              "hasFirstBooking": {
+                                "type": "boolean"
+                              },
+                              "isHostFirstLogin": {
+                                "type": "boolean"
+                              },
+                              "dob": {
+                                "type": "string"
+                              },
+                              "awsUserId": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "type": "string"
+                              },
+                              "updatedAt": {
+                                "type": "string"
+                              },
+                              "gender": {
+                                "type": "string"
+                              },
+                              "livesIn": {
+                                "type": "string"
+                              },
+                              "awsUsername": {
+                                "type": "string"
+                              },
+                              "travelStyle": {
+                                "type": "string"
+                              },
+                              "travelWithHostReason": {
+                                "type": "string"
+                              },
+                              "bio": {
+                                "type": "string"
+                              },
+                              "itemsTravelWith": {
+                                "type": "string"
+                              },
+                              "isTripAgreed": {
+                                "type": "boolean"
+                              },
+                              "isHost": {
+                                "type": "boolean"
+                              },
+                              "isBlocked": {
+                                "type": "boolean"
+                              },
+                              "facebook_url": {
+                                "type": "string"
+                              },
+                              "instagram_url": {
+                                "type": "string"
+                              },
+                              "twitter_url": {
+                                "type": "string"
                               }
                             }
                           }
@@ -1645,11 +3143,9 @@
         "description": "Creates a user",
         "operationId": "createUser",
         "tags": ["Users"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/createUser"
-          }
-        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createUser"
+        },
         "responses": {
           "200": {
             "description": "Create User response",
@@ -1690,11 +3186,9 @@
         "description": "Check username exists",
         "operationId": "checkExists",
         "tags": ["Users"],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/checkUserExists"
-          }
-        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/checkUserExists"
+        },
         "responses": {
           "200": {
             "description": "User status",
@@ -1782,11 +3276,11 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/pathUserId"
-          },
-          {
-            "$ref": "#/components/parameters/updateUser"
           }
         ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/updateUser"
+        },
         "responses": {
           "204": {
             "description": "User updated",

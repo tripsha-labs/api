@@ -8,6 +8,7 @@ const memberSchema = new mongoose.Schema(
   {
     tripId: { type: Schema.Types.ObjectId, ref: 'Trip' },
     memberId: { type: Schema.Types.ObjectId, ref: 'User' },
+    bookingId: { type: String },
     isActive: { type: Boolean, default: true },
     isOwner: { type: Boolean, default: false },
     isMember: { type: Boolean, default: false },
@@ -16,6 +17,7 @@ const memberSchema = new mongoose.Schema(
     isFavorite: { type: Boolean, default: false },
     favoriteOn: { type: String },
     unFavoriteOn: { type: String },
+    removeRequested: { type: Boolean },
   },
   {
     timestamps: true,

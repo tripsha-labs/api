@@ -9,3 +9,6 @@ export * from './db-connect';
 export * from './mailchimp';
 export * from './stripe-api';
 export * from './log-error';
+export * from './activity';
+export * from './email';
+export * from './email-template';

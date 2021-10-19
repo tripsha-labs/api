@@ -2,18 +2,16 @@
  * @name - Seeds handlar
  * @description - This will handle seed data population in the database
  */
-import { success, failure } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
 import { loadCountries, loadProfileTags, loadTripTags } from '../../seeds';
-import { dbConnect } from '../../utils';
-export const seeds = async (event, context) => {
+export const seeds = async (req, res) => {
   try {
-    await dbConnect();
     await loadCountries();
     await loadProfileTags();
     await loadTripTags();
-    return success('success');
+    return successResponse(res, 'success');
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };

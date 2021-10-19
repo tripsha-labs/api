@@ -35,6 +35,15 @@ components:
         default: 25
         minimum: 25
         maximum: 100
+    querySortBy:
+      name: 'sortBy'
+      in: 'query'
+      description: 'Sort by'
+      schema:
+        type: 'string'
+        default: updatedAt
+        enum:
+          - updatedAt
     querySortByUser:
       name: 'sortBy'
       in: 'query'
@@ -88,14 +97,14 @@ components:
       in: 'query'
       description: 'Search for minStartDate. Format: `YYYYMMDD`'
       schema:
-        type: 'date'
+        type: 'number'
         format: 'YYYYMMDD'
     queryMaxEndDate:
       name: 'endDate'
       in: 'query'
       description: 'Search for maxEndDate. Format: `YYYYMMDD`'
       schema:
-        type: 'date'
+        type: 'number'
         format: 'YYYYMMDD'
     queryMinTripLength:
       name: 'minTripLength'
@@ -121,3 +130,49 @@ components:
       description: 'Search for destinations, comma separated values. Ex. value1,value2'
       schema:
         type: 'string'
+    queryIsMember:
+      name: 'isMember'
+      in: 'query'
+      description: 'List all the trips belong to user'
+      schema:
+        type: 'boolean'
+    queryIsFavorite:
+      name: 'isFavorite'
+      in: 'query'
+      description: 'List all the favorite trips of the user'
+      schema:
+        type: 'boolean'
+    queryIsPublic:
+      name: 'isPublic'
+      in: 'query'
+      description: 'List all the public trips of the user'
+      schema:
+        type: 'boolean'
+        default: true
+    queryIsArchived:
+      name: 'isArchived'
+      in: 'query'
+      description: 'List all the archived trips of the user'
+      schema:
+        type: 'boolean'
+        default: false
+    queryStatus:
+      name: 'status'
+      in: 'query'
+      description: 'List all the trips with status'
+      schema:
+        type: 'string'
+        enum: ['draft', 'published', 'completed', 'cancelled']
+    queryTripId:
+      name: 'tripId'
+      in: 'query'
+      description: 'Trip Id'
+      schema:
+        type: 'string'
+    queryIsHost:
+      name: 'isHost'
+      in: 'query'
+      description: 'This will list the details as per the host permissions else it will list the details as normal user.'
+      schema:
+        type: 'boolean'
+        enum: [true, false]

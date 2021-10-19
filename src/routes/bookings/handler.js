@@ -3,85 +3,131 @@
  * @description - This will handle all booking related API requests
  */
 import { BookingController } from './booking.ctrl';
-import { success, failure, logError } from '../../utils';
-import { createBookingValidation, updateBookingValidation } from '../../models';
+import { successResponse, failureResponse, logError } from '../../utils';
+import {
+  createBookingValidation,
+  hostBookingActionValidation,
+} from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
 /**
  * Create booking
  */
-export const createBooking = async (event, context) => {
+export const createBooking = async (req, res) => {
   try {
-    const data = JSON.parse(event.body) || {};
+    const data = req.body || {};
 
     const validation = createBookingValidation(data);
     if (validation != true) throw validation.shift();
 
-    const result = await BookingController.createBooking({
-      ...data,
-      guestId: event.requestContext.identity.cognitoIdentityId,
-    });
-
-    return success(result);
-  } catch (error) {
-    logError(error);
-    return failure(error);
-  }
-};
-
-/**
- *  List all bookings created by guest
- */
-export const listGuestBookings = async (event, context) => {
-  try {
-    const result = await BookingController.listGuestBookings(
-      event.requestContext.identity.cognitoIdentityId
+    const result = await BookingController.createBooking(
+      data,
+      req.requestContext.identity.cognitoIdentityId
     );
-    return success(result);
+
+    return successResponse(res, result);
   } catch (error) {
     logError(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
- *  List all bookings for a given trip ID
+ *  List all bookings created
  */
-export const listHostBookings = async (event, context) => {
+export const listBookings = async (req, res) => {
   try {
-    const params = event.queryStringParameters
-      ? event.queryStringParameters
-      : {};
+    const params = req.query ? req.query : {};
+    let result = [];
+    if (params.isHost == true || params.isHost == 'true')
+      result = await BookingController.listBookings(
+        params,
+        req.requestContext.identity.cognitoIdentityId
+      );
+    else
+      result = await BookingController.listGuestBookings(
+        params,
+        req.requestContext.identity.cognitoIdentityId
+      );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
 
-    if (!params.tripId) {
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
-    }
-
-    const result = await BookingController.listHostBookings(params.tripId);
-
-    return success(result);
+/**
+ *  Get booking details
+ */
+export const getBooking = async (req, res) => {
+  try {
+    const data = req.body || {};
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await BookingController.getBooking(req.params.id);
+    return successResponse(res, result);
   } catch (error) {
     logError(error);
-    return failure(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ *  Pay part payment
+ */
+export const doPartPayment = async (req, res) => {
+  try {
+    const data = req.body || {};
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await BookingController.doPartPayment(
+      req.params.id,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ *  Accept/reject booking
+ */
+export const bookingsAction = async (req, res) => {
+  try {
+    const bookingId = req.params && req.params.id;
+    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = req.body || {};
+    const validation = hostBookingActionValidation(data);
+    if (validation != true) throw validation.shift();
+    const result = await BookingController.bookingsAction(
+      data,
+      bookingId,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
   }
 };
 
 /**
  * Update booking
  */
-export const updateBooking = async (event, context) => {
+export const updateBooking = async (req, res) => {
   try {
-    const bookingId = event.pathParameters && event.pathParameters.id;
+    const bookingId = req.params && req.params.id;
     if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
-    const data = JSON.parse(event.body) || {};
-    const validation = updateBookingValidation(data);
+    const data = req.body || {};
     if (validation != true) throw validation.shift();
 
     const result = await BookingController.updateBooking(bookingId, data);
-    return success(result);
+    return successResponse(res);
   } catch (error) {
     logError(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };

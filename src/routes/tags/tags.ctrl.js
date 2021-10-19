@@ -3,7 +3,7 @@
  * @description - This will hadle tags module business logic
  */
 import { TagModel } from '../../models';
-import { dbConnect } from '../../utils';
+
 import { prepareCommonFilter } from '../../helpers';
 export class TagsController {
   static async listTags(filter) {
@@ -14,7 +14,6 @@ export class TagsController {
         },
         ...prepareCommonFilter(filter, ['name']),
       };
-      await dbConnect();
       const tags = await TagModel.list(params);
       return {
         data: tags,

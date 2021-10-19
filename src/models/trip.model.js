@@ -54,4 +54,8 @@ export class TripModel {
   static get(params) {
     return Trip.findOne(params).populate('User');
   }
+
+  static updateMany(filter, params) {
+    return Trip.updateMany(filter, { $set: params });
+  }
 }

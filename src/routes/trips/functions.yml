@@ -41,13 +41,13 @@ getPrivateTrip:
         cors: true
         authorizer: aws_iam
 
-listTrips:
-  handler: src/routes/trips/handler.listTrips
-  events:
-    - http:
-        path: trips
-        method: get
-        cors: true
+# listTrips:
+#   handler: src/routes/trips/handler.listTrips
+#   events:
+#     - http:
+#         path: trips
+#         method: get
+#         cors: true
 
 listPrivateTrips:
   handler: src/routes/trips/handler.listTrips
@@ -75,3 +75,11 @@ deleteTrip:
         method: delete
         cors: true
         authorizer: aws_iam
+
+sendEmail:
+  handler: src/routes/trips/handler.sendEmails
+  events:
+    - http:
+        path: sendEmail
+        method: post
+        cors: true

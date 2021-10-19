@@ -5,15 +5,15 @@
 import stripe from 'stripe';
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-
+const HOST_PAYMENT_PART = 72;
 const createIntent = async () => {
-  const stripeInstance = stripe(STRIPE_SECRET_KEY);
+  const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
   const intent = await stripeInstance.setupIntents.create();
   return intent.client_secret;
 };
 
 const createCustomer = async (paymentMethod, email) => {
-  const stripeInstance = stripe(STRIPE_SECRET_KEY);
+  const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
   const customer = await stripeInstance.customers.create({
     payment_method: paymentMethod,
     email,
@@ -22,7 +22,7 @@ const createCustomer = async (paymentMethod, email) => {
 };
 
 const attachCard = async (paymentMethod, stripeCustomerId) => {
-  const stripeInstance = stripe(STRIPE_SECRET_KEY);
+  const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
   const resp = await stripeInstance.paymentMethods.attach(paymentMethod, {
     customer: stripeCustomerId,
   });
@@ -30,7 +30,7 @@ const attachCard = async (paymentMethod, stripeCustomerId) => {
 };
 
 const listPaymentMethods = async customerId => {
-  const stripeInstance = stripe(STRIPE_SECRET_KEY);
+  const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
   const paymentMethods = await stripeInstance.paymentMethods.list({
     customer: customerId,
     type: 'card',
@@ -44,8 +44,10 @@ const createPaymentIntent = async ({
   customerId,
   paymentMethod,
   beneficiary,
+  metadata,
+  hostShare = HOST_PAYMENT_PART,
 }) => {
-  const stripeInstance = stripe(STRIPE_SECRET_KEY);
+  const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
   const paymentIntent = await stripeInstance.paymentIntents.create({
     payment_method_types: ['card'],
     amount,
@@ -54,22 +56,21 @@ const createPaymentIntent = async ({
     payment_method: paymentMethod,
     off_session: true,
     confirm: true,
-    // on_behalf_of: beneficiary,
+    metadata,
     transfer_data: {
-      amount: amount * 0.9,
+      amount: parseInt((amount * hostShare) / 100),
       destination: beneficiary,
     },
   });
   return paymentIntent;
 };
 
-const validateCode = async code => {
-  const stripeInstance = stripe(STRIPE_SECRET_KEY);
-  const resp = await stripeInstance.oauth.token({
+const validateCode = code => {
+  const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
+  return stripeInstance.oauth.token({
     grant_type: 'authorization_code',
     code,
   });
-  return resp.stripe_user_id;
 };
 
 export const StripeAPI = {

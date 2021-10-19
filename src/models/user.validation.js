@@ -35,6 +35,18 @@ const updateUserSchema = {
     empty: true,
     max: 100,
   },
+  facebook_url: {
+    type: 'string',
+    optional: true,
+  },
+  instagram_url: {
+    type: 'string',
+    optional: true,
+  },
+  twitter_url: {
+    type: 'string',
+    optional: true,
+  },
   bio: { type: 'string', optional: true },
   isLookingForTravel: {
     type: 'boolean',
@@ -65,13 +77,38 @@ const updateUserSchema = {
     empty: true,
     max: 100,
   },
-  stripeCustomerId: {
+  travelStyle: {
     type: 'string',
     optional: true,
     empty: true,
   },
-  stripeAccountId: {
+  travelWithHostReason: {
     type: 'string',
+    optional: true,
+    empty: true,
+  },
+  itemsTravelWith: {
+    type: 'string',
+    optional: true,
+    empty: true,
+  },
+  isTripAgreed: {
+    type: 'boolean',
+    optional: true,
+    empty: false,
+  },
+  showDashboardTutorial: {
+    type: 'boolean',
+    optional: true,
+    empty: true,
+  },
+  hasFirstBooking: {
+    type: 'boolean',
+    optional: true,
+    empty: true,
+  },
+  isHostFirstLogin: {
+    type: 'boolean',
     optional: true,
     empty: true,
   },
@@ -80,11 +117,55 @@ const updateUserSchema = {
 
 const createUserSchema = {
   email: { type: 'email', empty: false },
-  dob: { type: 'string', optional: true, empty: false },
-  firstName: { type: 'string', empty: false },
+  dob: { type: 'string', empty: false, optional: true },
+  firstName: { type: 'string', empty: false, optional: true },
   lastName: { type: 'string', empty: false, optional: true },
+  avatarUrl: { type: 'string', empty: true, optional: true },
+  username: { type: 'string', empty: false, optional: true },
   $$strict: true,
 };
 
+const adminUpdateUserSchema = {
+  isBlocked: {
+    type: 'boolean',
+    optional: true,
+  },
+  isHost: {
+    type: 'boolean',
+    optional: true,
+  },
+  firstName: {
+    type: 'string',
+    optional: true,
+  },
+  lastName: {
+    type: 'string',
+    optional: true,
+  },
+  isAdmin: {
+    type: 'boolean',
+    optional: true,
+  },
+  isActive: {
+    type: 'boolean',
+    optional: true,
+  },
+  username: {
+    type: 'string',
+    optional: true,
+  },
+  hostShare: {
+    type: 'number',
+    optional: true,
+  },
+  password: {
+    type: 'string',
+    optional: true,
+  },
+  $$strict: true,
+};
 export const createUserValidation = new Validator().compile(createUserSchema);
 export const updateUserValidation = new Validator().compile(updateUserSchema);
+export const adminUpdateUserValidation = new Validator().compile(
+  adminUpdateUserSchema
+);

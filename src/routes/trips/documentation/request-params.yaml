@@ -1,46 +1,37 @@
 components:
   schemas:
     CreateUpdateTrip:
+      required:
+        - title
+        - startDate
+        - endDate
+        - minGroupSize
+        - maxGroupSize
+        - spotsAvailable
       properties:
         title:
           type: string
-          required: true
         description:
           type: string
-          required: true
+        startDate:
+          type: number
+          format: 'YYYYMMDD'
+        endDate:
+          type: number
+          format: 'YYYYMMDD'
+        focus:
+          type: string
         destinations:
           type: array
           items:
             type: string
         minGroupSize:
           type: number
-          required: true
         maxGroupSize:
           type: number
-          required: true
-        startDate:
-          type: string
-          format: 'YYYYMMDD'
-          required: true
-        endDate:
-          type: string
-          format: 'YYYYMMDD'
-          required: true
+        spotsAvailable:
+          type: number
         languages:
-          type: array
-          items:
-            type: string
-        budgets:
-          type: array
-          items:
-            type: string
-            enum:
-              - $
-              - $$
-              - $$$
-              - $$$$
-              - $$$$$
-        connections:
           type: array
           items:
             type: string
@@ -52,20 +43,95 @@ components:
           type: array
           items:
             type: string
+        itineraries:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              desciption:
+                type: string
+              imageUrl:
+                type: string
+        rooms:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              cost:
+                type: number
+              available:
+                type: number
+        addOns:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              cost:
+                type: number
+              available:
+                type: number
+        isDepositApplicable:
+          type: boolean
+        deposit:
+          type: object
+          properties:
+            amount:
+              type: number
+            expirationDate:
+              type: number
+            includeAddOns:
+              type: boolean
+        isDiscountApplicable:
+          type: boolean
+        discounts:
+          type: array
+          items:
+            type: object
+            properties:
+              discType:
+                type: string
+              name:
+                type: string
+              amount:
+                type: number
+              expirationDate:
+                type: number
+              includeAddOns:
+                type: boolean
+        priceIncludes:
+          type: string
+        priceExcludes:
+          type: string
+        lastBookingDate:
+          type: number
+        status:
+          type: string
         isPublic:
           type: boolean
-  parameters:
+  requestBodies:
     createTrip:
-      in: body
-      name: body
       description: Create trip payload
       required: true
-      schema:
-        $ref: '#/components/schemas/CreateUpdateTrip'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateUpdateTrip'
     updateTrip:
-      in: body
-      name: body
       description: Update trip payload
       required: true
-      schema:
-        $ref: '#/components/schemas/CreateUpdateTrip'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateUpdateTrip'

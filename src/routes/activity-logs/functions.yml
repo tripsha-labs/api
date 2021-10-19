@@ -1,0 +1,8 @@
+listActivities:
+  handler: src/routes/activity-logs/handler.listActivities
+  events:
+    - http:
+        path: activities
+        method: get
+        cors: true
+        authorizer: aws_iam

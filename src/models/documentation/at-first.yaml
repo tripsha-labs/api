@@ -9,5 +9,4 @@ info:
     email: madanesanjay@yahoo.com
     url: https://tripsha.com
 servers:
-  - url: https://dev-api.tripsha.com
-  - url: http://localhost:3000
+  - url: https://staging-api.tripsha.com

@@ -1,0 +1,39 @@
+paths:
+  /activity-logs:
+    get:
+      description: Returns list of activity logs related to logged in user.
+      operationId: listActivityLogs
+      tags:
+        - Activity Logs
+      parameters:
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
+        - $ref: '#/components/parameters/querySortBy'
+        - $ref: '#/components/parameters/querySortOrder'
+      responses:
+        '200':
+          description: Acitivity log list response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    properties:
+                      count:
+                        type: number
+                        description: Current records count
+                      total:
+                        type: number
+                        description: Total number of records.
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ActivityLogModel'

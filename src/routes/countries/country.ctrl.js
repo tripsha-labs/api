@@ -3,7 +3,6 @@
  * @description - This will handle all business logic for country
  */
 import { CountryModel } from '../../models';
-import { dbConnect } from '../../utils';
 import { prepareCommonFilter } from '../../helpers';
 
 export class CountryController {
@@ -15,7 +14,6 @@ export class CountryController {
         },
         ...prepareCommonFilter(filter, ['name']),
       };
-      await dbConnect();
       const countries = await CountryModel.list(params);
       return {
         data: countries,

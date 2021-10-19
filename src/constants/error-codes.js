@@ -32,6 +32,11 @@ export const ERROR_KEYS = {
       'Whoops! One or both of your trip dates are invalid. Trips must within the next 24 months to be valid.',
     code: 400,
   },
+  INVALID_ETERNAL_COUNT: {
+    type: 'invalidExternalCount',
+    message: 'Whoops! Spots filled should not be greater than max group size.',
+    code: 400,
+  },
   TRIP_NOT_FOUND: {
     type: 'tripNotFound',
     message:
@@ -69,5 +74,77 @@ export const ERROR_KEYS = {
     type: 'Unauthorized',
     message: 'You do not have sufficient permission to perform this operation.',
     code: 403,
+  },
+  TRIP_IS_FULL: {
+    type: 'TripFull',
+    message: `Trip already full, we will keep your request in waitlist and let you know whenever a spot avaialble. 
+      You need to select your booking preferences once again while you booking again.`,
+    code: 400,
+  },
+  TRIP_IS_FULL_HOST: {
+    type: 'TripFull',
+    message: `Trip already full, incrase your spots avaialable count and max group size on edit trip page or try force add option. This will increase the max group size by one automatically.`,
+    code: 400,
+  },
+  TRIP_BOOKING_CLOSED: {
+    type: 'TripBookingClosed',
+    message: `This trip is closed for bookings. If you think this is in error, please message the trip host or Tripsha Team.`,
+    code: 400,
+  },
+  TRIP_RESOURCES_FULL: {
+    type: 'TripResourcesFull',
+    message: `The resources you are trying to book, already full, try changing other options.`,
+    code: 400,
+  },
+  BOOKING_NOT_FOUND: {
+    type: 'BookingNotFound',
+    message: `Ooops! looks like the booking id is invalid.`,
+    code: 400,
+  },
+  HOST_REQUEST_NOT_FOUND: {
+    type: 'HostRequestNotFound',
+    message: `Ooops! looks like the host request id is invalid.`,
+    code: 400,
+  },
+  APPROVAL_NOT_FOUND: {
+    type: 'ApprovalNotFound',
+    message: `Ooops! looks like the approval id is invalid.`,
+    code: 400,
+  },
+  HOST_REQUEST_ALREADY_EXISTS: {
+    type: 'HostRequestAlreadyExists',
+    message: `Host request already exists.`,
+    code: 400,
+  },
+  INVALID_ACTION: {
+    type: 'InvalidAction',
+    message: `Ooops! looks you are trying to perform invalid action.`,
+    code: 400,
+  },
+  CANNOT_DELETE_TRIP: {
+    type: 'CANNOT_DELETE_TRIP',
+    message: `Ooops! looks like there are some bookings or members associated with this trip. First cancel those and try again!`,
+    code: 400,
+  },
+  PAYMENT_FAILED: {
+    type: 'PAYMENT_FAILED',
+    message:
+      'Oops, the payment method you provided did not go through. This request will remain active for another 72 hours. Please try an alternative payment method',
+    code: 400,
+  },
+  USER_INVITE_FAILED: {
+    type: 'USER_INVITE_FAILED',
+    message: 'Failed to invite user',
+    code: 400,
+  },
+  USER_ADD_FAILED: {
+    type: 'USER_ADD_FAILED',
+    message: 'Unable to add new user',
+    code: 400,
+  },
+  USERNAME_ALREADY_EXISTS: {
+    type: 'USERNAME_ALREADY_EXISTS',
+    message: 'Username already exists',
+    code: 400,
   },
 };

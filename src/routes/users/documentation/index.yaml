@@ -53,6 +53,62 @@ paths:
                               type: string
                             isActive:
                               type: boolean
+                            isAdmin:
+                              type: boolean
+                            isOnline:
+                              type: boolean
+                            spokenLanguages:
+                              type: array
+                            interests:
+                              type: array
+                            isEmailVerified:
+                              type: boolean
+                            isPhoneVerified:
+                              type: boolean
+                            isIdentityVerified:
+                              type: boolean
+                            isStripeAccountConnected:
+                              type: boolean
+                            showDashboardTutorial:
+                              type: boolean
+                            hasFirstBooking:
+                              type: boolean
+                            isHostFirstLogin:
+                              type: boolean
+                            dob:
+                              type: string
+                            awsUserId:
+                              type: string
+                            createdAt:
+                              type: string
+                            updatedAt:
+                              type: string
+                            gender:
+                              type: string
+                            livesIn:
+                              type: string
+                            awsUsername:
+                              type: string
+                            travelStyle:
+                              type: string
+                            travelWithHostReason:
+                              type: string
+                            bio:
+                              type: string
+                            itemsTravelWith:
+                              type: string
+                            isTripAgreed:
+                              type: boolean
+                            isHost:
+                              type: boolean
+                            isBlocked:
+                              type: boolean
+                            facebook_url:
+                              type: string
+                            instagram_url:
+                              type: string
+                            twitter_url:
+                              type: string
         default:
           description: Error response
           content:
@@ -64,8 +120,8 @@ paths:
       operationId: createUser
       tags:
         - Users
-      parameters:
-        - $ref: '#/components/parameters/createUser'
+      requestBody:
+        $ref: '#/components/requestBodies/createUser'
       responses:
         '200':
           description: Create User response
@@ -95,8 +151,8 @@ paths:
       operationId: checkExists
       tags:
         - Users
-      parameters:
-        - $ref: '#/components/parameters/checkUserExists'
+      requestBody:
+        $ref: '#/components/requestBodies/checkUserExists'
       responses:
         '200':
           description: User status
@@ -156,8 +212,8 @@ paths:
         - Users
       parameters:
         - $ref: '#/components/parameters/pathUserId'
-        - $ref: '#/components/parameters/updateUser'
-
+      requestBody:
+        $ref: '#/components/requestBodies/updateUser'
       responses:
         '204':
           description: User updated

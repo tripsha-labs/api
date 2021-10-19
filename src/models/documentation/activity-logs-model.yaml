@@ -1,0 +1,17 @@
+components:
+  schemas:
+    ActivityLogModel:
+      type: object
+      properties:
+        userId:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+        updatedAt:
+          type: number
+          format: Unix timestamp
+        createdAt:
+          type: number
+          format: Unix timestamp
