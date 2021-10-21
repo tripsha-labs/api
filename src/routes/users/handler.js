@@ -213,6 +213,7 @@ export const createUser = async (req, res) => {
             ? [user.awsUserId, userInfo.awsUserId]
             : [userInfo.awsUserId];
       }
+      createUserPayload['isEmailVerified'] = true;
       result = await UserController.updateUserByEmail(
         user.email,
         createUserPayload
@@ -225,10 +226,10 @@ export const createUser = async (req, res) => {
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
       result = await UserController.createUser(createUserPayload);
-      await subscribeUserToMailchimpAudience({
-        name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
-        email: createUserPayload.email,
-      });
+      // await subscribeUserToMailchimpAudience({
+      //   name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
+      //   email: createUserPayload.email,
+      // });
       // Add support user in the conversation
       await MessageController.addSupportMember(userInfo.awsUserId);
     }
