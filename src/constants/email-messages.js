@@ -1,4 +1,16 @@
 export const EmailMessages = {
+  USER_SIGNUP: {
+    subject: 'Your trip has been published',
+    message: name => {
+      return `
+      ${name}
+      <br/>
+      <br/>
+      As always you can message us from your Tripsha inbox if you need any assistance.
+      <br/>
+    `;
+    },
+  },
   TRIP_PUBLISHED: {
     subject: 'Your trip has been published',
     message: (tripId, tripName) => {

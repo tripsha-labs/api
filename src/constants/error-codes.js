@@ -77,12 +77,11 @@ export const ERROR_KEYS = {
   },
   TRIP_IS_FULL: {
     type: 'TripFull',
-    message: `Trip already full, we will keep your request in waitlist and let you know whenever a spot avaialble. 
-      You need to select your booking preferences once again while you booking again.`,
+    message: `Trip already full, we will keep your request in waitlist and let you know whenever a spot avaialble. You need to select your booking preferences once again while you booking again.`,
     code: 400,
   },
   TRIP_IS_FULL_HOST: {
-    type: 'TripFull',
+    type: 'TripFullHost',
     message: `Trip already full, incrase your spots avaialable count and max group size on edit trip page or try force add option. This will increase the max group size by one automatically.`,
     code: 400,
   },
