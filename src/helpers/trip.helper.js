@@ -5,17 +5,17 @@ export const getCosting = preferences => {
   let totalRoomCost = 0;
   preferences.rooms &&
     preferences.rooms.forEach(room => {
-      totalRoomCost += room.variant.cost;
+      totalRoomCost += room.variant.cost * room.attendees;
     });
-  totalRoomCost = totalRoomCost > 0 ? totalRoomCost.toFixed(2) : 0;
-  totalRoomCost *= preferences.attendees;
+  totalRoomCost = parseFloat(totalRoomCost > 0 ? totalRoomCost.toFixed(2) : 0);
 
   let discountedRoomCost = totalRoomCost;
   if (preferences.isDiscountApplicable && preferences.discount) {
     if (preferences.discount.discType === 'usd') {
-      discountedRoomCost -= preferences.discount.amount;
+      discountedRoomCost = totalRoomCost - preferences.discount.amount;
     } else if (preferences.discount.discType === 'percentage') {
-      discountedRoomCost -=
+      discountedRoomCost =
+        totalRoomCost -
         (discountedRoomCost * preferences.discount.amount) / 100;
     }
   }
@@ -25,11 +25,13 @@ export const getCosting = preferences => {
   preferences.addOns &&
     preferences.addOns.map(addOn => {
       if (addOn.selected) {
-        totalAddOnCost += addOn.cost;
+        totalAddOnCost += addOn.cost * addOn.attendees;
       }
       return addOn;
     });
-
+  totalAddOnCost = parseFloat(
+    totalAddOnCost > 0 ? totalAddOnCost.toFixed(2) : 0
+  );
   let discountedAddOnCost = totalAddOnCost;
   if (
     totalAddOnCost > 0 &&
@@ -38,9 +40,10 @@ export const getCosting = preferences => {
     preferences.discount.includeAddOns
   ) {
     if (preferences.discount.discType === 'usd') {
-      discountedAddOnCost -= preferences.discount.amount;
+      discountedAddOnCost = totalAddOnCost - preferences.discount.amount;
     } else if (preferences.discount.discType === 'percentage') {
-      discountedAddOnCost -=
+      discountedAddOnCost =
+        totalAddOnCost -
         (preferences.discount.amount * discountedAddOnCost) / 100;
     }
   }

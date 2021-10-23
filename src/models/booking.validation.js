@@ -28,6 +28,7 @@ const bookingSchema = {
         room: {
           type: 'object',
         },
+        attendees: { type: 'number' },
       },
     },
   },
@@ -41,6 +42,7 @@ const bookingSchema = {
         name: { type: 'string' },
         cost: { type: 'number' },
         available: { type: 'number' },
+        attendees: { type: 'number' },
       },
     },
   },
@@ -86,8 +88,29 @@ const bookingSchema = {
   },
   $$strict: 'remove',
 };
-
+const updateBookingSchema = {
+  message: { type: 'string', optional: true },
+  guests: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        relationship: { type: 'string' },
+        username: { type: 'string', optional: true },
+      },
+    },
+  },
+  $$strict: 'remove',
+};
 export const createBookingValidation = new Validator().compile(bookingSchema);
+
+export const updateBookingValidation = new Validator().compile(
+  updateBookingSchema
+);
 
 export const hostBookingActionValidation = new Validator().compile({
   action: {
