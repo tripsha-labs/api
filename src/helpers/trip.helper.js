@@ -64,7 +64,7 @@ export const getCosting = preferences => {
   } else {
     paynowAmount = discountedGrandTotal;
   }
-  if (paynowAmount > discountedGrandTotal) {
+  if (paynowAmount >= discountedGrandTotal) {
     paynowAmount = discountedGrandTotal;
   }
   return {
