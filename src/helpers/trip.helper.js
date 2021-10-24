@@ -24,9 +24,7 @@ export const getCosting = preferences => {
   let totalAddOnCost = 0;
   preferences.addOns &&
     preferences.addOns.map(addOn => {
-      if (addOn.selected) {
-        totalAddOnCost += addOn.cost * addOn.attendees;
-      }
+      totalAddOnCost += addOn.cost * addOn.attendees;
       return addOn;
     });
   totalAddOnCost = parseFloat(

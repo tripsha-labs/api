@@ -252,10 +252,13 @@ export const getUser = async (req, res) => {
       ? req.requestContext.identity.cognitoIdentityId
       : req.params.id;
   try {
-    const result = await UserController.getUser(urldecode(userId), {
+    const select = {
       stripeAccountId: 0,
-      stripeCustomerId: 0,
-    });
+    };
+    if (req.params.id !== 'me') {
+      select['stripeCustomerId'] = 0;
+    }
+    const result = await UserController.getUser(urldecode(userId), select);
     return successResponse(res, result);
   } catch (error) {
     if (req.params.id != 'me') {
