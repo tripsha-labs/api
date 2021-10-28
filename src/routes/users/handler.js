@@ -15,7 +15,12 @@ import {
   getCurrentUser,
 } from '../../utils';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
-import { createCognitoUser, setUserPassword } from '../../utils';
+import {
+  createCognitoUser,
+  setUserPassword,
+  enableUser,
+  disableUser,
+} from '../../utils';
 import { updateUserValidation, adminUpdateUserValidation } from '../../models';
 
 /**
@@ -399,6 +404,33 @@ export const unsubscribeUser = async (req, res) => {
 
     return successResponse(res, 'success');
   } catch (error) {
+    return failureResponse(res, error);
+  }
+};
+
+export const adminUserAction = async (req, res) => {
+  try {
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser && currentUser.isAdmin) {
+      const params = req.body || {};
+      switch (params.action) {
+        case 'enable':
+          await enableUser(req, params);
+          break;
+        case 'disable':
+          await disableUser(req, params);
+          break;
+        default:
+          console.log('invalid action');
+      }
+      return successResponse(res, 'success');
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
+  } catch (error) {
+    console.log(error);
     return failureResponse(res, error);
   }
 };
