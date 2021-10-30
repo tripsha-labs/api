@@ -120,7 +120,7 @@ export class BookingController {
       paymentHistory: 1,
       stripePaymentMethod: 1,
       attendees: 1,
-      room: 1,
+      rooms: 1,
       paymentStatus: 1,
       message: 1,
       deposit: 1,
@@ -557,17 +557,17 @@ export class BookingController {
             await logActivity({
               ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST(
                 `${memberInfo.firstName} ${memberInfo.lastName}`,
-                trip['title']
+                tripInfo['title']
               ),
-              tripId: trip._id.toString(),
+              tripId: tripInfo._id.toString(),
               audienceIds: [user._id.toString()],
               userId: user._id.toString(),
             });
             await logActivity({
               ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELLER(
-                trip['title']
+                tripInfo['title']
               ),
-              tripId: trip._id.toString(),
+              tripId: tripInfo._id.toString(),
               audienceIds: [memberInfo._id.toString()],
               userId: user._id.toString(),
             });
@@ -579,17 +579,17 @@ export class BookingController {
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_HOST(
               `${memberInfo.firstName} ${memberInfo.lastName}`,
-              trip['title']
+              tripInfo['title']
             ),
-            tripId: trip._id.toString(),
+            tripId: tripInfo._id.toString(),
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELLER(
-              trip['title']
+              tripInfo['title']
             ),
-            tripId: trip._id.toString(),
+            tripId: tripInfo._id.toString(),
             audienceIds: [memberInfo._id.toString()],
             userId: user._id.toString(),
           });
@@ -622,7 +622,7 @@ export class BookingController {
       paymentHistory: 1,
       stripePaymentMethod: 1,
       attendees: 1,
-      room: 1,
+      rooms: 1,
       paymentStatus: 1,
       message: 1,
       deposit: 1,

@@ -1,5 +1,6 @@
 import { UserModel, TripModel, MemberModel } from '../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../constants';
+import uuid from 'uuid/v4';
 export const updateProfilePic = async (skip = 0) => {
   const params = {
     filter: {},
@@ -168,4 +169,46 @@ export const updateTripStats = async (skip = 0) => {
   }
   await Promise.all(promises);
   if (trips && trips.length === 1000) updateTripStats(skip + 1000);
+};
+
+export const updateBookingOptions = async () => {
+  const params = [];
+  params.push({
+    $match: {
+      'rooms.variants': { $exists: false },
+      'rooms.cost': { $exists: true },
+    },
+  });
+  params.push({
+    $limit: 1000,
+  });
+  const trips = await TripModel.aggregate(params);
+  const promises = [];
+  trips.map(trip => {
+    promises.push(
+      new Promise(async resolve => {
+        try {
+          const updateTrip = {};
+          let roomName = '';
+          if (trip['rooms'] && trip['rooms'].length > 0) {
+            roomName = trip['rooms'][0].name;
+          }
+          updateTrip['rooms'] = [
+            {
+              id: uuid(),
+              name: roomName,
+              variants: trip['rooms'],
+            },
+          ];
+          await TripModel.update(trip._id, updateTrip);
+        } catch (err) {
+          console.log(err);
+        } finally {
+          return resolve();
+        }
+      })
+    );
+  });
+  await Promise.all(promises);
+  if (trips && trips.length === 1000) updateBookingOptions();
 };

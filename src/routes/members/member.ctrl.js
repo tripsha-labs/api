@@ -75,15 +75,23 @@ export class MemberController {
                     if (booking && booking.attendees > 1) {
                       guestCount = guestCount + booking.attendees - 1;
                     }
-                    if (booking.room) {
+                    if (booking.rooms) {
                       tripUpdate['rooms'] = [];
                       trip.rooms.forEach(room => {
-                        if (room.id == booking.room.id) {
-                          const filledCount = room['filled']
-                            ? room['filled'] + booking.attendees
-                            : booking.attendees;
-                          room['filled'] = filledCount;
-                        }
+                        room['variants'] = room.variants.map(variant => {
+                          const foundVariant = booking.rooms.filter(
+                            rm =>
+                              rm.room.id == room.id &&
+                              variant.id == rm.variant.id
+                          );
+                          if (foundVariant && foundVariant.length > 0) {
+                            const filledCount = variant['filled']
+                              ? variant['filled'] + booking.attendees
+                              : booking.attendees;
+                            variant['filled'] = filledCount;
+                          }
+                          return variant;
+                        });
                         tripUpdate['rooms'].push(room);
                       });
                     }
@@ -225,16 +233,25 @@ export class MemberController {
                       guestCount = guestCount - (booking.attendees - 1);
                       guestCount = guestCount < 0 ? 0 : guestCount;
                     }
-                    if (booking.room) {
+                    if (booking.rooms) {
                       tripUpdate['rooms'] = [];
                       trip.rooms.forEach(room => {
-                        if (room.id == booking.room.id) {
-                          let filledCount = room['filled'] - booking.attendees;
-                          if (filledCount < 0) {
-                            filledCount = 0;
+                        room['variants'] = room.variants.map(variant => {
+                          const foundVariant = booking.rooms.filter(
+                            rm =>
+                              rm.room.id == room.id &&
+                              variant.id == rm.variant.id
+                          );
+                          if (foundVariant && foundVariant.length > 0) {
+                            let filledCount =
+                              variant['filled'] - booking.attendees;
+                            if (filledCount < 0) {
+                              filledCount = 0;
+                            }
+                            variant['filled'] = filledCount;
                           }
-                          room['filled'] = filledCount;
-                        }
+                          return variant;
+                        });
                         tripUpdate['rooms'].push(room);
                       });
                     }

@@ -12,6 +12,6 @@ router.get('/setup', createIntent);
 router.post('/save-card', saveCard);
 router.post('/charge', createPayment);
 router.post('/connect-oauth', verifyConnectAccount);
-router.post('/list-cards', listCards);
+router.get('/list-cards', listCards);
 
 export default router;

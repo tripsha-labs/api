@@ -10,14 +10,26 @@ const bookingSchema = {
   paymentMethod: { type: 'string', empty: false, optional: true },
   currency: { type: 'string', optional: true, default: 'USD' },
   attendees: { type: 'number', empty: false, min: 1 },
-  room: {
-    type: 'object',
+  rooms: {
+    type: 'array',
     optional: true,
-    props: {
-      id: { type: 'string' },
-      name: { type: 'string' },
-      cost: { type: 'number' },
-      available: { type: 'number' },
+    items: {
+      type: 'object',
+      props: {
+        variant: {
+          type: 'object',
+          props: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            cost: { type: 'number' },
+            available: { type: 'number' },
+          },
+        },
+        room: {
+          type: 'object',
+        },
+        attendees: { type: 'number' },
+      },
     },
   },
   addOns: {
@@ -30,6 +42,7 @@ const bookingSchema = {
         name: { type: 'string' },
         cost: { type: 'number' },
         available: { type: 'number' },
+        attendees: { type: 'number' },
       },
     },
   },
@@ -75,8 +88,29 @@ const bookingSchema = {
   },
   $$strict: 'remove',
 };
-
+const updateBookingSchema = {
+  message: { type: 'string', optional: true },
+  guests: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        relationship: { type: 'string' },
+        username: { type: 'string', optional: true },
+      },
+    },
+  },
+  $$strict: 'remove',
+};
 export const createBookingValidation = new Validator().compile(bookingSchema);
+
+export const updateBookingValidation = new Validator().compile(
+  updateBookingSchema
+);
 
 export const hostBookingActionValidation = new Validator().compile({
   action: {

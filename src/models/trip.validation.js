@@ -92,8 +92,32 @@ const tripSchema = {
       props: {
         id: { type: 'string' },
         name: { type: 'string' },
-        cost: { type: 'number' },
-        available: { type: 'number' },
+        primaryPictureId: { type: 'string' },
+        variants: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              cost: { type: 'number' },
+              available: { type: 'number' },
+            },
+          },
+        },
+        pictureUrls: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              caption: { type: 'string' },
+              url: { type: 'string' },
+            },
+          },
+        },
       },
     },
   },
