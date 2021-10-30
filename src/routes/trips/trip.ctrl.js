@@ -441,7 +441,6 @@ export class TripController {
         },
       });
       if (trip.ownerId == user._id.toString()) {
-        console.log(trip.status, members.length, bookings.length);
         if (
           trip.status == 'draft' ||
           members.length <= 1 ||
@@ -449,7 +448,6 @@ export class TripController {
         ) {
           await TripModel.update(tripId, {
             isArchived: true,
-            isDeleted: true,
           });
           await logActivity({
             ...LogMessages.DELETE_TRIP_HOST(trip['title']),
@@ -474,7 +472,6 @@ export class TripController {
       } else if (user.isAdmin) {
         await TripModel.update(tripId, {
           isArchived: true,
-          isDeleted: true,
         });
         await logActivity({
           ...LogMessages.DELETE_TRIP_HOST(trip['title']),
