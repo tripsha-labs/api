@@ -41,7 +41,8 @@ export const inviteUser = async (req, res) => {
           field: 'password',
         };
       params['email'] = params['email'].toLowerCase();
-      params['username'] = params['username'].toLowerCase() || params['email'].split('@')[0];
+      params['username'] =
+        params['username'].toLowerCase() || params['email'].split('@')[0];
       const exists = await _check_username_exists(
         params['email'],
         params['username']
