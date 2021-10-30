@@ -2,7 +2,7 @@
  * @name - Migrations handler
  * @description - This will handle migrations API requests
  */
-import { success, failure } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
 import {
   updateProfilePic,
   updateTripUrl,
@@ -13,16 +13,17 @@ import {
 /**
  * runMigrations
  */
-export const runMigrations = async (event, context) => {
+export const runMigrations = async (req, res) => {
   try {
     console.log('Running migrations');
     // await updateTripStats();
     // await updateProfilePic();
     // await updateTripUrl();
+    await updateBookingOptions();
     console.log('Migrations completed');
-    return success('success');
+    return successResponse(res, 'success');
   } catch (error) {
     console.log(error);
-    return failure(error);
+    return failureResponse(res, error);
   }
 };
