@@ -51,7 +51,7 @@ export class BookingController {
       ...bookingData,
       ...costing,
     };
-    if (pendingAmout === 0) {
+    if (finalBookingData['pendingAmout'] === 0) {
       finalBookingData['paymentStatus'] = 'full';
     }
     const tripUpdate = {
