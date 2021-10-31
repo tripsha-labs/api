@@ -25,6 +25,7 @@ const tripSchema = new mongoose.Schema(
     addOns: { type: Array, default: [] },
     deposit: { type: Object },
     discounts: { type: Object },
+    questions: { type: Array, default: [] },
     isDepositApplicable: { type: Boolean, default: false },
     isDiscountApplicable: { type: Boolean, default: false },
     tripPaymentType: {

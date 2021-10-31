@@ -51,6 +51,9 @@ export class BookingController {
       ...bookingData,
       ...costing,
     };
+    if (pendingAmout === 0) {
+      finalBookingData['paymentStatus'] = 'full';
+    }
     const tripUpdate = {
       isLocked: true,
     };
@@ -560,7 +563,7 @@ export class BookingController {
                 tripInfo['title']
               ),
               tripId: tripInfo._id.toString(),
-              audienceIds: [user._id.toString()],
+              audienceIds: [ownerInfo._id.toString()],
               userId: user._id.toString(),
             });
             await logActivity({

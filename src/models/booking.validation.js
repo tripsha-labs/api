@@ -61,6 +61,36 @@ const bookingSchema = {
       includeAddOns: { type: 'boolean' },
     },
   },
+  questions: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        questionText: { type: 'string' },
+        type: {
+          type: 'enum',
+          values: ['OneLine', 'MultiLine', 'OneChoice', 'MultiChoice'],
+        },
+        options: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              optionText: { type: 'string' },
+            },
+          },
+        },
+        isRequired: { type: 'boolean' },
+        infoText: { type: 'string', optional: true },
+        showOtherOption: { type: 'boolean', optional: true, default: false },
+        showOtherText: { type: 'string', optional: true, default: 'Other' },
+      },
+    },
+  },
   discount: {
     type: 'object',
     optional: true,
