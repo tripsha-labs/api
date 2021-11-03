@@ -224,15 +224,18 @@ export class BookingController {
               throw ERROR_KEYS.INVALID_ACTION;
             }
             try {
-              const paymentIntent = await StripeAPI.createPaymentIntent({
-                amount: parseInt(booking.currentDue * 100),
-                currency: booking.currency,
-                customerId: booking.memberStripeId,
-                paymentMethod: booking.stripePaymentMethod.id,
-                confirm: true,
-                beneficiary: booking.onwerStripeId,
-                hostShare: user.hostShare,
-              });
+              let paymentIntent = true;
+              if (booking.currentDue > 1) {
+                paymentIntent = await StripeAPI.createPaymentIntent({
+                  amount: parseInt(booking.currentDue * 100),
+                  currency: booking.currency,
+                  customerId: booking.memberStripeId,
+                  paymentMethod: booking.stripePaymentMethod.id,
+                  confirm: true,
+                  beneficiary: booking.onwerStripeId,
+                  hostShare: user.hostShare,
+                });
+              }
 
               if (paymentIntent) {
                 booking.paymentHistory.push({
