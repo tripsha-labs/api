@@ -47,3 +47,7 @@ export * from './activity-logs.model';
 export * from './approval.model';
 export * from './approval.schema';
 export * from './approval.validation';
+
+export * from './coupon.model';
+export * from './coupon.schema';
+export * from './coupon.validation';

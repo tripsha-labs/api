@@ -19,6 +19,7 @@ import Payments from './payments';
 import Users from './users';
 import Seeds from './seeds';
 import AdminApi from './users/admin';
+import Coupons from './coupons';
 
 const noAuth = () => {
   const app = express();
@@ -59,6 +60,7 @@ const auth = () => {
   app.use('/payments', Payments);
   app.use('/users', Users);
   app.use('/admin', AdminApi);
+  app.use('/coupons', Coupons);
   return app;
 };
 
