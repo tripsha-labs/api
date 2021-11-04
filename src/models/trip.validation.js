@@ -167,6 +167,36 @@ const tripSchema = {
       },
     },
   },
+  questions: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        questionText: { type: 'string' },
+        type: {
+          type: 'enum',
+          values: ['OneLine', 'MultiLine', 'OneChoice', 'MultiChoice'],
+        },
+        options: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              optionText: { type: 'string' },
+            },
+          },
+        },
+        isRequired: { type: 'boolean' },
+        infoText: { type: 'string', optional: true },
+        showOtherOption: { type: 'boolean', optional: true, default: false },
+        showOtherText: { type: 'string', optional: true, default: 'Other' },
+      },
+    },
+  },
   priceIncludes: { type: 'string', optional: true },
   priceExcludes: { type: 'string', optional: true },
   isPublic: { type: 'boolean', optional: true },

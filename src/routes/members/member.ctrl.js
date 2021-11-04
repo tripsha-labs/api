@@ -315,15 +315,15 @@ export class MemberController {
                       memberRemoveDetails
                     );
                   }
-                  await logActivity({
-                    ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
-                      `${memberDetails.firstName} ${memberDetails.lastName}`,
-                      trip['title']
-                    ),
-                    tripId: trip._id.toString(),
-                    audienceIds: [user._id.toString()],
-                    userId: user._id.toString(),
-                  });
+                  // await logActivity({
+                  //   ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
+                  //     `${memberDetails.firstName} ${memberDetails.lastName}`,
+                  //     trip['title']
+                  //   ),
+                  //   tripId: trip._id.toString(),
+                  //   audienceIds: [user._id.toString()],
+                  //   userId: user._id.toString(),
+                  // });
                 } else {
                   console.log('Inside rejection');
                   return Promise.reject();

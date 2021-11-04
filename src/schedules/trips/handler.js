@@ -9,8 +9,8 @@ import {
   UserModel,
 } from '../../models';
 
-const archiveTrip = async (page = 0) => {
-  console.log('Archiving trips...', page);
+const archiveTrip = async () => {
+  console.log('Archiving trips...');
   try {
     const filter = {
       endDate: { $lt: parseInt(moment().format('YYYYMMDD')) },
@@ -21,7 +21,6 @@ const archiveTrip = async (page = 0) => {
     };
     const pagination = {
       limit: 500,
-      skip: 500 * page,
     };
     const query = { filter, select, pagination };
     let trips = await TripModel.list(query);
@@ -39,14 +38,14 @@ const archiveTrip = async (page = 0) => {
     });
     console.log('Acrhived trips:', trips.length);
     if (trips.length > 0) {
-      archiveTrip(page);
+      await archiveTrip();
     }
   } catch (err) {
     console.log(err);
   }
 };
-const archiveConversation = async (page = 0) => {
-  console.log('Archiving conversations...', page);
+const archiveConversation = async () => {
+  console.log('Archiving conversations...');
   try {
     const filter = {
       endDate: {
@@ -63,7 +62,6 @@ const archiveConversation = async (page = 0) => {
     };
     const pagination = {
       limit: 500,
-      skip: page * 500,
     };
     const query = { filter, select, pagination };
     const trips = await TripModel.list(query);
@@ -75,14 +73,14 @@ const archiveConversation = async (page = 0) => {
       );
     console.log('Acrhived conversations:', tripIds.length);
     if (tripIds.length > 0) {
-      await archiveConversation(page + 1);
+      await archiveConversation();
     }
   } catch (err) {
     console.log(err);
   }
 };
-const archiveBookingRequest = async (page = 0) => {
-  console.log('Archiving booking request');
+const archiveBookingRequest = async () => {
+  console.log('Archiving booking request 72 hours remaining...');
   try {
     const bookings = await BookingModel.list({
       filter: {
@@ -99,7 +97,6 @@ const archiveBookingRequest = async (page = 0) => {
         memberId: 1,
       },
       limit: 100,
-      skip: 100 * page,
     });
     if (bookings.length > 0) {
       bookings.forEach(async booking => {
@@ -148,21 +145,21 @@ const archiveBookingRequest = async (page = 0) => {
           ),
         });
       });
-      archiveBookingRequest(page + 1);
-      console.log('Archived booking request', bookingrequests);
+      await archiveBookingRequest();
+      console.log('Archived booking request 72 hours');
     }
   } catch (err) {
     console.log(err);
   }
 };
-const notifyBookingRequest = async (page = 0) => {
-  console.log('Archiving booking request');
+const notifyBookingRequest = async () => {
+  console.log('Archiving booking request 48 hours remaining');
   try {
     const bookings = await BookingModel.list({
       filter: {
         createdAt: {
           $lt: moment()
-            .subtract(2, 'days') // 24 hours remaining send reminder
+            .subtract(2, 'days') // 48 hours remaining send reminder
             .utc(),
         },
         status: 'pending',
@@ -174,7 +171,6 @@ const notifyBookingRequest = async (page = 0) => {
         memberId: 1,
       },
       limit: 100,
-      skip: 100 * page,
     });
     if (bookings.length > 0) {
       bookings.forEach(async booking => {
@@ -195,8 +191,8 @@ const notifyBookingRequest = async (page = 0) => {
           isEmailSent: true,
         });
       });
-      notifyBookingRequest(page + 1);
-      console.log('Archived booking request', bookingrequests);
+      await notifyBookingRequest();
+      console.log('Archived booking request 48 hours remaining');
     }
   } catch (err) {
     console.log(err);
