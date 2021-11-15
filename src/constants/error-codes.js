@@ -146,4 +146,9 @@ export const ERROR_KEYS = {
     message: 'Username already exists',
     code: 400,
   },
+  INVALID_COUPON_CODE: {
+    type: 'INVALID_COUPON_CODE',
+    message: 'Discount code might be invalid or expired',
+    code: 400,
+  },
 };

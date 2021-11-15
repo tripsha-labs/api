@@ -292,6 +292,12 @@ const _check_username_exists = async (email, username) => {
   return userExists;
 };
 
+const _check_email_exists = async email => {
+  return await UserController.isExists({
+    email: email,
+  });
+};
+
 const _get_unique_username = async (email, username) => {
   const exists = await _check_username_exists(email, username);
   if (exists) {
@@ -360,6 +366,19 @@ export const isUserExists = async (req, res) => {
       data['email'],
       data['username']
     );
+    return successResponse(res, exists);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const isEmailExists = async (req, res) => {
+  try {
+    const data = req.body;
+    if (!(data && data.email))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+    const exists = await _check_email_exists(data['email']);
     return successResponse(res, exists);
   } catch (error) {
     console.log(error);

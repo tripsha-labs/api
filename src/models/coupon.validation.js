@@ -5,12 +5,13 @@
 import Validator from 'fastest-validator';
 
 const couponSchema = {
-  name: { type: 'string', optional: true },
-  couponCode: { type: 'string', required: true },
+  name: { type: 'string', required: true },
+  description: { type: 'string', optional: true },
+  couponCode: { type: 'string', required: true, min: 4, max: 12 },
   discType: {
     type: 'string',
     required: true,
-    enum: ['%', '$'],
+    enum: ['amount', 'percentage'],
   },
   amount: {
     type: 'number',
@@ -18,11 +19,15 @@ const couponSchema = {
   },
   expiryDate: {
     type: 'number',
-    required: true,
+    optional: true,
   },
-  tripIds: {
-    type: 'array',
+  applicableType: {
+    type: 'string',
     required: true,
+    enum: ['site_wide', 'hosts', 'my_trips', 'trips', 'countries', 'tags'],
+  },
+  specificValues: {
+    type: 'array',
   },
   isActive: {
     type: 'boolean',

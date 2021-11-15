@@ -4,27 +4,32 @@
  */
 import { Types } from 'mongoose';
 import moment from 'moment';
-import { CouponModel, UserModel } from '../../models';
+import { CouponModel, UserModel, TripModel } from '../../models';
 import { prepareCommonFilter } from '../../helpers';
+import { ERROR_KEYS } from '../../constants';
 
 export class CouponController {
-  static async listCoupons(filter) {
-    try {
-      const params = {
-        filter: {
-          name: { $regex: new RegExp('^' + (filter.search || ''), 'i') },
-        },
-        ...prepareCommonFilter(filter, ['name']),
-      };
-      const coupons = await CouponModel.list(params);
-      return {
-        data: coupons,
-        count: coupons.length,
-      };
-    } catch (error) {
-      console.log(error);
-      throw error;
+  static async listCoupons(filter, awsUserId) {
+    const user = await UserModel.get({ awsUserId: awsUserId });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    const params = {
+      filter: {
+        name: { $regex: new RegExp('^' + (filter.search || ''), 'i') },
+      },
+      ...prepareCommonFilter(filter, ['name']),
+    };
+    if (user.isAdmin || user.isHost) {
+      if (user.isHost && !user.isAdmin) {
+        params['filter']['userId'] = user._id.toString();
+      }
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
     }
+    const coupons = await CouponModel.list(params);
+    return {
+      data: coupons,
+      count: coupons.length,
+    };
   }
   static async createCoupon(params, awsUserId) {
     const user = await UserModel.get({
@@ -45,14 +50,63 @@ export class CouponController {
     return await CouponModel.getById(couponId);
   }
   static async applyCoupon(params) {
-    const couponDetails = await CouponModel.get(
-      {
-        couponCode: params.couponCode,
-        tripIds: params.tripId,
-        isActive: true,
-        expiryDate: { $gte: parseInt(moment().format('YYYYMMDD')) },
-      },
-      { tripIds: 0, maxRedemptions: 0, timesRedeemed: 0 }
-    );
+    const coupon = await CouponModel.get({
+      couponCode: params.couponCode,
+      isActive: true,
+    });
+    if (coupon.expiryDate)
+      if (coupon.expiryDate < parseInt(moment().format('YYYYMMDD')))
+        throw ERROR_KEYS.INVALID_COUPON_CODE;
+    const trip = await TripModel.get({
+      _id: Types.ObjectId(params.tripId),
+      ownerId: Types.ObjectId(coupon.userId),
+    });
+    //name: 1, discType: 1, amount: 1, couponCode: 1
+
+    let validCoupon = null;
+    if (coupon) {
+      switch (coupon.applicableType) {
+        case 'site_wide':
+          validCoupon = coupon;
+          break;
+        case 'my_trips':
+          if (trip) validCoupon = coupon;
+          break;
+        case 'trips':
+          coupon.specificValues.map(tripId => {
+            if (tripId === params.tripId) validCoupon = coupon;
+          });
+          break;
+        case 'countries':
+          if (trip)
+            coupon.specificValues.map(country => {
+              if (trip.destinations.includes(country)) validCoupon = coupon;
+            });
+          break;
+        case 'tags':
+          if (trip)
+            coupon.specificValues.map(tag => {
+              if (trip.interests.includes(tag)) validCoupon = coupon;
+            });
+          break;
+        case 'hosts':
+          if (trip)
+            coupon.specificValues.map(host => {
+              if (host === trip.ownerId.toString()) validCoupon = coupon;
+            });
+          break;
+        default:
+          validCoupon = null;
+      }
+    }
+    if (validCoupon)
+      return {
+        _id: validCoupon._id,
+        name: validCoupon.name,
+        discType: validCoupon.discType,
+        amount: validCoupon.amount,
+        couponCode: validCoupon.couponCode,
+      };
+    else throw ERROR_KEYS.INVALID_COUPON_CODE;
   }
 }

@@ -11,12 +11,23 @@ export const getCosting = preferences => {
 
   let discountedRoomCost = totalRoomCost;
   if (preferences.isDiscountApplicable && preferences.discount) {
-    if (preferences.discount.discType === 'usd') {
+    if (preferences.discount.discType === 'amount') {
       discountedRoomCost = totalRoomCost - preferences.discount.amount;
     } else if (preferences.discount.discType === 'percentage') {
       discountedRoomCost =
         totalRoomCost -
         (discountedRoomCost * preferences.discount.amount) / 100;
+    }
+  }
+
+  // Discount code
+  if (preferences.coupon) {
+    if (preferences.coupon.discType === 'amount') {
+      discountedRoomCost = discountedRoomCost - preferences.coupon.amount;
+    } else if (preferences.coupon.discType === 'percentage') {
+      discountedRoomCost =
+        discountedRoomCost -
+        (discountedRoomCost * preferences.coupon.amount) / 100;
     }
   }
 
@@ -32,17 +43,27 @@ export const getCosting = preferences => {
   );
   let discountedAddOnCost = totalAddOnCost;
   if (
-    totalAddOnCost > 0 &&
+    discountedAddOnCost > 0 &&
     preferences.isDiscountApplicable &&
     preferences.discount &&
     preferences.discount.includeAddOns
   ) {
-    if (preferences.discount.discType === 'usd') {
-      discountedAddOnCost = totalAddOnCost - preferences.discount.amount;
+    if (preferences.discount.discType === 'amount') {
+      discountedAddOnCost = discountedAddOnCost - preferences.discount.amount;
     } else if (preferences.discount.discType === 'percentage') {
       discountedAddOnCost =
-        totalAddOnCost -
+        discountedAddOnCost -
         (preferences.discount.amount * discountedAddOnCost) / 100;
+    }
+  }
+  // Apply coupon
+  if (preferences.coupon) {
+    if (preferences.coupon.discType === 'amount') {
+      discountedAddOnCost = discountedAddOnCost - preferences.coupon.amount;
+    } else if (preferences.coupon.discType === 'percentage') {
+      discountedAddOnCost =
+        discountedAddOnCost -
+        (discountedAddOnCost * preferences.coupon.amount) / 100;
     }
   }
   // Total before discount
