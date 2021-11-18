@@ -65,6 +65,12 @@ export const ERROR_KEYS = {
       'Whoops! Looks like that username already exists! Please select a different one and try again.',
     code: 400,
   },
+  COUPON_CODE_ALREADY_EXISTS: {
+    type: 'COUPON_CODE_ALREADY_EXISTS',
+    message:
+      'Whoops! Looks like that coupon already exists! Please diffrent a different one and try again.',
+    code: 400,
+  },
   NOT_GROUP_MEMBER: {
     type: 'notgroupmember',
     message: 'You are not a group member.',

@@ -42,5 +42,6 @@ const couponSchema = new mongoose.Schema(
     strict: true,
   }
 );
+couponSchema.index({ couponCode: 1, userId: 1 }, { unique: true });
 export const Coupon =
   mongoose.models.Coupons || mongoose.model('Coupons', couponSchema);

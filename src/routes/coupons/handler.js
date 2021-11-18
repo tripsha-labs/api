@@ -36,6 +36,8 @@ export const createCoupon = async (req, res) => {
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
+    if (error && error.code === 11000)
+      return failureResponse(res, ERROR_KEYS.COUPON_CODE_ALREADY_EXISTS);
     return failureResponse(res, error);
   }
 };
@@ -49,6 +51,8 @@ export const updateCoupon = async (req, res) => {
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
+    if (error && error.code === 11000)
+      return failureResponse(res, ERROR_KEYS.COUPON_CODE_ALREADY_EXISTS);
     return failureResponse(res, error);
   }
 };
