@@ -393,7 +393,6 @@ export class TripController {
   static async getTrip(tripId, memberId) {
     try {
       let trip = await TripModel.getById(tripId);
-      console.log(trip);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       trip = JSON.parse(JSON.stringify(trip));
       trip['ownerDetails'] = await UserModel.getById(trip.ownerId);
