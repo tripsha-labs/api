@@ -276,10 +276,7 @@ export class TripController {
       if (!tripDetails) throw ERROR_KEYS.TRIP_NOT_FOUND;
 
       if (
-        !(
-          tripDetails['ownerId'].toString() === user['_id'].toString() ||
-          user['isAdmin'] === true
-        )
+        !(tripDetails['ownerId'] === user['_id'] || user['isAdmin'] === true)
       ) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
@@ -693,6 +690,117 @@ export class TripController {
       };
     } catch (error) {
       console.log(error);
+      throw error;
+    }
+  }
+  static async tripBookings(tripId, awsUserId) {
+    try {
+      const trip = await TripModel.getById(tripId).select({
+        rooms: 1,
+        addOns: 1,
+        guestCount: 1,
+        externalCount: 1,
+        hostCount: 1,
+        spotsFilled: 1,
+        spotsReserved: 1,
+        spotsAvailable: 1,
+        groupSize: 1,
+        maxGroupSize: 1,
+        tripPaymentType: 1,
+      });
+      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      // const user = await UserModel.get({ awsUserId: awsUserId });
+      // if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+
+      const params = [
+        {
+          $match: {
+            tripId: tripId,
+            status: 'approved',
+          },
+        },
+        {
+          $project: {
+            memberId: {
+              $toObjectId: '$memberId',
+            },
+            guests: 1,
+            addOns: 1,
+            rooms: 1,
+            attendees: 1,
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'memberId',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
+          $unwind: {
+            path: '$user',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ];
+      const bookings = await BookingModel.aggregate(params);
+      const rooms = {};
+      const addOns = {};
+      trip.rooms &&
+        trip.rooms.map(room => {
+          room.variants &&
+            room.variants.map(variant => {
+              rooms[`${room.id}_${variant.id}`] = {
+                ...variant,
+                roomName: room.name,
+                roomId: room.id,
+              };
+              return variant;
+            });
+
+          return room;
+        });
+      trip.addOns &&
+        trip.addOns.map(addOn => {
+          addOns[addOn.id] = addOn;
+          return addOn;
+        });
+      return bookings.map(booking => {
+        const { email, firstName, lastName, username } = booking.user || {};
+        const roomInfo = JSON.parse(JSON.stringify(rooms));
+        const addOnsInfo = JSON.parse(JSON.stringify(addOns));
+        booking.rooms &&
+          booking.rooms.map(room => {
+            if (roomInfo[`${room.room.id}_${room.variant.id}`])
+              roomInfo[`${room.room.id}_${room.variant.id}`] = {
+                ...roomInfo[`${room.room.id}_${room.variant.id}`],
+                attendees: room.attendees,
+              };
+            return room;
+          });
+        booking.addOns &&
+          booking.addOns.map(addOn => {
+            if (addOnsInfo[addOn.id]) {
+              addOnsInfo[addOn.id] = {
+                ...addOnsInfo[addOn.id],
+                attendees: addOn.attendees,
+              };
+            }
+            return addOn;
+          });
+        const bookingInfo = {
+          _id: booking._id,
+          user: { email, firstName, lastName, username },
+          guests: booking.guests,
+          attendees: booking.attendees,
+          rooms: Object.values(roomInfo),
+          addOns: Object.values(addOnsInfo),
+        };
+        return bookingInfo;
+      });
+    } catch (error) {
       throw error;
     }
   }

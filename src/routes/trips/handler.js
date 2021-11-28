@@ -185,3 +185,25 @@ export const listMembers = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+
+/**
+ * Trip bookings
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const tripBookings = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const result = await TripController.tripBookings(
+      req.params.id,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};

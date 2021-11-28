@@ -81,6 +81,12 @@ export const ERROR_KEYS = {
     message: 'You do not have sufficient permission to perform this operation.',
     code: 403,
   },
+  BOOKING_ALREADY_EXISTS: {
+    type: 'BOOKING_ALREADY_EXISTS',
+    message:
+      'You have already booked for this trip, you may find your booking details on your dashboard.',
+    code: 403,
+  },
   TRIP_IS_FULL: {
     type: 'TripFull',
     message: `Trip already full, we will keep your request in waitlist and let you know whenever a spot avaialble. You need to select your booking preferences once again while you booking again.`,

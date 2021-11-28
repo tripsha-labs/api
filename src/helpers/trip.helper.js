@@ -134,3 +134,133 @@ export const getBookingValidity = trip => {
     return expiration.diff(today, 'days') >= 0;
   } else return false;
 };
+export const getTripResourceValidity = (trip, bookingData) => {
+  const status = {
+    rooms: false,
+    addOns: false,
+  };
+  if (trip.tripPaymentType == 'pay') {
+    const rooms = {};
+    const addOns = {};
+    bookingData.rooms &&
+      bookingData.rooms.map(room => {
+        rooms[`${room.room.id}_${room.variant.id}`] = room.attendees;
+        return room;
+      });
+    bookingData.addOns &&
+      bookingData.addOns.map(addOn => {
+        addOns[addOn.id] = addOn.attendees;
+        return addOn;
+      });
+    trip.rooms &&
+      trip.rooms.map(room => {
+        room.variants &&
+          room.variants.map(variant => {
+            if (
+              rooms[`${room.id}_${variant.id}`] &&
+              variant.available - (variant.reserved || 0) <
+                rooms[`${room.id}_${variant.id}`]
+            )
+              status.rooms = true;
+            return variant;
+          });
+        return room;
+      });
+    trip.addOns &&
+      trip.addOns.map(addOn => {
+        if (
+          addOns[addOn.id] &&
+          addOn.available - (addOn.reserved || 0) < addOns[addOn.id]
+        )
+          status.addOns = true;
+        return addOn;
+      });
+  }
+  return status;
+};
+export const addRoomResources = (booking, trip, fields) => {
+  const rooms = [];
+  trip.rooms.forEach(room => {
+    room['variants'] = room.variants.map(variant => {
+      const foundVariant =
+        booking.rooms &&
+        booking.rooms.find(
+          rm => rm.room.id == room.id && rm.variant.id == variant.id
+        );
+      if (foundVariant && fields && fields.length > 0) {
+        if (fields.includes('filled'))
+          variant['filled'] = variant['filled']
+            ? variant['filled'] + booking.attendees
+            : booking.attendees;
+        if (fields.includes('reserved'))
+          variant['reserved'] = variant['reserved']
+            ? variant['reserved'] + booking.attendees
+            : booking.attendees;
+      }
+      return variant;
+    });
+    rooms.push(room);
+  });
+  return rooms;
+};
+export const addAddonResources = (booking, trip, fields) => {
+  const addOns = [];
+  trip.addOns.forEach(addOn => {
+    const bAddon =
+      booking.addOns && booking.addOns.find(bAddOn => bAddOn.id === addOn.id);
+    if (bAddon && fields && fields.length > 0) {
+      if (fields.includes('filled'))
+        addOn['filled'] = addOn['filled']
+          ? addOn['filled'] + bAddon.attendees
+          : bAddon.attendees;
+      if (fields.includes('reserved'))
+        addOn['reserved'] = addOn['reserved']
+          ? addOn['reserved'] + bAddon.attendees
+          : bAddon.attendees;
+    }
+    addOns.push(addOn);
+  });
+  return addOns;
+};
+export const removeRoomResources = (booking, trip, fields) => {
+  const rooms = [];
+  trip.rooms.forEach(room => {
+    room['variants'] = room.variants.map(variant => {
+      const foundVariant = booking.rooms.find(
+        rm => rm.room.id == room.id && rm.variant.id == variant.id
+      );
+      if (foundVariant && fields && fields.length > 0) {
+        if (fields.includes('filled')) {
+          variant['filled'] = variant['filled'] - booking.attendees;
+          variant['filled'] = variant['filled'] > 0 ? variant['filled'] : 0;
+        }
+        if (fields.includes('reserved')) {
+          variant['reserved'] = variant['reserved'] - booking.attendees;
+          variant['reserved'] =
+            variant['reserved'] > 0 ? variant['reserved'] : 0;
+        }
+      }
+      return variant;
+    });
+    rooms.push(room);
+  });
+  return rooms;
+};
+export const removeAddonResources = (booking, trip, fields) => {
+  const addOns = [];
+  trip.addOns.forEach(addOn => {
+    const bAddon = booking.addOns.find(bAddOn => bAddOn.id === addOn.id);
+    if (bAddon && fields && fields.length > 0) {
+      if (fields.includes('filled')) {
+        addOn['filled'] = addOn['filled'] - bAddon.attendees;
+        addOn['filled'] = addOn['filled'] > 0 ? addOn['filled'] : 0;
+      }
+      if (fields.includes('reserved')) {
+        addOn['reserved'] = addOn['reserved'] - bAddon.attendees;
+        addOn['reserved'] = addOn['reserved'] > 0 ? addOn['reserved'] : 0;
+      }
+    }
+    addOns.push(addOn);
+  });
+  return addOns;
+};

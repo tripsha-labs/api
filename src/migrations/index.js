@@ -1,4 +1,4 @@
-import { UserModel, TripModel, MemberModel } from '../models';
+import { UserModel, TripModel, MemberModel, BookingModel } from '../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../constants';
 import uuid from 'uuid/v4';
 export const updateProfilePic = async (skip = 0) => {
@@ -211,4 +211,101 @@ export const updateBookingOptions = async () => {
   });
   await Promise.all(promises);
   if (trips && trips.length === 1000) updateBookingOptions();
+};
+
+export const updateTripsForReservedCount = async () => {
+  const params = [];
+  params.push({
+    $match: {
+      tripPaymentType: 'pay',
+      $or: [
+        {
+          $and: [
+            { 'rooms.variants': { $exists: true, $not: { $size: 0 } } },
+            { 'rooms.variants.reserved': { $exists: false } },
+          ],
+        },
+        {
+          $and: [
+            { addOns: { $exists: true, $not: { $size: 0 } } },
+            { 'addOns.reserved': { $exists: false } },
+          ],
+        },
+      ],
+    },
+  });
+  params.push({
+    $limit: 100,
+  });
+  const trips = await TripModel.aggregate(params);
+  const promises = [];
+  trips.map(trip => {
+    promises.push(
+      new Promise(async resolve => {
+        try {
+          const bookingParams = [
+            {
+              $match: {
+                tripId: trip._id.toString(),
+                status: { $in: ['pending'] },
+              },
+            },
+          ];
+          const bookings = await BookingModel.aggregate(bookingParams);
+          const rooms = {};
+          const addOns = {};
+          bookings.map(booking => {
+            booking.rooms &&
+              booking.rooms.map(room => {
+                rooms[
+                  `${room.variant.id}_${room.room.id}`
+                ] = rooms.hasOwnProperty(`${room.variant.id}_${room.room.id}`)
+                  ? rooms[`${room.variant.id}_${room.room.id}`] + room.attendees
+                  : room.attendees;
+                return room;
+              });
+            booking.addOns &&
+              booking.addOns.map(addOn => {
+                addOns[addOn.id] = addOns.hasOwnProperty(addOn.id)
+                  ? addOns[addOn.id] + room.attendees
+                  : room.attendees;
+                return room;
+              });
+            return booking;
+          });
+          const updateTrip = {};
+          updateTrip['rooms'] =
+            trip.rooms &&
+            trip.rooms.map(room => {
+              room['variants'] =
+                room.variants &&
+                room.variants.map(variant => {
+                  if (rooms.hasOwnProperty(`${variant.id}_${room.id}`))
+                    variant['reserved'] =
+                      (variant['filled'] || 0) +
+                      rooms[`${variant.id}_${room.id}`];
+                  else variant['reserved'] = variant['filled'] || 0;
+                  return variant;
+                });
+              return room;
+            });
+          updateTrip['addOns'] =
+            trip.addOns &&
+            trip.addOns.map(addOn => {
+              if (addOns.hasOwnProperty(addOn.id))
+                addOn['reserved'] = (addOn['filled'] || 0) + addOns[addOn.id];
+              else addOn['reserved'] = addOn['filled'] || 0;
+              return addOn;
+            });
+          await TripModel.update(trip._id, updateTrip);
+        } catch (err) {
+          console.log(err);
+        } finally {
+          return resolve();
+        }
+      })
+    );
+  });
+  await Promise.all(promises);
+  if (trips && trips.length === 100) updateTripsForReservedCount();
 };
