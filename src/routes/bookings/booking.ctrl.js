@@ -420,10 +420,10 @@ export class BookingController {
             status: 'declined',
           };
           await BookingModel.update(booking._id, bookingUpdate);
-          tripUpdate['rooms'] = removeRoomResources(bookingData, trip, [
+          tripUpdate['rooms'] = removeRoomResources(booking, trip, [
             'reserved',
           ]);
-          tripUpdate['addOns'] = removeAddonResources(bookingData, trip, [
+          tripUpdate['addOns'] = removeAddonResources(booking, trip, [
             'reserved',
           ]);
           // Traveller
@@ -480,10 +480,10 @@ export class BookingController {
           await BookingModel.update(booking._id, {
             status: 'withdrawn',
           });
-          tripUpdate['rooms'] = removeRoomResources(bookingData, trip, [
+          tripUpdate['rooms'] = removeRoomResources(booking, trip, [
             'reserved',
           ]);
-          tripUpdate['addOns'] = removeAddonResources(bookingData, trip, [
+          tripUpdate['addOns'] = removeAddonResources(booking, trip, [
             'reserved',
           ]);
           // traveller

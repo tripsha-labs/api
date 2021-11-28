@@ -77,10 +77,9 @@ export const getCosting = preferences => {
     preferences.isDepositApplicable &&
     preferences.deposit
   ) {
+    paynowAmount = preferences.deposit.amount * preferences.attendees;
     if (preferences.deposit.includeAddOns) {
-      paynowAmount = preferences.deposit.amount + discountedAddOnCost;
-    } else {
-      paynowAmount = preferences.deposit.amount;
+      paynowAmount = paynowAmount + discountedAddOnCost;
     }
   } else {
     paynowAmount = discountedGrandTotal;
@@ -190,12 +189,12 @@ export const addRoomResources = (booking, trip, fields) => {
       if (foundVariant && fields && fields.length > 0) {
         if (fields.includes('filled'))
           variant['filled'] = variant['filled']
-            ? variant['filled'] + booking.attendees
-            : booking.attendees;
+            ? variant['filled'] + foundVariant.attendees
+            : foundVariant.attendees;
         if (fields.includes('reserved'))
           variant['reserved'] = variant['reserved']
-            ? variant['reserved'] + booking.attendees
-            : booking.attendees;
+            ? variant['reserved'] + foundVariant.attendees
+            : foundVariant.attendees;
       }
       return variant;
     });
