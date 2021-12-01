@@ -29,7 +29,7 @@ const tripSchema = {
   minGroupSize: {
     type: 'number',
     min: 2,
-    max: 20,
+    max: 500,
     empty: false,
     positive: true,
     integer: true,
@@ -37,7 +37,7 @@ const tripSchema = {
   maxGroupSize: {
     type: 'number',
     min: 2,
-    max: 20,
+    max: 500,
     empty: false,
     positive: true,
     integer: true,
@@ -45,7 +45,7 @@ const tripSchema = {
   externalCount: {
     type: 'number',
     min: 0,
-    max: 20,
+    max: 500,
     empty: false,
     integer: true,
   },
