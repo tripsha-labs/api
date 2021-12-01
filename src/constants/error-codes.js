@@ -65,6 +65,12 @@ export const ERROR_KEYS = {
       'Whoops! Looks like that username already exists! Please select a different one and try again.',
     code: 400,
   },
+  COUPON_CODE_ALREADY_EXISTS: {
+    type: 'COUPON_CODE_ALREADY_EXISTS',
+    message:
+      'Whoops! Looks like that coupon already exists! Please diffrent a different one and try again.',
+    code: 400,
+  },
   NOT_GROUP_MEMBER: {
     type: 'notgroupmember',
     message: 'You are not a group member.',
@@ -73,6 +79,12 @@ export const ERROR_KEYS = {
   UNAUTHORIZED: {
     type: 'Unauthorized',
     message: 'You do not have sufficient permission to perform this operation.',
+    code: 403,
+  },
+  BOOKING_ALREADY_EXISTS: {
+    type: 'BOOKING_ALREADY_EXISTS',
+    message:
+      'You have already booked for this trip, you may find your booking details on your dashboard.',
     code: 403,
   },
   TRIP_IS_FULL: {
@@ -144,6 +156,11 @@ export const ERROR_KEYS = {
   USERNAME_ALREADY_EXISTS: {
     type: 'USERNAME_ALREADY_EXISTS',
     message: 'Username already exists',
+    code: 400,
+  },
+  INVALID_COUPON_CODE: {
+    type: 'INVALID_COUPON_CODE',
+    message: 'Discount code might be invalid or expired',
     code: 400,
   },
 };

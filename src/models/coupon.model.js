@@ -37,7 +37,7 @@ export class CouponModel {
     return Coupon.findById(id);
   }
 
-  static get(params) {
-    return Coupon.findOne(params);
+  static get(params, select) {
+    return Coupon.findOne(params, select || {});
   }
 }

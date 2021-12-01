@@ -9,6 +9,11 @@ import {
   getDepositStatus,
   getDiscountStatus,
   prepareSortFilter,
+  addRoomResources,
+  addAddonResources,
+  removeAddonResources,
+  removeRoomResources,
+  getTripResourceValidity,
 } from '../../helpers';
 import { BookingModel, UserModel, TripModel } from '../../models';
 import {
@@ -54,11 +59,20 @@ export class BookingController {
     if (finalBookingData['pendingAmout'] === 0) {
       finalBookingData['paymentStatus'] = 'full';
     }
+    const existingBooking = await BookingModel.get({
+      tripId: finalBookingData['tripId'],
+      memberId: finalBookingData['memberId'],
+      status: { $in: ['approved', 'pending'] },
+    });
+    if (existingBooking) throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
+    const status = getTripResourceValidity(trip, bookingData);
+    if (status.rooms && status.addOns) throw ERROR_KEYS.TRIP_RESOURCES_FULL;
+    const booking = await BookingModel.create(finalBookingData);
     const tripUpdate = {
       isLocked: true,
+      rooms: addRoomResources(bookingData, trip, ['reserved']),
+      addOns: addAddonResources(bookingData, trip, ['reserved']),
     };
-    const booking = await BookingModel.create(finalBookingData);
-
     await TripModel.update(trip._id, tripUpdate);
     // Traveller activity record
     await logActivity({
@@ -406,6 +420,12 @@ export class BookingController {
             status: 'declined',
           };
           await BookingModel.update(booking._id, bookingUpdate);
+          tripUpdate['rooms'] = removeRoomResources(booking, trip, [
+            'reserved',
+          ]);
+          tripUpdate['addOns'] = removeAddonResources(booking, trip, [
+            'reserved',
+          ]);
           // Traveller
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELLER(trip['title']),
@@ -460,6 +480,12 @@ export class BookingController {
           await BookingModel.update(booking._id, {
             status: 'withdrawn',
           });
+          tripUpdate['rooms'] = removeRoomResources(booking, trip, [
+            'reserved',
+          ]);
+          tripUpdate['addOns'] = removeAddonResources(booking, trip, [
+            'reserved',
+          ]);
           // traveller
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELLER(trip['title']),

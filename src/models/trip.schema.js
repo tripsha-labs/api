@@ -53,6 +53,7 @@ const tripSchema = new mongoose.Schema(
     isPublic: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true },
     isArchived: { type: Boolean, default: false },
+    isConversationArchived: { type: Boolean, default: false },
     isLocked: { type: Boolean, default: false },
     isFull: { type: Boolean, default: false },
     spotsReserved: { type: Number, default: 0 },

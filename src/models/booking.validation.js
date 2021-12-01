@@ -102,6 +102,17 @@ const bookingSchema = {
       includeAddOns: { type: 'boolean' },
     },
   },
+  coupon: {
+    type: 'object',
+    optional: true,
+    props: {
+      name: { type: 'string' },
+      discType: { type: 'enum', values: ['amount', 'percentage'] },
+      amount: { type: 'number' },
+      couponCode: { type: 'string' },
+      _id: { type: 'string' },
+    },
+  },
   guests: {
     type: 'array',
     optional: true,

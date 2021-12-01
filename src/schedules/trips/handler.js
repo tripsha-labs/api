@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { dbConnect, sendEmail } from '../../utils';
+import { dbConnect, sendEmail, logActivity } from '../../utils';
 import { EmailMessages, LogMessages } from '../../constants';
 import {
   TripModel,
@@ -44,7 +44,7 @@ const archiveTrip = async () => {
     console.log(err);
   }
 };
-const archiveConversation = async () => {
+const archiveConversation = async (skip = 0, limit = 500) => {
   console.log('Archiving conversations...');
   try {
     const filter = {
@@ -56,24 +56,40 @@ const archiveConversation = async () => {
         ),
       },
       isArchived: true,
+      $or: [
+        { isConversationArchived: { $exists: false } },
+        { isConversationArchived: false },
+      ],
     };
     const select = {
       _id: 1,
     };
     const pagination = {
       limit: 500,
+      skip: limit * skip,
     };
     const query = { filter, select, pagination };
     const trips = await TripModel.list(query);
-    let tripIds = trips.map(trip => trip._id.toString());
+    const tripObjIds = trips.map(trip => trip._id);
+    const tripIds = trips.map(trip => trip._id.toString());
     if (tripIds && tripIds.length > 0)
       await ConversationModel.updateMany(
         { tripId: { $in: tripIds }, isArchived: false },
         { isArchived: true }
       );
+    await TripModel.updateMany(
+      {
+        _id: { $in: tripObjIds },
+        $or: [
+          { isConversationArchived: { $exists: false } },
+          { isConversationArchived: false },
+        ],
+      },
+      { isConversationArchived: true }
+    );
     console.log('Acrhived conversations:', tripIds.length);
     if (tripIds.length > 0) {
-      await archiveConversation();
+      await archiveConversation(skip + 1, 500);
     }
   } catch (err) {
     console.log(err);
@@ -129,7 +145,6 @@ const archiveBookingRequest = async () => {
           name: member['firstName'],
           subject: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELLER.subject,
           message: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELLER.message(
-            booking._id,
             trip._id.toString(),
             trip['title']
           ),
@@ -141,7 +156,8 @@ const archiveBookingRequest = async () => {
           subject: EmailMessages.BOOKING_REQUEST_EXPIRED_HOST.subject,
           message: EmailMessages.BOOKING_REQUEST_EXPIRED_HOST.message(
             trip._id.toString(),
-            trip['title']
+            trip['title'],
+            member['firstName']
           ),
         });
       });
@@ -152,8 +168,8 @@ const archiveBookingRequest = async () => {
     console.log(err);
   }
 };
-const notifyBookingRequest = async () => {
-  console.log('Archiving booking request 48 hours remaining');
+const notify48hBookingRequest = async () => {
+  console.log('Archiving booking request 48 hours remaining...');
   try {
     const bookings = await BookingModel.list({
       filter: {
@@ -163,7 +179,10 @@ const notifyBookingRequest = async () => {
             .utc(),
         },
         status: 'pending',
-        isEmailSent: false,
+        $or: [
+          { is48hEmailSent: { $exists: false } },
+          { is48hEmailSent: false },
+        ],
       },
       select: {
         _id: 1,
@@ -187,12 +206,59 @@ const notifyBookingRequest = async () => {
           ),
         });
         await BookingModel.update(booking._id, {
-          status: 'expired',
-          isEmailSent: true,
+          is48hEmailSent: true,
         });
       });
-      await notifyBookingRequest();
+      await notify48hBookingRequest();
       console.log('Archived booking request 48 hours remaining');
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+const notify24hBookingRequest = async () => {
+  console.log('Archiving booking request 24 hours remaining...');
+  try {
+    const bookings = await BookingModel.list({
+      filter: {
+        createdAt: {
+          $lt: moment()
+            .subtract(1, 'days') // 48 hours remaining send reminder
+            .utc(),
+        },
+        status: 'pending',
+        $or: [
+          { is24hEmailSent: { $exists: false } },
+          { is24hEmailSent: false },
+        ],
+      },
+      select: {
+        _id: 1,
+        tripId: 1,
+        memberId: 1,
+      },
+      limit: 100,
+    });
+    if (bookings.length > 0) {
+      bookings.forEach(async booking => {
+        const trip = await TripModel.getById(booking.tripId);
+        const tripOwner = await UserModel.getById(trip.ownerId);
+        //Host email
+        await sendEmail({
+          emails: [tripOwner['email']],
+          name: tripOwner['firstName'],
+          subject: EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.subject,
+          message: EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.message(
+            trip._id.toString(),
+            trip['title']
+          ),
+        });
+        await BookingModel.update(booking._id, {
+          is24hEmailSent: true,
+        });
+      });
+      await notify24hBookingRequest();
+      console.log('Archived booking request 24 hours remaining');
     }
   } catch (err) {
     console.log(err);
@@ -204,7 +270,9 @@ export const tripsWatcher = async (event, context) => {
     await archiveTrip();
     await archiveConversation();
     await archiveBookingRequest();
-    await notifyBookingRequest();
+    await notify48hBookingRequest();
+    await notify24hBookingRequest();
+    return context.logStreamName;
   } catch (err) {
     console.log(err);
   }

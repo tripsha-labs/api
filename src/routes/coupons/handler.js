@@ -13,7 +13,10 @@ export const listCoupons = async (req, res) => {
   try {
     // Get search string from queryparams
     const params = req.query ? req.query : {};
-    const result = await CouponController.listCoupons(params);
+    const result = await CouponController.listCoupons(
+      params,
+      req.requestContext.identity.cognitoIdentityId
+    );
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
@@ -33,6 +36,8 @@ export const createCoupon = async (req, res) => {
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
+    if (error && error.code === 11000)
+      return failureResponse(res, ERROR_KEYS.COUPON_CODE_ALREADY_EXISTS);
     return failureResponse(res, error);
   }
 };
@@ -40,13 +45,14 @@ export const createCoupon = async (req, res) => {
 export const updateCoupon = async (req, res) => {
   try {
     const params = req.body || {};
-    console.log(params);
     const errors = couponSchemaValidation(params);
     if (errors != true) throw errors.shift();
     const result = await CouponController.updateCoupon(params, req.params.id);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
+    if (error && error.code === 11000)
+      return failureResponse(res, ERROR_KEYS.COUPON_CODE_ALREADY_EXISTS);
     return failureResponse(res, error);
   }
 };

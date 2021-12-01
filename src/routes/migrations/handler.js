@@ -8,6 +8,7 @@ import {
   updateTripUrl,
   updateTripStats,
   updateBookingOptions,
+  updateTripsForReservedCount,
 } from '../../migrations';
 
 /**
@@ -19,7 +20,8 @@ export const runMigrations = async (req, res) => {
     // await updateTripStats();
     // await updateProfilePic();
     // await updateTripUrl();
-    await updateBookingOptions();
+    // await updateBookingOptions();
+    await updateTripsForReservedCount();
     console.log('Migrations completed');
     return successResponse(res, 'success');
   } catch (error) {

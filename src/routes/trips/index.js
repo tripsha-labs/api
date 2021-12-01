@@ -8,6 +8,7 @@ import {
   updateTrip,
   deleteTrip,
   listMembers,
+  tripBookings,
 } from './handler';
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.get('/:id', getTrip);
 router.put('/:id', updateTrip);
 router.delete('/:id', deleteTrip);
 router.get('/:id/members', listMembers);
+router.get('/:id/booking', tripBookings);
 
 export default router;
