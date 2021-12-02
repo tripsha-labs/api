@@ -36,7 +36,7 @@ const archiveTrip = async () => {
         console.log(err);
       }
     });
-    console.log('Acrhived trips:', trips.length);
+    console.log('Archived trips:', trips.length);
     if (trips.length > 0) {
       await archiveTrip();
     }
@@ -87,7 +87,7 @@ const archiveConversation = async (skip = 0, limit = 500) => {
       },
       { isConversationArchived: true }
     );
-    console.log('Acrhived conversations:', tripIds.length);
+    console.log('Archived conversations:', tripIds.length);
     if (tripIds.length > 0) {
       await archiveConversation(skip + 1, 500);
     }
@@ -96,7 +96,7 @@ const archiveConversation = async (skip = 0, limit = 500) => {
   }
 };
 const archiveBookingRequest = async () => {
-  console.log('Archiving booking request 72 hours remaining...');
+  console.log('Archiving booking request, 72 hours remaining...');
   try {
     const bookings = await BookingModel.list({
       filter: {

@@ -1,7 +1,7 @@
 paths:
   /bookings:
     get:
-      description: Returns list of bookings related to logged in user.
+      description: Returns a list of bookings related to a logged in user.
       operationId: listBookings
       tags:
         - Bookings
@@ -14,7 +14,7 @@ paths:
         - $ref: '#/components/parameters/queryIsHost'
       responses:
         '200':
-          description: Booking list response
+          description: The booking list response.
           content:
             application/json:
               schema:
@@ -31,16 +31,16 @@ paths:
                     properties:
                       count:
                         type: number
-                        description: Current records count
+                        description: The current records count.
                       total:
                         type: number
-                        description: Total number of records.
+                        description: The total number of records.
                       data:
                         type: array
                         items:
                           $ref: '#/components/schemas/BookingModel'
     post:
-      description: Creates a booking
+      description: Creates a booking.
       operationId: createBooking
       tags:
         - Bookings
@@ -48,7 +48,7 @@ paths:
         $ref: '#/components/requestBodies/createBooking'
       responses:
         '200':
-          description: Booking response
+          description: The booking response.
           content:
             application/json:
               schema:
@@ -57,9 +57,9 @@ paths:
                     type: string
                   result:
                     type: string
-                    description: Booking id
+                    description: The booking id.
         default:
-          description: Error Response
+          description: The error Response.
           content:
             application/json:
               schema:
