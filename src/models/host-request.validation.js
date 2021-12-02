@@ -1,6 +1,6 @@
 /**
  * @name - HostRequest validation
- * @description - HostRequest schema validator
+ * @description - HostRequest schema validator.
  */
 import Validator from 'fastest-validator';
 

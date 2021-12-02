@@ -1,6 +1,6 @@
 /**
  * @name - Trip tag schema
- * @description - This is mongoose schema for Trip tags collection
+ * @description - Mongoose schema for Trip tags collection.
  */
 import mongoose from 'mongoose';
 

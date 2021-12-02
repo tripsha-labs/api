@@ -1,6 +1,6 @@
 /**
  * @name - Connnection schema
- * @description - Mongouse schema for Connnection
+ * @description - Mongoose schema for Connnection.
  */
 
 import mongoose from 'mongoose';

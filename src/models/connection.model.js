@@ -1,6 +1,6 @@
 /**
  * @name - Connection model
- * @description - Mongouse DB model for Connection
+ * @description - Mongoose DB model for Connection.
  */
 import { Connection } from './';
 

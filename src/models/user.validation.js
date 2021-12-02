@@ -1,6 +1,6 @@
 /**
  * @name - User validator
- * @description - This is user schema validator
+ * @description - The user schema validator.
  */
 import Validator from 'fastest-validator';
 

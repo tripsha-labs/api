@@ -1,6 +1,6 @@
 /**
  * @name - Trip tags model
- * @description - This is trip -tags model, which handle mamage all trip related interest tags
+ * @description - Trip tag DB model, which manages all trip related interest tags.
  */
 import { TripTag } from './trip-tag.schema';
 

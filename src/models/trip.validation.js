@@ -1,6 +1,6 @@
 /**
  * @name - Trip validator
- * @description - This Trip schema validator
+ * @description - Trip schema validator.
  */
 import Validator from 'fastest-validator';
 import moment from 'moment';

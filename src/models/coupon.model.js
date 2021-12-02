@@ -1,6 +1,6 @@
 /**
  * @name - CouponModel model
- * @description - CouponModel db model
+ * @description - CouponModel DB model.
  */
 import { Coupon } from '.';
 

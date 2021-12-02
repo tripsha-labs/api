@@ -1,6 +1,6 @@
 /**
  * @name - Activity Logs schema
- * @description - This is mongoose activity logs schema
+ * @description - This is the mongoose activity logs schema.
  */
 import mongoose from 'mongoose';
 

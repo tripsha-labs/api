@@ -1,6 +1,6 @@
 /**
  * @name - HostRequest schema
- * @description - Mongouse schema for HostRequest
+ * @description - Mongoose schema for HostRequest.
  */
 
 import mongoose from 'mongoose';
