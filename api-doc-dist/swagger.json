@@ -119,11 +119,11 @@
         "properties": {
           "code": {
             "type": "string",
-            "description": "Code of the country"
+            "description": "Country code."
           },
           "name": {
             "type": "string",
-            "description": "Name of country"
+            "description": "Name of the country."
           }
         }
       },
@@ -135,7 +135,7 @@
           },
           "kindOfTripHostingOverview": {
             "type": "string",
-            "description": "Describe type of trip you planning to host"
+            "description": "Describe the type of trip you're planning to host."
           },
           "hostingCapacity": {
             "type": "string",
@@ -147,9 +147,9 @@
               "type": "string"
             }
           },
-          "targettingTypesOfTravelers": {
+          "targetingTypesOfTravelers": {
             "type": "string",
-            "description": "Hosting trip for kind of audience group?",
+            "description": "The kind of audience you are hosting a trip for.",
             "enum": [true, false]
           },
           "isActive": {
@@ -159,12 +159,12 @@
           },
           "groupTripHostingExperience": {
             "type": "string",
-            "description": "Host trip hosting experience",
+            "description": "The host's trip hosting experience.",
             "enum": ["professional", "intermediate", "beginner"]
           },
           "pastAccomplishmentReferences": {
             "type": "string",
-            "description": "Host past experiences reference links"
+            "description": "The host's past experiences reference links."
           },
           "status": {
             "type": "boolean",
@@ -1233,7 +1233,7 @@
       "queryStatus": {
         "name": "status",
         "in": "query",
-        "description": "List all the trips with status",
+        "description": "List all the trips with the status.",
         "schema": {
           "type": "string",
           "enum": ["draft", "published", "completed", "cancelled"]
@@ -1250,7 +1250,7 @@
       "queryIsHost": {
         "name": "isHost",
         "in": "query",
-        "description": "This will list the details as per the host permissions else it will list the details as normal user.",
+        "description": "This will list the details per the host permissions, otherwise it will list the details as normal user.",
         "schema": {
           "type": "boolean",
           "enum": [true, false]
@@ -1266,7 +1266,7 @@
     },
     "requestBodies": {
       "createHostRequest": {
-        "description": "Create host request payload",
+        "description": "Create a host request payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1274,7 +1274,7 @@
               "properties": {
                 "kindOfTripHostingOverview": {
                   "type": "string",
-                  "description": "Describe type of trip you planning to host"
+                  "description": "Describe the type of trip you're planning to host."
                 },
                 "hostingCapacity": {
                   "type": "string",
@@ -1283,9 +1283,9 @@
                 "hostingForCountries": {
                   "type": "array"
                 },
-                "targettingTypesOfTravelers": {
+                "targetingTypesOfTravelers": {
                   "type": "string",
-                  "description": "Hosting trip for kind of audience group?"
+                  "description": "The kind of audience you are hosting a trip for."
                 },
                 "groupTripHostingExperience": {
                   "type": "string",

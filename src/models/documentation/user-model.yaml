@@ -8,7 +8,7 @@ components:
       properties:
         _id:
           type: string
-          description: User Id
+          description: The user Id.
         username:
           type: string
         awsUsername:
@@ -59,7 +59,7 @@ components:
         isPhoneVerified:
           type: boolean
         isIdentityVerified:
-          type: boolean    
+          type: boolean
         isStripeAccountConnected:
           type: boolean
         isActive:
@@ -76,11 +76,7 @@ components:
           type: string
         isTripAgreed:
           type: boolean
-        isStripeAccountConnected:
-          type: boolean
         showDashboardTutorial:
-          type: boolean
-        hasFirstBooking:
           type: boolean
         isHostFirstLogin:
           type: boolean
