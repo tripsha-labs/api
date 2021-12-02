@@ -4,7 +4,7 @@
  */
 import { StripeAPI, logActivity, sendEmail } from '../../utils';
 import {
-  getCosting,
+  getCost,
   getBookingValidity,
   getDepositStatus,
   getDiscountStatus,
@@ -50,7 +50,7 @@ export class BookingController {
       // Payment validation and calculation
       bookingData['isDiscountApplicable'] = getDiscountStatus(trip);
       bookingData['isDepositApplicable'] = getDepositStatus(trip);
-      costing = getCosting(bookingData);
+      costing = getCost(bookingData);
     }
     const finalBookingData = {
       ...bookingData,
