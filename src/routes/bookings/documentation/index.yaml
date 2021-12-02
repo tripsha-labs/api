@@ -159,7 +159,7 @@ paths:
                 $ref: '#/components/schemas/CommonErrorFormat'
   /bookings/{bookingId}/payment:
     post:
-      description: Complete remamining payment action
+      description: Complete remaining payment action
       operationId: paymentAction
       tags:
         - Bookings
@@ -169,7 +169,7 @@ paths:
         $ref: '#/components/requestBodies/paymentAction'
       responses:
         '200':
-          description: Booking remamining payment response
+          description: Booking remaining payment response
           content:
             application/json:
               schema:
