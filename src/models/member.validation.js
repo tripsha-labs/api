@@ -13,7 +13,7 @@ const memberSchema = {
     enum: ['addMember', 'makeFavorite', 'removeMember', 'makeUnFavorite'],
   },
   message: { type: 'string', empty: true, optional: true },
-  forceAddTraveller: { type: 'boolean', empty: true, optional: true },
+  forceAddTraveler: { type: 'boolean', empty: true, optional: true },
   $$strict: true,
 };
 

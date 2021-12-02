@@ -25,7 +25,7 @@ export const EmailMessages = {
     `;
     },
   },
-  BOOKING_REQUEST_TRAVELLER: {
+  BOOKING_REQUEST_TRAVELER: {
     subject: 'You submitted a booking request',
     message: (bookingId, tripId, tripName) => {
       const booking_request_url = `${process.env.CLIENT_BASE_URL}/dashboard?request-trip=${bookingId}`;
@@ -66,7 +66,7 @@ export const EmailMessages = {
     `;
     },
   },
-  BOOKING_REQUEST_EXPIRED_TRAVELLER: {
+  BOOKING_REQUEST_EXPIRED_TRAVELER: {
     subject: 'Your booking request expired',
     message: (tripId, tripName) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
@@ -81,11 +81,11 @@ export const EmailMessages = {
   },
   BOOKING_REQUEST_EXPIRED_HOST: {
     subject: 'A booking request on your trip expired',
-    message: (tripId, tripName, travellerName) => {
+    message: (tripId, tripName, travelerName) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/dashboard?trip=${tripId}`;
       const log_url = `${process.env.CLIENT_BASE_URL}/dashboard?page=log`;
       return `
-      A booking request on <a href="${trip_url}" target="_blank">${tripName}</a> by ${travellerName} just expired. If you would still like to have ${travellerName} join your trip, you can ask them to resubmit a booking request. You can find a link to their profile on your activity log page <a href="${log_url}" target="_blank">${log_url}</a>
+      A booking request on <a href="${trip_url}" target="_blank">${tripName}</a> by ${travelerName} just expired. If you would still like to have ${travelerName} join your trip, you can ask them to resubmit a booking request. You can find a link to their profile on your activity log page <a href="${log_url}" target="_blank">${log_url}</a>
       <br/>
       <br/>
       As always you can message us from your Tripsha inbox if you need any assistance.
@@ -93,7 +93,7 @@ export const EmailMessages = {
     `;
     },
   },
-  BOOKING_REQUEST_WITHDRAWN_TRAVELLER: {
+  BOOKING_REQUEST_WITHDRAWN_TRAVELER: {
     subject: 'Your booking request was withdrawn',
     message: (tripId, tripName) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
@@ -108,10 +108,10 @@ export const EmailMessages = {
   },
   BOOKING_REQUEST_WITHDRAWN_HOST: {
     subject: 'A booking request on your trip has been withdrawn',
-    message: (tripId, tripName, travellerName) => {
+    message: (tripId, tripName, travelerName) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/dashboard?trip=${tripId}`;
       return `
-      A booking request by ${travellerName} on <a href="${trip_url}" target="_blank">${tripName}</a> has been withdrawn by the traveler. 
+      A booking request by ${travelerName} on <a href="${trip_url}" target="_blank">${tripName}</a> has been withdrawn by the traveler. 
       <br/>
       <br/>
       As always you can message us from your Tripsha inbox if you need any assistance.
@@ -119,7 +119,7 @@ export const EmailMessages = {
     `;
     },
   },
-  BOOKING_REQUEST_DECLINED_TRAVELLER: {
+  BOOKING_REQUEST_DECLINED_TRAVELER: {
     subject: 'Your booking request has been declined',
     message: (tripId, tripName) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
@@ -134,10 +134,10 @@ export const EmailMessages = {
   },
   BOOKING_REQUEST_DECLINED_HOST: {
     subject: 'Your booking request has been declined',
-    message: (tripId, tripName, travellerName) => {
+    message: (tripId, tripName, travelerName) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/dashboard?trip=${tripId}`;
       return `
-      You have declined ${travellerName}'a booking request on <a href="${trip_url}" target="_blank">${tripName}</a>. If you would like, you can message the traveler with an explanation for your decision. 
+      You have declined ${travelerName}'a booking request on <a href="${trip_url}" target="_blank">${tripName}</a>. If you would like, you can message the traveler with an explanation for your decision. 
       <br/>
       <br/>
       As always you can message us from your Tripsha inbox if you need any assistance.
@@ -145,7 +145,7 @@ export const EmailMessages = {
     `;
     },
   },
-  BOOKING_REQUEST_ACCEPTED_TRAVELLER: {
+  BOOKING_REQUEST_ACCEPTED_TRAVELER: {
     subject: 'Get ready to travel!',
     message: (tripId, tripName) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/dashboard?confirm-trip=${tripId}`;
@@ -161,10 +161,10 @@ export const EmailMessages = {
   },
   BOOKING_REQUEST_ACCEPTED_HOST: {
     subject: 'Booking accepted',
-    message: (tripId, tripName, travellerName) => {
+    message: (tripId, tripName, travelerName) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/dashboard?trip=${tripId}`;
       return `
-      You accepted a booking request on <a href="${trip_url}" target="_blank">${tripName}</a>. ${travellerName} has been added as an attendee on the trip. 
+      You accepted a booking request on <a href="${trip_url}" target="_blank">${tripName}</a>. ${travelerName} has been added as an attendee on the trip. 
       <br/>
       <br/>
       As always you can message us from your Tripsha inbox if you need any assistance.

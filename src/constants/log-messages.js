@@ -17,175 +17,175 @@ export const LogMessages = {
   TRIP_PUBLISHED: trip_name => {
     return { message: `Trip ${trip_name} published.`, type: 'Trip' };
   },
-  BOOKING_REQUEST_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_TRAVELER: trip_name => {
     return {
       message: `You submitted a booking request for ${trip_name}.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_HOST: (traveler_name, trip_name) => {
     return {
-      message: `${traveller_name} submitted a booking request for ${trip_name}.`,
+      message: `${traveler_name} submitted a booking request for ${trip_name}.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_WITHDRAW_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_WITHDRAW_TRAVELER: trip_name => {
     return {
       message: `You withdrew your booking request for ${trip_name}.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_WITHDRAW_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_WITHDRAW_HOST: (traveler_name, trip_name) => {
     return {
-      message: `${traveller_name} withdrew a booking request for ${trip_name}.`,
+      message: `${traveler_name} withdrew a booking request for ${trip_name}.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_EXPIRED_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_EXPIRED_TRAVELER: trip_name => {
     return {
       message: `Your booking request for ${trip_name} expired.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_EXPIRED_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_EXPIRED_HOST: (traveler_name, trip_name) => {
     return {
-      message: `${traveller_name} booking request for ${trip_name} expired.`,
+      message: `${traveler_name} booking request for ${trip_name} expired.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_APPROVE_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_APPROVE_TRAVELER: trip_name => {
     return {
       message: `Your booking request for ${trip_name} was accepted.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_APPROVE_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_APPROVE_HOST: (traveler_name, trip_name) => {
     return {
-      message: `You accepted ${traveller_name}'s booking request for ${trip_name}. `,
+      message: `You accepted ${traveler_name}'s booking request for ${trip_name}. `,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_DECLINE_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_DECLINE_TRAVELER: trip_name => {
     return {
       message: `Your request to join ${trip_name} was declined.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_DECLINE_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_DECLINE_HOST: (traveler_name, trip_name) => {
     return {
-      message: `You declined ${traveller_name}'s request to join ${trip_name}.`,
+      message: `You declined ${traveler_name}'s request to join ${trip_name}.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_HOST: (traveler_name, trip_name) => {
     return {
-      message: `Partial payment for ${traveller_name} booking on ${trip_name} received.`,
+      message: `Partial payment for ${traveler_name} booking on ${trip_name} received.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_TRAVELLER: trip_name => {
-    return {
-      message: `You made partial payment for ${trip_name}.`,
-      type: 'Booking',
-    };
-  },
-  BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_HOST: (traveller_name, trip_name) => {
-    return {
-      message: `Full payment for ${traveller_name} booking on ${trip_name} received.`,
-      type: 'Booking',
-    };
-  },
-  BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_TRAVELLER: trip_name => {
-    return {
-      message: `You made full payment for ${trip_name}.`,
-      type: 'Booking',
-    };
-  },
-  BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_HOST: (traveller_name, trip_name) => {
-    return {
-      message: `Partial payment for ${traveller_name} booking on ${trip_name} received.`,
-      type: 'Booking',
-    };
-  },
-  BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_TRAVELER: trip_name => {
     return {
       message: `You made partial payment for ${trip_name}.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_FULL_PAYMENT_FAILED_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_HOST: (traveler_name, trip_name) => {
     return {
-      message: `Full payment for ${traveller_name} booking on ${trip_name} received.`,
+      message: `Full payment for ${traveler_name} booking on ${trip_name} received.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_FULL_PAYMENT_FAILED_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_TRAVELER: trip_name => {
     return {
       message: `You made full payment for ${trip_name}.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_HOST: (traveler_name, trip_name) => {
     return {
-      message: `${traveller_name} balance payment towards ${trip_name} was successful.`,
+      message: `Partial payment for ${traveler_name} booking on ${trip_name} received.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_TRAVELER: trip_name => {
+    return {
+      message: `You made partial payment for ${trip_name}.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_FULL_PAYMENT_FAILED_HOST: (traveler_name, trip_name) => {
+    return {
+      message: `Full payment for ${traveler_name} booking on ${trip_name} received.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_FULL_PAYMENT_FAILED_TRAVELER: trip_name => {
+    return {
+      message: `You made full payment for ${trip_name}.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST: (traveler_name, trip_name) => {
+    return {
+      message: `${traveler_name} balance payment towards ${trip_name} was successful.`,
+      type: 'Booking',
+    };
+  },
+  BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELER: trip_name => {
     return {
       message: `Your balance payment towards ${trip_name} was successful.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELLER: trip_name => {
+  BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELER: trip_name => {
     return {
       message: `Your balance payment towards ${trip_name} was unsuccessful.`,
       type: 'Booking',
     };
   },
-  BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_HOST: (traveller_name, trip_name) => {
+  BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_HOST: (traveler_name, trip_name) => {
     return {
-      message: `A balance payment by ${traveller_name} towards ${trip_name} was unsuccessful.`,
+      message: `A balance payment by ${traveler_name} towards ${trip_name} was unsuccessful.`,
       type: 'Booking',
     };
   },
-  TRAVELLER_LEFT_TRIP_HOST: (traveller_name, trip_name) => {
+  TRAVELER_LEFT_TRIP_HOST: (traveler_name, trip_name) => {
     return {
-      message: `Your traveler ${traveller_name} has left the ${trip_name}.`,
+      message: `Your traveler ${traveler_name} has left the ${trip_name}.`,
       type: 'Membership',
     };
   },
-  TRAVELLER_LEFT_TRIP_TRAVELLER: trip_name => {
+  TRAVELER_LEFT_TRIP_TRAVELER: trip_name => {
     return {
       message: `You have successfully left the trip ${trip_name}.`,
       type: 'Membership',
     };
   },
-  HOST_MEMBER_REMOVAL_REQUEST_HOST: (traveller_name, trip_name) => {
+  HOST_MEMBER_REMOVAL_REQUEST_HOST: (traveler_name, trip_name) => {
     return {
-      message: `Your request for the removal of ${traveller_name} from your trip ${trip_name} has been sent. You will be notified shortly by the Tripsha Team the status of the request.`,
+      message: `Your request for the removal of ${traveler_name} from your trip ${trip_name} has been sent. You will be notified shortly by the Tripsha Team the status of the request.`,
       type: 'Membership',
     };
   },
-  TRAVELLER_MEMBER_REMOVAL_REQUEST_APPROVED_HOST: (
-    traveller_name,
+  TRAVELER_MEMBER_REMOVAL_REQUEST_APPROVED_HOST: (
+    traveler_name,
     trip_name
   ) => {
     return {
-      message: `Your request for the removal ${traveller_name} traveler has been approved. This traveler is no longer attending ${trip_name}.`,
+      message: `Your request for the removal ${traveler_name} traveler has been approved. This traveler is no longer attending ${trip_name}.`,
       type: 'Membership',
     };
   },
-  TRAVELLER_MEMBER_REMOVAL_REQUEST_APPROVED_HOST: (
-    traveller_name,
+  TRAVELER_MEMBER_REMOVAL_REQUEST_APPROVED_HOST: (
+    traveler_name,
     trip_name
   ) => {
     return {
-      message: `Your request for the removal ${traveller_name} traveler has been approved. This traveler is no longer attending ${trip_name}.`,
+      message: `Your request for the removal ${traveler_name} traveler has been approved. This traveler is no longer attending ${trip_name}.`,
       type: 'Membership',
     };
   },
-  TRAVELLER_ADDED_IN_TRIP_BY_HOST: trip_name => {
+  TRAVELER_ADDED_IN_TRIP_BY_HOST: trip_name => {
     return {
       message: `You have been added to  ${trip_name} by the host.`,
       type: 'Membership',

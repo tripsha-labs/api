@@ -122,9 +122,9 @@ const archiveBookingRequest = async () => {
         const trip = await TripModel.getById(booking.tripId);
         const member = await UserModel.getById(booking.memberId);
         const tripOwner = await UserModel.getById(trip.ownerId);
-        // Traveller activity record
+        // Traveler activity record
         await logActivity({
-          ...LogMessages.BOOKING_REQUEST_EXPIRED_TRAVELLER(trip['title']),
+          ...LogMessages.BOOKING_REQUEST_EXPIRED_TRAVELER(trip['title']),
           tripId: trip._id.toString(),
           audienceIds: [member._id.toString()],
           userId: tripOwner._id.toString(),
@@ -139,12 +139,12 @@ const archiveBookingRequest = async () => {
           audienceIds: [tripOwner._id.toString()],
           userId: tripOwner._id.toString(),
         });
-        // Traveller email
+        // Traveler email
         await sendEmail({
           emails: [member['email']],
           name: member['firstName'],
-          subject: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELLER.subject,
-          message: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELLER.message(
+          subject: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER.subject,
+          message: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER.message(
             trip._id.toString(),
             trip['title']
           ),
