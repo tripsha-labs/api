@@ -274,9 +274,11 @@ export class TripController {
       const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.UNAUTHORIZED;
       if (!tripDetails) throw ERROR_KEYS.TRIP_NOT_FOUND;
-
       if (
-        !(tripDetails['ownerId'] === user['_id'] || user['isAdmin'] === true)
+        !(
+          tripDetails['ownerId'].toString() === user['_id'].toString() ||
+          user['isAdmin'] === true
+        )
       ) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
