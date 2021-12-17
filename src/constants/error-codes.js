@@ -56,7 +56,7 @@ export const ERROR_KEYS = {
   MEMBER_ALREADY_EXISTS: {
     type: 'memberExists',
     message:
-      'Whoops! Looks like that username already exists! Please select a different one and try again.',
+      'Whoops! Looks like that member already exists! Please select a different one and try again.',
     code: 400,
   },
   USER_ALREADY_EXISTS: {

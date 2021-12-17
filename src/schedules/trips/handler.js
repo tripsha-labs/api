@@ -8,6 +8,7 @@ import {
   BookingModel,
   UserModel,
 } from '../../models';
+import { removeAddonResources, removeRoomResources } from '../../helpers';
 
 const archiveTrip = async () => {
   console.log('Archiving trips...');
@@ -119,7 +120,13 @@ const archiveBookingRequest = async () => {
         await BookingModel.update(booking._id, {
           status: 'expired',
         });
+        const tripUpdate = {};
         const trip = await TripModel.getById(booking.tripId);
+        tripUpdate['rooms'] = removeRoomResources(booking, trip, ['reserved']);
+        tripUpdate['addOns'] = removeAddonResources(booking, trip, [
+          'reserved',
+        ]);
+        await TripModel.update(trip._id, tripUpdate);
         const member = await UserModel.getById(booking.memberId);
         const tripOwner = await UserModel.getById(trip.ownerId);
         // Traveler activity record
