@@ -95,7 +95,7 @@
           "totalFare": {
             "type": "number"
           },
-          "pendingAmout": {
+          "pendingAmount": {
             "type": "number"
           },
           "paymentHistory": {

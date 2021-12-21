@@ -49,7 +49,7 @@ components:
           type: number
         totalFare:
           type: number
-        pendingAmout:
+        pendingAmount:
           type: number
         paymentHistory:
           type: array

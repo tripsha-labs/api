@@ -56,7 +56,7 @@ export class BookingController {
       ...bookingData,
       ...costing,
     };
-    if (finalBookingData['pendingAmout'] === 0) {
+    if (finalBookingData['pendingAmount'] === 0) {
       finalBookingData['paymentStatus'] = 'full';
     }
     const existingBooking = await BookingModel.get({
@@ -133,7 +133,7 @@ export class BookingController {
       totalFare: 1,
       currentDue: 1,
       paidAmout: 1,
-      pendingAmout: 1,
+      pendingAmount: 1,
       paymentHistory: 1,
       stripePaymentMethod: 1,
       attendees: 1,
@@ -262,8 +262,8 @@ export class BookingController {
                 bookingUpdate = {
                   paymentHistory: booking.paymentHistory,
                   paidAmout: booking.currentDue,
-                  currentDue: booking.pendingAmout,
-                  pendingAmout: 0,
+                  currentDue: booking.pendingAmount,
+                  pendingAmount: 0,
                   status: 'approved',
                 };
                 if (booking.paymentStatus == 'deposit') {
@@ -374,7 +374,7 @@ export class BookingController {
               status: 'approved',
               paidAmout: 0,
               currentDue: 0,
-              pendingAmout: 0,
+              pendingAmount: 0,
             };
           }
           await BookingModel.update(booking._id, bookingUpdate);
@@ -581,7 +581,7 @@ export class BookingController {
             };
 
             bookingUpdate['paidAmout'] = booking.paidAmout + booking.currentDue;
-            bookingUpdate['pendingAmout'] = 0;
+            bookingUpdate['pendingAmount'] = 0;
             bookingUpdate['currentDue'] = 0;
             bookingUpdate['paymentStatus'] = 'full';
 
@@ -650,7 +650,7 @@ export class BookingController {
       totalFare: 1,
       currentDue: 1,
       paidAmout: 1,
-      pendingAmout: 1,
+      pendingAmount: 1,
       paymentHistory: 1,
       stripePaymentMethod: 1,
       attendees: 1,

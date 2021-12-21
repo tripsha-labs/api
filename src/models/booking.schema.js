@@ -51,7 +51,7 @@ const bookingSchema = new mongoose.Schema(
     totalFare: { type: Number, default: 0 },
     currentDue: { type: Number, default: 0 },
     paidAmout: { type: Number, default: 0 },
-    pendingAmout: { type: Number, default: 0 },
+    pendingAmount: { type: Number, default: 0 },
     paymentHistory: { type: Array },
     addedByHost: { type: Boolean, default: false },
     tripPaymentType: { type: String },

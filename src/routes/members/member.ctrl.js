@@ -105,7 +105,7 @@ export class MemberController {
                       totalFare: 0,
                       currentDue: 0,
                       paidAmout: 0,
-                      pendingAmout: 0,
+                      pendingAmount: 0,
                       paymentHistory: [],
                       tripId: tripId,
                       attendees: 1,
