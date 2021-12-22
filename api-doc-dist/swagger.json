@@ -147,7 +147,7 @@
               "type": "string"
             }
           },
-          "targetingTypesOfTravelers": {
+          "targettingTypesOfTravelers": {
             "type": "string",
             "description": "The kind of audience you are hosting a trip for.",
             "enum": [true, false]
@@ -387,7 +387,7 @@
                 "title": {
                   "type": "string"
                 },
-                "description": {
+                "desciption": {
                   "type": "string"
                 },
                 "imageUrl": {
@@ -881,7 +881,7 @@
                 "title": {
                   "type": "string"
                 },
-                "description": {
+                "desciption": {
                   "type": "string"
                 },
                 "imageUrl": {
@@ -1283,7 +1283,7 @@
                 "hostingForCountries": {
                   "type": "array"
                 },
-                "targetingTypesOfTravelers": {
+                "targettingTypesOfTravelers": {
                   "type": "string",
                   "description": "The kind of audience you are hosting a trip for."
                 },

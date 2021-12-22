@@ -12,7 +12,7 @@ const hostRequestSchema = {
     required: true,
     items: { type: 'string' },
   },
-  targetingTypesOfTravelers: { type: 'string', required: true },
+  targettingTypesOfTravelers: { type: 'string', required: true },
   groupTripHostingExperience: { type: 'string', required: true },
   pastAccomplishmentReferences: { type: 'string', optional: true },
   $$strict: true,

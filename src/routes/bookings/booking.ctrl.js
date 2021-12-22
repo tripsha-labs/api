@@ -215,7 +215,7 @@ export class BookingController {
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
-    const { action, forceAddTraveler } = params || {};
+    const { action, forceAddTraveller } = params || {};
     if (action) {
       switch (action) {
         // host
@@ -228,7 +228,7 @@ export class BookingController {
           }
           if (
             trip.spotsAvailable - booking.attendees < 0 &&
-            !forceAddTraveler
+            !forceAddTraveller
           ) {
             throw ERROR_KEYS.TRIP_IS_FULL_HOST;
           }
@@ -381,7 +381,7 @@ export class BookingController {
           await MemberController.memberAction({
             tripId: booking.tripId,
             action: 'addMember',
-            forceAddTraveler: forceAddTraveler,
+            forceAddTraveller: forceAddTraveller,
             memberIds: [booking.memberId],
             bookingId: bookingId,
             awsUserId: awsUserId,

@@ -159,7 +159,7 @@ export const hostBookingActionValidation = new Validator().compile({
     enum: ['approve', 'decline', 'withdraw'],
     empty: false,
   },
-  forceAddTraveler: { type: 'boolean', empty: true, optional: true },
+  forceAddTraveller: { type: 'boolean', empty: true, optional: true },
   reason: { type: 'string', empty: true, optional: true },
   $$strict: 'remove',
 });
