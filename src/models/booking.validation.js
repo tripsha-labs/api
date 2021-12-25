@@ -10,14 +10,26 @@ const bookingSchema = {
   paymentMethod: { type: 'string', empty: false, optional: true },
   currency: { type: 'string', optional: true, default: 'USD' },
   attendees: { type: 'number', empty: false, min: 1 },
-  room: {
-    type: 'object',
+  rooms: {
+    type: 'array',
     optional: true,
-    props: {
-      id: { type: 'string' },
-      name: { type: 'string' },
-      cost: { type: 'number' },
-      available: { type: 'number' },
+    items: {
+      type: 'object',
+      props: {
+        variant: {
+          type: 'object',
+          props: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            cost: { type: 'number' },
+            available: { type: 'number' },
+          },
+        },
+        room: {
+          type: 'object',
+        },
+        attendees: { type: 'number' },
+      },
     },
   },
   addOns: {
@@ -30,6 +42,7 @@ const bookingSchema = {
         name: { type: 'string' },
         cost: { type: 'number' },
         available: { type: 'number' },
+        attendees: { type: 'number' },
       },
     },
   },
@@ -48,6 +61,36 @@ const bookingSchema = {
       includeAddOns: { type: 'boolean' },
     },
   },
+  questions: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        questionText: { type: 'string' },
+        type: {
+          type: 'enum',
+          values: ['OneLine', 'MultiLine', 'OneChoice', 'MultiChoice'],
+        },
+        options: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              optionText: { type: 'string' },
+            },
+          },
+        },
+        isRequired: { type: 'boolean' },
+        infoText: { type: 'string', optional: true },
+        showOtherOption: { type: 'boolean', optional: true, default: false },
+        showOtherText: { type: 'string', optional: true, default: 'Other' },
+      },
+    },
+  },
   discount: {
     type: 'object',
     optional: true,
@@ -57,6 +100,17 @@ const bookingSchema = {
       amount: { type: 'number' },
       expirationDate: { type: 'number' },
       includeAddOns: { type: 'boolean' },
+    },
+  },
+  coupon: {
+    type: 'object',
+    optional: true,
+    props: {
+      name: { type: 'string' },
+      discType: { type: 'enum', values: ['amount', 'percentage'] },
+      amount: { type: 'number' },
+      couponCode: { type: 'string' },
+      _id: { type: 'string' },
     },
   },
   guests: {
@@ -75,8 +129,29 @@ const bookingSchema = {
   },
   $$strict: 'remove',
 };
-
+const updateBookingSchema = {
+  message: { type: 'string', optional: true },
+  guests: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        relationship: { type: 'string' },
+        username: { type: 'string', optional: true },
+      },
+    },
+  },
+  $$strict: 'remove',
+};
 export const createBookingValidation = new Validator().compile(bookingSchema);
+
+export const updateBookingValidation = new Validator().compile(
+  updateBookingSchema
+);
 
 export const hostBookingActionValidation = new Validator().compile({
   action: {

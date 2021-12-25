@@ -15,7 +15,12 @@ import {
   getCurrentUser,
 } from '../../utils';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
-import { createCognitoUser, setUserPassword } from '../../utils';
+import {
+  createCognitoUser,
+  setUserPassword,
+  enableUser,
+  disableUser,
+} from '../../utils';
 import { updateUserValidation, adminUpdateUserValidation } from '../../models';
 
 /**
@@ -36,7 +41,8 @@ export const inviteUser = async (req, res) => {
           field: 'password',
         };
       params['email'] = params['email'].toLowerCase();
-      params['username'] = params['username'] || params['email'].split('@')[0];
+      params['username'] =
+        params['username'].toLowerCase() || params['email'].split('@')[0];
       const exists = await _check_username_exists(
         params['email'],
         params['username']
@@ -213,6 +219,7 @@ export const createUser = async (req, res) => {
             ? [user.awsUserId, userInfo.awsUserId]
             : [userInfo.awsUserId];
       }
+      createUserPayload['isEmailVerified'] = true;
       result = await UserController.updateUserByEmail(
         user.email,
         createUserPayload
@@ -225,10 +232,10 @@ export const createUser = async (req, res) => {
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
       result = await UserController.createUser(createUserPayload);
-      await subscribeUserToMailchimpAudience({
-        name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
-        email: createUserPayload.email,
-      });
+      // await subscribeUserToMailchimpAudience({
+      //   name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
+      //   email: createUserPayload.email,
+      // });
       // Add support user in the conversation
       await MessageController.addSupportMember(userInfo.awsUserId);
     }
@@ -251,10 +258,13 @@ export const getUser = async (req, res) => {
       ? req.requestContext.identity.cognitoIdentityId
       : req.params.id;
   try {
-    const result = await UserController.getUser(urldecode(userId), {
+    const select = {
       stripeAccountId: 0,
-      stripeCustomerId: 0,
-    });
+    };
+    if (req.params.id !== 'me') {
+      select['stripeCustomerId'] = 0;
+    }
+    const result = await UserController.getUser(urldecode(userId), select);
     return successResponse(res, result);
   } catch (error) {
     if (req.params.id != 'me') {
@@ -280,6 +290,12 @@ const _check_username_exists = async (email, username) => {
     email: { $ne: email },
   });
   return userExists;
+};
+
+const _check_email_exists = async email => {
+  return await UserController.isExists({
+    email: email,
+  });
 };
 
 const _get_unique_username = async (email, username) => {
@@ -357,6 +373,19 @@ export const isUserExists = async (req, res) => {
   }
 };
 
+export const isEmailExists = async (req, res) => {
+  try {
+    const data = req.body;
+    if (!(data && data.email))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+    const exists = await _check_email_exists(data['email']);
+    return successResponse(res, exists);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
 export const subscribeUser = async (req, res) => {
   try {
     const data = req.body;
@@ -395,6 +424,33 @@ export const unsubscribeUser = async (req, res) => {
 
     return successResponse(res, 'success');
   } catch (error) {
+    return failureResponse(res, error);
+  }
+};
+
+export const adminUserAction = async (req, res) => {
+  try {
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser && currentUser.isAdmin) {
+      const params = req.body || {};
+      switch (params.action) {
+        case 'enable':
+          await enableUser(req, params);
+          break;
+        case 'disable':
+          await disableUser(req, params);
+          break;
+        default:
+          console.log('invalid action');
+      }
+      return successResponse(res, 'success');
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
+  } catch (error) {
+    console.log(error);
     return failureResponse(res, error);
   }
 };

@@ -11,6 +11,7 @@ import {
   updateUser,
   deleteUser,
   getUserByUsername,
+  isEmailExists,
 } from './handler';
 
 router.get('/', listUser);
@@ -19,6 +20,7 @@ router.post('/invite', inviteUser);
 router.get('/search-users', listUser);
 router.get('/username/:username', getUserByUsername);
 router.post('/check-user-exists', isUserExists);
+router.post('/check-email-exists', isEmailExists);
 router.post('/subscribe', subscribeUser);
 router.post('/unsubscribe', unsubscribeUser);
 router.get('/:id', getUser);

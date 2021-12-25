@@ -9,6 +9,11 @@ import {
   getDepositStatus,
   getDiscountStatus,
   prepareSortFilter,
+  addRoomResources,
+  addAddonResources,
+  removeAddonResources,
+  removeRoomResources,
+  getTripResourceValidity,
 } from '../../helpers';
 import { BookingModel, UserModel, TripModel } from '../../models';
 import {
@@ -51,11 +56,23 @@ export class BookingController {
       ...bookingData,
       ...costing,
     };
+    if (finalBookingData['pendingAmout'] === 0) {
+      finalBookingData['paymentStatus'] = 'full';
+    }
+    const existingBooking = await BookingModel.get({
+      tripId: finalBookingData['tripId'],
+      memberId: finalBookingData['memberId'],
+      status: { $in: ['approved', 'pending'] },
+    });
+    if (existingBooking) throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
+    const status = getTripResourceValidity(trip, bookingData);
+    if (status.rooms && status.addOns) throw ERROR_KEYS.TRIP_RESOURCES_FULL;
+    const booking = await BookingModel.create(finalBookingData);
     const tripUpdate = {
       isLocked: true,
+      rooms: addRoomResources(bookingData, trip, ['reserved']),
+      addOns: addAddonResources(bookingData, trip, ['reserved']),
     };
-    const booking = await BookingModel.create(finalBookingData);
-
     await TripModel.update(trip._id, tripUpdate);
     // Traveller activity record
     await logActivity({
@@ -120,7 +137,7 @@ export class BookingController {
       paymentHistory: 1,
       stripePaymentMethod: 1,
       attendees: 1,
-      room: 1,
+      rooms: 1,
       paymentStatus: 1,
       message: 1,
       deposit: 1,
@@ -221,15 +238,18 @@ export class BookingController {
               throw ERROR_KEYS.INVALID_ACTION;
             }
             try {
-              const paymentIntent = await StripeAPI.createPaymentIntent({
-                amount: parseInt(booking.currentDue * 100),
-                currency: booking.currency,
-                customerId: booking.memberStripeId,
-                paymentMethod: booking.stripePaymentMethod.id,
-                confirm: true,
-                beneficiary: booking.onwerStripeId,
-                hostShare: user.hostShare,
-              });
+              let paymentIntent = true;
+              if (booking.currentDue > 1) {
+                paymentIntent = await StripeAPI.createPaymentIntent({
+                  amount: parseInt(booking.currentDue * 100),
+                  currency: booking.currency,
+                  customerId: booking.memberStripeId,
+                  paymentMethod: booking.stripePaymentMethod.id,
+                  confirm: true,
+                  beneficiary: booking.onwerStripeId,
+                  hostShare: user.hostShare,
+                });
+              }
 
               if (paymentIntent) {
                 booking.paymentHistory.push({
@@ -400,6 +420,12 @@ export class BookingController {
             status: 'declined',
           };
           await BookingModel.update(booking._id, bookingUpdate);
+          tripUpdate['rooms'] = removeRoomResources(booking, trip, [
+            'reserved',
+          ]);
+          tripUpdate['addOns'] = removeAddonResources(booking, trip, [
+            'reserved',
+          ]);
           // Traveller
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELLER(trip['title']),
@@ -454,6 +480,12 @@ export class BookingController {
           await BookingModel.update(booking._id, {
             status: 'withdrawn',
           });
+          tripUpdate['rooms'] = removeRoomResources(booking, trip, [
+            'reserved',
+          ]);
+          tripUpdate['addOns'] = removeAddonResources(booking, trip, [
+            'reserved',
+          ]);
           // traveller
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELLER(trip['title']),
@@ -557,17 +589,17 @@ export class BookingController {
             await logActivity({
               ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST(
                 `${memberInfo.firstName} ${memberInfo.lastName}`,
-                trip['title']
+                tripInfo['title']
               ),
-              tripId: trip._id.toString(),
-              audienceIds: [user._id.toString()],
+              tripId: tripInfo._id.toString(),
+              audienceIds: [ownerInfo._id.toString()],
               userId: user._id.toString(),
             });
             await logActivity({
               ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELLER(
-                trip['title']
+                tripInfo['title']
               ),
-              tripId: trip._id.toString(),
+              tripId: tripInfo._id.toString(),
               audienceIds: [memberInfo._id.toString()],
               userId: user._id.toString(),
             });
@@ -579,17 +611,17 @@ export class BookingController {
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_HOST(
               `${memberInfo.firstName} ${memberInfo.lastName}`,
-              trip['title']
+              tripInfo['title']
             ),
-            tripId: trip._id.toString(),
+            tripId: tripInfo._id.toString(),
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELLER(
-              trip['title']
+              tripInfo['title']
             ),
-            tripId: trip._id.toString(),
+            tripId: tripInfo._id.toString(),
             audienceIds: [memberInfo._id.toString()],
             userId: user._id.toString(),
           });
@@ -622,7 +654,7 @@ export class BookingController {
       paymentHistory: 1,
       stripePaymentMethod: 1,
       attendees: 1,
-      room: 1,
+      rooms: 1,
       paymentStatus: 1,
       message: 1,
       deposit: 1,

@@ -16,7 +16,8 @@ const bookingSchema = new mongoose.Schema(
     // booking details
     currency: { type: String, default: 'US' },
     attendees: { type: Number },
-    room: { type: Object },
+    rooms: { type: Array },
+    questions: { type: Array },
     addOns: { type: Array },
     guests: { type: Array },
     message: { type: String },
@@ -27,6 +28,7 @@ const bookingSchema = new mongoose.Schema(
     },
     deposit: { type: Object },
     discount: { type: Object },
+    coupon: { type: Object },
     status: {
       type: String,
       enum: [
@@ -53,6 +55,8 @@ const bookingSchema = new mongoose.Schema(
     paymentHistory: { type: Array },
     addedByHost: { type: Boolean, default: false },
     tripPaymentType: { type: String },
+    is48hEmailSent: { type: Boolean, default: false },
+    is24hEmailSent: { type: Boolean, default: false },
   },
   {
     timestamps: true,

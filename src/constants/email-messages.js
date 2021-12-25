@@ -1,4 +1,16 @@
 export const EmailMessages = {
+  USER_SIGNUP: {
+    subject: 'Your trip has been published',
+    message: name => {
+      return `
+      ${name}
+      <br/>
+      <br/>
+      As always you can message us from your Tripsha inbox if you need any assistance.
+      <br/>
+    `;
+    },
+  },
   TRIP_PUBLISHED: {
     subject: 'Your trip has been published',
     message: (tripId, tripName) => {
@@ -73,7 +85,7 @@ export const EmailMessages = {
       const trip_url = `${process.env.CLIENT_BASE_URL}/dashboard?trip=${tripId}`;
       const log_url = `${process.env.CLIENT_BASE_URL}/dashboard?page=log`;
       return `
-      A booking request on <a href="${trip_url}" target="_blank">${tripName}</a> by ${travellerName} just expired. If you would still like to have [Traveler name] join your trip, you can ask them to resubmit a booking request. You can find a link to their profile on your activity log page <a href="${log_url}" target="_blank">${log_url}</a>
+      A booking request on <a href="${trip_url}" target="_blank">${tripName}</a> by ${travellerName} just expired. If you would still like to have ${travellerName} join your trip, you can ask them to resubmit a booking request. You can find a link to their profile on your activity log page <a href="${log_url}" target="_blank">${log_url}</a>
       <br/>
       <br/>
       As always you can message us from your Tripsha inbox if you need any assistance.

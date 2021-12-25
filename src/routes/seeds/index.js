@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-import { seeds } from './handler';
+import { seeds, airtable } from './handler';
 
 router.get('/', seeds);
+// router.get('/', airtable);
 
 export default router;

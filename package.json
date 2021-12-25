@@ -7,9 +7,9 @@
     "individually": false
   },
   "scripts": {
-    "offline": "sls offline start --debugOffline --stage=staging",
-    "deploy": "sls deploy --stage=staging",
-    "remove": "sls remove --stage=staging",
+    "offline": "sls offline start --debugOffline --stage=dev",
+    "deploy": "sls deploy --stage=dev",
+    "remove": "sls remove --stage=dev",
     "deploy:staging": "sls deploy --stage=staging",
     "remove:staging": "sls remove --stage=staging",
     "deploy:prod": "sls deploy --stage=prod-api",
@@ -63,6 +63,7 @@
     "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
     "@babel/runtime": "^7.12.5",
+    "airtable": "^0.11.1",
     "axios": "^0.21.1",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.2.2",

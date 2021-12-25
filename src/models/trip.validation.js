@@ -29,7 +29,7 @@ const tripSchema = {
   minGroupSize: {
     type: 'number',
     min: 2,
-    max: 20,
+    max: 500,
     empty: false,
     positive: true,
     integer: true,
@@ -37,7 +37,7 @@ const tripSchema = {
   maxGroupSize: {
     type: 'number',
     min: 2,
-    max: 20,
+    max: 500,
     empty: false,
     positive: true,
     integer: true,
@@ -45,7 +45,7 @@ const tripSchema = {
   externalCount: {
     type: 'number',
     min: 0,
-    max: 20,
+    max: 500,
     empty: false,
     integer: true,
   },
@@ -78,9 +78,9 @@ const tripSchema = {
       optional: true,
       props: {
         id: { type: 'string' },
-        title: { type: 'string' },
-        description: { type: 'string' },
-        imageUrl: { type: 'string' },
+        title: { type: 'string', optional: true },
+        description: { type: 'string', optional: true },
+        imageUrl: { type: 'string', optional: true },
       },
     },
   },
@@ -92,8 +92,32 @@ const tripSchema = {
       props: {
         id: { type: 'string' },
         name: { type: 'string' },
-        cost: { type: 'number' },
-        available: { type: 'number' },
+        primaryPictureId: { type: 'string' },
+        variants: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              cost: { type: 'number' },
+              available: { type: 'number' },
+            },
+          },
+        },
+        pictureUrls: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              caption: { type: 'string' },
+              url: { type: 'string' },
+            },
+          },
+        },
       },
     },
   },
@@ -140,6 +164,36 @@ const tripSchema = {
         amount: { type: 'number' },
         expirationDate: { type: 'number' },
         includeAddOns: { type: 'boolean' },
+      },
+    },
+  },
+  questions: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        questionText: { type: 'string' },
+        type: {
+          type: 'enum',
+          values: ['OneLine', 'MultiLine', 'OneChoice', 'MultiChoice'],
+        },
+        options: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              optionText: { type: 'string' },
+            },
+          },
+        },
+        isRequired: { type: 'boolean' },
+        infoText: { type: 'string', optional: true },
+        showOtherOption: { type: 'boolean', optional: true, default: false },
+        showOtherText: { type: 'string', optional: true, default: 'Other' },
       },
     },
   },

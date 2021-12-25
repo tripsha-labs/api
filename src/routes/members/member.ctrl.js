@@ -15,6 +15,12 @@ import {
 } from '../../models';
 import { logActivity } from '../../utils';
 import { ERROR_KEYS, LogMessages } from '../../constants';
+import {
+  addAddonResources,
+  addRoomResources,
+  removeAddonResources,
+  removeRoomResources,
+} from '../../helpers';
 
 export class MemberController {
   static async markForRemove(params, remove_requested) {
@@ -75,37 +81,21 @@ export class MemberController {
                     if (booking && booking.attendees > 1) {
                       guestCount = guestCount + booking.attendees - 1;
                     }
-                    if (booking.room) {
-                      tripUpdate['rooms'] = [];
-                      trip.rooms.forEach(room => {
-                        if (room.id == booking.room.id) {
-                          const filledCount = room['filled']
-                            ? room['filled'] + booking.attendees
-                            : booking.attendees;
-                          room['filled'] = filledCount;
-                        }
-                        tripUpdate['rooms'].push(room);
-                      });
+                    if (booking.rooms && booking.rooms.length > 0) {
+                      tripUpdate['rooms'] = addRoomResources(booking, trip, [
+                        'filled',
+                      ]);
                     }
                     if (booking.addOns && booking.addOns.length > 0) {
-                      tripUpdate['addOns'] = [];
-                      trip.addOns.forEach(addOn => {
-                        const bAddon = booking.addOns.find(
-                          bAddOn => bAddOn.id === addOn.id
-                        );
-                        if (bAddon) {
-                          const filledCount = addOn['filled']
-                            ? addOn['filled'] + bAddon.attendees
-                            : bAddon.attendees;
-                          addOn['filled'] = filledCount;
-                        }
-                        tripUpdate['addOns'].push(addOn);
-                      });
+                      tripUpdate['addOns'] = addAddonResources(booking, trip, [
+                        'filled',
+                      ]);
                     }
                   } else {
                     const bookingInfo = {
                       currency: 'US',
                       addOns: [],
+                      rooms: [],
                       guests: [],
                       status: 'approved',
                       totalBaseFare: 0,
@@ -225,34 +215,18 @@ export class MemberController {
                       guestCount = guestCount - (booking.attendees - 1);
                       guestCount = guestCount < 0 ? 0 : guestCount;
                     }
-                    if (booking.room) {
-                      tripUpdate['rooms'] = [];
-                      trip.rooms.forEach(room => {
-                        if (room.id == booking.room.id) {
-                          let filledCount = room['filled'] - booking.attendees;
-                          if (filledCount < 0) {
-                            filledCount = 0;
-                          }
-                          room['filled'] = filledCount;
-                        }
-                        tripUpdate['rooms'].push(room);
-                      });
+                    if (booking.rooms && booking.rooms.length > 0) {
+                      tripUpdate['rooms'] = removeRoomResources(booking, trip, [
+                        'filled',
+                        'reserved',
+                      ]);
                     }
                     if (booking.addOns && booking.addOns.length > 0) {
-                      tripUpdate['addOns'] = [];
-                      trip.addOns.forEach(addOn => {
-                        const bAddon = booking.addOns.find(
-                          bAddOn => bAddOn.id === addOn.id
-                        );
-                        if (bAddon) {
-                          let filledCount = addOn['filled'] - bAddon.attendees;
-                          if (filledCount < 0) {
-                            filledCount = 0;
-                          }
-                          addOn['filled'] = filledCount;
-                        }
-                        tripUpdate['addOns'].push(addOn);
-                      });
+                      tripUpdate['addOns'] = removeAddonResources(
+                        booking,
+                        trip,
+                        ['filled', 'reserved']
+                      );
                     }
                   }
                   updateParams['isMember'] = false;
@@ -298,15 +272,6 @@ export class MemberController {
                       memberRemoveDetails
                     );
                   }
-                  await logActivity({
-                    ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
-                      `${memberDetails.firstName} ${memberDetails.lastName}`,
-                      trip['title']
-                    ),
-                    tripId: trip._id.toString(),
-                    audienceIds: [user._id.toString()],
-                    userId: user._id.toString(),
-                  });
                 } else {
                   console.log('Inside rejection');
                   return Promise.reject();

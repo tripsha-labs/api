@@ -7,6 +7,7 @@ import { successResponse, failureResponse, logError } from '../../utils';
 import {
   createBookingValidation,
   hostBookingActionValidation,
+  updateBookingValidation,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
@@ -122,10 +123,10 @@ export const updateBooking = async (req, res) => {
     if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
     const data = req.body || {};
+    const validation = updateBookingValidation(data);
     if (validation != true) throw validation.shift();
-
     const result = await BookingController.updateBooking(bookingId, data);
-    return successResponse(res);
+    return successResponse(res, result);
   } catch (error) {
     logError(error);
     return failureResponse(res, error);

@@ -56,13 +56,19 @@ export const ERROR_KEYS = {
   MEMBER_ALREADY_EXISTS: {
     type: 'memberExists',
     message:
-      'Whoops! Looks like that username already exists! Please select a different one and try again.',
+      'Whoops! Looks like that member already exists! Please select a different one and try again.',
     code: 400,
   },
   USER_ALREADY_EXISTS: {
     type: 'userExists',
     message:
       'Whoops! Looks like that username already exists! Please select a different one and try again.',
+    code: 400,
+  },
+  COUPON_CODE_ALREADY_EXISTS: {
+    type: 'COUPON_CODE_ALREADY_EXISTS',
+    message:
+      'Whoops! Looks like that coupon already exists! Please diffrent a different one and try again.',
     code: 400,
   },
   NOT_GROUP_MEMBER: {
@@ -75,14 +81,19 @@ export const ERROR_KEYS = {
     message: 'You do not have sufficient permission to perform this operation.',
     code: 403,
   },
+  BOOKING_ALREADY_EXISTS: {
+    type: 'BOOKING_ALREADY_EXISTS',
+    message:
+      'You have already booked for this trip, you may find your booking details on your dashboard.',
+    code: 403,
+  },
   TRIP_IS_FULL: {
     type: 'TripFull',
-    message: `Trip already full, we will keep your request in waitlist and let you know whenever a spot avaialble. 
-      You need to select your booking preferences once again while you booking again.`,
+    message: `Trip already full, we will keep your request in waitlist and let you know whenever a spot avaialble. You need to select your booking preferences once again while you booking again.`,
     code: 400,
   },
   TRIP_IS_FULL_HOST: {
-    type: 'TripFull',
+    type: 'TripFullHost',
     message: `Trip already full, incrase your spots avaialable count and max group size on edit trip page or try force add option. This will increase the max group size by one automatically.`,
     code: 400,
   },
@@ -145,6 +156,11 @@ export const ERROR_KEYS = {
   USERNAME_ALREADY_EXISTS: {
     type: 'USERNAME_ALREADY_EXISTS',
     message: 'Username already exists',
+    code: 400,
+  },
+  INVALID_COUPON_CODE: {
+    type: 'INVALID_COUPON_CODE',
+    message: 'Discount code might be invalid or expired',
     code: 400,
   },
 };
