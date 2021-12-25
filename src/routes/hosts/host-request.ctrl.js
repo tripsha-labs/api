@@ -73,7 +73,7 @@ export class HostRequestController {
     if (data['action'] == 'approved') {
       await UserModel.update(
         { awsUserId: hostRequest.awsUserId },
-        { isIdentityVerified: true, isHostFirstLogin: true }
+        { isIdentityVerified: true, isHostFirstLogin: true, isHost: true }
       );
     }
     return 'success';
