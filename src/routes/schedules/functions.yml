@@ -1,0 +1,7 @@
+runSchedule:
+  handler: src/routes/schedule/handler.run
+  events:
+    - http:
+        path: run
+        method: get
+        cors: true

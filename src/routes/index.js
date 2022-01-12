@@ -20,6 +20,7 @@ import Users from './users';
 import Seeds from './seeds';
 import AdminApi from './users/admin';
 import Coupons from './coupons';
+import Schedules from './schedules';
 
 const noAuth = () => {
   const app = express();
@@ -32,6 +33,7 @@ const noAuth = () => {
     next();
   });
   app.use('/public/tags', Tags);
+  app.use('/public/schedules', Schedules);
   app.use('/public/countries', Countries);
   app.use('/public/migrations', Migrations);
   app.use('/public/seeds', Seeds);

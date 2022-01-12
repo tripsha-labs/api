@@ -225,9 +225,12 @@ export const removeRoomResources = (booking, trip, fields) => {
   const rooms = [];
   trip.rooms.forEach(room => {
     room['variants'] = room.variants.map(variant => {
-      const foundVariant = booking.rooms.find(
-        rm => rm.room.id == room.id && rm.variant.id == variant.id
-      );
+      const foundVariant =
+        booking &&
+        booking.rooms &&
+        booking.rooms.find(
+          rm => rm.room.id == room.id && rm.variant.id == variant.id
+        );
       if (foundVariant && fields && fields.length > 0) {
         if (fields.includes('filled')) {
           variant['filled'] = variant['filled'] - booking.attendees;
@@ -248,7 +251,10 @@ export const removeRoomResources = (booking, trip, fields) => {
 export const removeAddonResources = (booking, trip, fields) => {
   const addOns = [];
   trip.addOns.forEach(addOn => {
-    const bAddon = booking.addOns.find(bAddOn => bAddOn.id === addOn.id);
+    const bAddon =
+      booking &&
+      booking.addOns &&
+      booking.addOns.find(bAddOn => bAddOn.id === addOn.id);
     if (bAddon && fields && fields.length > 0) {
       if (fields.includes('filled')) {
         addOn['filled'] = addOn['filled'] - bAddon.attendees;
