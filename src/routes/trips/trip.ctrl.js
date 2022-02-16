@@ -446,6 +446,7 @@ export class TripController {
         ) {
           await TripModel.update(tripId, {
             isArchived: true,
+            status: 'deleted',
           });
           await logActivity({
             ...LogMessages.DELETE_TRIP_HOST(trip['title']),
@@ -470,6 +471,7 @@ export class TripController {
       } else if (user.isAdmin) {
         await TripModel.update(tripId, {
           isArchived: true,
+          status: 'deleted',
         });
         await logActivity({
           ...LogMessages.DELETE_TRIP_HOST(trip['title']),

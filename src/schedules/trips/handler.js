@@ -314,8 +314,8 @@ const notify24hBookingRequest = async () => {
 export const tripsWatcher = async (event, context) => {
   try {
     await dbConnect();
-    // await archiveTrip();
-    // await archiveConversation();
+    await archiveTrip();
+    await archiveConversation();
     await archiveBookingRequest();
     await notify48hBookingRequest();
     await notify24hBookingRequest();
