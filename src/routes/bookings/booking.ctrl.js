@@ -239,7 +239,15 @@ export class BookingController {
             }
             try {
               let paymentIntent = true;
+              let needStripeIdUpdate = false;
               if (booking.currentDue > 1) {
+                if (!booking.onwerStripeId) {
+                  const ownerInfo = await UserModel.get({ _id: trip.ownerId });
+                  if (ownerInfo.stripeAccountId) {
+                    booking['onwerStripeId'] = ownerInfo.stripeAccountId;
+                    needStripeIdUpdate = true;
+                  } else throw ERROR_KEYS.PAYMENT_FAILED;
+                }
                 paymentIntent = await StripeAPI.createPaymentIntent({
                   amount: parseInt(booking.currentDue * 100),
                   currency: booking.currency,
@@ -266,6 +274,8 @@ export class BookingController {
                   pendingAmout: 0,
                   status: 'approved',
                 };
+                if (needStripeIdUpdate)
+                  bookingUpdate['onwerStripeId'] = booking.onwerStripeId;
                 if (booking.paymentStatus == 'deposit') {
                   await logActivity({
                     ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_HOST(

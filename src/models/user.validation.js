@@ -6,7 +6,7 @@ import Validator from 'fastest-validator';
 
 const updateUserSchema = {
   firstName: { type: 'string', empty: false, optional: true },
-  lastName: { type: 'string', empty: false, optional: true },
+  lastName: { type: 'string', empty: true, optional: true },
   dob: { type: 'string', optional: true },
   phone: {
     type: 'string',
@@ -20,6 +20,11 @@ const updateUserSchema = {
   },
   gender: {
     type: 'string',
+    optional: true,
+    empty: true,
+  },
+  hideGender: {
+    type: 'boolean',
     optional: true,
     empty: true,
   },
@@ -119,7 +124,7 @@ const createUserSchema = {
   email: { type: 'email', empty: false },
   dob: { type: 'string', empty: false, optional: true },
   firstName: { type: 'string', empty: false, optional: true },
-  lastName: { type: 'string', empty: false, optional: true },
+  lastName: { type: 'string', empty: true, optional: true },
   avatarUrl: { type: 'string', empty: true, optional: true },
   username: { type: 'string', empty: false, optional: true },
   $$strict: true,
@@ -141,6 +146,7 @@ const adminUpdateUserSchema = {
   lastName: {
     type: 'string',
     optional: true,
+    empty: true,
   },
   isAdmin: {
     type: 'boolean',
