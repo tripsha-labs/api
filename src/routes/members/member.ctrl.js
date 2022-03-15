@@ -178,7 +178,7 @@ export class MemberController {
                   );
 
                   await logActivity({
-                    ...LogMessages.TRAVELLER_ADDED_IN_TRIP_BY_HOST(
+                    ...LogMessages.TRAVELER_ADDED_IN_TRIP_BY_HOST(
                       trip['title']
                     ),
                     tripId: trip._id.toString(),

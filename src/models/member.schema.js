@@ -1,6 +1,6 @@
 /**
  * @name - Member schema
- * @description - Mongoose db schema for Member
+ * @description - Mongoose schema for Member.
  */
 import mongoose, { Schema } from 'mongoose';
 

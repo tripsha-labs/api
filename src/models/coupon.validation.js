@@ -1,6 +1,6 @@
 /**
  * @name - Coupon validation
- * @description - Coupon schema validator
+ * @description - Coupon schema validator.
  */
 import Validator from 'fastest-validator';
 

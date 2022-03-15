@@ -1,6 +1,6 @@
 /**
  * @name - HostRequest model
- * @description - HostRequest db model
+ * @description - HostRequest DB model.
  */
 import { HostRequest } from '.';
 

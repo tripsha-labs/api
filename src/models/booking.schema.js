@@ -1,6 +1,6 @@
 /**
  * @name - Booking schema
- * @description - This is mongoose booking schema
+ * @description - This is the mongoose booking schema.
  */
 import mongoose from 'mongoose';
 

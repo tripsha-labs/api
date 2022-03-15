@@ -1,6 +1,6 @@
 /**
  * @name - country model
- * @description - Mongoose db model for Country
+ * @description - Mongoose DB model for Country.
  */
 import { Country } from './country.schema';
 

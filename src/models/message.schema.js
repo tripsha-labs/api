@@ -1,5 +1,5 @@
 /**
- * @name - Mongoose schema for Message model
+ * @name - Mongoose schema for Message model.
  */
 import mongoose from 'mongoose';
 

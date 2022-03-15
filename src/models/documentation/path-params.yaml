@@ -3,29 +3,28 @@ components:
     pathUserId:
       name: 'userId'
       in: 'path'
-      description: 'Id of the user'
+      description: 'The id of the user.'
       required: true
       schema:
         type: 'string'
     pathTripId:
       name: 'tripId'
       in: 'path'
-      description: 'Id of the trip'
+      description: 'The id of the trip.'
       required: true
       schema:
         type: 'string'
     pathHostRequestId:
       name: 'hostRequestId'
       in: 'path'
-      description: 'Id of the host request'
+      description: 'The id of the host request.'
       required: true
       schema:
         type: 'string'
-
     pathBookingId:
       name: 'bookingId'
       in: 'path'
-      description: 'Id of the booking request'
+      description: 'The id of the booking request.'
       required: true
       schema:
         type: 'string'

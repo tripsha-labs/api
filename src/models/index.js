@@ -1,5 +1,5 @@
 /**
- * @description - All model specific schema validation references
+ * @description - All model specific DB models and schema validation references.
  * @see - If new file added in this folder then add reference here
  */
 export * from './user.schema';
