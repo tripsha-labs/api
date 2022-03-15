@@ -1,10 +1,10 @@
-tripsWatcher:
-  handler: src/schedules/trips/handler.tripsWatcher
-  events:
-    - http:
-        path: schedule
-        method: GET
-        cors: true
+# tripsWatcher:
+#   handler: src/schedules/trips/handler.tripsWatcher
+#   events:
+#     - http:
+#         path: schedule
+#         method: GET
+#         cors: true
 PublicAPI:
   handler: src/routes/index.PublicAPI
   events:

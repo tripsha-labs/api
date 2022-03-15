@@ -1,6 +1,6 @@
 /**
  * @name - Activity Logs model
- * @description - This is booking model, where all db opeartion related to activity logs, performed from here
+ * @description - This is the Activity Log model. All db operations related to activity logs are performed from here.
  */
 import { ActivityLog } from '.';
 

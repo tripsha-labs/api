@@ -1,7 +1,7 @@
 components:
   requestBodies:
     createHostRequest:
-      description: Create host request payload
+      description: Create a host request payload.
       required: true
       content:
         application/json:
@@ -9,7 +9,7 @@ components:
             properties:
               kindOfTripHostingOverview:
                 type: string
-                description: Describe type of trip you planning to host
+                description: Describe the type of trip you're planning to host.
               hostingCapacity:
                 type: string
                 enum:
@@ -21,21 +21,20 @@ components:
                 type: array
               targettingTypesOfTravelers:
                 type: string
-                description: Hosting trip for kind of audience group?
-
+                description: The kind of audience you are hosting a trip for.
               groupTripHostingExperience:
                 type: string
-                description: Host trip hosting experience
+                description: The host's trip hosting experience.
                 enum:
                   - 'professional'
                   - 'intermediate'
                   - 'beginner'
               pastAccomplishmentReferences:
                 type: string
-                description: Host past experiences reference links
+                description: The host's past experiences reference links.
 
     updateHostRequest:
-      description: Update host request payload
+      description: Update the host request payload.
       required: true
       content:
         application/json:

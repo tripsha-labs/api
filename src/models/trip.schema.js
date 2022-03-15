@@ -1,6 +1,6 @@
 /**
  * @name - Trip schema
- * @description - This is trip mongoose trip schema
+ * @description - Mongoose trip schema.
  */
 import mongoose, { Schema } from 'mongoose';
 

@@ -3,33 +3,33 @@ components:
     queryMemberId:
       name: 'memberId'
       in: 'query'
-      description: 'Id of the user'
+      description: 'The id of the user.'
       schema:
         type: 'string'
     queryUserId:
       name: 'userId'
       in: 'query'
-      description: 'Id of the user'
+      description: 'The id of the user.'
       schema:
         type: 'string'
     queryPage:
       name: 'page'
       in: 'query'
-      description: 'Page number of pagination'
+      description: 'The pagination page number.'
       schema:
         type: 'number'
         default: 0
     queryMatchExact:
       name: 'matchExactDate'
       in: 'query'
-      description: 'Match `startDate` and `endDate` exact'
+      description: 'Match `startDate` and `endDate` exactly.'
       schema:
         type: 'boolean'
         default: false
     queryLimit:
       name: 'limit'
       in: 'query'
-      description: 'Limit of the records on a each page'
+      description: 'Limit the number of records on each page.'
       schema:
         type: 'number'
         default: 25
@@ -38,7 +38,7 @@ components:
     querySortBy:
       name: 'sortBy'
       in: 'query'
-      description: 'Sort by'
+      description: 'Sort by.'
       schema:
         type: 'string'
         default: updatedAt
@@ -47,7 +47,7 @@ components:
     querySortByUser:
       name: 'sortBy'
       in: 'query'
-      description: 'Sort by username'
+      description: 'Sort by username.'
       schema:
         type: 'string'
         default: username
@@ -56,7 +56,7 @@ components:
     querySortByTrip:
       name: 'sortBy'
       in: 'query'
-      description: 'Sort by key'
+      description: 'Sort by key.'
       schema:
         type: 'string'
         default: 'updatedAt'
@@ -67,7 +67,7 @@ components:
     querySortOrder:
       name: 'sortOrder'
       in: 'query'
-      description: 'Sort order applied on `sortBy` fields'
+      description: 'Sort order applied on `sortBy` fields.'
       schema:
         type: 'number'
         enum:
@@ -77,102 +77,102 @@ components:
     querySearch:
       name: 'search'
       in: 'query'
-      description: 'Search filter'
+      description: 'Search filter.'
       schema:
         type: 'string'
     queryMinGroupSize:
       name: 'minGroupSize'
       in: 'query'
-      description: 'Search for minGroupSize'
+      description: 'Search for minGroupSize.'
       schema:
         type: 'number'
     queryMaxGroupSize:
       name: 'maxGroupSize'
       in: 'query'
-      description: 'Search for maxGroupSize'
+      description: 'Search for maxGroupSize.'
       schema:
         type: 'number'
     queryMinStartDate:
       name: 'startDate'
       in: 'query'
-      description: 'Search for minStartDate. Format: `YYYYMMDD`'
+      description: 'Search for minStartDate. Format: `YYYYMMDD`.'
       schema:
         type: 'number'
         format: 'YYYYMMDD'
     queryMaxEndDate:
       name: 'endDate'
       in: 'query'
-      description: 'Search for maxEndDate. Format: `YYYYMMDD`'
+      description: 'Search for maxEndDate. Format: `YYYYMMDD`.'
       schema:
         type: 'number'
         format: 'YYYYMMDD'
     queryMinTripLength:
       name: 'minTripLength'
       in: 'query'
-      description: 'Search for minTripLength'
+      description: 'Search for minTripLength.'
       schema:
         type: 'number'
     queryMaxTripLength:
       name: 'maxTripLength'
       in: 'query'
-      description: 'Search for maxTripLength'
+      description: 'Search for maxTripLength.'
       schema:
         type: 'number'
     queryInterests:
       name: 'interests'
       in: 'query'
-      description: 'Search for interests, comma separated values. Ex. value1,value2'
+      description: 'Search for interests by comma separated value. Ex. value1,value2.'
       schema:
         type: 'string'
     queryDestinations:
       name: 'destinations'
       in: 'query'
-      description: 'Search for destinations, comma separated values. Ex. value1,value2'
+      description: 'Search for destinations by comma separated value. Ex. value1,value2.'
       schema:
         type: 'string'
     queryIsMember:
       name: 'isMember'
       in: 'query'
-      description: 'List all the trips belong to user'
+      description: 'List all of the trips belonging to the user.'
       schema:
         type: 'boolean'
     queryIsFavorite:
       name: 'isFavorite'
       in: 'query'
-      description: 'List all the favorite trips of the user'
+      description: "List all of the user's favorite trips."
       schema:
         type: 'boolean'
     queryIsPublic:
       name: 'isPublic'
       in: 'query'
-      description: 'List all the public trips of the user'
+      description: "List all of the user's public trips."
       schema:
         type: 'boolean'
         default: true
     queryIsArchived:
       name: 'isArchived'
       in: 'query'
-      description: 'List all the archived trips of the user'
+      description: "List all the user's archived trips."
       schema:
         type: 'boolean'
         default: false
     queryStatus:
       name: 'status'
       in: 'query'
-      description: 'List all the trips with status'
+      description: "List all of the trips with status."
       schema:
         type: 'string'
         enum: ['draft', 'published', 'completed', 'cancelled']
     queryTripId:
       name: 'tripId'
       in: 'query'
-      description: 'Trip Id'
+      description: 'The trip Id.'
       schema:
         type: 'string'
     queryIsHost:
       name: 'isHost'
       in: 'query'
-      description: 'This will list the details as per the host permissions else it will list the details as normal user.'
+      description: 'This will list the details per the host permissions, otherwise it will list the details as a normal user.'
       schema:
         type: 'boolean'
         enum: [true, false]

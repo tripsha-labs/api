@@ -4,7 +4,7 @@
  */
 import { StripeAPI, logActivity, sendEmail } from '../../utils';
 import {
-  getCosting,
+  getCost,
   getBookingValidity,
   getDepositStatus,
   getDiscountStatus,
@@ -50,7 +50,7 @@ export class BookingController {
       // Payment validation and calculation
       bookingData['isDiscountApplicable'] = getDiscountStatus(trip);
       bookingData['isDepositApplicable'] = getDepositStatus(trip);
-      costing = getCosting(bookingData);
+      costing = getCost(bookingData);
     }
     const finalBookingData = {
       ...bookingData,
@@ -74,9 +74,9 @@ export class BookingController {
       addOns: addAddonResources(bookingData, trip, ['reserved']),
     };
     await TripModel.update(trip._id, tripUpdate);
-    // Traveller activity record
+    // Traveler activity record
     await logActivity({
-      ...LogMessages.BOOKING_REQUEST_TRAVELLER(trip['title']),
+      ...LogMessages.BOOKING_REQUEST_TRAVELER(trip['title']),
       tripId: trip._id.toString(),
       audienceIds: [user._id.toString()],
       userId: user._id.toString(),
@@ -88,12 +88,12 @@ export class BookingController {
       audienceIds: [tripOwner._id.toString()],
       userId: user._id.toString(),
     });
-    // Traveller email
+    // Traveler email
     await sendEmail({
       emails: [user['email']],
       name: user['firstName'],
-      subject: EmailMessages.BOOKING_REQUEST_TRAVELLER.subject,
-      message: EmailMessages.BOOKING_REQUEST_TRAVELLER.message(
+      subject: EmailMessages.BOOKING_REQUEST_TRAVELER.subject,
+      message: EmailMessages.BOOKING_REQUEST_TRAVELER.message(
         booking._id,
         trip._id.toString(),
         trip['title']
@@ -277,7 +277,7 @@ export class BookingController {
                     userId: user._id.toString(),
                   });
                   await logActivity({
-                    ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_TRAVELLER(
+                    ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_TRAVELER(
                       trip['title']
                     ),
                     tripId: trip._id.toString(),
@@ -295,7 +295,7 @@ export class BookingController {
                     userId: user._id.toString(),
                   });
                   await logActivity({
-                    ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_TRAVELLER(
+                    ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_TRAVELER(
                       trip['title']
                     ),
                     tripId: trip._id.toString(),
@@ -303,13 +303,13 @@ export class BookingController {
                     userId: user._id.toString(),
                   });
                 }
-                // Traveller
+                // Traveler
                 await sendEmail({
                   emails: [memberInfo['email']],
                   name: memberInfo['firstName'],
                   subject:
-                    EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELLER.subject,
-                  message: EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELLER.message(
+                    EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELER.subject,
+                  message: EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELER.message(
                     trip._id.toString(),
                     trip['title']
                   ),
@@ -341,7 +341,7 @@ export class BookingController {
                   userId: user._id.toString(),
                 });
                 await logActivity({
-                  ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_TRAVELLER(
+                  ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_TRAVELER(
                     trip['title']
                   ),
                   tripId: trip._id.toString(),
@@ -359,7 +359,7 @@ export class BookingController {
                   userId: user._id.toString(),
                 });
                 await logActivity({
-                  ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_FAILED_TRAVELLER(
+                  ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_FAILED_TRAVELER(
                     trip['title']
                   ),
                   tripId: trip._id.toString(),
@@ -388,7 +388,7 @@ export class BookingController {
           });
 
           await logActivity({
-            ...LogMessages.BOOKING_REQUEST_APPROVE_TRAVELLER(trip['title']),
+            ...LogMessages.BOOKING_REQUEST_APPROVE_TRAVELER(trip['title']),
             tripId: trip._id.toString(),
             audienceIds: [memberInfo._id.toString()],
             userId: user._id.toString(),
@@ -426,9 +426,9 @@ export class BookingController {
           tripUpdate['addOns'] = removeAddonResources(booking, trip, [
             'reserved',
           ]);
-          // Traveller
+          // Traveler
           await logActivity({
-            ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELLER(trip['title']),
+            ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELER(trip['title']),
             tripId: trip._id.toString(),
             audienceIds: [memberInfo._id.toString()],
             userId: user._id.toString(),
@@ -443,12 +443,12 @@ export class BookingController {
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
-          // Traveller
+          // Traveler
           await sendEmail({
             emails: [memberInfo['email']],
             name: memberInfo['firstName'],
-            subject: EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELLER.subject,
-            message: EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELLER.message(
+            subject: EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELER.subject,
+            message: EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELER.message(
               trip._id.toString(),
               trip['title']
             ),
@@ -486,9 +486,9 @@ export class BookingController {
           tripUpdate['addOns'] = removeAddonResources(booking, trip, [
             'reserved',
           ]);
-          // traveller
+          // traveler
           await logActivity({
-            ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELLER(trip['title']),
+            ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELER(trip['title']),
             tripId: trip._id.toString(),
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
@@ -503,12 +503,12 @@ export class BookingController {
             audienceIds: [trip.ownerId.toString()],
             userId: user._id.toString(),
           });
-          // Traveller
+          // Traveler
           await sendEmail({
             emails: [memberInfo['email']],
             name: memberInfo['firstName'],
-            subject: EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELLER.subject,
-            message: EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELLER.message(
+            subject: EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELER.subject,
+            message: EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELER.message(
               trip._id.toString(),
               trip['title']
             ),
@@ -596,7 +596,7 @@ export class BookingController {
               userId: user._id.toString(),
             });
             await logActivity({
-              ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELLER(
+              ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELER(
                 tripInfo['title']
               ),
               tripId: tripInfo._id.toString(),
@@ -618,7 +618,7 @@ export class BookingController {
             userId: user._id.toString(),
           });
           await logActivity({
-            ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELLER(
+            ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELER(
               tripInfo['title']
             ),
             tripId: tripInfo._id.toString(),

@@ -37,7 +37,7 @@ const archiveTrip = async () => {
         console.log(err);
       }
     });
-    console.log('Acrhived trips:', trips.length);
+    console.log('Archived trips:', trips.length);
     if (trips.length > 0) {
       await archiveTrip();
     }
@@ -88,7 +88,7 @@ const archiveConversation = async (skip = 0, limit = 500) => {
       },
       { isConversationArchived: true }
     );
-    console.log('Acrhived conversations:', tripIds.length);
+    console.log('Archived conversations:', tripIds.length);
     if (tripIds.length > 0) {
       await archiveConversation(skip + 1, 500);
     }
@@ -97,7 +97,7 @@ const archiveConversation = async (skip = 0, limit = 500) => {
   }
 };
 const archiveBookingRequest = async () => {
-  console.log('Archiving booking request 72 hours remaining...');
+  console.log('Archiving booking request, 72 hours remaining...');
   try {
     const bookings = await BookingModel.list({
       filter: {
@@ -129,9 +129,9 @@ const archiveBookingRequest = async () => {
         await TripModel.update(trip._id, tripUpdate);
         const member = await UserModel.getById(booking.memberId);
         const tripOwner = await UserModel.getById(trip.ownerId);
-        // Traveller activity record
+        // Traveler activity record
         await logActivity({
-          ...LogMessages.BOOKING_REQUEST_EXPIRED_TRAVELLER(trip['title']),
+          ...LogMessages.BOOKING_REQUEST_EXPIRED_TRAVELER(trip['title']),
           tripId: trip._id.toString(),
           audienceIds: [member._id.toString()],
           userId: tripOwner._id.toString(),
@@ -146,12 +146,12 @@ const archiveBookingRequest = async () => {
           audienceIds: [tripOwner._id.toString()],
           userId: tripOwner._id.toString(),
         });
-        // Traveller email
+        // Traveler email
         await sendEmail({
           emails: [member['email']],
           name: member['firstName'],
-          subject: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELLER.subject,
-          message: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELLER.message(
+          subject: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER.subject,
+          message: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER.message(
             trip._id.toString(),
             trip['title']
           ),

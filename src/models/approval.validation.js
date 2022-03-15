@@ -1,6 +1,6 @@
 /**
  * @name - Approval validation
- * @description - Approval schema validator
+ * @description - Approval schema validator.
  */
 import Validator from 'fastest-validator';
 

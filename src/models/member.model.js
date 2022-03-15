@@ -1,6 +1,6 @@
 /**
  * @name - Member model
- * @description - Member db model
+ * @description - Member DB model.
  */
 import { Member } from './';
 

@@ -1,6 +1,6 @@
 /**
  * @name - Booking model
- * @description - This is booking model, where all db opeartion related to booking, performed from here
+ * @description - This is the Booking model. All db operations related to bookings are performed from here.
  */
 import { Booking } from './';
 

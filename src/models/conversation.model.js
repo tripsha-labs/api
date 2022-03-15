@@ -1,6 +1,6 @@
 /**
  * @name - conversation model
- * @description - Mongouse DB model for Conversation
+ * @description - Mongoose DB model for Conversation.
  */
 import { Conversation } from './';
 

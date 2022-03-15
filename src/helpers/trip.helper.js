@@ -1,7 +1,7 @@
 import moment from 'moment';
 
-export const getCosting = preferences => {
-  // Room costing
+export const getCost = preferences => {
+  // Calculate room cost
   let totalRoomCost = 0;
   preferences.rooms &&
     preferences.rooms.forEach(room => {
@@ -9,6 +9,7 @@ export const getCosting = preferences => {
     });
   totalRoomCost = parseFloat(totalRoomCost > 0 ? totalRoomCost.toFixed(2) : 0);
 
+  // Calculate discounted room cost
   let discountedRoomCost = totalRoomCost;
   if (preferences.isDiscountApplicable && preferences.discount) {
     if (preferences.discount.discType === 'amount') {
@@ -31,7 +32,7 @@ export const getCosting = preferences => {
     }
   }
 
-  // add on costing
+  // Calculate add-on cost
   let totalAddOnCost = 0;
   preferences.addOns &&
     preferences.addOns.map(addOn => {
@@ -56,6 +57,7 @@ export const getCosting = preferences => {
         (preferences.discount.amount * discountedAddOnCost) / 100;
     }
   }
+
   // Apply coupon
   if (preferences.coupon) {
     if (preferences.coupon.discType === 'amount') {
@@ -66,11 +68,11 @@ export const getCosting = preferences => {
         (discountedAddOnCost * preferences.coupon.amount) / 100;
     }
   }
+
   // Total before discount
   const total = totalAddOnCost + totalRoomCost;
   // Total discounted price
   const discountedGrandTotal = discountedAddOnCost + discountedRoomCost;
-
   let paynowAmount = discountedGrandTotal;
   if (
     preferences.paymentStatus === 'deposit' &&
@@ -98,6 +100,7 @@ export const getCosting = preferences => {
     currentDue: paynowAmount,
   };
 };
+
 export const getDiscountStatus = trip => {
   if (
     trip.isDiscountApplicable &&

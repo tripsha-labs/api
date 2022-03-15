@@ -1,7 +1,7 @@
 paths:
   /activity-logs:
     get:
-      description: Returns list of activity logs related to logged in user.
+      description: Returns a list of activity logs related to the logged in user.
       operationId: listActivityLogs
       tags:
         - Activity Logs
@@ -29,10 +29,10 @@ paths:
                     properties:
                       count:
                         type: number
-                        description: Current records count
+                        description: The current records count.
                       total:
                         type: number
-                        description: Total number of records.
+                        description: The total number of records.
                       data:
                         type: array
                         items:

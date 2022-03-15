@@ -65,7 +65,7 @@ components:
     createBooking:
       in: path
       name: body
-      description: Create booking payload
+      description: Create booking payload.
       required: true
       schema:
         $ref: '#/components/schemas/CreateUpdateTrip'

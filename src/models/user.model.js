@@ -1,6 +1,6 @@
 /**
  * @name - User model
- * @description - This is User db model, all opearations for users wiith DB handled here
+ * @description - User DB model, where all DB operations for users handled here.
  */
 import { User } from './';
 

@@ -1,6 +1,6 @@
 /**
  * @name - Booking validator
- * @description - This Booking schema validator
+ * @description - The Booking schema validator.
  */
 import Validator from 'fastest-validator';
 

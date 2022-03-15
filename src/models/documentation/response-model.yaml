@@ -17,13 +17,13 @@ components:
           properties:
             errorCode:
               type: string
-              description: Error code to handle internationalization(i18n)
+              description: Error code to handle internationalization(i18n).
             message:
               type: string
-              description: Error message in english
+              description: Error message in english.
             field:
               type: string
-              description: Error field name
+              description: Error field name.
     CommonSuccessFormat:
       type: object
       required:
