@@ -437,10 +437,16 @@ export const adminUserAction = async (req, res) => {
       const params = req.body || {};
       switch (params.action) {
         case 'enable':
-          await enableUser(req, params);
+          // await enableUser(req, params);
+          await UserController.updateUserByEmail(params.email, {
+            isBlocked: false,
+          });
           break;
         case 'disable':
-          await disableUser(req, params);
+          // await disableUser(req, params);
+          await UserController.updateUserByEmail(params.email, {
+            isBlocked: true,
+          });
           break;
         default:
           console.log('invalid action');

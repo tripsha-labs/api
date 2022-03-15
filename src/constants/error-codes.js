@@ -34,7 +34,8 @@ export const ERROR_KEYS = {
   },
   INVALID_ETERNAL_COUNT: {
     type: 'invalidExternalCount',
-    message: 'Whoops! The number of spots filled cannot be greater than the max group size.',
+    message:
+      'Whoops! The number of spots filled cannot be greater than the max group size.',
     code: 400,
   },
   TRIP_NOT_FOUND: {

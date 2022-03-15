@@ -167,10 +167,7 @@ export const LogMessages = {
       type: 'Membership',
     };
   },
-  TRAVELER_MEMBER_REMOVAL_REQUEST_APPROVED_HOST: (
-    traveler_name,
-    trip_name
-  ) => {
+  TRAVELER_MEMBER_REMOVAL_REQUEST_APPROVED_HOST: (traveler_name, trip_name) => {
     return {
       message: `Your request to remove ${traveler_name} has been approved. This traveler is no longer attending ${trip_name}.`,
       type: 'Membership',

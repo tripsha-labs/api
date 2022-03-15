@@ -116,58 +116,72 @@ const archiveBookingRequest = async () => {
       limit: 100,
     });
     if (bookings.length > 0) {
+      const promises = [];
       bookings.forEach(async booking => {
-        await BookingModel.update(booking._id, {
-          status: 'expired',
-        });
-        const tripUpdate = {};
-        const trip = await TripModel.getById(booking.tripId);
-        tripUpdate['rooms'] = removeRoomResources(booking, trip, ['reserved']);
-        tripUpdate['addOns'] = removeAddonResources(booking, trip, [
-          'reserved',
-        ]);
-        await TripModel.update(trip._id, tripUpdate);
-        const member = await UserModel.getById(booking.memberId);
-        const tripOwner = await UserModel.getById(trip.ownerId);
-        // Traveler activity record
-        await logActivity({
-          ...LogMessages.BOOKING_REQUEST_EXPIRED_TRAVELER(trip['title']),
-          tripId: trip._id.toString(),
-          audienceIds: [member._id.toString()],
-          userId: tripOwner._id.toString(),
-        });
-        // Host activity record
-        await logActivity({
-          ...LogMessages.BOOKING_REQUEST_EXPIRED_HOST(
-            member['firstName'],
-            trip['title']
-          ),
-          tripId: trip._id.toString(),
-          audienceIds: [tripOwner._id.toString()],
-          userId: tripOwner._id.toString(),
-        });
-        // Traveler email
-        await sendEmail({
-          emails: [member['email']],
-          name: member['firstName'],
-          subject: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER.subject,
-          message: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER.message(
-            trip._id.toString(),
-            trip['title']
-          ),
-        });
-        //Host email
-        await sendEmail({
-          emails: [tripOwner['email']],
-          name: tripOwner['firstName'],
-          subject: EmailMessages.BOOKING_REQUEST_EXPIRED_HOST.subject,
-          message: EmailMessages.BOOKING_REQUEST_EXPIRED_HOST.message(
-            trip._id.toString(),
-            trip['title'],
-            member['firstName']
-          ),
-        });
+        promises.push(
+          new Promise(async resolve => {
+            try {
+              await BookingModel.update(booking._id, {
+                status: 'expired',
+              });
+              const tripUpdate = {};
+              const trip = await TripModel.getById(booking.tripId);
+              tripUpdate['rooms'] = removeRoomResources(booking, trip, [
+                'reserved',
+              ]);
+              tripUpdate['addOns'] = removeAddonResources(booking, trip, [
+                'reserved',
+              ]);
+              await TripModel.update(trip._id, tripUpdate);
+              const member = await UserModel.getById(booking.memberId);
+              const tripOwner = await UserModel.getById(trip.ownerId);
+              // Traveller activity record
+              await logActivity({
+                ...LogMessages.BOOKING_REQUEST_EXPIRED_TRAVELER(trip['title']),
+                tripId: trip._id.toString(),
+                audienceIds: [member._id.toString()],
+                userId: tripOwner._id.toString(),
+              });
+              // Host activity record
+              await logActivity({
+                ...LogMessages.BOOKING_REQUEST_EXPIRED_HOST(
+                  member['firstName'],
+                  trip['title']
+                ),
+                tripId: trip._id.toString(),
+                audienceIds: [tripOwner._id.toString()],
+                userId: tripOwner._id.toString(),
+              });
+              // Traveller email
+              await sendEmail({
+                emails: [member['email']],
+                name: member['firstName'],
+                subject: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER.subject,
+                message: EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER.message(
+                  trip._id.toString(),
+                  trip['title']
+                ),
+              });
+              //Host email
+              await sendEmail({
+                emails: [tripOwner['email']],
+                name: tripOwner['firstName'],
+                subject: EmailMessages.BOOKING_REQUEST_EXPIRED_HOST.subject,
+                message: EmailMessages.BOOKING_REQUEST_EXPIRED_HOST.message(
+                  trip._id.toString(),
+                  trip['title'],
+                  member['firstName']
+                ),
+              });
+              return resolve();
+            } catch (err) {
+              console.log(err);
+              return resolve();
+            }
+          })
+        );
       });
+      await Promise.all(promises);
       await archiveBookingRequest();
       console.log('Archived booking request 72 hours');
     }
@@ -199,23 +213,35 @@ const notify48hBookingRequest = async () => {
       limit: 100,
     });
     if (bookings.length > 0) {
+      const promises = [];
       bookings.forEach(async booking => {
-        const trip = await TripModel.getById(booking.tripId);
-        const tripOwner = await UserModel.getById(trip.ownerId);
-        //Host email
-        await sendEmail({
-          emails: [tripOwner['email']],
-          name: tripOwner['firstName'],
-          subject: EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.subject,
-          message: EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.message(
-            trip._id.toString(),
-            trip['title']
-          ),
-        });
-        await BookingModel.update(booking._id, {
-          is48hEmailSent: true,
-        });
+        promises.push(
+          new Promise(async resolve => {
+            try {
+              const trip = await TripModel.getById(booking.tripId);
+              const tripOwner = await UserModel.getById(trip.ownerId);
+              //Host email
+              await sendEmail({
+                emails: [tripOwner['email']],
+                name: tripOwner['firstName'],
+                subject:
+                  EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.subject,
+                message: EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.message(
+                  trip._id.toString(),
+                  trip['title']
+                ),
+              });
+              await BookingModel.update(booking._id, {
+                is48hEmailSent: true,
+              });
+              resolve();
+            } catch (err) {
+              resolve();
+            }
+          })
+        );
       });
+      await Promise.all(promises);
       await notify48hBookingRequest();
       console.log('Archived booking request 48 hours remaining');
     }
@@ -230,7 +256,7 @@ const notify24hBookingRequest = async () => {
       filter: {
         createdAt: {
           $lt: moment()
-            .subtract(1, 'days') // 48 hours remaining send reminder
+            .subtract(1, 'days') // 24 hours remaining send reminder
             .utc(),
         },
         status: 'pending',
@@ -247,23 +273,36 @@ const notify24hBookingRequest = async () => {
       limit: 100,
     });
     if (bookings.length > 0) {
+      const promises = [];
       bookings.forEach(async booking => {
-        const trip = await TripModel.getById(booking.tripId);
-        const tripOwner = await UserModel.getById(trip.ownerId);
-        //Host email
-        await sendEmail({
-          emails: [tripOwner['email']],
-          name: tripOwner['firstName'],
-          subject: EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.subject,
-          message: EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.message(
-            trip._id.toString(),
-            trip['title']
-          ),
-        });
-        await BookingModel.update(booking._id, {
-          is24hEmailSent: true,
-        });
+        promises.push(
+          new Promise(async resolve => {
+            try {
+              const trip = await TripModel.getById(booking.tripId);
+              const tripOwner = await UserModel.getById(trip.ownerId);
+              //Host email
+              await sendEmail({
+                emails: [tripOwner['email']],
+                name: tripOwner['firstName'],
+                subject:
+                  EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.subject,
+                message: EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST.message(
+                  trip._id.toString(),
+                  trip['title']
+                ),
+              });
+              await BookingModel.update(booking._id, {
+                is24hEmailSent: true,
+              });
+              return resolve();
+            } catch (err) {
+              console.log(err);
+              return resolve();
+            }
+          })
+        );
       });
+      await Promise.all(promises);
       await notify24hBookingRequest();
       console.log('Archived booking request 24 hours remaining');
     }
