@@ -78,9 +78,9 @@ const tripSchema = {
       optional: true,
       props: {
         id: { type: 'string' },
-        title: { type: 'string' },
-        description: { type: 'string' },
-        imageUrl: { type: 'string' },
+        title: { type: 'string', optional: true },
+        description: { type: 'string', optional: true },
+        imageUrl: { type: 'string', optional: true },
       },
     },
   },
