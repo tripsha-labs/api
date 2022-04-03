@@ -24,6 +24,7 @@ import {
 } from '../../constants';
 import { MemberController } from '../members/member.ctrl';
 import { ObjectID } from 'mongodb';
+import moment from 'moment';
 
 export class BookingController {
   static async createBooking(params, awsUserId) {
