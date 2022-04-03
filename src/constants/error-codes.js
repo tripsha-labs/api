@@ -103,6 +103,11 @@ export const ERROR_KEYS = {
     message: `This trip is closed for bookings. If you think this is in error, please message the trip host or the Tripsha Team.`,
     code: 400,
   },
+  TRIP_BOOKING_WITH_DEPOSIT_DATE_PASSED: {
+    type: 'TripBookingWithDepositClosed',
+    message: `This trip not accpet booking deposit. Try with full payment mode`,
+    code: 400,
+  },
   TRIP_RESOURCES_FULL: {
     type: 'TripResourcesFull',
     message: `The resources you are trying to book are already full. Try changing other options.`,

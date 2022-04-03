@@ -41,6 +41,11 @@ export class BookingController {
     bookingData['memberId'] = user._id.toString();
     bookingData['ownerId'] = tripOwner._id.toString();
     let costing = {};
+    if (params['paymentStatus'] == 'deposit') {
+      bookingData['isDepositApplicable'] = getDepositStatus(trip);
+      if (!bookingData['isDepositApplicable'])
+        throw ERROR_KEYS.TRIP_BOOKING_WITH_DEPOSIT_DATE_PASSED;
+    }
     if (
       params['paymentStatus'] == 'full' ||
       params['paymentStatus'] == 'deposit'
@@ -58,7 +63,17 @@ export class BookingController {
     };
     if (finalBookingData['pendingAmout'] === 0) {
       finalBookingData['paymentStatus'] = 'full';
+    } else {
+      finalBookingData['autoChargeDate'] = moment(
+        trip.startDate.toString(),
+        'YYYYMMDD'
+      )
+        .utc()
+        .subtract(21, 'days')
+        .endOf('day')
+        .unix();
     }
+
     const existingBooking = await BookingModel.get({
       tripId: finalBookingData['tripId'],
       memberId: finalBookingData['memberId'],
@@ -145,6 +160,7 @@ export class BookingController {
       tripId: 1,
       createdAt: 1,
       updatedAt: 1,
+      autoChargeDate: 1,
     };
     const params = [{ $match: { tripId: filters.tripId, status: 'pending' } }];
     params.push({
@@ -672,6 +688,7 @@ export class BookingController {
       memberId: 1,
       createdAt: 1,
       updatedAt: 1,
+      autoChargeDate: 1,
     };
     const params = [
       {

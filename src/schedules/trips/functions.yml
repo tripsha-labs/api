@@ -2,3 +2,8 @@ tripsWatcher:
   handler: src/schedules/trips/handler.tripsWatcher
   events:
     - schedule: rate(1 hour)
+
+autoPayment:
+  handler: src/schedules/trips/auto-payment.autoPayment
+  events:
+    - schedule: rate(1 hour)

@@ -57,6 +57,9 @@ const bookingSchema = new mongoose.Schema(
     tripPaymentType: { type: String },
     is48hEmailSent: { type: Boolean, default: false },
     is24hEmailSent: { type: Boolean, default: false },
+    autoChargeDate: { type: Number },
+    paymentRetryCount: { type: Number, default: 0 },
+    paymentError: { type: Object },
   },
   {
     timestamps: true,
