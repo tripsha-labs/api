@@ -23,10 +23,11 @@ const updateUserSchema = {
     optional: true,
     empty: true,
   },
-  hideGender: {
-    type: 'boolean',
+  hideFields: {
+    type: 'array',
     optional: true,
     empty: true,
+    items: 'string',
   },
   spokenLanguages: {
     type: 'array',
