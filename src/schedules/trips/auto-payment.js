@@ -99,7 +99,7 @@ const chargePayment = async () => {
     const bookings = await BookingModel.list({
       filter: {
         autoChargeDate: {
-          $gt: moment().unix(),
+          $lt: moment().unix(),
         },
         status: 'approved',
         paymentRetryCount: { $lt: 7 },
