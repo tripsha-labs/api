@@ -97,7 +97,7 @@ const archiveConversation = async (skip = 0, limit = 500) => {
   }
 };
 const archiveBookingRequest = async () => {
-  console.log('Archiving booking request, 72 hours remaining...');
+  console.log('Archiving booking request, 72 hours completed...');
   try {
     const bookings = await BookingModel.list({
       filter: {
@@ -107,11 +107,6 @@ const archiveBookingRequest = async () => {
             .utc(),
         },
         status: 'pending',
-      },
-      select: {
-        _id: 1,
-        tripId: 1,
-        memberId: 1,
       },
       limit: 100,
     });
