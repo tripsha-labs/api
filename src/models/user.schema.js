@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema(
     lastName: String,
     gender: String,
     hideFields: { type: Array },
+    additionalEmails: { type: Array },
     bio: String,
     dob: String,
     avatarUrl: String,

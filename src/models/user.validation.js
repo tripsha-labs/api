@@ -118,6 +118,19 @@ const updateUserSchema = {
     optional: true,
     empty: true,
   },
+  additionalEmails: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        email: { type: 'string', optional: false },
+        isPrimary: { type: 'string', optional: true, default: false },
+      },
+    },
+  },
   $$strict: true,
 };
 
