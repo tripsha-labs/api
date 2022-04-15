@@ -131,6 +131,7 @@ export class CouponController {
           isArchived: 1,
           thumbnailUrls: 1,
           pictureUrls: 1,
+          status: 1,
         },
       });
     } else return [];
