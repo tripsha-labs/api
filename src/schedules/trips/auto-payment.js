@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { ObjectID } from 'mongodb';
-import { dbConnect, sendEmail, logActivity, StripeAPI } from '../../utils';
-import { EmailMessages, LogMessages } from '../../constants';
+import { dbConnect, logActivity, StripeAPI } from '../../utils';
+import { LogMessages } from '../../constants';
 import { TripModel, BookingModel, UserModel } from '../../models';
 const applyCharge = booking => {
   return new Promise(async resolve => {
@@ -126,7 +126,6 @@ export const autoPayment = async (event, context) => {
   try {
     await dbConnect();
     await chargePayment();
-    console.log('======Sanjay');
     return context.logStreamName;
   } catch (err) {
     console.log(err);

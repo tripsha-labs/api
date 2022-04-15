@@ -169,4 +169,9 @@ export const ERROR_KEYS = {
     message: 'The discount code might be invalid or is expired.',
     code: 400,
   },
+  CARD_DELETE_FAILED: {
+    type: 'CARD_DELETE_FAILED',
+    message: `The selected payment method can't be deleted because its in use in one of your booking request. Please wait until the booking request get processed or cancel the booking request before performing this operation.`,
+    code: 400,
+  },
 };
