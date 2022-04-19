@@ -3,7 +3,7 @@
  * @description - This will handle business logic for Payment module
  */
 import { StripeAPI } from '../../utils';
-import { UserModel } from '../../models';
+import { BookingModel, UserModel } from '../../models';
 import { ERROR_KEYS } from '../../constants';
 
 export class PaymentController {
@@ -103,6 +103,29 @@ export class PaymentController {
     } catch (error) {
       console.log(error);
       throw new Error('Invalid authorization code.');
+    }
+  }
+  static async deleteCard(cardId) {
+    const bookingCount = await BookingModel.count({
+      currentDue: { $gt: 0 },
+      paymentMethod: cardId,
+    });
+
+    if (bookingCount > 0) {
+      throw ERROR_KEYS.CARD_DELETE_FAILED;
+    }
+    try {
+      await StripeAPI.detachCard(cardId);
+      return 'success';
+    } catch (error) {
+      console.log(error.type);
+      if (error.type === 'StripeInvalidRequestError')
+        throw {
+          type: error.raw.type,
+          message: error.raw.message,
+          code: error.raw.statusCode,
+        };
+      else throw new Error('Failed to delete');
     }
   }
 }

@@ -110,9 +110,8 @@ export const getDiscountStatus = trip => {
     const expiration = moment(
       trip.discounts[0].expirationDate.toString(),
       'YYYYMMDD'
-    );
-    const today = moment(new Date(), 'YYYYMMDD');
-    return expiration.diff(today, 'days') > -1;
+    ).endOf('day');
+    return expiration.diff(moment(), 'days') >= 0;
   }
 };
 export const getDepositStatus = trip => {
@@ -120,20 +119,23 @@ export const getDepositStatus = trip => {
     const expiration = moment(
       trip.deposit.expirationDate.toString(),
       'YYYYMMDD'
+    ).endOf('day');
+    const startDate = moment(trip.startDate.toString(), 'YYYYMMDD').endOf(
+      'day'
     );
-    const today = moment(new Date(), 'YYYYMMDD');
-    return expiration.diff(today, 'days') >= 0;
+    return (
+      expiration.diff(moment(), 'days') >= 0 &&
+      startDate.diff(moment(), 'days') >= 30
+    );
   }
 };
 export const getBookingValidity = trip => {
   if (trip.lastBookingDate) {
-    const expiration = moment(trip.lastBookingDate, 'YYYYMMDD');
-    const today = moment(new Date(), 'YYYYMMDD');
-    return expiration.diff(today, 'days') >= 0;
+    const expiration = moment(trip.lastBookingDate, 'YYYYMMDD').endOf('day');
+    return expiration.diff(moment(), 'days') >= 0;
   } else if (trip.startDate) {
-    const expiration = moment(trip.startDate, 'YYYYMMDD');
-    const today = moment(new Date(), 'YYYYMMDD');
-    return expiration.diff(today, 'days') >= 0;
+    const expiration = moment(trip.startDate, 'YYYYMMDD').endOf('day');
+    return expiration.diff(moment(), 'days') >= 0;
   } else return false;
 };
 export const getTripResourceValidity = (trip, bookingData) => {

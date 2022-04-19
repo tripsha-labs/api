@@ -26,3 +26,17 @@ export const sendEmail = data => {
     .promise();
   return result;
 };
+export const EmailSender = (user, { subject, message }, params) => {
+  let emails = [];
+  if (user && user.additionalEmails) {
+    emails = user.additionalEmails.map(em => em.email);
+  } else {
+    emails = [user['email']];
+  }
+  return sendEmail({
+    emails: emails,
+    name: user['firstName'],
+    subject: subject,
+    message: message(...params),
+  });
+};

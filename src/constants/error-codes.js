@@ -103,6 +103,11 @@ export const ERROR_KEYS = {
     message: `This trip is closed for bookings. If you think this is in error, please message the trip host or the Tripsha Team.`,
     code: 400,
   },
+  TRIP_BOOKING_WITH_DEPOSIT_DATE_PASSED: {
+    type: 'TripBookingWithDepositClosed',
+    message: `This trip not accpet booking deposit. Try with full payment mode`,
+    code: 400,
+  },
   TRIP_RESOURCES_FULL: {
     type: 'TripResourcesFull',
     message: `The resources you are trying to book are already full. Try changing other options.`,
@@ -162,6 +167,11 @@ export const ERROR_KEYS = {
   INVALID_COUPON_CODE: {
     type: 'INVALID_COUPON_CODE',
     message: 'The discount code might be invalid or is expired.',
+    code: 400,
+  },
+  CARD_DELETE_FAILED: {
+    type: 'CARD_DELETE_FAILED',
+    message: `The selected payment method can't be deleted because its in use in one of your booking request. Please wait until the booking request get processed or cancel the booking request before performing this operation.`,
     code: 400,
   },
 };

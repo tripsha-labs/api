@@ -92,3 +92,17 @@ export const listCards = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+/**
+ * List payment methods
+ */
+export const deleteCard = async (req, res) => {
+  if (!(req.params && req.params.id))
+    throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+  try {
+    await PaymentController.deleteCard(req.params.id);
+    return successResponse(res, 'success');
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};

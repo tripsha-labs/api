@@ -23,10 +23,11 @@ const updateUserSchema = {
     optional: true,
     empty: true,
   },
-  hideGender: {
-    type: 'boolean',
+  hideFields: {
+    type: 'array',
     optional: true,
     empty: true,
+    items: 'string',
   },
   spokenLanguages: {
     type: 'array',
@@ -117,6 +118,19 @@ const updateUserSchema = {
     optional: true,
     empty: true,
   },
+  additionalEmails: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        email: { type: 'string', optional: false },
+        isPrimary: { type: 'string', optional: true, default: false },
+      },
+    },
+  },
   $$strict: true,
 };
 
@@ -167,6 +181,19 @@ const adminUpdateUserSchema = {
   password: {
     type: 'string',
     optional: true,
+  },
+  additionalEmails: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        email: { type: 'string', optional: false },
+        isPrimary: { type: 'string', optional: true, default: false },
+      },
+    },
   },
   $$strict: true,
 };

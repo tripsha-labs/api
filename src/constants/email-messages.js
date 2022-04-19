@@ -25,6 +25,18 @@ export const EmailMessages = {
     `;
     },
   },
+  DRAFT_TRIP_DELETED: {
+    subject: 'Your draft trip has been deleted',
+    message: tripName => {
+      return `
+      Your draft trip ${tripName} has just been deleted.
+      <br/>
+      <br/>
+      As always, please feel free to message us from your Tripsha inbox if you need any assistance.
+      <br/>
+    `;
+    },
+  },
   BOOKING_REQUEST_TRAVELER: {
     subject: 'You submitted a booking request',
     message: (bookingId, tripId, tripName) => {
