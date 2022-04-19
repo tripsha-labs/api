@@ -35,7 +35,7 @@ export class MemberController {
         tripId,
         message,
         awsUserId,
-        forceAddTraveller,
+        forceAddTraveler,
         action,
       } = params || {
         memberIds: [],
@@ -70,7 +70,7 @@ export class MemberController {
             switch (action) {
               case 'addMember':
                 if (isOwner || user.isAdmin === true) {
-                  if (trip.spotsAvailable <= 0 && !forceAddTraveller) {
+                  if (trip.spotsAvailable <= 0 && !forceAddTraveler) {
                     return Promise.reject(ERROR_KEYS.TRIP_IS_FULL_HOST);
                   }
                   if (params['bookingId']) {
@@ -105,7 +105,7 @@ export class MemberController {
                       totalFare: 0,
                       currentDue: 0,
                       paidAmout: 0,
-                      pendingAmout: 0,
+                      pendingAmount: 0,
                       paymentHistory: [],
                       tripId: tripId,
                       attendees: 1,

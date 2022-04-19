@@ -161,7 +161,7 @@ export const hostBookingActionValidation = new Validator().compile({
   },
   stripePaymentMethod: { type: 'object', empty: false, optional: true },
   paymentMethod: { type: 'string', empty: false, optional: true },
-  forceAddTraveller: { type: 'boolean', empty: true, optional: true },
+  forceAddTraveler: { type: 'boolean', empty: true, optional: true },
   reason: { type: 'string', empty: true, optional: true },
   $$strict: 'remove',
 });

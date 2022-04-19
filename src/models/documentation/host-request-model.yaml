@@ -19,7 +19,7 @@ components:
           type: array
           items:
             type: string
-        targettingTypesOfTravelers:
+        targetingTypesOfTravelers:
           type: string
           description: The kind of audience you are hosting a trip for.
           enum:
