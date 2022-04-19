@@ -182,6 +182,19 @@ const adminUpdateUserSchema = {
     type: 'string',
     optional: true,
   },
+  additionalEmails: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        email: { type: 'string', optional: false },
+        isPrimary: { type: 'string', optional: true, default: false },
+      },
+    },
+  },
   $$strict: true,
 };
 export const createUserValidation = new Validator().compile(createUserSchema);
