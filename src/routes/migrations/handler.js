@@ -9,6 +9,7 @@ import {
   updateTripStats,
   updateBookingOptions,
   updateTripsForReservedCount,
+  updateVariableNames,
 } from '../../migrations';
 
 /**
@@ -21,7 +22,8 @@ export const runMigrations = async (req, res) => {
     // await updateProfilePic();
     // await updateTripUrl();
     // await updateBookingOptions();
-    await updateTripsForReservedCount();
+    // await updateTripsForReservedCount();
+    await updateVariableNames();
     console.log('Migrations completed');
     return successResponse(res, 'success');
   } catch (error) {

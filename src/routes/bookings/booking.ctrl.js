@@ -62,7 +62,7 @@ export class BookingController {
       ...bookingData,
       ...costing,
     };
-    if (finalBookingData['pendingAmout'] === 0) {
+    if (finalBookingData['pendingAmount'] === 0) {
       finalBookingData['paymentStatus'] = 'full';
     } else {
       finalBookingData['autoChargeDate'] = moment(
@@ -140,7 +140,7 @@ export class BookingController {
       totalFare: 1,
       currentDue: 1,
       paidAmout: 1,
-      pendingAmout: 1,
+      pendingAmount: 1,
       paymentHistory: 1,
       stripePaymentMethod: 1,
       attendees: 1,
@@ -223,7 +223,7 @@ export class BookingController {
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
-    const { action, forceAddTraveller } = params || {};
+    const { action, forceAddTraveler } = params || {};
     if (action) {
       switch (action) {
         // host
@@ -236,7 +236,7 @@ export class BookingController {
           }
           if (
             trip.spotsAvailable - booking.attendees < 0 &&
-            !forceAddTraveller
+            !forceAddTraveler
           ) {
             throw ERROR_KEYS.TRIP_IS_FULL_HOST;
           }
@@ -278,8 +278,8 @@ export class BookingController {
                 bookingUpdate = {
                   paymentHistory: booking.paymentHistory,
                   paidAmout: booking.currentDue,
-                  currentDue: booking.pendingAmout,
-                  pendingAmout: 0,
+                  currentDue: booking.pendingAmount,
+                  pendingAmount: 0,
                   status: 'approved',
                 };
                 if (needStripeIdUpdate)
@@ -383,14 +383,14 @@ export class BookingController {
               status: 'approved',
               paidAmout: 0,
               currentDue: 0,
-              pendingAmout: 0,
+              pendingAmount: 0,
             };
           }
           await BookingModel.update(booking._id, bookingUpdate);
           await MemberController.memberAction({
             tripId: booking.tripId,
             action: 'addMember',
-            forceAddTraveller: forceAddTraveller,
+            forceAddTraveler: forceAddTraveler,
             memberIds: [booking.memberId],
             bookingId: bookingId,
             awsUserId: awsUserId,
@@ -574,7 +574,7 @@ export class BookingController {
             };
 
             bookingUpdate['paidAmout'] = booking.paidAmout + booking.currentDue;
-            bookingUpdate['pendingAmout'] = 0;
+            bookingUpdate['pendingAmount'] = 0;
             bookingUpdate['currentDue'] = 0;
             bookingUpdate['paymentStatus'] = 'full';
 
@@ -643,7 +643,7 @@ export class BookingController {
       totalFare: 1,
       currentDue: 1,
       paidAmout: 1,
-      pendingAmout: 1,
+      pendingAmount: 1,
       paymentHistory: 1,
       stripePaymentMethod: 1,
       attendees: 1,

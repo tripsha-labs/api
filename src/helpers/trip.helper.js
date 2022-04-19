@@ -96,7 +96,7 @@ export const getCost = preferences => {
     discountBaseFare: discountedRoomCost,
     totalBaseFare: totalRoomCost,
     totalAddonFare: totalAddOnCost,
-    pendingAmout: discountedGrandTotal - paynowAmount,
+    pendingAmount: discountedGrandTotal - paynowAmount,
     currentDue: paynowAmount,
   };
 };

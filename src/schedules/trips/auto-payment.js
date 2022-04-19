@@ -38,7 +38,7 @@ const applyCharge = booking => {
 
               bookingUpdate['paidAmout'] =
                 booking.paidAmout + booking.currentDue;
-              bookingUpdate['pendingAmout'] = 0;
+              bookingUpdate['pendingAmount'] = 0;
               bookingUpdate['currentDue'] = 0;
               bookingUpdate['paymentStatus'] = 'full';
               await BookingModel.update(booking._id, bookingUpdate);

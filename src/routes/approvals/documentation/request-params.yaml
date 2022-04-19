@@ -19,7 +19,7 @@ components:
                   - '10+'
               hostingForCountries:
                 type: array
-              targettingTypesOfTravelers:
+              targetingTypesOfTravelers:
                 type: string
                 description: The kind of audience you are hosting a trip for.
               groupTripHostingExperience:

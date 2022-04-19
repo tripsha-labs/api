@@ -52,7 +52,7 @@ components:
                 type: string
               title:
                 type: string
-              desciption:
+              description:
                 type: string
               imageUrl:
                 type: string
