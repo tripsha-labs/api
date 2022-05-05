@@ -256,11 +256,35 @@ export class MessageController {
       const conversations = await ConversationModel.aggregate(params);
       const conversationsCount = await ConversationModel.count(filterParams);
 
-      return {
+      const result = {
         data: conversations,
         totalCount: conversationsCount,
         count: conversations.length,
       };
+      if (filter.includeSupport) {
+        const supportUser = await UserModel.get(
+          { email: 'hello@tripsha.com' },
+          {
+            avatarUrl: 1,
+            _id: 1,
+            awsUserId: 1,
+            awsUsername: 1,
+            firstName: 1,
+            lastName: 1,
+            username: 1,
+            isOnline: 1,
+            lastOnlineTime: 1,
+          }
+        );
+        const supportConversations = await ConversationModel.get({
+          memberId: user._id.toString(),
+          userId: supportUser._id.toString(),
+        });
+        const support = JSON.parse(JSON.stringify(supportConversations));
+        support['user'] = supportUser;
+        result['supportConversations'] = support;
+      }
+      return result;
     } catch (error) {
       console.error(error);
       throw error;
@@ -280,7 +304,7 @@ export class MessageController {
         message:
           'Hi ' +
           user.firstName +
-          ', welcome to Tripsha! Feel free to reply with any questions, feedback on the site, or suggestions you have.',
+          ', Welcome to Tripsha! You can provide feedback or request support through this chat.',
         fromMemberId: supportUser._id.toString(),
       };
       const messageCount = await MessageModel.count({

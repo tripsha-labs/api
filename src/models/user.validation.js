@@ -103,6 +103,10 @@ const updateUserSchema = {
     optional: true,
     empty: false,
   },
+  isHost: {
+    type: 'boolean',
+    optional: true,
+  },
   showDashboardTutorial: {
     type: 'boolean',
     optional: true,

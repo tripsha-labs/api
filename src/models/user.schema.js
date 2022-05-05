@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema(
     hasFirstBooking: { type: Boolean, default: false },
     isHostFirstLogin: { type: Boolean, default: false },
     isHost: { type: Boolean, default: false },
-    hostShare: { type: Number, default: 72 },
+    hostShare: { type: Number, default: 94 },
     hostRequestSent: { type: Boolean },
   },
   {
