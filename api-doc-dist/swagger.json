@@ -119,11 +119,11 @@
         "properties": {
           "code": {
             "type": "string",
-            "description": "Code of the country"
+            "description": "Country code."
           },
           "name": {
             "type": "string",
-            "description": "Name of country"
+            "description": "Name of the country."
           }
         }
       },
@@ -135,7 +135,7 @@
           },
           "kindOfTripHostingOverview": {
             "type": "string",
-            "description": "Describe type of trip you planning to host"
+            "description": "Describe the type of trip you're planning to host."
           },
           "hostingCapacity": {
             "type": "string",
@@ -149,22 +149,22 @@
           },
           "targettingTypesOfTravelers": {
             "type": "string",
-            "description": "Hosting trip for kind of audience group?",
+            "description": "The kind of audience you are hosting a trip for.",
             "enum": [true, false]
           },
           "isActive": {
             "type": "boolean",
-            "description": "If `isActive=true` host request is not deleted",
+            "description": "If `isActive=true`, the host request is not deleted.",
             "enum": [true, false]
           },
           "groupTripHostingExperience": {
             "type": "string",
-            "description": "Host trip hosting experience",
+            "description": "The host's trip hosting experience.",
             "enum": ["professional", "intermediate", "beginner"]
           },
           "pastAccomplishmentReferences": {
             "type": "string",
-            "description": "Host past experiences reference links"
+            "description": "The host's past experiences reference links."
           },
           "status": {
             "type": "boolean",
@@ -192,28 +192,28 @@
           },
           "isFavorite": {
             "type": "boolean",
-            "description": "If `true`, the user has saved this trip for future reference",
+            "description": "If `true`, the user has saved this trip for future reference.",
             "enum": [true, false]
           },
           "isMember": {
             "type": "boolean",
-            "description": "Is member of the trip, if `true` then counted as active member of the trip",
+            "description": "If `true`, then the member is counted as an active member of the trip.",
             "enum": [true, false]
           },
           "isActive": {
             "type": "boolean",
-            "description": "If `isMember=true` then this value applies",
+            "description": "If `isMember=true`, then this value applies.",
             "enum": [true, false]
           },
           "isOwner": {
             "type": "boolean",
-            "description": "Member is owner of the trip or not",
+            "description": "If the member is the owner of the trip or not.",
             "enum": [true, false]
           },
           "updatedAt": {
             "type": "number",
             "format": "Unix timestamp",
-            "description": "The last time user interacted with the trip"
+            "description": "The last time the user interacted with the trip."
           }
         }
       },
@@ -225,11 +225,11 @@
           },
           "toMemberId": {
             "type": "string",
-            "description": "user id of receiver"
+            "description": "The user id of the receiver."
           },
           "fromMemberId": {
             "type": "string",
-            "description": "user id of sender"
+            "description": "The user id of the sender."
           },
           "sentOn": {
             "type": "number",
@@ -282,15 +282,15 @@
             "properties": {
               "errorCode": {
                 "type": "string",
-                "description": "Error code to handle internationalization(i18n)"
+                "description": "The error code to handle internationalization(i18n)."
               },
               "message": {
                 "type": "string",
-                "description": "Error message in english"
+                "description": "The error message in english."
               },
               "field": {
                 "type": "string",
-                "description": "Error field name"
+                "description": "The error field name."
               }
             }
           }
@@ -315,7 +315,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "Name of the tag"
+            "description": "The name of the tag."
           }
         }
       },
@@ -534,7 +534,7 @@
           },
           "isArchived": {
             "type": "boolean",
-            "description": "Trip is expired, startDate less than todays date."
+            "description": "The trip is expired because the startDate is earlier than todays date."
           },
           "isFavorite": {
             "type": "boolean"
@@ -572,7 +572,7 @@
         "properties": {
           "_id": {
             "type": "string",
-            "description": "User Id"
+            "description": "The user Id."
           },
           "username": {
             "type": "string"
@@ -995,7 +995,7 @@
       "createBooking": {
         "in": "path",
         "name": "body",
-        "description": "Create booking payload",
+        "description": "Create the booking payload.",
         "required": true,
         "schema": {
           "$ref": "#/components/schemas/CreateUpdateTrip"
@@ -1004,7 +1004,7 @@
       "pathUserId": {
         "name": "userId",
         "in": "path",
-        "description": "Id of the user",
+        "description": "The Id of the user.",
         "required": true,
         "schema": {
           "type": "string"
@@ -1013,7 +1013,7 @@
       "pathTripId": {
         "name": "tripId",
         "in": "path",
-        "description": "Id of the trip",
+        "description": "The Id of the trip.",
         "required": true,
         "schema": {
           "type": "string"
@@ -1022,7 +1022,7 @@
       "pathHostRequestId": {
         "name": "hostRequestId",
         "in": "path",
-        "description": "Id of the host request",
+        "description": "The Id of the host request.",
         "required": true,
         "schema": {
           "type": "string"
@@ -1031,7 +1031,7 @@
       "pathBookingId": {
         "name": "bookingId",
         "in": "path",
-        "description": "Id of the booking request",
+        "description": "The Id of the booking request.",
         "required": true,
         "schema": {
           "type": "string"
@@ -1040,7 +1040,7 @@
       "queryMemberId": {
         "name": "memberId",
         "in": "query",
-        "description": "Id of the user",
+        "description": "The Id of the user.",
         "schema": {
           "type": "string"
         }
@@ -1048,7 +1048,7 @@
       "queryUserId": {
         "name": "userId",
         "in": "query",
-        "description": "Id of the user",
+        "description": "The Id of the user.",
         "schema": {
           "type": "string"
         }
@@ -1056,7 +1056,7 @@
       "queryPage": {
         "name": "page",
         "in": "query",
-        "description": "Page number of pagination",
+        "description": "The pagination page number.",
         "schema": {
           "type": "number",
           "default": 0
@@ -1065,7 +1065,7 @@
       "queryMatchExact": {
         "name": "matchExactDate",
         "in": "query",
-        "description": "Match `startDate` and `endDate` exact",
+        "description": "Match `startDate` and `endDate` exactly.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -1074,7 +1074,7 @@
       "queryLimit": {
         "name": "limit",
         "in": "query",
-        "description": "Limit of the records on a each page",
+        "description": "Limit the number of records on each page.",
         "schema": {
           "type": "number",
           "default": 25,
@@ -1085,7 +1085,7 @@
       "querySortBy": {
         "name": "sortBy",
         "in": "query",
-        "description": "Sort by",
+        "description": "Sort by.",
         "schema": {
           "type": "string",
           "default": "updatedAt",
@@ -1095,7 +1095,7 @@
       "querySortByUser": {
         "name": "sortBy",
         "in": "query",
-        "description": "Sort by username",
+        "description": "Sort by username.",
         "schema": {
           "type": "string",
           "default": "username",
@@ -1105,7 +1105,7 @@
       "querySortByTrip": {
         "name": "sortBy",
         "in": "query",
-        "description": "Sort by key",
+        "description": "Sort by key.",
         "schema": {
           "type": "string",
           "default": "updatedAt",
@@ -1115,7 +1115,7 @@
       "querySortOrder": {
         "name": "sortOrder",
         "in": "query",
-        "description": "Sort order applied on `sortBy` fields",
+        "description": "Sort order applied on `sortBy` fields.",
         "schema": {
           "type": "number",
           "enum": [1, -1],
@@ -1125,7 +1125,7 @@
       "querySearch": {
         "name": "search",
         "in": "query",
-        "description": "Search filter",
+        "description": "Search filter.",
         "schema": {
           "type": "string"
         }
@@ -1133,7 +1133,7 @@
       "queryMinGroupSize": {
         "name": "minGroupSize",
         "in": "query",
-        "description": "Search for minGroupSize",
+        "description": "Search for minGroupSize.",
         "schema": {
           "type": "number"
         }
@@ -1141,7 +1141,7 @@
       "queryMaxGroupSize": {
         "name": "maxGroupSize",
         "in": "query",
-        "description": "Search for maxGroupSize",
+        "description": "Search for maxGroupSize.",
         "schema": {
           "type": "number"
         }
@@ -1149,7 +1149,7 @@
       "queryMinStartDate": {
         "name": "startDate",
         "in": "query",
-        "description": "Search for minStartDate. Format: `YYYYMMDD`",
+        "description": "Search for minStartDate. Format: `YYYYMMDD`.",
         "schema": {
           "type": "number",
           "format": "YYYYMMDD"
@@ -1158,7 +1158,7 @@
       "queryMaxEndDate": {
         "name": "endDate",
         "in": "query",
-        "description": "Search for maxEndDate. Format: `YYYYMMDD`",
+        "description": "Search for maxEndDate. Format: `YYYYMMDD`.",
         "schema": {
           "type": "number",
           "format": "YYYYMMDD"
@@ -1167,7 +1167,7 @@
       "queryMinTripLength": {
         "name": "minTripLength",
         "in": "query",
-        "description": "Search for minTripLength",
+        "description": "Search for minTripLength.",
         "schema": {
           "type": "number"
         }
@@ -1175,7 +1175,7 @@
       "queryMaxTripLength": {
         "name": "maxTripLength",
         "in": "query",
-        "description": "Search for maxTripLength",
+        "description": "Search for maxTripLength.",
         "schema": {
           "type": "number"
         }
@@ -1183,7 +1183,7 @@
       "queryInterests": {
         "name": "interests",
         "in": "query",
-        "description": "Search for interests, comma separated values. Ex. value1,value2",
+        "description": "Search for interests by comma separated value. Ex. value1,value2.",
         "schema": {
           "type": "string"
         }
@@ -1191,7 +1191,7 @@
       "queryDestinations": {
         "name": "destinations",
         "in": "query",
-        "description": "Search for destinations, comma separated values. Ex. value1,value2",
+        "description": "Search for destinations by comma separated value. Ex. value1,value2.",
         "schema": {
           "type": "string"
         }
@@ -1199,7 +1199,7 @@
       "queryIsMember": {
         "name": "isMember",
         "in": "query",
-        "description": "List all the trips belong to user",
+        "description": "List all of the user's trips.",
         "schema": {
           "type": "boolean"
         }
@@ -1207,7 +1207,7 @@
       "queryIsFavorite": {
         "name": "isFavorite",
         "in": "query",
-        "description": "List all the favorite trips of the user",
+        "description": "List all of the user's favorite trips.",
         "schema": {
           "type": "boolean"
         }
@@ -1215,7 +1215,7 @@
       "queryIsPublic": {
         "name": "isPublic",
         "in": "query",
-        "description": "List all the public trips of the user",
+        "description": "List all user's public trips.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -1224,7 +1224,7 @@
       "queryIsArchived": {
         "name": "isArchived",
         "in": "query",
-        "description": "List all the archived trips of the user",
+        "description": "List all of the user's archived trips.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -1233,7 +1233,7 @@
       "queryStatus": {
         "name": "status",
         "in": "query",
-        "description": "List all the trips with status",
+        "description": "List all the trips with the status.",
         "schema": {
           "type": "string",
           "enum": ["draft", "published", "completed", "cancelled"]
@@ -1242,7 +1242,7 @@
       "queryTripId": {
         "name": "tripId",
         "in": "query",
-        "description": "Trip Id",
+        "description": "The trip Id.",
         "schema": {
           "type": "string"
         }
@@ -1250,7 +1250,7 @@
       "queryIsHost": {
         "name": "isHost",
         "in": "query",
-        "description": "This will list the details as per the host permissions else it will list the details as normal user.",
+        "description": "List the details given the host's permissions, otherwise it will list the details as normal user.",
         "schema": {
           "type": "boolean",
           "enum": [true, false]
@@ -1266,7 +1266,7 @@
     },
     "requestBodies": {
       "createHostRequest": {
-        "description": "Create host request payload",
+        "description": "Create a host request payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1274,7 +1274,7 @@
               "properties": {
                 "kindOfTripHostingOverview": {
                   "type": "string",
-                  "description": "Describe type of trip you planning to host"
+                  "description": "Describe the type of trip you're planning to host."
                 },
                 "hostingCapacity": {
                   "type": "string",
@@ -1285,7 +1285,7 @@
                 },
                 "targettingTypesOfTravelers": {
                   "type": "string",
-                  "description": "Hosting trip for kind of audience group?"
+                  "description": "The kind of audience you are hosting a trip for."
                 },
                 "groupTripHostingExperience": {
                   "type": "string",
@@ -1294,7 +1294,7 @@
                 },
                 "pastAccomplishmentReferences": {
                   "type": "string",
-                  "description": "Host past experiences reference links"
+                  "description": "The host's past experiences reference links."
                 }
               }
             }
@@ -1302,7 +1302,7 @@
         }
       },
       "updateHostRequest": {
-        "description": "Update host request payload",
+        "description": "Update the host request payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1318,7 +1318,7 @@
         }
       },
       "createBooking": {
-        "description": "Create new booking payload",
+        "description": "Create a new booking payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1329,7 +1329,7 @@
         }
       },
       "updateBooking": {
-        "description": "Create new booking payload",
+        "description": "Create a new booking payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1340,7 +1340,7 @@
         }
       },
       "bookingAction": {
-        "description": "Booking action payload",
+        "description": "Booking action payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1356,7 +1356,7 @@
         }
       },
       "paymentAction": {
-        "description": "Booking part payment payload",
+        "description": "Booking part payment payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1367,7 +1367,7 @@
         }
       },
       "MemberAction": {
-        "description": "Perform Member Actions",
+        "description": "Perform Member Actions.",
         "required": true,
         "content": {
           "application/json": {
@@ -1398,7 +1398,7 @@
         }
       },
       "SendMessage": {
-        "description": "Send message payload",
+        "description": "Send message payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1409,7 +1409,7 @@
         }
       },
       "createTrip": {
-        "description": "Create trip payload",
+        "description": "Create trip payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1420,7 +1420,7 @@
         }
       },
       "updateTrip": {
-        "description": "Update trip payload",
+        "description": "Update trip payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1431,7 +1431,7 @@
         }
       },
       "createUser": {
-        "description": "Create user payload",
+        "description": "Create user payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1443,7 +1443,7 @@
                 "dob": {
                   "type": "number",
                   "format": "YYYYMMDD",
-                  "description": "Date of birth in `YYYYMMDD` format"
+                  "description": "Date of birth in `YYYYMMDD` format."
                 },
                 "firstName": {
                   "type": "string"
@@ -1463,7 +1463,7 @@
         }
       },
       "updateUser": {
-        "description": "Update user payload",
+        "description": "Update user payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1490,7 +1490,7 @@
                 },
                 "spokenLanguages": {
                   "type": "string",
-                  "description": "List of languages user can speak separated by comma"
+                  "description": "A list of languages the user can speak, separated by comma."
                 },
                 "bio": {
                   "type": "string"
@@ -1552,7 +1552,7 @@
         }
       },
       "checkUserExists": {
-        "description": "Check user exists payload",
+        "description": "Check user exists payload.",
         "required": true,
         "content": {
           "application/json": {
@@ -1575,7 +1575,7 @@
   "info": {
     "version": "v1.0",
     "title": "Tripsha API documentation",
-    "description": "This is complete API documentation of all the API",
+    "description": "This is the complete API documentation for all of Tripsha's APIs.",
     "termsOfService": "https://tripsha.com/terms/",
     "contact": {
       "name": "Tripsha API Team",
@@ -1591,7 +1591,7 @@
   "paths": {
     "/activity-logs": {
       "get": {
-        "description": "Returns list of activity logs related to logged in user.",
+        "description": "Returns a list of activity logs related to the logged in user.",
         "operationId": "listActivityLogs",
         "tags": ["Activity Logs"],
         "parameters": [
@@ -1610,7 +1610,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Acitivity log list response",
+            "description": "The activity log list response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1626,11 +1626,11 @@
                       "properties": {
                         "count": {
                           "type": "number",
-                          "description": "Current records count"
+                          "description": "The current records count."
                         },
                         "total": {
                           "type": "number",
-                          "description": "Total number of records."
+                          "description": "The total number of records."
                         },
                         "data": {
                           "type": "array",
@@ -1650,7 +1650,7 @@
     },
     "/host-requests": {
       "get": {
-        "description": "Return list of matching host requests",
+        "description": "Returns a list of matching host requests.",
         "operationId": "listHostRequests",
         "tags": ["HostRequests"],
         "parameters": [
@@ -1663,7 +1663,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Host request response",
+            "description": "The host request response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1685,7 +1685,7 @@
                         },
                         "count": {
                           "type": "number",
-                          "description": "Count of the current records"
+                          "description": "The current number of records."
                         }
                       }
                     }
@@ -1697,7 +1697,7 @@
         }
       },
       "post": {
-        "description": "Creates a host request",
+        "description": "Create a host request.",
         "operationId": "createHostRequest",
         "tags": ["HostRequests"],
         "requestBody": {
@@ -1705,7 +1705,7 @@
         },
         "responses": {
           "200": {
-            "description": "Create host request response",
+            "description": "Create a host request response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1726,7 +1726,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1740,7 +1740,7 @@
     },
     "/host-requests/{hostRequestId}": {
       "get": {
-        "description": "Returns a host request based on a request ID",
+        "description": "Returns a host request based on a request Id.",
         "operationId": "getHostRequest",
         "tags": ["HostRequests"],
         "parameters": [
@@ -1750,7 +1750,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Host Request response",
+            "description": "The host Request response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1770,7 +1770,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1782,7 +1782,7 @@
         }
       },
       "put": {
-        "description": "Updates a single host request based on the ID supplied, also it will update the status if request",
+        "description": "Updates a single host request based on the Id supplied, it will also update the status of the request.",
         "operationId": "updateHostRequest",
         "tags": ["HostRequests"],
         "parameters": [
@@ -1795,7 +1795,7 @@
         },
         "responses": {
           "204": {
-            "description": "Host request updated",
+            "description": "Host request updated.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1805,7 +1805,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1817,7 +1817,7 @@
         }
       },
       "delete": {
-        "description": "Deletes a single host request based on the ID supplied",
+        "description": "Deletes a single host request based on the Id supplied.",
         "operationId": "deleteHostRequest",
         "tags": ["HostRequests"],
         "parameters": [
@@ -1827,7 +1827,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Host request deleted",
+            "description": "Host request deleted.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1837,7 +1837,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1851,7 +1851,7 @@
     },
     "/bookings": {
       "get": {
-        "description": "Returns list of bookings related to logged in user.",
+        "description": "Returns a list of bookings related to the logged in user.",
         "operationId": "listBookings",
         "tags": ["Bookings"],
         "parameters": [
@@ -1876,7 +1876,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Booking list response",
+            "description": "Booking list response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1892,11 +1892,11 @@
                       "properties": {
                         "count": {
                           "type": "number",
-                          "description": "Current records count"
+                          "description": "The current number of records."
                         },
                         "total": {
                           "type": "number",
-                          "description": "Total number of records."
+                          "description": "The total number of records."
                         },
                         "data": {
                           "type": "array",
@@ -1914,7 +1914,7 @@
         }
       },
       "post": {
-        "description": "Creates a booking",
+        "description": "Creates a booking.",
         "operationId": "createBooking",
         "tags": ["Bookings"],
         "requestBody": {
@@ -1922,7 +1922,7 @@
         },
         "responses": {
           "200": {
-            "description": "Booking response",
+            "description": "The booking response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1932,7 +1932,7 @@
                     },
                     "result": {
                       "type": "string",
-                      "description": "Booking id"
+                      "description": "The booking Id."
                     }
                   }
                 }
@@ -1940,7 +1940,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1954,7 +1954,7 @@
     },
     "/bookings/{bookingId}": {
       "get": {
-        "description": "Returns a booking based on a booking ID",
+        "description": "Returns a booking based on a booking Id.",
         "operationId": "findBookingById",
         "tags": ["Bookings"],
         "parameters": [
@@ -1964,7 +1964,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Booking response",
+            "description": "The booking response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1986,7 +1986,7 @@
         }
       },
       "put": {
-        "description": "Updates a single booking based on the ID supplied and data",
+        "description": "Updates a single booking based on the Id supplied and data.",
         "operationId": "updateBooking",
         "tags": ["Bookings"],
         "parameters": [
@@ -1999,7 +1999,7 @@
         },
         "responses": {
           "204": {
-            "description": "Booking updated",
+            "description": "Booking updated.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2009,7 +2009,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2021,7 +2021,7 @@
         }
       },
       "delete": {
-        "description": "deletes a single booking based on the ID supplied",
+        "description": "Delete a single booking based on the Id supplied.",
         "operationId": "deleteBooking",
         "tags": ["Bookings"],
         "parameters": [
@@ -2031,7 +2031,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Booking deleted",
+            "description": "Booking deleted.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2041,7 +2041,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2055,7 +2055,7 @@
     },
     "/bookings/{bookingId}/action": {
       "post": {
-        "description": "Perform action on the booking",
+        "description": "Perform an action on the booking.",
         "operationId": "bookingAction",
         "tags": ["Bookings"],
         "parameters": [
@@ -2068,7 +2068,7 @@
         },
         "responses": {
           "200": {
-            "description": "Booking action response",
+            "description": "The booking action response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2085,7 +2085,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2099,7 +2099,7 @@
     },
     "/bookings/{bookingId}/payment": {
       "post": {
-        "description": "Complete remamining payment action",
+        "description": "Complete the remaining payment action.",
         "operationId": "paymentAction",
         "tags": ["Bookings"],
         "parameters": [
@@ -2112,7 +2112,7 @@
         },
         "responses": {
           "200": {
-            "description": "Booking remamining payment response",
+            "description": "The booking remaining payment response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2129,7 +2129,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2143,7 +2143,7 @@
     },
     "/countries": {
       "get": {
-        "description": "Return list of matching countries",
+        "description": "Return a list of matching countries.",
         "operationId": "listCountries",
         "tags": ["Countries"],
         "parameters": [
@@ -2159,7 +2159,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Countries response",
+            "description": "The countries response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2181,7 +2181,7 @@
                         },
                         "count": {
                           "type": "number",
-                          "description": "Count of the current records"
+                          "description": "The current number of records."
                         }
                       }
                     }
@@ -2195,7 +2195,7 @@
     },
     "/trips/{tripId}/members": {
       "get": {
-        "description": "Returns list of trip members",
+        "description": "Returns a list of trip members.",
         "operationId": "listMembers",
         "tags": ["Trips"],
         "parameters": [
@@ -2211,7 +2211,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Members response",
+            "description": "The members response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2228,11 +2228,11 @@
                       "properties": {
                         "totalCount": {
                           "type": "number",
-                          "description": "Total number of records"
+                          "description": "The total number of records."
                         },
                         "count": {
                           "type": "number",
-                          "description": "Current number of records"
+                          "description": "The current number of records."
                         },
                         "data": {
                           "type": "array",
@@ -2248,7 +2248,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2262,7 +2262,7 @@
     },
     "/member/actions": {
       "post": {
-        "description": "Perform various operations on a member",
+        "description": "Perform various operations on a member.",
         "operationId": "memberActions",
         "tags": ["Members"],
         "requestBody": {
@@ -2270,7 +2270,7 @@
         },
         "responses": {
           "200": {
-            "description": "Members response",
+            "description": "The members response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2291,7 +2291,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2305,7 +2305,7 @@
     },
     "/messages": {
       "get": {
-        "description": "Returns list of user messages",
+        "description": "Return a list of user messages.",
         "operationId": "listMessages",
         "tags": ["Messages"],
         "parameters": [
@@ -2321,7 +2321,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Messages response",
+            "description": "The messages response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2338,11 +2338,11 @@
                       "properties": {
                         "totalCount": {
                           "type": "number",
-                          "description": "Total number of records"
+                          "description": "The total number of records."
                         },
                         "count": {
                           "type": "number",
-                          "description": "Current records count"
+                          "description": "The current number of records."
                         },
                         "data": {
                           "type": "array",
@@ -2358,7 +2358,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2372,7 +2372,7 @@
     },
     "/conversations": {
       "get": {
-        "description": "Returns list of conversations",
+        "description": "Return a list of conversations.",
         "operationId": "listConversations",
         "tags": ["Messages"],
         "parameters": [
@@ -2385,7 +2385,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Conversations response",
+            "description": "The conversations response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2402,11 +2402,11 @@
                       "properties": {
                         "totalCount": {
                           "type": "number",
-                          "description": "Total number of records"
+                          "description": "The total number of records."
                         },
                         "count": {
                           "type": "number",
-                          "description": "Current number of records"
+                          "description": "The current number of records."
                         },
                         "data": {
                           "type": "array",
@@ -2422,7 +2422,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2436,7 +2436,7 @@
     },
     "/send-message": {
       "post": {
-        "description": "Send message",
+        "description": "Send a message.",
         "operationId": "sendmessage",
         "tags": ["Messages"],
         "requestBody": {
@@ -2444,7 +2444,7 @@
         },
         "responses": {
           "200": {
-            "description": "Message response",
+            "description": "The message response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2464,7 +2464,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2478,7 +2478,7 @@
     },
     "/tags": {
       "get": {
-        "description": "Return list of matching interest tags",
+        "description": "Return a list of matching interest tags.",
         "operationId": "listTags",
         "tags": ["Tags"],
         "parameters": [
@@ -2488,7 +2488,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Tags response",
+            "description": "The tags response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2510,7 +2510,7 @@
                         },
                         "count": {
                           "type": "number",
-                          "description": "Count of the current records"
+                          "description": "The current number of records."
                         }
                       }
                     }
@@ -2524,7 +2524,7 @@
     },
     "/trip-tags": {
       "get": {
-        "description": "Return list of matching trip tags",
+        "description": "Return a list of matching trip tags.",
         "operationId": "listTripTags",
         "tags": ["Tags"],
         "parameters": [
@@ -2556,7 +2556,7 @@
                         },
                         "count": {
                           "type": "number",
-                          "description": "Count of the current records"
+                          "description": "The current number of records."
                         }
                       }
                     }
@@ -2570,7 +2570,7 @@
     },
     "/trips": {
       "get": {
-        "description": "Returns list of trips",
+        "description": "Return a list of trips.",
         "operationId": "listTrips",
         "tags": ["Trips"],
         "parameters": [
@@ -2616,7 +2616,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Trip response",
+            "description": "The trip response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2632,11 +2632,11 @@
                       "properties": {
                         "count": {
                           "type": "number",
-                          "description": "Current records count"
+                          "description": "The current number of records."
                         },
                         "total": {
                           "type": "number",
-                          "description": "Total number of records."
+                          "description": "The total number of records."
                         },
                         "data": {
                           "type": "array",
@@ -2654,7 +2654,7 @@
         }
       },
       "post": {
-        "description": "Creates a trip",
+        "description": "Create a trip.",
         "operationId": "createTrip",
         "tags": ["Trips"],
         "requestBody": {
@@ -2662,7 +2662,7 @@
         },
         "responses": {
           "200": {
-            "description": "Trip response",
+            "description": "The trip response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2672,7 +2672,7 @@
                     },
                     "result": {
                       "type": "string",
-                      "description": "Trip id"
+                      "description": "The trip Id."
                     }
                   }
                 }
@@ -2680,7 +2680,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2694,7 +2694,7 @@
     },
     "/mytrips": {
       "get": {
-        "description": "Returns list of my trips",
+        "description": "Return a list of my trips.",
         "operationId": "myTrips",
         "tags": ["Trips"],
         "parameters": [
@@ -2731,7 +2731,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Trip response",
+            "description": "The trip response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2747,11 +2747,11 @@
                       "properties": {
                         "total": {
                           "type": "number",
-                          "description": "Total number of records"
+                          "description": "The total number of records."
                         },
                         "count": {
                           "type": "number",
-                          "description": "Current records count."
+                          "description": "The current number of records."
                         },
                         "data": {
                           "type": "array",
@@ -2771,7 +2771,7 @@
     },
     "/saved-trips": {
       "get": {
-        "description": "Returns list of saved trips",
+        "description": "Return a list of saved trips.",
         "operationId": "savedTrips",
         "tags": ["Trips"],
         "parameters": [
@@ -2805,7 +2805,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Trip response",
+            "description": "The trip response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2821,11 +2821,11 @@
                       "properties": {
                         "totalCount": {
                           "type": "number",
-                          "description": "Total number of records"
+                          "description": "The total number of records."
                         },
                         "count": {
                           "type": "number",
-                          "description": "Current records count."
+                          "description": "The current number of records."
                         },
                         "data": {
                           "type": "array",
@@ -2841,7 +2841,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2855,7 +2855,7 @@
     },
     "/trips/{tripId}": {
       "get": {
-        "description": "Returns a trip based on a trip ID",
+        "description": "Return a trip based on a trip Id.",
         "operationId": "findTripById",
         "tags": ["Trips"],
         "parameters": [
@@ -2865,7 +2865,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Trip response",
+            "description": "The trip response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2885,7 +2885,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2897,7 +2897,7 @@
         }
       },
       "put": {
-        "description": "Updates a single trip based on the ID supplied and data",
+        "description": "Update a single trip based on the Id supplied and data.",
         "operationId": "updateTrip",
         "tags": ["Trips"],
         "parameters": [
@@ -2910,7 +2910,7 @@
         },
         "responses": {
           "204": {
-            "description": "Trip updated",
+            "description": "Trip updated.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2920,7 +2920,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2932,7 +2932,7 @@
         }
       },
       "delete": {
-        "description": "deletes a single trip based on the ID supplied",
+        "description": "Delete a single trip based on the Id supplied.",
         "operationId": "deleteTrip",
         "tags": ["Trips"],
         "parameters": [
@@ -2942,7 +2942,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Trip deleted",
+            "description": "Trip deleted.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2952,7 +2952,7 @@
             }
           },
           "default": {
-            "description": "Error Response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2966,7 +2966,7 @@
     },
     "/users": {
       "get": {
-        "description": "Returns list of users",
+        "description": "Return a list of users.",
         "operationId": "listUsers",
         "tags": ["Users"],
         "parameters": [
@@ -2988,7 +2988,7 @@
         ],
         "responses": {
           "200": {
-            "description": "User response",
+            "description": "The user response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3005,7 +3005,7 @@
                       "properties": {
                         "count": {
                           "type": "number",
-                          "description": "Current page count."
+                          "description": "The current page count."
                         },
                         "data": {
                           "type": "array",
@@ -3128,7 +3128,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3140,7 +3140,7 @@
         }
       },
       "post": {
-        "description": "Creates a user",
+        "description": "Create a user.",
         "operationId": "createUser",
         "tags": ["Users"],
         "requestBody": {
@@ -3148,7 +3148,7 @@
         },
         "responses": {
           "200": {
-            "description": "Create User response",
+            "description": "The Create User response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3169,7 +3169,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3183,7 +3183,7 @@
     },
     "/users/check-user-exists": {
       "post": {
-        "description": "Check username exists",
+        "description": "Check that the username exists.",
         "operationId": "checkExists",
         "tags": ["Users"],
         "requestBody": {
@@ -3191,7 +3191,7 @@
         },
         "responses": {
           "200": {
-            "description": "User status",
+            "description": "The user status.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3204,7 +3204,7 @@
                       "properties": {
                         "userExists": {
                           "type": "boolean",
-                          "description": "User exists"
+                          "description": "The user exists."
                         }
                       }
                     }
@@ -3214,7 +3214,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3228,7 +3228,7 @@
     },
     "/users/{userId}": {
       "get": {
-        "description": "Returns a user based on a user ID",
+        "description": "Return a user based on a user Id.",
         "operationId": "findUserById",
         "tags": ["Users"],
         "parameters": [
@@ -3238,7 +3238,7 @@
         ],
         "responses": {
           "200": {
-            "description": "User response",
+            "description": "The user response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3258,7 +3258,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3270,7 +3270,7 @@
         }
       },
       "put": {
-        "description": "Updates a single user based on the ID supplied and data",
+        "description": "Update a single user based on the Id supplied and the data.",
         "operationId": "updateUser",
         "tags": ["Users"],
         "parameters": [
@@ -3283,7 +3283,7 @@
         },
         "responses": {
           "204": {
-            "description": "User updated",
+            "description": "User updated.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3293,7 +3293,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3305,7 +3305,7 @@
         }
       },
       "delete": {
-        "description": "Deletes a single user based on the ID supplied",
+        "description": "Delete a single user based on the Id supplied.",
         "operationId": "deleteUser",
         "tags": ["Users"],
         "parameters": [
@@ -3315,7 +3315,7 @@
         ],
         "responses": {
           "204": {
-            "description": "User deleted",
+            "description": "User deleted.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3325,7 +3325,7 @@
             }
           },
           "default": {
-            "description": "Error response",
+            "description": "Error Response.",
             "content": {
               "application/json": {
                 "schema": {

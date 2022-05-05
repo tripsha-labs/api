@@ -1,6 +1,6 @@
 /**
  * @name - HostRequest validation
- * @description - HostRequest schema validator
+ * @description - HostRequest schema validator.
  */
 import Validator from 'fastest-validator';
 
@@ -12,7 +12,7 @@ const hostRequestSchema = {
     required: true,
     items: { type: 'string' },
   },
-  targettingTypesOfTravelers: { type: 'string', required: true },
+  targetingTypesOfTravelers: { type: 'string', required: true },
   groupTripHostingExperience: { type: 'string', required: true },
   pastAccomplishmentReferences: { type: 'string', optional: true },
   $$strict: true,

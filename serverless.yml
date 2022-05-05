@@ -2,10 +2,10 @@ service: tripsha-app-api
 
 plugins:
   - serverless-webpack
-  # - serverless-domain-manager
   - serverless-plugin-split-stacks
   - serverless-offline
   - serverless-plugin-include-dependencies
+  # - serverless-domain-manager
 custom:
   stage: ${opt:stage, self:provider.stage}
   # customDomain:
@@ -31,7 +31,7 @@ custom:
     perType: false
     perGroupFunction: true
 
-  environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
+  # environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
 
 provider:
   name: aws
@@ -108,19 +108,6 @@ functions:
   - ${file(src/routes/index.yml)}
   - ${file(src/routes/messages/functions.yml)}
   - ${file(src/schedules/trips/functions.yml)}
-  # - ${file(src/routes/countries/functions.yml)}
-  # - ${file(src/routes/members/functions.yml)}
-  # - ${file(src/routes/seeds/functions.yml)}
-  # - ${file(src/routes/payments/functions.yml)}
-  # - ${file(src/routes/bookings/functions.yml)}
-  # - ${file(src/routes/hosts/functions.yml)}
-  # - ${file(src/routes/activity-logs/functions.yml)}
-  # - ${file(src/routes/migrations/functions.yml)}
-  # - ${file(src/routes/approvals/functions.yml)}
-  # - ${file(src/routes/users/functions.yml)}
-  # - ${file(src/routes/trips/functions.yml)}
-  # - ${file(src/routes/trip-tags/functions.yml)}
-  # - ${file(src/routes/tags/functions.yml)}
 
 resources:
   # API Gateway Errors

@@ -1,6 +1,6 @@
 /**
  * @name - Conversation schema
- * @description - Mongoose schema for Conversation
+ * @description - Mongoose schema for Conversation.
  */
 
 import mongoose from 'mongoose';

@@ -29,6 +29,12 @@ const attachCard = async (paymentMethod, stripeCustomerId) => {
   return resp;
 };
 
+const detachCard = async paymentMethod => {
+  const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
+  const resp = await stripeInstance.paymentMethods.detach(paymentMethod);
+  return resp;
+};
+
 const listPaymentMethods = async customerId => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
   const paymentMethods = await stripeInstance.paymentMethods.list({
@@ -80,4 +86,5 @@ export const StripeAPI = {
   listPaymentMethods,
   createPaymentIntent,
   validateCode,
+  detachCard,
 };

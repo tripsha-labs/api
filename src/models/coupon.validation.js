@@ -1,11 +1,11 @@
 /**
  * @name - Coupon validation
- * @description - Coupon schema validator
+ * @description - Coupon schema validator.
  */
 import Validator from 'fastest-validator';
 
 const couponSchema = {
-  name: { type: 'string', required: true },
+  name: { type: 'string', optional: true },
   description: { type: 'string', optional: true },
   couponCode: { type: 'string', required: true, min: 4, max: 12 },
   discType: {

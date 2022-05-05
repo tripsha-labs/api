@@ -88,3 +88,27 @@ export const applyCoupon = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+
+export const getTrips = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await CouponController.getTrips(req.params.id);
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const getHosts = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await CouponController.getHosts(req.params.id);
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};

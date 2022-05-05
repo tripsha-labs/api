@@ -1,12 +1,12 @@
 /**
  * @name - User validator
- * @description - This is user schema validator
+ * @description - The user schema validator.
  */
 import Validator from 'fastest-validator';
 
 const updateUserSchema = {
   firstName: { type: 'string', empty: false, optional: true },
-  lastName: { type: 'string', empty: false, optional: true },
+  lastName: { type: 'string', empty: true, optional: true },
   dob: { type: 'string', optional: true },
   phone: {
     type: 'string',
@@ -22,6 +22,12 @@ const updateUserSchema = {
     type: 'string',
     optional: true,
     empty: true,
+  },
+  hideFields: {
+    type: 'array',
+    optional: true,
+    empty: true,
+    items: 'string',
   },
   spokenLanguages: {
     type: 'array',
@@ -112,6 +118,19 @@ const updateUserSchema = {
     optional: true,
     empty: true,
   },
+  additionalEmails: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        email: { type: 'string', optional: false },
+        isPrimary: { type: 'string', optional: true, default: false },
+      },
+    },
+  },
   $$strict: true,
 };
 
@@ -119,7 +138,7 @@ const createUserSchema = {
   email: { type: 'email', empty: false },
   dob: { type: 'string', empty: false, optional: true },
   firstName: { type: 'string', empty: false, optional: true },
-  lastName: { type: 'string', empty: false, optional: true },
+  lastName: { type: 'string', empty: true, optional: true },
   avatarUrl: { type: 'string', empty: true, optional: true },
   username: { type: 'string', empty: false, optional: true },
   $$strict: true,
@@ -141,6 +160,7 @@ const adminUpdateUserSchema = {
   lastName: {
     type: 'string',
     optional: true,
+    empty: true,
   },
   isAdmin: {
     type: 'boolean',
@@ -161,6 +181,19 @@ const adminUpdateUserSchema = {
   password: {
     type: 'string',
     optional: true,
+  },
+  additionalEmails: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        email: { type: 'string', optional: false },
+        isPrimary: { type: 'string', optional: true, default: false },
+      },
+    },
   },
   $$strict: true,
 };

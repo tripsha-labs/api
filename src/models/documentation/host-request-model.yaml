@@ -7,7 +7,7 @@ components:
           type: string
         kindOfTripHostingOverview:
           type: string
-          description: Describe type of trip you planning to host
+          description: Describe the type of trip you're planning to host.
         hostingCapacity:
           type: string
           enum:
@@ -19,31 +19,31 @@ components:
           type: array
           items:
             type: string
-        targettingTypesOfTravelers:
+        targetingTypesOfTravelers:
           type: string
-          description: Hosting trip for kind of audience group?
+          description: The kind of audience you are hosting a trip for.
           enum:
             - true
             - false
         isActive:
           type: boolean
-          description: If `isActive=true` host request is not deleted
+          description: If `isActive=true`, host request is not deleted.
           enum:
             - true
             - false
         groupTripHostingExperience:
           type: string
-          description: Host trip hosting experience
+          description: The type of trip hosting experience.
           enum:
             - 'professional'
             - 'intermediate'
             - 'beginner'
         pastAccomplishmentReferences:
           type: string
-          description: Host past experiences reference links
+          description: The host past experience reference links.
         status:
           type: boolean
-          description: Request status
+          description: Request status.
           enum:
             - pending
             - approved

@@ -1,6 +1,6 @@
 /**
  * @name - User schema
- * @description - This is mongoose schema for user
+ * @description - Mongoose schema for user.
  */
 import mongoose from 'mongoose';
 
@@ -21,6 +21,8 @@ const userSchema = new mongoose.Schema(
     firstName: String,
     lastName: String,
     gender: String,
+    hideFields: { type: Array },
+    additionalEmails: { type: Array },
     bio: String,
     dob: String,
     avatarUrl: String,

@@ -109,4 +109,55 @@ export class CouponController {
       };
     else throw ERROR_KEYS.INVALID_COUPON_CODE;
   }
+  static async getTrips(couponId) {
+    const coupon = await CouponModel.getById(couponId);
+    let tripIds = [];
+    if (
+      coupon &&
+      coupon.applicableType === 'trips' &&
+      coupon.specificValues &&
+      coupon.specificValues.length > 0
+    ) {
+      tripIds = coupon.specificValues.map(tripId => Types.ObjectId(tripId));
+    }
+    if (tripIds.length > 0) {
+      return await TripModel.list({
+        filter: { _id: { $in: tripIds } },
+        select: {
+          title: 1,
+          description: 1,
+          startDate: 1,
+          endDate: 1,
+          isArchived: 1,
+          thumbnailUrls: 1,
+          pictureUrls: 1,
+          status: 1,
+        },
+      });
+    } else return [];
+  }
+  static async getHosts(couponId) {
+    const coupon = await CouponModel.getById(couponId);
+    let hostIds = [];
+    if (
+      coupon &&
+      coupon.applicableType === 'hosts' &&
+      coupon.specificValues &&
+      coupon.specificValues.length > 0
+    ) {
+      hostIds = coupon.specificValues.map(hostId => Types.ObjectId(hostId));
+    }
+    if (hostIds.length > 0) {
+      return await UserModel.list({
+        filter: { _id: { $in: hostIds } },
+        select: {
+          firstName: 1,
+          lastName: 1,
+          avatarUrl: 1,
+          endDate: 1,
+          username: 1,
+        },
+      });
+    } else return [];
+  }
 }

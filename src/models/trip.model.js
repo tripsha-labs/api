@@ -1,6 +1,6 @@
 /**
  * @name - Trip model
- * @description - This is trip model, where all db opeartion related to trip, performed from here
+ * @description - Trip DB model, where all DB operations related to trips are performed.
  */
 import { Trip } from './';
 

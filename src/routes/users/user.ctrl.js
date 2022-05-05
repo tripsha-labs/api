@@ -16,17 +16,6 @@ export class UserController {
       } else {
         await UserModel.create(user);
       }
-      // try {
-      //   await sendEmail({
-      //     emails: [user.email],
-      //     name: 'Tripsher',
-      //     subject: `Greetings!!!`,
-      //     message: `You are invited to join Tripsha.`,
-      //   });
-      //   console.log('Email sent');
-      // } catch (err) {
-      //   console.log(err);
-      // }
       return 'success';
     } catch (error) {
       throw error;

@@ -1,6 +1,6 @@
 /**
  * @name - HostRequest schema
- * @description - Mongouse schema for HostRequest
+ * @description - Mongoose schema for HostRequest.
  */
 
 import mongoose from 'mongoose';
@@ -15,7 +15,7 @@ const hostRequestSchema = new mongoose.Schema(
       required: true,
       items: { type: String },
     },
-    targettingTypesOfTravelers: { type: String, required: true },
+    targetingTypesOfTravelers: { type: String, required: true },
     groupTripHostingExperience: { type: String, required: true },
     pastAccomplishmentReferences: { type: String },
     isActive: { type: Boolean, default: true },

@@ -1,4 +1,10 @@
-import { UserModel, TripModel, MemberModel, BookingModel } from '../models';
+import {
+  UserModel,
+  TripModel,
+  MemberModel,
+  BookingModel,
+  HostRequestModel,
+} from '../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../constants';
 import uuid from 'uuid/v4';
 export const updateProfilePic = async (skip = 0) => {
@@ -308,4 +314,20 @@ export const updateTripsForReservedCount = async () => {
   });
   await Promise.all(promises);
   if (trips && trips.length === 100) updateTripsForReservedCount();
+};
+
+export const updateVariableNames = async () => {
+  return new Promise(async resolve => {
+    await BookingModel.updateMany(
+      {},
+      { $rename: { pendingAmout: 'pendingAmount' } },
+      { multi: true }
+    );
+    await HostRequestModel.updateMany(
+      {},
+      { $rename: { targettingTypesOfTravelers: 'targetingTypesOfTravelers' } },
+      { multi: true }
+    );
+    resolve();
+  });
 };

@@ -1,6 +1,6 @@
 /**
  * @name - Message model
- * @description - DB model for Messages
+ * @description - Message DB model.
  */
 import { Message } from './';
 

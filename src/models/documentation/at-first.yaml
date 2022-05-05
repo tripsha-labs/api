@@ -2,7 +2,7 @@ openapi: '3.0.0'
 info:
   version: 'v1.0'
   title: Tripsha API documentation
-  description: This is complete API documentation of all the API
+  description: This is the complete API documentation for all of the APIs
   termsOfService: https://tripsha.com/terms/
   contact:
     name: Tripsha API Team

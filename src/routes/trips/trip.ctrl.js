@@ -5,7 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { logActivity, sendEmail } from '../../utils';
+import { EmailSender, logActivity } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -230,15 +230,10 @@ export class TripController {
       });
       if (params['status'] === 'published') {
         try {
-          await sendEmail({
-            emails: [user['email']],
-            name: user['firstName'],
-            subject: EmailMessages.TRIP_PUBLISHED.subject,
-            message: EmailMessages.TRIP_PUBLISHED.message(
-              trip['_id'],
-              params['title']
-            ),
-          });
+          await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
+            trip['_id'],
+            params['title'],
+          ]);
         } catch (err) {
           console.log(err);
         }
@@ -372,12 +367,10 @@ export class TripController {
       });
       if (trip['status'] == 'published') {
         try {
-          await sendEmail({
-            emails: [user['email']],
-            name: user['firstName'],
-            subject: EmailMessages.TRIP_PUBLISHED.subject,
-            message: EmailMessages.TRIP_PUBLISHED.message(tripId, tripName),
-          });
+          await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
+            tripId,
+            tripName,
+          ]);
           console.log('Email sent');
         } catch (err) {
           console.log(err);
@@ -446,6 +439,7 @@ export class TripController {
         ) {
           await TripModel.update(tripId, {
             isArchived: true,
+            status: 'deleted',
           });
           await logActivity({
             ...LogMessages.DELETE_TRIP_HOST(trip['title']),
@@ -454,12 +448,9 @@ export class TripController {
             userId: user._id.toString(),
           });
           try {
-            await sendEmail({
-              emails: [user['email']],
-              name: user['firstName'],
-              subject: `Greetings ${user['firstName']}`,
-              message: `Draft Trip <b>${trip['title']}</b> deleted.`,
-            });
+            await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
+              trip['title'],
+            ]);
             console.log('Email sent');
           } catch (err) {
             console.log(err);
@@ -470,6 +461,7 @@ export class TripController {
       } else if (user.isAdmin) {
         await TripModel.update(tripId, {
           isArchived: true,
+          status: 'deleted',
         });
         await logActivity({
           ...LogMessages.DELETE_TRIP_HOST(trip['title']),
@@ -549,6 +541,9 @@ export class TripController {
       if (filter.isPublic) tripParams['isPublic'] = filter.isPublic;
       if (filter.status) tripParams['status'] = filter.status;
       if (filter.status !== 'draft') tripParams['status'] = { $nin: ['draft'] };
+      if (filter.includeDraft) {
+        delete tripParams['status'];
+      }
       if (filter.pastTrips || filter.isArchived) {
         tripParams['$or'] = [
           { endDate: { $lt: currentDate } },

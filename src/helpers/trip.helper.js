@@ -1,7 +1,7 @@
 import moment from 'moment';
 
-export const getCosting = preferences => {
-  // Room costing
+export const getCost = preferences => {
+  // Calculate room cost
   let totalRoomCost = 0;
   preferences.rooms &&
     preferences.rooms.forEach(room => {
@@ -9,6 +9,7 @@ export const getCosting = preferences => {
     });
   totalRoomCost = parseFloat(totalRoomCost > 0 ? totalRoomCost.toFixed(2) : 0);
 
+  // Calculate discounted room cost
   let discountedRoomCost = totalRoomCost;
   if (preferences.isDiscountApplicable && preferences.discount) {
     if (preferences.discount.discType === 'amount') {
@@ -31,7 +32,7 @@ export const getCosting = preferences => {
     }
   }
 
-  // add on costing
+  // Calculate add-on cost
   let totalAddOnCost = 0;
   preferences.addOns &&
     preferences.addOns.map(addOn => {
@@ -56,6 +57,7 @@ export const getCosting = preferences => {
         (preferences.discount.amount * discountedAddOnCost) / 100;
     }
   }
+
   // Apply coupon
   if (preferences.coupon) {
     if (preferences.coupon.discType === 'amount') {
@@ -66,11 +68,11 @@ export const getCosting = preferences => {
         (discountedAddOnCost * preferences.coupon.amount) / 100;
     }
   }
+
   // Total before discount
   const total = totalAddOnCost + totalRoomCost;
   // Total discounted price
   const discountedGrandTotal = discountedAddOnCost + discountedRoomCost;
-
   let paynowAmount = discountedGrandTotal;
   if (
     preferences.paymentStatus === 'deposit' &&
@@ -94,10 +96,11 @@ export const getCosting = preferences => {
     discountBaseFare: discountedRoomCost,
     totalBaseFare: totalRoomCost,
     totalAddonFare: totalAddOnCost,
-    pendingAmout: discountedGrandTotal - paynowAmount,
+    pendingAmount: discountedGrandTotal - paynowAmount,
     currentDue: paynowAmount,
   };
 };
+
 export const getDiscountStatus = trip => {
   if (
     trip.isDiscountApplicable &&
@@ -107,9 +110,8 @@ export const getDiscountStatus = trip => {
     const expiration = moment(
       trip.discounts[0].expirationDate.toString(),
       'YYYYMMDD'
-    );
-    const today = moment(new Date(), 'YYYYMMDD');
-    return expiration.diff(today, 'days') > -1;
+    ).endOf('day');
+    return expiration.diff(moment(), 'days') >= 0;
   }
 };
 export const getDepositStatus = trip => {
@@ -117,20 +119,23 @@ export const getDepositStatus = trip => {
     const expiration = moment(
       trip.deposit.expirationDate.toString(),
       'YYYYMMDD'
+    ).endOf('day');
+    const startDate = moment(trip.startDate.toString(), 'YYYYMMDD').endOf(
+      'day'
     );
-    const today = moment(new Date(), 'YYYYMMDD');
-    return expiration.diff(today, 'days') >= 0;
+    return (
+      expiration.diff(moment(), 'days') >= 0 &&
+      startDate.diff(moment(), 'days') >= 30
+    );
   }
 };
 export const getBookingValidity = trip => {
   if (trip.lastBookingDate) {
-    const expiration = moment(trip.lastBookingDate, 'YYYYMMDD');
-    const today = moment(new Date(), 'YYYYMMDD');
-    return expiration.diff(today, 'days') >= 0;
+    const expiration = moment(trip.lastBookingDate, 'YYYYMMDD').endOf('day');
+    return expiration.diff(moment(), 'days') >= 0;
   } else if (trip.startDate) {
-    const expiration = moment(trip.startDate, 'YYYYMMDD');
-    const today = moment(new Date(), 'YYYYMMDD');
-    return expiration.diff(today, 'days') >= 0;
+    const expiration = moment(trip.startDate, 'YYYYMMDD').endOf('day');
+    return expiration.diff(moment(), 'days') >= 0;
   } else return false;
 };
 export const getTripResourceValidity = (trip, bookingData) => {
@@ -225,9 +230,12 @@ export const removeRoomResources = (booking, trip, fields) => {
   const rooms = [];
   trip.rooms.forEach(room => {
     room['variants'] = room.variants.map(variant => {
-      const foundVariant = booking.rooms.find(
-        rm => rm.room.id == room.id && rm.variant.id == variant.id
-      );
+      const foundVariant =
+        booking &&
+        booking.rooms &&
+        booking.rooms.find(
+          rm => rm.room.id == room.id && rm.variant.id == variant.id
+        );
       if (foundVariant && fields && fields.length > 0) {
         if (fields.includes('filled')) {
           variant['filled'] = variant['filled'] - booking.attendees;
@@ -248,7 +256,10 @@ export const removeRoomResources = (booking, trip, fields) => {
 export const removeAddonResources = (booking, trip, fields) => {
   const addOns = [];
   trip.addOns.forEach(addOn => {
-    const bAddon = booking.addOns.find(bAddOn => bAddOn.id === addOn.id);
+    const bAddon =
+      booking &&
+      booking.addOns &&
+      booking.addOns.find(bAddOn => bAddOn.id === addOn.id);
     if (bAddon && fields && fields.length > 0) {
       if (fields.includes('filled')) {
         addOn['filled'] = addOn['filled'] - bAddon.attendees;

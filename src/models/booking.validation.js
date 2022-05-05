@@ -1,6 +1,6 @@
 /**
  * @name - Booking validator
- * @description - This Booking schema validator
+ * @description - The Booking schema validator.
  */
 import Validator from 'fastest-validator';
 
@@ -159,7 +159,9 @@ export const hostBookingActionValidation = new Validator().compile({
     enum: ['approve', 'decline', 'withdraw'],
     empty: false,
   },
-  forceAddTraveller: { type: 'boolean', empty: true, optional: true },
+  stripePaymentMethod: { type: 'object', empty: false, optional: true },
+  paymentMethod: { type: 'string', empty: false, optional: true },
+  forceAddTraveler: { type: 'boolean', empty: true, optional: true },
   reason: { type: 'string', empty: true, optional: true },
   $$strict: 'remove',
 });

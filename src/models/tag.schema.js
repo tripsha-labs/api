@@ -1,6 +1,6 @@
 /**
  * @name - Tag schama
- * @description - This is mongoose schema for tags
+ * @description - Mongoose schema for tags.
  */
 import mongoose from 'mongoose';
 

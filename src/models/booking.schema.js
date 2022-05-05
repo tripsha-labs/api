@@ -1,6 +1,6 @@
 /**
  * @name - Booking schema
- * @description - This is mongoose booking schema
+ * @description - This is the mongoose booking schema.
  */
 import mongoose from 'mongoose';
 
@@ -51,12 +51,15 @@ const bookingSchema = new mongoose.Schema(
     totalFare: { type: Number, default: 0 },
     currentDue: { type: Number, default: 0 },
     paidAmout: { type: Number, default: 0 },
-    pendingAmout: { type: Number, default: 0 },
+    pendingAmount: { type: Number, default: 0 },
     paymentHistory: { type: Array },
     addedByHost: { type: Boolean, default: false },
     tripPaymentType: { type: String },
     is48hEmailSent: { type: Boolean, default: false },
     is24hEmailSent: { type: Boolean, default: false },
+    autoChargeDate: { type: Number },
+    paymentRetryCount: { type: Number, default: 0 },
+    paymentError: { type: Object },
   },
   {
     timestamps: true,
