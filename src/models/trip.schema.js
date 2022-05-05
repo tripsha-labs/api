@@ -59,6 +59,8 @@ const tripSchema = new mongoose.Schema(
     spotsReserved: { type: Number, default: 0 },
     showGroupHistory: { type: Boolean, default: true },
     removeRequested: { type: Boolean, default: false },
+    showAttendees: { type: Boolean, default: false },
+    allowExpressCheckout: { type: Boolean, default: false },
   },
   {
     timestamps: true,
