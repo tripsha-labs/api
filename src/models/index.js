@@ -51,3 +51,6 @@ export * from './approval.validation';
 export * from './coupon.model';
 export * from './coupon.schema';
 export * from './coupon.validation';
+
+export * from './app-setting.model';
+export * from './app-setting.schema';
