@@ -22,6 +22,7 @@ import AdminApi from './users/admin';
 import Coupons from './coupons';
 import Schedules from './schedules';
 import EmailNotifications from './email-notifications';
+import Assets from './assets';
 
 const noAuth = () => {
   const app = express();
@@ -65,6 +66,7 @@ const auth = () => {
   app.use('/admin', AdminApi);
   app.use('/coupons', Coupons);
   app.use('/email-notifications', EmailNotifications);
+  app.use('/assets', Assets);
   return app;
 };
 
