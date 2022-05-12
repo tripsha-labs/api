@@ -53,6 +53,7 @@ const updateUserSchema = {
     type: 'string',
     optional: true,
   },
+  discord_url: { type: 'string', optional: true },
   bio: { type: 'string', optional: true },
   isLookingForTravel: {
     type: 'boolean',

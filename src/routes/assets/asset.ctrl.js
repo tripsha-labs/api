@@ -3,7 +3,6 @@
  * @description - This will handle all business logic for Asset
  */
 import { Types } from 'mongoose';
-import moment from 'moment';
 import { AssetModel, UserModel, TripModel } from '../../models';
 import { prepareCommonFilter } from '../../helpers';
 import { ERROR_KEYS } from '../../constants';

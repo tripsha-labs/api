@@ -174,10 +174,10 @@ export const createUser = async (req, res) => {
         console.log('User already exists', err);
       }
     } else {
-      if (userInfo['username']) {
+      if (userInfo['custom:username']) {
         const exists = await _check_username_exists(
           userInfo['email'],
-          userInfo['username']
+          userInfo['custom:username']
         );
         if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
       }
@@ -187,6 +187,8 @@ export const createUser = async (req, res) => {
         createUserPayload['firstName'] = userInfo['custom:firstName'];
       if (userInfo['custom:lastName'])
         createUserPayload['lastName'] = userInfo['custom:lastName'];
+      if (userInfo['custom:username'])
+        createUserPayload['username'] = userInfo['custom:username'];
       if (userInfo['custom:dob'])
         createUserPayload['dob'] = userInfo['custom:dob'];
     }
@@ -227,7 +229,8 @@ export const createUser = async (req, res) => {
     } else {
       const username = await _get_unique_username(
         createUserPayload['email'],
-        userInfo.username || createUserPayload['email'].split('@')[0]
+        createUserPayload['username'] ||
+          createUserPayload['email'].split('@')[0]
       );
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
