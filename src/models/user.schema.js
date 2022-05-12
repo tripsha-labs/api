@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema(
     livesIn: String,
     facebook_url: String,
     twitter_url: String,
+    website_url: String,
     discord_url: String,
     instagram_url: String,
     isAdmin: { type: Boolean, default: false },
