@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema(
     avatarUrl: String,
     bucketList: String,
     livesIn: String,
+    passportCountry: { type: Array },
     facebook_url: String,
     twitter_url: String,
     website_url: String,

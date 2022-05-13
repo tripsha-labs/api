@@ -41,6 +41,13 @@ const updateUserSchema = {
     empty: true,
     max: 100,
   },
+  passportCountry: {
+    type: 'array',
+    optional: true,
+    empty: true,
+    items: 'string',
+    max: 5,
+  },
   facebook_url: {
     type: 'string',
     optional: true,
