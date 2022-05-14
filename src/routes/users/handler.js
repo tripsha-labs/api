@@ -58,12 +58,23 @@ export const inviteUser = async (req, res) => {
       const user_result = await createCognitoUser(req, createUserInfo);
       if (user_result) {
         delete params['password'];
-        const user = await UserController.inviteUser(params);
-        await subscribeUserToMailchimpAudience({
-          name: createUserInfo.firstName + ' ' + createUserInfo.lastName,
-          email: createUserInfo.email,
-        });
-        return successResponse(res, user);
+        await UserController.inviteUser(params);
+        try {
+          const user = await UserController.get({ email: params.email });
+          let awsUserId = user.awsUserId;
+          if (typeof user.awsUserId == 'array') {
+            awsUserId = user.awsUserId[0];
+          }
+          await MessageController.addSupportMember(awsUserId);
+        } catch (err) {
+          console.log(err);
+        }
+        // await subscribeUserToMailchimpAudience({
+        //   name: createUserInfo.firstName + ' ' + createUserInfo.lastName,
+        //   email: createUserInfo.email,
+        // });
+
+        return successResponse(res, 'success');
       } else {
         throw ERROR_KEYS.USER_ADD_FAILED;
       }
