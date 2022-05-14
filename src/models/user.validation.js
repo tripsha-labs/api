@@ -41,6 +41,13 @@ const updateUserSchema = {
     empty: true,
     max: 100,
   },
+  passportCountry: {
+    type: 'array',
+    optional: true,
+    empty: true,
+    items: 'string',
+    max: 5,
+  },
   facebook_url: {
     type: 'string',
     optional: true,
@@ -53,6 +60,11 @@ const updateUserSchema = {
     type: 'string',
     optional: true,
   },
+  website_url: {
+    type: 'string',
+    optional: true,
+  },
+  discord_url: { type: 'string', optional: true },
   bio: { type: 'string', optional: true },
   isLookingForTravel: {
     type: 'boolean',
@@ -102,6 +114,10 @@ const updateUserSchema = {
     type: 'boolean',
     optional: true,
     empty: false,
+  },
+  isHost: {
+    type: 'boolean',
+    optional: true,
   },
   showDashboardTutorial: {
     type: 'boolean',

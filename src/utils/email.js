@@ -11,7 +11,7 @@ AWS.config.update({ region: 'us-east-1' });
 
 // Update template - aws ses update-template --cli-input-json file://mytemplate.json
 export const sendEmail = data => {
-  console.log('Inside email');
+  console.log('Inside email', data);
   const params = {
     Destination: {
       ToAddresses: data.emails,
@@ -28,7 +28,7 @@ export const sendEmail = data => {
 };
 export const EmailSender = (user, { subject, message }, params) => {
   let emails = [];
-  if (user && user.additionalEmails) {
+  if (user && user.additionalEmails && user.additionalEmails.length > 0) {
     emails = user.additionalEmails.map(em => em.email);
   } else {
     emails = [user['email']];

@@ -202,6 +202,8 @@ const tripSchema = {
   isPublic: { type: 'boolean', optional: true },
   lastBookingDate: { type: 'number', optional: true },
   status: { type: 'string' },
+  showAttendees: { type: 'boolean', optional: true },
+  allowExpressCheckout: { type: 'boolean', optional: true },
   $$strict: 'remove',
 };
 
