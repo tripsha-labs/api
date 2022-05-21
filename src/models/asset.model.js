@@ -8,7 +8,7 @@ export class AssetModel {
   static list(params = {}) {
     const { filter, select, pagination, sort } = params;
     const assets = Asset.find(filter, select || {});
-    if (sort) hosts.sort(sort);
+    if (sort) assets.sort(sort);
     if (pagination) {
       assets.limit(pagination.limit);
       assets.skip(pagination.skip);

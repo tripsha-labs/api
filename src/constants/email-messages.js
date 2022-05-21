@@ -184,4 +184,10 @@ export const EmailMessages = {
     `;
     },
   },
+  NEW_CHAT_MESSAGE: {
+    subject: 'New Message on Tripsha',
+    message: message => {
+      return message;
+    },
+  },
 };
