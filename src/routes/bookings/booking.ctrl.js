@@ -65,6 +65,7 @@ export class BookingController {
     if (finalBookingData['pendingAmount'] === 0) {
       finalBookingData['paymentStatus'] = 'full';
     } else {
+      finalBookingData['isAutoPayEnabled'] = trip['isAutoPayEnabled'] == true;
       finalBookingData['autoChargeDate'] = moment(
         trip.startDate.toString(),
         'YYYYMMDD'
@@ -74,6 +75,9 @@ export class BookingController {
         .endOf('day')
         .unix();
     }
+    finalBookingData['bookingExpireOn'] = moment()
+      .add(trip.bookingExpiryDays || 3, 'days')
+      .unix();
 
     const existingBooking = await BookingModel.get({
       tripId: finalBookingData['tripId'],
@@ -153,6 +157,7 @@ export class BookingController {
       createdAt: 1,
       updatedAt: 1,
       autoChargeDate: 1,
+      bookingExpireOn: 1,
     };
     const params = [{ $match: { tripId: filters.tripId, status: 'pending' } }];
     params.push({

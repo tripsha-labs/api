@@ -61,6 +61,8 @@ const tripSchema = new mongoose.Schema(
     removeRequested: { type: Boolean, default: false },
     showAttendees: { type: Boolean, default: false },
     allowExpressCheckout: { type: Boolean, default: false },
+    isAutoPayEnabled: { type: Boolean, default: true },
+    bookingExpiryDays: { type: Number, default: 3 },
   },
   {
     timestamps: true,

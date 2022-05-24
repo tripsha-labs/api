@@ -101,10 +101,8 @@ const archiveBookingRequest = async () => {
   try {
     const bookings = await BookingModel.list({
       filter: {
-        createdAt: {
-          $lt: moment()
-            .subtract(3, 'days') // 72 hours passed then expire
-            .utc(),
+        bookingExpireOn: {
+          $lt: moment().unix(),
         },
         status: 'pending',
       },
@@ -181,10 +179,10 @@ const notify48hBookingRequest = async () => {
   try {
     const bookings = await BookingModel.list({
       filter: {
-        createdAt: {
+        bookingExpireOn: {
           $lt: moment()
-            .subtract(2, 'days') // 48 hours remaining send reminder
-            .utc(),
+            .add(2, 'days') // 48 hours remaining send reminder
+            .unix(),
         },
         status: 'pending',
         $or: [
@@ -236,10 +234,10 @@ const notify24hBookingRequest = async () => {
   try {
     const bookings = await BookingModel.list({
       filter: {
-        createdAt: {
+        bookingExpireOn: {
           $lt: moment()
-            .subtract(1, 'days') // 24 hours remaining send reminder
-            .utc(),
+            .add(1, 'days') // 24 hours remaining send reminder
+            .unix(),
         },
         status: 'pending',
         $or: [
@@ -293,8 +291,8 @@ export const tripsWatcher = async (event, context) => {
     await archiveTrip();
     await archiveConversation();
     await archiveBookingRequest();
-    await notify48hBookingRequest();
     await notify24hBookingRequest();
+    await notify48hBookingRequest();
     return context.logStreamName;
   } catch (err) {
     console.log(err);

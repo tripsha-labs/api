@@ -204,6 +204,8 @@ const tripSchema = {
   status: { type: 'string' },
   showAttendees: { type: 'boolean', optional: true },
   allowExpressCheckout: { type: 'boolean', optional: true },
+  isAutoPayEnabled: { type: 'boolean', optional: true },
+  bookingExpiryDays: { type: 'number', optional: true },
   $$strict: 'remove',
 };
 

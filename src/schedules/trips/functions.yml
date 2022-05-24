@@ -11,4 +11,4 @@ autoPayment:
 emailNotification:
   handler: src/schedules/trips/email-notifications.send
   events:
-    - schedule: rate(10 minute)
+    - schedule: rate(10 minutes)

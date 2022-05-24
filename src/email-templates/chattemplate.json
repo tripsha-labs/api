@@ -1,0 +1,8 @@
+{
+  "Template": {
+    "TemplateName": "ChatNotificationTemplate",
+    "SubjectPart": "{{subject}}",
+    "HtmlPart": "<div style='width: 500px; margin: 0 auto;'><p>Hi {{name}},</p><p>{{message}}</p><p>&nbsp;</p><a style='border-radius: 10px; background-color: #20a39e; border: none; color: white; padding: 15px; font-size: 14px; min-width: 200px;cursor:pointer;' href='{{url}}'> View full conversation </a><p>&nbsp;</p><p>Happy travels,<br />Tripsha Team</p></div>",
+    "TextPart": "Hi {{name}}, {{message}} Thanks, Tripsha Team"
+  }
+}

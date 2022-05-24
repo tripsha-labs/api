@@ -26,17 +26,46 @@ export const sendEmail = data => {
     .promise();
   return result;
 };
-export const EmailSender = (user, { subject, message }, params) => {
+export const sendChatEmail = data => {
+  console.log('Inside email', data);
+  const params = {
+    Destination: {
+      ToAddresses: data.emails,
+    },
+    Template: 'ChatNotificationTemplate',
+    TemplateData: JSON.stringify(data),
+    Source: 'Tripsha <noreply@tripsha.com>',
+    ReplyToAddresses: ['hello@tripsha.com'],
+  };
+  const result = new AWS.SES({ apiVersion: '2010-12-01' })
+    .sendTemplatedEmail(params)
+    .promise();
+  return result;
+};
+export const EmailSender = (
+  user,
+  { subject, message },
+  params,
+  isChatNotification = false
+) => {
   let emails = [];
   if (user && user.additionalEmails && user.additionalEmails.length > 0) {
     emails = user.additionalEmails.map(em => em.email);
   } else {
     emails = [user['email']];
   }
-  return sendEmail({
-    emails: emails,
-    name: user['firstName'],
-    subject: subject,
-    message: message(...params),
-  });
+  if (isChatNotification)
+    return sendChatEmail({
+      emails: emails,
+      name: user['firstName'],
+      subject: subject,
+      message: message(...params),
+    });
+  else
+    return sendEmail({
+      emails: emails,
+      name: user['firstName'],
+      subject: subject,
+      message: message(...params),
+    });
 };

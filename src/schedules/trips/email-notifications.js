@@ -70,9 +70,12 @@ export const send = async (event, context) => {
     console.log(messages.length);
     if (messages && messages.length > 0) {
       messages.map(async message => {
-        await EmailSender(message.toUser, EmailMessages.NEW_CHAT_MESSAGE, [
-          message.message,
-        ]);
+        await EmailSender(
+          message.toUser,
+          EmailMessages.NEW_CHAT_MESSAGE,
+          [message.message],
+          true
+        );
       });
     }
     return context.logStreamName;
