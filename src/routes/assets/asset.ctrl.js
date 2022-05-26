@@ -42,25 +42,63 @@ export class AssetController {
     await AssetModel.update({ _id: Types.ObjectId(assetId) }, params);
     return 'success';
   }
-  static async deleteAsset(assetId, awsUserId) {
+  static async updateMultiple(params, awsUserId) {
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    const asset = await AssetModel.getById(assetId);
-    if (!asset) throw ERROR_KEYS.ASSET_NOT_FOUND;
-    const count = await AssetLinkModel.count({
-      asset_id: Types.ObjectId(assetId),
+    if (
+      params.hasOwnProperty('isArchived') &&
+      params.hasOwnProperty('asset_ids')
+    ) {
+      const assetObjectIds = params.asset_ids.map(assetId =>
+        Types.ObjectId(assetId)
+      );
+      console.log(
+        await AssetModel.list({ filter: { _id: { $in: assetObjectIds } } })
+      );
+      await AssetModel.updateMany(
+        { _id: { $in: assetObjectIds } },
+        { isArchived: params.isArchived }
+      );
+    }
+  }
+  static async deleteAsset(assetIds, awsUserId) {
+    const user = await UserModel.get({ awsUserId: awsUserId });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    const assetObjectIds = assetIds.map(assetId => Types.ObjectId(assetId));
+    const assets = await AssetModel.list({
+      filter: { _id: { $in: assetObjectIds }, userId: user._id.toString() },
     });
-    if (count === 0) {
-      // TODO: write delete object from s3
-      // const s3 = new AWS.S3();
-      // const objectKey = asset.url.replace(
-      //   `https://${process.env.BUCKET_NAME}.s3.amazonaws.com`,
-      //   ''
-      // );
-      // const params = { Bucket: process.env.BUCKET_NAME, Key: 'your object' };
-      // await s3.deleteObject(params);
-      await AssetModel.delete({ _id: Types.ObjectId(assetId) });
-    } else if (count > 0) throw ERROR_KEYS.ASSET_DELETE_FAILED;
+    const promises = [];
+    if (assets && assets.length > 0) {
+      assets.map(async ast => {
+        promises.push(
+          new Promise(async resolve => {
+            const count = await AssetLinkModel.count({
+              asset_id: ast._id,
+            });
+            if (count === 0) {
+              // TODO: write delete object from s3
+              // const s3 = new AWS.S3();
+              // const objectKey = asset.url.replace(
+              //   `https://${process.env.BUCKET_NAME}.s3.amazonaws.com`,
+              //   ''
+              // );
+              // const params = { Bucket: process.env.BUCKET_NAME, Key: 'your object' };
+              // await s3.deleteObject(params);
+              await AssetModel.delete({ _id: ast._id });
+            } else {
+              await AssetModel.update(
+                { _id: ast._id },
+                { $set: { isArchived: true } }
+              );
+            }
+            return resolve();
+          })
+        );
+        return ast;
+      });
+    }
+    await Promise.all(promises);
     return 'success';
   }
 }

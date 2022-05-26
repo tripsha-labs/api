@@ -57,11 +57,27 @@ export const updateAsset = async (req, res) => {
 };
 export const deleteAsset = async (req, res) => {
   try {
-    if (!(req.params && req.params.id))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    if (!(req.body && req.body.asset_ids))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'asset_ids' };
 
     const result = await AssetController.deleteAsset(
-      req.params.id,
+      req.body.asset_ids,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const updateMultiple = async (req, res) => {
+  try {
+    if (!(req.body && req.body.asset_ids))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'asset_ids' };
+
+    const result = await AssetController.updateMultiple(
+      req.body,
       req.requestContext.identity.cognitoIdentityId
     );
     return successResponse(res, result);

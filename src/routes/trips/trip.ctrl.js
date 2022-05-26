@@ -862,7 +862,8 @@ export class TripController {
           return addOn;
         });
       return bookings.map(booking => {
-        const { email, firstName, lastName, username } = booking.user || {};
+        const { email, firstName, lastName, username, livesIn } =
+          booking.user || {};
         const roomInfo = JSON.parse(JSON.stringify(rooms));
         const addOnsInfo = JSON.parse(JSON.stringify(addOns));
         booking.rooms &&
@@ -886,8 +887,19 @@ export class TripController {
           });
         const bookingInfo = {
           _id: booking._id,
-          user: { email, firstName, lastName, username },
+          attendeeName: `${firstName} ${lastName}`,
+          username: username,
+          email: email,
+          location: livesIn,
           guests: booking.guests,
+          company: booking.company,
+          team: booking.team,
+          property: booking.property,
+          discountCode: booking.discountCode,
+          currentDue: booking.currentDue,
+          paidAmout: booking.paidAmout,
+          pendingAmount: booking.pendingAmount,
+          paymentHistory: booking.paymentHistory,
           attendees: booking.attendees,
           rooms: Object.values(roomInfo),
           addOns: Object.values(addOnsInfo),
