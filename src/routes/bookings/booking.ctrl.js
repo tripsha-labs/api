@@ -119,6 +119,7 @@ export class BookingController {
     await EmailSender(tripOwner, EmailMessages.BOOKING_REQUEST_HOST, [
       trip._id.toString(),
       trip['title'],
+      trip.bookingExpiryDays || 3,
     ]);
     return booking;
   }

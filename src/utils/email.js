@@ -18,8 +18,8 @@ export const sendEmail = data => {
     },
     Template: 'NotificationTemplate',
     TemplateData: JSON.stringify(data),
-    Source: 'Tripsha <noreply@tripsha.com>',
-    ReplyToAddresses: ['hello@tripsha.com'],
+    Source: 'Tripsha <notifications@tripsha.com >',
+    ReplyToAddresses: ['notifications@tripsha.com '],
   };
   const result = new AWS.SES({ apiVersion: '2010-12-01' })
     .sendTemplatedEmail(params)
@@ -34,8 +34,8 @@ export const sendChatEmail = data => {
     },
     Template: 'ChatNotificationTemplate',
     TemplateData: JSON.stringify(data),
-    Source: 'Tripsha <noreply@tripsha.com>',
-    ReplyToAddresses: ['hello@tripsha.com'],
+    Source: 'Tripsha <notifications@tripsha.com >',
+    ReplyToAddresses: ['notifications@tripsha.com '],
   };
   const result = new AWS.SES({ apiVersion: '2010-12-01' })
     .sendTemplatedEmail(params)
@@ -57,7 +57,7 @@ export const EmailSender = (
   if (isChatNotification)
     return sendChatEmail({
       emails: emails,
-      name: user['firstName'],
+      name: user['username'],
       subject: subject,
       message: message(...params),
     });

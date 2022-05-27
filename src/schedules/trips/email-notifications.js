@@ -65,9 +65,7 @@ export const send = async (event, context) => {
         },
       },
     ];
-    console.log(query);
     const messages = await MessageModel.aggregate(query);
-    console.log(messages.length);
     if (messages && messages.length > 0) {
       messages.map(async message => {
         await EmailSender(
