@@ -53,6 +53,10 @@ const auth = () => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(async (req, res, next) => {
+    if (process.env.IS_OFFLINE) {
+      req.requestContext.identity.cognitoIdentityId =
+        'us-east-1:cefd8504-c762-4289-bc34-4ee8f0485e32';
+    }
     await dbConnect(res);
     next();
   });

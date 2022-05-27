@@ -8,7 +8,7 @@ export class ApprovalModel {
   static list(params = {}) {
     const { filter, select, pagination, sort } = params;
     const approvals = Approval.find(filter, select || {});
-    if (sort) hosts.sort(sort);
+    if (sort) approvals.sort(sort);
     if (pagination) {
       approvals.limit(pagination.limit);
       approvals.skip(pagination.skip);

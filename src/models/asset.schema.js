@@ -1,6 +1,6 @@
 /**
- * @name - Approval schema
- * @description - Mongouse schema for HostRequest.
+ * @name - Asset links schema
+ * @description - Mongouse schema for Asset links.
  */
 
 import mongoose from 'mongoose';
@@ -10,9 +10,9 @@ const assetSchema = new mongoose.Schema(
     type: { type: String, default: 'image' },
     url: { type: String },
     thumbnailUrl: { type: String },
-    userId: { type: String },
+    userId: { type: String, index: true },
     caption: { type: String },
-    refCount: { type: Number, default: 0 },
+    isArchived: { type: Boolean, index: true, default: false },
   },
   {
     timestamps: true,
@@ -21,4 +21,4 @@ const assetSchema = new mongoose.Schema(
   }
 );
 export const Asset =
-  mongoose.models.Assets || mongoose.model('Assets', assetSchema);
+  mongoose.models.Asset || mongoose.model('Asset', assetSchema);

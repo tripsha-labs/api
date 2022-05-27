@@ -174,4 +174,14 @@ export const ERROR_KEYS = {
     message: `The selected payment method can't be deleted because its in use in one of your booking request. Please wait until the booking request get processed or cancel the booking request before performing this operation.`,
     code: 400,
   },
+  ASSET_NOT_FOUND: {
+    type: 'ASSET_NOT_FOUND',
+    message: `Asset not found.`,
+    code: 400,
+  },
+  ASSET_DELETE_FAILED: {
+    type: 'ASSET_DELETE_FAILED',
+    message: `The selected asset can't be deleted because its in use in one of your trip or chat. Please remove connected trip or clear chat before performing this operation.`,
+    code: 400,
+  },
 };

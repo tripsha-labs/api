@@ -53,10 +53,10 @@ export const EmailMessages = {
   },
   BOOKING_REQUEST_HOST: {
     subject: 'You have a new booking request!',
-    message: (tripId, tripName) => {
+    message: (tripId, tripName, expiredays) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/dashboard?trip=${tripId}`;
       return `
-      You just received a booking request for <a href="${trip_url}" target="_blank">${tripName}</a>. You have 72 hours to respond to the request or it will expire. Once you accept the booking request, the traveler will be immediately be added to your trip.
+      You just received a booking request for <a href="${trip_url}" target="_blank">${tripName}</a>. You have ${expiredays} days to respond to the request or it will expire. Once you accept the booking request, the traveler will be immediately be added to your trip.
       <br/>
       <br/>
       As always, please feel free to message us from your Tripsha inbox if you need any assistance.
@@ -182,6 +182,12 @@ export const EmailMessages = {
       As always, please feel free to message us from your Tripsha inbox if you need any assistance.
       <br/>
     `;
+    },
+  },
+  NEW_CHAT_MESSAGE: {
+    subject: 'New Message on Tripsha',
+    message: message => {
+      return message;
     },
   },
 };

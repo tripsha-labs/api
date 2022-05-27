@@ -58,3 +58,6 @@ export * from './app-setting.schema';
 export * from './asset.model';
 export * from './asset.schema';
 export * from './asset.validation';
+
+export * from './asset-link.model';
+export * from './asset-link.schema';

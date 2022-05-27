@@ -15,6 +15,8 @@ import {
   ConversationModel,
   MessageModel,
   BookingModel,
+  AssetModel,
+  AssetLinkModel,
 } from '../../models';
 import {
   ERROR_KEYS,
@@ -191,6 +193,39 @@ export class TripController {
       const user = await UserModel.get({ awsUserId: params.ownerId });
       params['ownerId'] = user;
       const trip = await TripModel.create(params);
+      try {
+        const urlList = [];
+        if (trip && trip.pictureUrls && trip.pictureUrls.length > 0) {
+          urlList.concat(trip.pictureUrls);
+        }
+        if (trip && trip.rooms && trip.rooms.length > 0) {
+          trip.rooms.map(room => {
+            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+              urlList.concat(room.pictureUrls.map(url => url.url));
+              return room;
+            }
+          });
+        }
+        if (trip && trip.itineraries && trip.itineraries.length > 0) {
+          urlList.concat(trip.itineraries.map(itr => itr.imageUrl));
+        }
+        const items = new Set(urlList);
+        const assets = await AssetModel.find({
+          filter: { url: { $in: [...items] } },
+          select: { _id: 1 },
+        });
+        const assetLinks = assets.map(ast => {
+          return {
+            asset_id: ast._id,
+            resource_id: trip._id,
+            user_id: user._id,
+            type: 'trip',
+          };
+        });
+        await AssetLinkModel.insertMany(assetLinks);
+      } catch (err) {
+        console.log('Failed to created links', err);
+      }
       const addMemberParams = {
         memberId: user._id.toString(),
         tripId: trip._id,
@@ -354,6 +389,70 @@ export class TripController {
       trip['isFull'] = totalMemberCount >= maxGroupSize;
 
       await TripModel.update(tripId, trip);
+      try {
+        let urlList = [];
+        if (trip && trip.pictureUrls && trip.pictureUrls.length > 0) {
+          urlList = [...urlList, ...trip.pictureUrls];
+        } else if (
+          tripDetails &&
+          tripDetails.pictureUrls &&
+          tripDetails.pictureUrls.length > 0
+        ) {
+          urlList = [...urlList, ...tripDetails.pictureUrls];
+        }
+        if (trip && trip.rooms && trip.rooms.length > 0) {
+          trip.rooms.map(room => {
+            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+              urlList = [...urlList, ...room.pictureUrls.map(url => url.url)];
+              return room;
+            }
+          });
+        } else if (
+          tripDetails &&
+          tripDetails.rooms &&
+          tripDetails.rooms.length > 0
+        ) {
+          tripDetails.rooms.map(room => {
+            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+              urlList = [...urlList, ...room.pictureUrls.map(url => url.url)];
+              return room;
+            }
+          });
+        }
+        if (trip && trip.itineraries && trip.itineraries.length > 0) {
+          urlList = [...urlList, ...trip.itineraries.map(itr => itr.imageUrl)];
+        } else if (
+          tripDetails &&
+          tripDetails.itineraries &&
+          tripDetails.itineraries.length > 0
+        ) {
+          urlList = [
+            ...urlList,
+            ...tripDetails.itineraries.map(itr => itr.imageUrl),
+          ];
+        }
+        const items = new Set(urlList);
+        const assets = await AssetModel.list({
+          filter: { url: { $in: [...items] } },
+          select: { _id: 1 },
+        });
+        const assetLinks = assets.map(ast => {
+          return {
+            asset_id: ast._id,
+            resource_id: tripDetails._id,
+            user_id: user._id,
+            type: 'trip',
+          };
+        });
+        await AssetLinkModel.deleteMany({
+          type: 'trip',
+          user_id: user._id,
+          resource_id: tripDetails._id,
+        });
+        await AssetLinkModel.insertMany(assetLinks);
+      } catch (err) {
+        console.log('Failed to create links', err);
+      }
       const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
       const logMessage =
         tripDetails['status'] == 'draft' && trip['status'] == 'published'
@@ -504,8 +603,6 @@ export class TripController {
         delete filterParams['isMember'];
         filterParams['isFavorite'] = true;
       }
-
-      // filterParams['isOwner'] = { $exists: false };
 
       const params = [
         {
@@ -765,7 +862,8 @@ export class TripController {
           return addOn;
         });
       return bookings.map(booking => {
-        const { email, firstName, lastName, username } = booking.user || {};
+        const { email, firstName, lastName, username, livesIn } =
+          booking.user || {};
         const roomInfo = JSON.parse(JSON.stringify(rooms));
         const addOnsInfo = JSON.parse(JSON.stringify(addOns));
         booking.rooms &&
@@ -789,8 +887,19 @@ export class TripController {
           });
         const bookingInfo = {
           _id: booking._id,
-          user: { email, firstName, lastName, username },
+          attendeeName: `${firstName} ${lastName}`,
+          username: username,
+          email: email,
+          location: livesIn,
           guests: booking.guests,
+          company: booking.company,
+          team: booking.team,
+          property: booking.property,
+          discountCode: booking.discountCode,
+          currentDue: booking.currentDue,
+          paidAmout: booking.paidAmout,
+          pendingAmount: booking.pendingAmount,
+          paymentHistory: booking.paymentHistory,
           attendees: booking.attendees,
           rooms: Object.values(roomInfo),
           addOns: Object.values(addOnsInfo),

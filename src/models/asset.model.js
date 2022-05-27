@@ -8,7 +8,7 @@ export class AssetModel {
   static list(params = {}) {
     const { filter, select, pagination, sort } = params;
     const assets = Asset.find(filter, select || {});
-    if (sort) hosts.sort(sort);
+    if (sort) assets.sort(sort);
     if (pagination) {
       assets.limit(pagination.limit);
       assets.skip(pagination.skip);
@@ -27,6 +27,11 @@ export class AssetModel {
 
   static update(filter, params = {}, upsert = { upsert: false }) {
     return Asset.updateOne(filter, { $set: params }, upsert);
+  }
+  static updateMany(filter, params = {}, upsert = { upsert: false }) {
+    console.log(filter);
+    console.log(params);
+    return Asset.updateMany(filter, { $set: params }, upsert);
   }
 
   static delete(params = {}) {

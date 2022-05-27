@@ -60,6 +60,8 @@ const bookingSchema = new mongoose.Schema(
     autoChargeDate: { type: Number },
     paymentRetryCount: { type: Number, default: 0 },
     paymentError: { type: Object },
+    isAutoPayEnabled: { type: Boolean, default: true },
+    bookingExpireOn: { type: Number, default: 3 },
   },
   {
     timestamps: true,
