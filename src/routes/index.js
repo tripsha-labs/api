@@ -24,6 +24,7 @@ import Schedules from './schedules';
 import EmailNotifications from './email-notifications';
 import Assets from './assets';
 import UserExists from './user-exists';
+import HostPayment from './host-payments';
 
 const noAuth = () => {
   const app = express();
@@ -73,6 +74,7 @@ const auth = () => {
   app.use('/coupons', Coupons);
   app.use('/email-notifications', EmailNotifications);
   app.use('/assets', Assets);
+  app.use('/host-payments', HostPayment);
   return app;
 };
 

@@ -201,7 +201,7 @@ const tripSchema = {
   priceExcludes: { type: 'string', optional: true },
   isPublic: { type: 'boolean', optional: true },
   lastBookingDate: { type: 'number', optional: true },
-  status: { type: 'string' },
+  status: { type: 'string', optional: true },
   showAttendees: { type: 'boolean', optional: true },
   allowExpressCheckout: { type: 'boolean', optional: true },
   isAutoPayEnabled: { type: 'boolean', optional: true },
@@ -237,6 +237,10 @@ const tripUpdateSchema = {
   },
   isDepositApplicable: {
     ...tripSchema.isDepositApplicable,
+    optional: true,
+  },
+  bookingFilter: {
+    type: 'object',
     optional: true,
   },
 };

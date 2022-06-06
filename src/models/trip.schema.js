@@ -63,6 +63,7 @@ const tripSchema = new mongoose.Schema(
     allowExpressCheckout: { type: Boolean, default: false },
     isAutoPayEnabled: { type: Boolean, default: true },
     bookingExpiryDays: { type: Number, default: 3 },
+    bookingFilter: { type: Object, optional: true },
   },
   {
     timestamps: true,

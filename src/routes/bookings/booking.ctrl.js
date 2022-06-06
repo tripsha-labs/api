@@ -2,6 +2,7 @@
  * @name - Booking controller
  * @description - This will handle business logic for Booking module
  */
+import { Types } from 'mongoose';
 import { StripeAPI, logActivity, EmailSender } from '../../utils';
 import {
   getCost,
@@ -726,6 +727,12 @@ export class BookingController {
 
   static async updateBooking(id, params) {
     await BookingModel.update(id, params);
+    return 'success';
+  }
+
+  static async multiUpdateBooking(bookingIds, booking) {
+    const booking_ids = bookingIds.map(id => Types.ObjectId(id));
+    await BookingModel.updateMany({ _id: { $in: booking_ids } }, booking);
     return 'success';
   }
 }

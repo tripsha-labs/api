@@ -131,6 +131,8 @@ const bookingSchema = {
 };
 const updateBookingSchema = {
   message: { type: 'string', optional: true },
+  company: { type: 'string', optional: true },
+  team: { type: 'string', optional: true },
   guests: {
     type: 'array',
     optional: true,

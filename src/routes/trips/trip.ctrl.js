@@ -801,6 +801,7 @@ export class TripController {
         groupSize: 1,
         maxGroupSize: 1,
         tripPaymentType: 1,
+        bookingFilter: 1,
       });
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       // const user = await UserModel.get({ awsUserId: awsUserId });
@@ -822,6 +823,15 @@ export class TripController {
             addOns: 1,
             rooms: 1,
             attendees: 1,
+            company: 1,
+            team: 1,
+            property: 1,
+            coupon: 1,
+            discount: 1,
+            currentDue: 1,
+            paidAmout: 1,
+            pendingAmount: 1,
+            paymentHistory: 1,
           },
         },
         {
@@ -895,7 +905,8 @@ export class TripController {
           company: booking.company,
           team: booking.team,
           property: booking.property,
-          discountCode: booking.discountCode,
+          discount: booking.discount,
+          coupon: booking.coupon,
           currentDue: booking.currentDue,
           paidAmout: booking.paidAmout,
           pendingAmount: booking.pendingAmount,

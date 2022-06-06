@@ -132,3 +132,23 @@ export const updateBooking = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+
+export const multiUpdateBooking = async (req, res) => {
+  try {
+    const data = req.body || {};
+    if (data && !data.hasOwnProperty('booking'))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'booking' };
+    if (data && !data.hasOwnProperty('bookingIds'))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'bookingIds' };
+    const validation = updateBookingValidation(data.booking);
+    if (validation != true) throw validation.shift();
+    const result = await BookingController.multiUpdateBooking(
+      data.bookingIds,
+      data.booking
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};

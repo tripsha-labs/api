@@ -43,7 +43,6 @@ const bookingSchema = new mongoose.Schema(
       default: 'pending',
     },
     // Payment details
-    nextPaymentDate: { type: Object },
     totalBaseFare: { type: Number, default: 0 },
     totalAddonFare: { type: Number, default: 0 },
     discountBaseFare: { type: Number, default: 0 },
@@ -62,6 +61,8 @@ const bookingSchema = new mongoose.Schema(
     paymentError: { type: Object },
     isAutoPayEnabled: { type: Boolean, default: true },
     bookingExpireOn: { type: Number, default: 3 },
+    company: { type: String },
+    team: { type: String },
   },
   {
     timestamps: true,
