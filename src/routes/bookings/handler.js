@@ -136,15 +136,33 @@ export const updateBooking = async (req, res) => {
 export const multiUpdateBooking = async (req, res) => {
   try {
     const data = req.body || {};
-    if (data && !data.hasOwnProperty('booking'))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'booking' };
+    if (
+      data &&
+      !data.hasOwnProperty('booking') &&
+      !data.hasOwnProperty('unsetFields')
+    )
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'booking or unsetFields' };
     if (data && !data.hasOwnProperty('bookingIds'))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'bookingIds' };
-    const validation = updateBookingValidation(data.booking);
+    const customFields = data.booking || {};
+    const unsetFields = data.unsetFields || [];
+    const validation = updateBookingValidation({ customFields });
     if (validation != true) throw validation.shift();
+    const keys = Object.keys(customFields);
+    const payload = {};
+    if (keys && keys.length > 0)
+      keys.forEach(key => {
+        payload[`customFields.${key}`] = customFields[key];
+      });
+    const unsetPayload = {};
+    if (unsetFields && unsetFields.length > 0)
+      unsetFields.forEach(key => {
+        unsetPayload[`customFields.${key}`] = 1;
+      });
     const result = await BookingController.multiUpdateBooking(
       data.bookingIds,
-      data.booking
+      payload,
+      unsetPayload
     );
     return successResponse(res, result);
   } catch (error) {

@@ -5,12 +5,13 @@
 import Validator from 'fastest-validator';
 
 const paymentSchema = {
-  description: { type: 'string', empty: false },
-  paymentType: { type: 'string', empty: false },
-  paymentDate: { type: 'string', empty: false },
+  description: { type: 'string', empty: false, optional: true },
+  paymentType: { type: 'string', empty: false, optional: true },
+  paymentDate: { type: 'number', empty: false, optional: true },
   paymentMethod: {
     type: 'string',
     empty: false,
+    optional: true,
   },
   attachments: {
     type: 'array',
@@ -25,7 +26,20 @@ const paymentSchema = {
       },
     },
   },
-  amount: { type: 'string', empty: false },
+  comments: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        message: { type: 'string', optional: true },
+        createdAt: { type: 'string', optional: true },
+      },
+    },
+  },
+  amount: { type: 'number', empty: false, optional: true },
   $$strict: 'remove',
 };
 

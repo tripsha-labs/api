@@ -61,8 +61,7 @@ const bookingSchema = new mongoose.Schema(
     paymentError: { type: Object },
     isAutoPayEnabled: { type: Boolean, default: true },
     bookingExpireOn: { type: Number, default: 3 },
-    company: { type: String },
-    team: { type: String },
+    customFields: { type: Object },
   },
   {
     timestamps: true,

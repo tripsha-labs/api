@@ -239,8 +239,20 @@ const tripUpdateSchema = {
     ...tripSchema.isDepositApplicable,
     optional: true,
   },
-  bookingFilter: {
-    type: 'object',
+  travelerViewName: {
+    type: 'string',
+    optional: true,
+  },
+  travelerCustomColumns: {
+    type: 'array',
+    optional: true,
+  },
+  travelerViews: {
+    type: 'array',
+    optional: true,
+  },
+  paymentViews: {
+    type: 'array',
     optional: true,
   },
 };

@@ -12,19 +12,24 @@ export class CouponController {
   static async listCoupons(filter, awsUserId) {
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    let searchQuery = {};
+    if (filter.search) {
+      searchQuery = {
+        couponCode: { $regex: new RegExp('^' + (filter.search || ''), 'i') },
+      };
+    }
     const params = {
-      filter: {
-        name: { $regex: new RegExp('^' + (filter.search || ''), 'i') },
-      },
-      ...prepareCommonFilter(filter, ['name']),
+      filter: searchQuery,
+      ...prepareCommonFilter(filter, ['couponCode']),
     };
     if (user.isAdmin || user.isHost) {
-      if (user.isHost && !user.isAdmin) {
+      if (user.isHost) {
         params['filter']['userId'] = user._id.toString();
       }
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
+    console.log(params);
     const coupons = await CouponModel.list(params);
     return {
       data: coupons,

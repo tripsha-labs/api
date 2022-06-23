@@ -33,6 +33,10 @@ export class BookingModel {
     return Booking.updateMany(filter, { $set: params });
   }
 
+  static updateUnsetMany(filter, params) {
+    return Booking.updateMany(filter, { $unset: params });
+  }
+
   static aggregate(params = {}) {
     return Booking.aggregate(params);
   }

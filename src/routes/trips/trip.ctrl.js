@@ -801,7 +801,12 @@ export class TripController {
         groupSize: 1,
         maxGroupSize: 1,
         tripPaymentType: 1,
-        bookingFilter: 1,
+        paymentViewName: 1,
+        paymentCustomColumns: 1,
+        paymentViews: 1,
+        travelerViewName: 1,
+        travelerCustomColumns: 1,
+        travelerViews: 1,
       });
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       // const user = await UserModel.get({ awsUserId: awsUserId });
@@ -832,6 +837,7 @@ export class TripController {
             paidAmout: 1,
             pendingAmount: 1,
             paymentHistory: 1,
+            customFields: 1,
           },
         },
         {
@@ -897,7 +903,7 @@ export class TripController {
           });
         const bookingInfo = {
           _id: booking._id,
-          attendeeName: `${firstName} ${lastName}`,
+          attendeeName: `${firstName} ${lastName || ''}`,
           username: username,
           email: email,
           location: livesIn,
@@ -914,6 +920,13 @@ export class TripController {
           attendees: booking.attendees,
           rooms: Object.values(roomInfo),
           addOns: Object.values(addOnsInfo),
+          travelerViewName: booking.travelerViewName,
+          travelerCustomColumns: booking.travelerCustomColumns,
+          travelerViews: booking.travelerViews,
+          paymentViewName: booking.paymentViewName,
+          paymentCustomColumns: booking.paymentCustomColumns,
+          paymentViews: booking.paymentViews,
+          customFields: booking.customFields,
         };
         return bookingInfo;
       });

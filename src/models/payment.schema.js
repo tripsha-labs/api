@@ -14,6 +14,7 @@ const paymentSchema = new mongoose.Schema(
     paymentDate: { type: Number },
     paymentMethod: { type: String },
     attachments: { type: Array },
+    comments: { type: Array },
     amount: { type: Number },
   },
   {

@@ -17,4 +17,4 @@ const assetLinkSchema = new mongoose.Schema(
   }
 );
 export const AssetLink =
-  mongoose.models.AssetLink || mongoose.model('AssetLinks', assetLinkSchema);
+  mongoose.models.AssetLink || mongoose.model('AssetLink', assetLinkSchema);

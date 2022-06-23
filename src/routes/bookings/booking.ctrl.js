@@ -730,9 +730,14 @@ export class BookingController {
     return 'success';
   }
 
-  static async multiUpdateBooking(bookingIds, booking) {
+  static async multiUpdateBooking(bookingIds, booking, unsetFields) {
     const booking_ids = bookingIds.map(id => Types.ObjectId(id));
-    await BookingModel.updateMany({ _id: { $in: booking_ids } }, booking);
-    return 'success';
+    if (unsetFields)
+      await BookingModel.updateUnsetMany(
+        { _id: { $in: booking_ids } },
+        unsetFields
+      );
+    if (booking)
+      await BookingModel.updateMany({ _id: { $in: booking_ids } }, booking);
   }
 }
