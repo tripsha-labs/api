@@ -177,7 +177,13 @@ const tripSchema = {
         questionText: { type: 'string' },
         type: {
           type: 'enum',
-          values: ['OneLine', 'MultiLine', 'OneChoice', 'MultiChoice'],
+          values: [
+            'OneLine',
+            'MultiLine',
+            'OneChoice',
+            'MultiChoice',
+            'UploadFile',
+          ],
         },
         options: {
           type: 'array',
@@ -191,6 +197,7 @@ const tripSchema = {
           },
         },
         isRequired: { type: 'boolean' },
+        showAtBooking: { type: 'boolean' },
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
         showOtherText: { type: 'string', optional: true, default: 'Other' },
