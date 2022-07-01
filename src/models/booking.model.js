@@ -55,4 +55,7 @@ export class BookingModel {
   static addOrUpdate(filter, update) {
     return Booking.updateMany(filter, { $set: update }, { upsert: true });
   }
+  static bulkWrite(params) {
+    return Booking.bulkWrite(params);
+  }
 }

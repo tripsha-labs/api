@@ -196,8 +196,8 @@ const tripSchema = {
             },
           },
         },
-        isRequired: { type: 'boolean' },
-        showAtBooking: { type: 'boolean' },
+        isRequired: { type: 'boolean', optional: true },
+        showAtBooking: { type: 'boolean', optional: true },
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
         showOtherText: { type: 'string', optional: true, default: 'Other' },
@@ -264,6 +264,19 @@ const tripUpdateSchema = {
   },
 };
 
+const draftpSchema = {
+  title: { type: 'string', empty: false },
+  pictureUrls: {
+    type: 'array',
+    optional: true,
+    items: 'string',
+  },
+  thumbnailUrls: {
+    type: 'array',
+    optional: true,
+    items: 'string',
+  },
+};
 export const validateTripLength = (startDate, endDate) => {
   try {
     startDate = moment(startDate, DATE_FORMAT);
@@ -274,5 +287,6 @@ export const validateTripLength = (startDate, endDate) => {
   }
 };
 
+export const draftTripValidation = new Validator().compile(draftpSchema);
 export const createTripValidation = new Validator().compile(tripSchema);
 export const updateTripValidation = new Validator().compile(tripUpdateSchema);

@@ -90,9 +90,9 @@ const bookingSchema = {
             },
           },
         },
-        isRequired: { type: 'boolean' },
-        showAtBooking: { type: 'boolean' },
-        answer: { type: 'string' },
+        isRequired: { type: 'boolean', optional: true },
+        showAtBooking: { type: 'boolean', optional: true },
+        answer: { type: 'string', optional: true },
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
         showOtherText: { type: 'string', optional: true, default: 'Other' },
@@ -156,6 +156,25 @@ const updateBookingSchema = {
   },
   $$strict: 'remove',
 };
+export const createInviteValidation = new Validator().compile({
+  tripId: { type: 'string', empty: false },
+  emails: {
+    type: 'array',
+    empty: false,
+    items: {
+      type: 'email',
+    },
+    save_to_members: {
+      type: 'bolean',
+      optional: true,
+    },
+    send_invite: {
+      type: 'bolean',
+      optional: true,
+    },
+  },
+  $$strict: 'remove',
+});
 export const createBookingValidation = new Validator().compile(bookingSchema);
 
 export const updateBookingValidation = new Validator().compile(

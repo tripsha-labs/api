@@ -181,13 +181,13 @@ export class TripController {
         params['startDate'],
         params['endDate']
       );
+
       if (
         tripLength <= 0 ||
         tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
         isNaN(tripLength)
       )
         throw ERROR_KEYS.INVALID_DATES;
-
       params['tripLength'] = tripLength + 1;
 
       const user = await UserModel.get({ awsUserId: params.ownerId });
@@ -312,7 +312,10 @@ export class TripController {
       ) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
-
+      const exustingMemberCount = await MemberModel.count({ tripId });
+      if (exustingMemberCount > 1 && tripDetails.status === 'draft') {
+        throw ERROR_KEYS.CANNOT_CHANGE_TO_DRAFT;
+      }
       if (
         trip['startDate'] &&
         trip['startDate'] != '' &&
@@ -376,7 +379,10 @@ export class TripController {
       const maxGroupSize = trip['maxGroupSize']
         ? trip['maxGroupSize']
         : tripDetails['maxGroupSize'];
-      if (totalMemberCount > maxGroupSize) {
+      if (
+        totalMemberCount > maxGroupSize &&
+        tripDetails['status'] !== 'draft'
+      ) {
         throw ERROR_KEYS.INVALID_ETERNAL_COUNT;
       }
       trip['guestCount'] = guestCount;
@@ -838,6 +844,7 @@ export class TripController {
             pendingAmount: 1,
             paymentHistory: 1,
             customFields: 1,
+            updatedAt: 1,
           },
         },
         {
@@ -927,6 +934,7 @@ export class TripController {
           paymentCustomColumns: booking.paymentCustomColumns,
           paymentViews: booking.paymentViews,
           customFields: booking.customFields,
+          updatedAt: booking.updatedAt,
         };
         return bookingInfo;
       });

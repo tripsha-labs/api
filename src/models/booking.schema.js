@@ -32,6 +32,10 @@ const bookingSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
+        'invite-pending',
+        'invite-sent',
+        'invite-accepted',
+        'invite-declined',
         'pending',
         'approved',
         'declined',

@@ -5,7 +5,11 @@
 import { TripController } from './trip.ctrl';
 import { successResponse, failureResponse, sendEmail } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
-import { updateTripValidation, createTripValidation } from '../../models';
+import {
+  updateTripValidation,
+  createTripValidation,
+  draftTripValidation,
+} from '../../models';
 
 /**
  * List trips
@@ -37,7 +41,7 @@ export const createTrip = async (req, res) => {
 
     const errors =
       data.status === 'draft'
-        ? updateTripValidation(data)
+        ? draftTripValidation(data)
         : createTripValidation(data);
     if (errors != true) throw errors.shift();
 
@@ -61,7 +65,11 @@ export const updateTrip = async (req, res) => {
     const data = req.body || {};
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-    const errors = updateTripValidation(data);
+
+    const errors =
+      data.status === 'draft'
+        ? draftTripValidation(data)
+        : updateTripValidation(data);
     if (errors != true) throw errors.shift();
     const result = await TripController.updateTrip(
       req.params.id,

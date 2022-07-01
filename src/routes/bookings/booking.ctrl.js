@@ -26,8 +26,67 @@ import {
 import { MemberController } from '../members/member.ctrl';
 import { ObjectID } from 'mongodb';
 import moment from 'moment';
+import _ from 'lodash';
 
 export class BookingController {
+  static async getUsername(username) {
+    const user = await UserModel.get({ username });
+    if (user)
+      return (
+        username +
+        moment()
+          .unix()
+          .toString()
+      );
+    return username;
+  }
+  static async createInvite(params, awsUserId) {
+    const trip = await TripModel.getById(params.tripId);
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    let users = await UserModel.list({
+      filter: { email: { $in: params.emails } },
+      select: { email: 1 },
+    });
+    const foundEmails = users.map(user => user.email);
+    const difference = _.difference(params.emails, foundEmails);
+
+    if (difference && difference.length > 0) {
+      const createUsers = difference.map(async email => {
+        const username = email.split('@')[0];
+        return {
+          email: email,
+          firstName: '',
+          lastName: '',
+          username: await BookingController.getUsername(username),
+        };
+      });
+      const insertData = await Promise.all(createUsers);
+      await UserModel.insertMany(insertData);
+    }
+    users = await UserModel.list({
+      filter: { email: { $in: params.emails } },
+      select: { email: 1 },
+    });
+    const bookings = users.map(user => {
+      return {
+        updateOne: {
+          filter: { tripId: params.tripId, memberId: user._id.toString() },
+          update: {
+            $set: {
+              tripId: params.tripId,
+              memberId: user._id.toString(),
+              addedByHost: true,
+              status: 'invite-pending',
+            },
+          },
+          upsert: true,
+        },
+      };
+    });
+    await BookingModel.bulkWrite(bookings);
+
+    return 'success';
+  }
   static async createBooking(params, awsUserId) {
     const bookingData = params;
     const trip = await TripModel.getById(params.tripId);
@@ -161,7 +220,7 @@ export class BookingController {
       autoChargeDate: 1,
       bookingExpireOn: 1,
     };
-    const params = [{ $match: { tripId: filters.tripId, status: 'pending' } }];
+    const params = [{ $match: { tripId: filters.tripId } }];
     params.push({
       $sort: prepareSortFilter(
         filters,
@@ -196,6 +255,7 @@ export class BookingController {
         preserveNullAndEmptyArrays: true,
       },
     });
+    console.log(params);
     const bookingList = BookingModel.aggregate(params);
     return bookingList;
   }

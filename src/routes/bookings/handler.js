@@ -8,9 +8,27 @@ import {
   createBookingValidation,
   hostBookingActionValidation,
   updateBookingValidation,
+  createInviteValidation,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
-
+/***
+ * createInvite
+ */
+export const createInvite = async (req, res) => {
+  try {
+    const data = req.body || {};
+    const validation = createInviteValidation(data);
+    if (validation != true) throw validation.shift();
+    const result = await BookingController.createInvite(
+      data,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
 /**
  * Create booking
  */
@@ -62,7 +80,6 @@ export const listBookings = async (req, res) => {
  */
 export const getBooking = async (req, res) => {
   try {
-    const data = req.body || {};
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const result = await BookingController.getBooking(req.params.id);
@@ -78,7 +95,6 @@ export const getBooking = async (req, res) => {
  */
 export const doPartPayment = async (req, res) => {
   try {
-    const data = req.body || {};
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const result = await BookingController.doPartPayment(

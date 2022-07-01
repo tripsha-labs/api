@@ -24,7 +24,9 @@ export class UserModel {
     const user = new User(params);
     return user.save();
   }
-
+  static insertMany(params = []) {
+    return User.insertMany(params);
+  }
   static update(filter, params = {}) {
     return User.updateOne(filter, { $set: params });
   }

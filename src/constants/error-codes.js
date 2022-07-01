@@ -21,6 +21,12 @@ export const ERROR_KEYS = {
       'Sorry! Something went wrong on our end. Please go back and try again.',
     code: 500,
   },
+  CANNOT_CHANGE_TO_DRAFT: {
+    type: 'CANNOT_CHANGE_TO_DRAFT',
+    message:
+      'There are some members attending the trip, cannot change to draft.',
+    code: 400,
+  },
   MISSING_FIELD: {
     type: 'required',
     message: "Whoops! You need to enter a '{ field }' to proceed.",
