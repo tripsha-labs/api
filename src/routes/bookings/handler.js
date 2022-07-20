@@ -29,6 +29,39 @@ export const createInvite = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+export const removeInvite = async (req, res) => {
+  try {
+    const data = req.body || {};
+    if (data?.booking_id) {
+      const result = await BookingController.removeInvite(
+        data,
+        req.requestContext.identity.cognitoIdentityId
+      );
+      return successResponse(res, result);
+    } else
+      throw {
+        ...ERROR_KEYS.MISSING_FIELD,
+        field: 'booking_id',
+      };
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const sendReminder = async (req, res) => {
+  try {
+    const data = req.body || {};
+    const result = await BookingController.sendReminder(
+      data,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
 /**
  * Create booking
  */

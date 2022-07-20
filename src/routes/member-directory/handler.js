@@ -43,7 +43,6 @@ export const createMembers = async (req, res) => {
         member.hostId = req.currentUser._id.toString();
         return member;
       });
-      console.log(data);
       await MemberDirectoryController.createMembers(data);
     }
     return successResponse(res, 'success');

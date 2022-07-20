@@ -92,6 +92,7 @@ const bookingSchema = {
         },
         isRequired: { type: 'boolean', optional: true },
         showAtBooking: { type: 'boolean', optional: true },
+        hideQuestion: { type: 'boolean', optional: true },
         answer: { type: 'string', optional: true },
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
@@ -114,7 +115,6 @@ const bookingSchema = {
     type: 'object',
     optional: true,
     props: {
-      name: { type: 'string' },
       discType: { type: 'enum', values: ['amount', 'percentage'] },
       amount: { type: 'number' },
       couponCode: { type: 'string' },
@@ -172,6 +172,7 @@ export const createInviteValidation = new Validator().compile({
       type: 'bolean',
       optional: true,
     },
+    direct_attendee: { type: 'bolean', optional: true },
   },
   $$strict: 'remove',
 });

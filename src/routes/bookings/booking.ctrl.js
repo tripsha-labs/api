@@ -27,6 +27,7 @@ import { MemberController } from '../members/member.ctrl';
 import { ObjectID } from 'mongodb';
 import moment from 'moment';
 import _ from 'lodash';
+import { MemberDirectoryController } from '../member-directory/member-directory.ctrl';
 
 export class BookingController {
   static async getUsername(username) {
@@ -41,51 +42,141 @@ export class BookingController {
     return username;
   }
   static async createInvite(params, awsUserId) {
+    const user = await UserModel.get({ awsUserId: awsUserId });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    if (user.isHost || user.isAdmin) {
+      const trip = await TripModel.getById(params.tripId);
+      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      let users = await UserModel.list({
+        filter: { email: { $in: params.emails } },
+        select: { email: 1 },
+      });
+      const foundEmails = users.map(user => user.email);
+      const difference = _.difference(params.emails, foundEmails);
+      // Create user if not exists already
+      if (difference && difference.length > 0) {
+        const createUsers = difference.map(async email => {
+          const username = email.split('@')[0];
+          return {
+            updateOne: {
+              filter: { email: email },
+              update: {
+                $set: {
+                  email: email,
+                  firstName: '',
+                  lastName: '',
+                  username: await BookingController.getUsername(username),
+                },
+              },
+              upsert: true,
+            },
+          };
+        });
+        const insertData = await Promise.all(createUsers);
+        await UserModel.bulkWrite(insertData);
+      }
+
+      // Add members to directory
+      if (params.save_to_members) {
+        const data = params?.emails?.split(',')?.map(email => {
+          return { email: email };
+        });
+        if (data) await MemberDirectoryController.createMembers(data);
+      }
+      users = await UserModel.list({
+        filter: { email: { $in: params.emails } },
+        select: { email: 1 },
+      });
+
+      if (params.attendee_action === 'direct_attendee') {
+        const memberIds = users.map(user => user._id.toString());
+        await MemberController.memberAction({
+          memberIds: memberIds,
+          tripId: params.tripId,
+          message: params.message || '',
+          awsUserId,
+          action: 'addMember',
+          forceAddTraveler: true,
+        });
+      } else {
+        const bookings = users.map(user => {
+          let bookingStatus = 'invite-pending';
+          if (params.attendee_action === 'send_invite')
+            bookingStatus = 'invited';
+          return {
+            updateOne: {
+              filter: {
+                tripId: params.tripId,
+                memberId: user._id.toString(),
+              },
+              update: {
+                $set: {
+                  tripId: params.tripId,
+                  memberId: user._id.toString(),
+                  addedByHost: true,
+                  status: bookingStatus,
+                },
+              },
+              upsert: true,
+            },
+          };
+        });
+        await BookingModel.bulkWrite(bookings);
+        if (params.attendee_action === 'send_invite') {
+          params?.emails?.split(',')?.map(async email => {
+            await EmailSender(
+              { email: email },
+              EmailMessages.MEMBER_INVITE_HOST,
+              [trip._id.toString(), trip['title']]
+            );
+          });
+        }
+      }
+
+      return 'success';
+    } else throw ERROR_KEYS.UNAUTHORIZED;
+  }
+  static async removeInvite(params, awsUserId) {
+    const user = await UserModel.get({ awsUserId: awsUserId });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    if (user.isHost || user.isAdmin) {
+      await BookingModel.delete({ _id: Types.ObjectId(params.booking_id) });
+      return 'success';
+    } else throw ERROR_KEYS.TRIP_NOT_FOUND;
+  }
+  static async sendReminder(params, awsUserId) {
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    let users = await UserModel.list({
+    const users = await UserModel.list({
       filter: { email: { $in: params.emails } },
-      select: { email: 1 },
+      select: { email: 1, firstName: 1, lastName: 1, username: 1 },
     });
-    const foundEmails = users.map(user => user.email);
-    const difference = _.difference(params.emails, foundEmails);
-
-    if (difference && difference.length > 0) {
-      const createUsers = difference.map(async email => {
-        const username = email.split('@')[0];
-        return {
-          email: email,
-          firstName: '',
-          lastName: '',
-          username: await BookingController.getUsername(username),
-        };
-      });
-      const insertData = await Promise.all(createUsers);
-      await UserModel.insertMany(insertData);
-    }
-    users = await UserModel.list({
-      filter: { email: { $in: params.emails } },
-      select: { email: 1 },
-    });
-    const bookings = users.map(user => {
-      return {
-        updateOne: {
-          filter: { tripId: params.tripId, memberId: user._id.toString() },
-          update: {
-            $set: {
-              tripId: params.tripId,
-              memberId: user._id.toString(),
-              addedByHost: true,
-              status: 'invite-pending',
-            },
-          },
-          upsert: true,
+    if (users && users.length > 0) {
+      const bookings = await BookingModel.list({
+        filter: {
+          memberId: { $in: users.map(user => user._id.toString()) },
+          tripId: params.tripId,
         },
-      };
-    });
-    await BookingModel.bulkWrite(bookings);
-
-    return 'success';
+      });
+      console.log({
+        memberId: { $in: users.map(user => user._id.toString()) },
+        tripId: params.tripId,
+      });
+      console.log(bookings);
+      users.map(async user => {
+        const booking = bookings.find(b => b.memberId === user._id.toString());
+        console.log(booking);
+        if (booking && booking.status === 'invite-pending') {
+          console.log('Updating invite.....');
+          await BookingModel.update(booking._id, { status: 'invited' });
+        }
+        await EmailSender(user, EmailMessages.MEMBER_INVITE_HOST, [
+          trip._id.toString(),
+          trip['title'],
+        ]);
+        return user;
+      });
+    }
   }
   static async createBooking(params, awsUserId) {
     const bookingData = params;
@@ -142,12 +233,23 @@ export class BookingController {
     const existingBooking = await BookingModel.get({
       tripId: finalBookingData['tripId'],
       memberId: finalBookingData['memberId'],
-      status: { $in: ['approved', 'pending'] },
     });
-    if (existingBooking) throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
+    if (
+      existingBooking &&
+      ['approved', 'pending'].includes(existingBooking.status)
+    )
+      throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
+    finalBookingData['status'] = 'pending';
     const status = getTripResourceValidity(trip, bookingData);
     if (status.rooms && status.addOns) throw ERROR_KEYS.TRIP_RESOURCES_FULL;
-    const booking = await BookingModel.create(finalBookingData);
+    const booking = await BookingModel.update(
+      existingBooking._id,
+      finalBookingData,
+      {
+        upsert: true,
+      }
+    );
+    console.log(finalBookingData);
     const tripUpdate = {
       isLocked: true,
       rooms: addRoomResources(bookingData, trip, ['reserved']),
@@ -219,6 +321,7 @@ export class BookingController {
       updatedAt: 1,
       autoChargeDate: 1,
       bookingExpireOn: 1,
+      questions: 1,
     };
     const params = [{ $match: { tripId: filters.tripId } }];
     params.push({
@@ -255,7 +358,6 @@ export class BookingController {
         preserveNullAndEmptyArrays: true,
       },
     });
-    console.log(params);
     const bookingList = BookingModel.aggregate(params);
     return bookingList;
   }
@@ -317,7 +419,9 @@ export class BookingController {
               let needStripeIdUpdate = false;
               if (booking.currentDue > 1) {
                 if (!booking.onwerStripeId) {
-                  const ownerInfo = await UserModel.get({ _id: trip.ownerId });
+                  const ownerInfo = await UserModel.get({
+                    _id: trip.ownerId,
+                  });
                   if (ownerInfo.stripeAccountId) {
                     booking['onwerStripeId'] = ownerInfo.stripeAccountId;
                     needStripeIdUpdate = true;
@@ -723,6 +827,7 @@ export class BookingController {
       createdAt: 1,
       updatedAt: 1,
       autoChargeDate: 1,
+      questions: 1,
     };
     const params = [
       {

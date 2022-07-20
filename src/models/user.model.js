@@ -46,4 +46,7 @@ export class UserModel {
   static getUserByAWSUsername(username, select = {}) {
     return User.findOne({ awsUsername: username }, select);
   }
+  static bulkWrite(params) {
+    return User.bulkWrite(params);
+  }
 }

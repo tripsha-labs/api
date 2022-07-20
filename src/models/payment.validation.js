@@ -22,6 +22,7 @@ const paymentSchema = {
       props: {
         id: { type: 'string' },
         type: { type: 'string', optional: true },
+        name: { type: 'string', optional: true },
         url: { type: 'string', optional: true },
       },
     },
