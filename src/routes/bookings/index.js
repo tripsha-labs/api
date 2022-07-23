@@ -8,7 +8,7 @@ import {
   updateBooking,
   multiUpdateBooking,
   createInvite,
-  inviteAttendee,
+  updateCustomFields,
   sendReminder,
   removeInvite,
 } from './handler';
@@ -22,6 +22,7 @@ router.post('/invite/reminder', sendReminder);
 router.put('/', multiUpdateBooking);
 router.get('/:id', getBooking);
 router.put('/:id', updateBooking);
+router.put('/:id/custom-fields', updateCustomFields);
 router.post('/:id/action', bookingsAction);
 router.post('/:id/payment', doPartPayment);
 

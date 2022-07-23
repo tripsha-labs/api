@@ -181,7 +181,27 @@ export const updateBooking = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+export const updateCustomFields = async (req, res) => {
+  try {
+    const bookingId = req.params && req.params.id;
+    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
+    const data = req.body || {};
+    const keys = Object.keys(data);
+    let isValid = true;
+    keys?.forEach(key => {
+      if (!key.includes('customFields.')) isValid = false;
+    });
+    if (!isValid) {
+      throw { ...ERROR_KEYS.BAD_REQUEST };
+    }
+    const result = await BookingController.updateBooking(bookingId, data);
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
 export const multiUpdateBooking = async (req, res) => {
   try {
     const data = req.body || {};
