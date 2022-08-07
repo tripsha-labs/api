@@ -845,6 +845,7 @@ export class TripController {
             paymentHistory: 1,
             customFields: 1,
             updatedAt: 1,
+            questions: 1,
           },
         },
         {
@@ -935,6 +936,7 @@ export class TripController {
           paymentViews: booking.paymentViews,
           customFields: booking.customFields,
           updatedAt: booking.updatedAt,
+          questions: booking.questions,
         };
         return bookingInfo;
       });

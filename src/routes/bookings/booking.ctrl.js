@@ -16,7 +16,7 @@ import {
   removeRoomResources,
   getTripResourceValidity,
 } from '../../helpers';
-import { BookingModel, UserModel, TripModel } from '../../models';
+import { BookingModel, UserModel, TripModel, MemberModel } from '../../models';
 import {
   ERROR_KEYS,
   LogMessages,
@@ -87,43 +87,68 @@ export class BookingController {
         filter: { email: { $in: params.emails } },
         select: { email: 1 },
       });
-
+      const memberIds = users.map(user => user._id.toString());
       if (params.attendee_action === 'direct_attendee') {
-        const memberIds = users.map(user => user._id.toString());
-        await MemberController.memberAction({
-          memberIds: memberIds,
-          tripId: params.tripId,
-          message: params.message || '',
-          awsUserId,
-          action: 'addMember',
-          forceAddTraveler: true,
+        const objMemberIds = users.map(user => user._id);
+        const foundMembers = await MemberModel.list({
+          filter: {
+            tripId: params.tripId,
+            memberId: objMemberIds,
+            isMember: true,
+          },
         });
+        const foundMemberIds = foundMembers.map(member =>
+          member.memberId.toString()
+        );
+        const diffIds = _.difference(memberIds, foundMemberIds);
+        if (diffIds?.length > 0)
+          await MemberController.memberAction({
+            memberIds: diffIds,
+            tripId: params.tripId,
+            message: params.message || '',
+            awsUserId,
+            action: 'addMember',
+            forceAddTraveler: true,
+          });
       } else {
-        const bookings = users.map(user => {
+        const approvedBookings = await BookingModel.list({
+          filter: {
+            memberId: {
+              $in: memberIds,
+            },
+            tripId: params.tripId,
+            status: { $in: ['invited', 'approved'] },
+          },
+        });
+        const approvedBookingIds = approvedBookings?.map(b => b.memberId) || [];
+        const bookings = [];
+        users.forEach(user => {
           let bookingStatus = 'invite-pending';
-          if (params.attendee_action === 'send_invite')
+          if (params.attendee_action === 'send_invite') {
             bookingStatus = 'invited';
-          return {
-            updateOne: {
-              filter: {
-                tripId: params.tripId,
-                memberId: user._id.toString(),
-              },
-              update: {
-                $set: {
+          }
+          if (!approvedBookingIds.includes(user._id.toString()))
+            bookings.push({
+              updateOne: {
+                filter: {
                   tripId: params.tripId,
                   memberId: user._id.toString(),
-                  addedByHost: true,
-                  status: bookingStatus,
                 },
+                update: {
+                  $set: {
+                    tripId: params.tripId,
+                    memberId: user._id.toString(),
+                    addedByHost: true,
+                    status: bookingStatus,
+                  },
+                },
+                upsert: true,
               },
-              upsert: true,
-            },
-          };
+            });
         });
         await BookingModel.bulkWrite(bookings);
         if (params.attendee_action === 'send_invite') {
-          params?.emails?.split(',')?.map(async email => {
+          params?.emails?.map(async email => {
             await EmailSender(
               { email: email },
               EmailMessages.MEMBER_INVITE_HOST,
@@ -242,14 +267,16 @@ export class BookingController {
     finalBookingData['status'] = 'pending';
     const status = getTripResourceValidity(trip, bookingData);
     if (status.rooms && status.addOns) throw ERROR_KEYS.TRIP_RESOURCES_FULL;
-    const booking = await BookingModel.update(
-      existingBooking._id,
-      finalBookingData,
-      {
-        upsert: true,
-      }
-    );
-    console.log(finalBookingData);
+    let booking;
+    if (existingBooking?._id)
+      booking = await BookingModel.update(
+        existingBooking._id,
+        finalBookingData,
+        {
+          upsert: true,
+        }
+      );
+    else booking = await BookingModel.create(finalBookingData);
     const tripUpdate = {
       isLocked: true,
       rooms: addRoomResources(bookingData, trip, ['reserved']),
