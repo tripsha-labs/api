@@ -183,6 +183,11 @@ const tripSchema = {
             'OneChoice',
             'MultiChoice',
             'UploadFile',
+            'Url',
+            'Date',
+            'DateRange',
+            'Consent',
+            'YesNo',
           ],
         },
         options: {
