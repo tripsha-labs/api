@@ -38,11 +38,11 @@ provider:
   runtime: nodejs14.x
   stage: dev
   region: us-east-1
-  # vpc:
-  #   securityGroupIds:
-  #     - sg-067be5b7ef9f631a2
-  #   subnetIds:
-  #     - subnet-0803c091167df1253
+  vpc:
+    securityGroupIds:
+      - sg-067be5b7ef9f631a2
+    subnetIds:
+      - subnet-0803c091167df1253
   environment:
     DB_CONN: ${file(./config/${self:custom.stage}.json):DB_CONN}
     MAILCHIMP_INSTANCE: ${file(./config/${self:custom.stage}.json):MAILCHIMP_INSTANCE}

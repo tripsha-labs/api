@@ -27,6 +27,7 @@ import UserExists from './user-exists';
 import HostPayment from './host-payments';
 import DirectoryMembers from './member-directory';
 import { UserModel } from '../models';
+import NoAuthBookings from './bookings/noAuthBookings';
 
 const noAuth = () => {
   const app = express();
@@ -46,6 +47,7 @@ const noAuth = () => {
   app.use('/public/trip-tags', TripTags);
   app.use('/public/trips', NoAuthTrips);
   app.use('/public/check-user-exists', UserExists);
+  app.use('/public/invite', NoAuthBookings);
   return app;
 };
 
