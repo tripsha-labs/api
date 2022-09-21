@@ -813,6 +813,10 @@ export class TripController {
         travelerViewName: 1,
         travelerCustomColumns: 1,
         travelerViews: 1,
+        questionsView: 1,
+        attendeeView: 1,
+        isRSVPEnabled: 1,
+        isBookingEnabled: 1,
       });
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       // const user = await UserModel.get({ awsUserId: awsUserId });
@@ -846,6 +850,8 @@ export class TripController {
             customFields: 1,
             updatedAt: 1,
             questions: 1,
+            isRSVPEnabled: 1,
+            isBookingEnabled: 1,
           },
         },
         {
@@ -937,6 +943,10 @@ export class TripController {
           customFields: booking.customFields,
           updatedAt: booking.updatedAt,
           questions: booking.questions,
+          questionsView: booking.questionsView,
+          attendeeView: booking.attendeeView,
+          isRSVPEnabled: booking.isBookingEnabled,
+          isBookingEnabled: booking.isBookingEnabled,
         };
         return bookingInfo;
       });

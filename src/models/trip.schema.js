@@ -63,12 +63,18 @@ const tripSchema = new mongoose.Schema(
     allowExpressCheckout: { type: Boolean, default: false },
     isAutoPayEnabled: { type: Boolean, default: true },
     bookingExpiryDays: { type: Number, default: 3 },
+    isRSVPEnabled: { type: Boolean, default: true },
+    autoRegisterRSVP: { type: Boolean, default: true },
+    isBookingEnabled: { type: Boolean, default: true },
+    autoAcceptBookingRequest: { type: Boolean, default: true },
     // Traveler Filters
     travelerViewName: { type: String, optional: true },
     travelerCustomColumns: { type: Array, default: [], optional: true },
     travelerViews: { type: Array, default: [], optional: true },
     // Payment filters
     paymentViews: { type: Array, default: [], optional: true },
+    attendeeView: { type: Array, optional: true },
+    questionsView: { type: Array, optional: true },
   },
   {
     timestamps: true,

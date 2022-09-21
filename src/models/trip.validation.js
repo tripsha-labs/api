@@ -219,6 +219,10 @@ const tripSchema = {
   allowExpressCheckout: { type: 'boolean', optional: true },
   isAutoPayEnabled: { type: 'boolean', optional: true },
   bookingExpiryDays: { type: 'number', optional: true },
+  isRSVPEnabled: { type: 'boolean', optional: true },
+  autoRegisterRSVP: { type: 'boolean', optional: true },
+  isBookingEnabled: { type: 'boolean', optional: true },
+  autoAcceptBookingRequest: { type: 'boolean', optional: true },
   $$strict: 'remove',
 };
 
@@ -265,6 +269,14 @@ const tripUpdateSchema = {
     optional: true,
   },
   paymentViews: {
+    type: 'array',
+    optional: true,
+  },
+  questionsView: {
+    type: 'array',
+    optional: true,
+  },
+  attendeeView: {
     type: 'array',
     optional: true,
   },

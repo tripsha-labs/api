@@ -41,6 +41,7 @@ const paymentSchema = {
     },
   },
   amount: { type: 'number', empty: false, optional: true },
+  currencyType: { type: 'string', empty: false, optional: true },
   $$strict: 'remove',
 };
 
