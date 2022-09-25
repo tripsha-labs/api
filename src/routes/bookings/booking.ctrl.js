@@ -117,7 +117,7 @@ export class BookingController {
               $in: memberIds,
             },
             tripId: params.tripId,
-            status: { $in: ['invited', 'approved'] },
+            status: { $in: ['invite-accepted', 'approved'] },
           },
         });
         const approvedBookingIds = approvedBookings?.map(b => b.memberId) || [];
@@ -125,7 +125,7 @@ export class BookingController {
         users.forEach(user => {
           let bookingStatus = 'invite-pending';
           if (params.attendee_action === 'send_invite') {
-            bookingStatus = 'invited';
+            bookingStatus = 'invite-accepted';
           }
           if (!approvedBookingIds.includes(user._id.toString()))
             bookings.push({
@@ -183,17 +183,11 @@ export class BookingController {
           tripId: params.tripId,
         },
       });
-      console.log({
-        memberId: { $in: users.map(user => user._id.toString()) },
-        tripId: params.tripId,
-      });
-      console.log(bookings);
       users.map(async user => {
         const booking = bookings.find(b => b.memberId === user._id.toString());
-        console.log(booking);
         if (booking && booking.status === 'invite-pending') {
           console.log('Updating invite.....');
-          await BookingModel.update(booking._id, { status: 'invited' });
+          await BookingModel.update(booking._id, { status: 'invite-accepted' });
         }
         await EmailSender(user, EmailMessages.MEMBER_INVITE_HOST, [
           trip._id.toString(),
@@ -931,5 +925,22 @@ export class BookingController {
       );
     if (booking)
       await BookingModel.updateMany({ _id: { $in: booking_ids } }, booking);
+  }
+
+  static async getInvites(awsUserId, tripId) {
+    const user = await UserModel.get({ awsUserId: awsUserId });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    const booking = await BookingModel.get({
+      memberId: user._id,
+      tripId: tripId,
+    });
+    return booking;
+  }
+  static async respondInvite(bookingId, params) {
+    const booking = await BookingModel.update(
+      Types.ObjectId(bookingId),
+      params
+    );
+    return booking;
   }
 }

@@ -58,6 +58,8 @@ const userSchema = new mongoose.Schema(
     isHost: { type: Boolean, default: false },
     hostShare: { type: Number, default: 94 },
     hostRequestSent: { type: Boolean },
+    showUpcomingTrips: { type: Boolean },
+    showPastTrips: { type: Boolean },
   },
   {
     timestamps: true,

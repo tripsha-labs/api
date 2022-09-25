@@ -36,6 +36,7 @@ const bookingSchema = new mongoose.Schema(
         'invite-sent',
         'invite-accepted',
         'invite-declined',
+        'invite-maybe',
         'pending',
         'approved',
         'declined',
