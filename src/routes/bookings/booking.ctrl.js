@@ -125,7 +125,7 @@ export class BookingController {
         users.forEach(user => {
           let bookingStatus = 'invite-pending';
           if (params.attendee_action === 'send_invite') {
-            bookingStatus = 'invite-accepted';
+            bookingStatus = 'invited';
           }
           if (!approvedBookingIds.includes(user._id.toString()))
             bookings.push({
@@ -187,7 +187,7 @@ export class BookingController {
         const booking = bookings.find(b => b.memberId === user._id.toString());
         if (booking && booking.status === 'invite-pending') {
           console.log('Updating invite.....');
-          await BookingModel.update(booking._id, { status: 'invite-accepted' });
+          await BookingModel.update(booking._id, { status: 'invited' });
         }
         await EmailSender(user, EmailMessages.MEMBER_INVITE_HOST, [
           trip._id.toString(),
@@ -200,12 +200,15 @@ export class BookingController {
   static async createBooking(params, awsUserId) {
     const bookingData = params;
     const trip = await TripModel.getById(params.tripId);
+
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    if (!trip.isBookingEnabled) throw ERROR_KEYS.BOOKING_DISABLED;
     if (bookingData.attendees > trip.spotsAvailable)
       throw ERROR_KEYS.TRIP_IS_FULL;
 
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+
     const tripOwner = await UserModel.get({ _id: trip.ownerId });
     if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
@@ -255,7 +258,9 @@ export class BookingController {
     });
     if (
       existingBooking &&
-      ['approved', 'pending'].includes(existingBooking.status)
+      ['approved', 'pending', 'invited', 'invite-accepted'].includes(
+        existingBooking.status
+      )
     )
       throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
     finalBookingData['status'] = 'pending';
@@ -304,6 +309,8 @@ export class BookingController {
       trip['title'],
       trip.bookingExpiryDays || 3,
     ]);
+    booking['trip'] = trip;
+    booking['awsUserId'] = tripOwner.awsUserId;
     return booking;
   }
 

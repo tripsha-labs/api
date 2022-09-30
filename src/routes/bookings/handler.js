@@ -76,7 +76,18 @@ export const createBooking = async (req, res) => {
       data,
       req.requestContext.identity.cognitoIdentityId
     );
-
+    const trip = result?.trip;
+    let awsUserId = result?.awsUserId;
+    if (awsUserId && Array.isArray(awsUserId) && awsUserId.length > 0) {
+      awsUserId = awsUserId[0];
+    }
+    if (trip?.autoAcceptBookingRequest) {
+      await BookingController.bookingsAction(
+        { action: 'approve' },
+        result._id.toString(),
+        awsUserId
+      );
+    }
     return successResponse(res, result);
   } catch (error) {
     logError(error);

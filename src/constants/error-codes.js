@@ -15,6 +15,12 @@ export const ERROR_KEYS = {
       'Sorry! Something went wrong on our end. Please go back and try again.',
     code: 400,
   },
+  BOOKING_DISABLED: {
+    type: 'BOOKING_DISABLED',
+    message:
+      'Host no longer accepting direct bookings for this trip, for more details kindly contact your host.',
+    code: 400,
+  },
   INTERNAL_SERVER_ERROR: {
     type: 'internalServerError',
     message:
@@ -24,7 +30,7 @@ export const ERROR_KEYS = {
   CANNOT_CHANGE_TO_DRAFT: {
     type: 'CANNOT_CHANGE_TO_DRAFT',
     message:
-      'There are some members attending the trip, cannot change to draft.',
+      'You cannot unpublish this trip page because it has attendees, open booking requests or invitations.',
     code: 400,
   },
   MISSING_FIELD: {

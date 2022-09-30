@@ -313,7 +313,7 @@ export class TripController {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
       const exustingMemberCount = await MemberModel.count({ tripId });
-      if (exustingMemberCount > 1 && tripDetails.status === 'draft') {
+      if (exustingMemberCount > 1 && trip.status === 'draft') {
         throw ERROR_KEYS.CANNOT_CHANGE_TO_DRAFT;
       }
       if (
@@ -487,13 +487,19 @@ export class TripController {
     }
   }
 
-  static async getTrip(tripId, memberId) {
+  static async getTrip(tripId, memberId, includeStat) {
     try {
       let trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       trip = JSON.parse(JSON.stringify(trip));
       trip['ownerDetails'] = await UserModel.getById(trip.ownerId);
       if (memberId) {
+        if (includeStat) {
+          trip['awaitingCount'] = await BookingModel.count({
+            tripId: tripId,
+            status: 'invited',
+          });
+        }
         const user = await UserModel.get({ awsUserId: memberId });
         if (user) {
           const memberParams = {

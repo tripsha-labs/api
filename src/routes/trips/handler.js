@@ -95,7 +95,8 @@ export const getTrip = async (req, res) => {
 
     const result = await TripController.getTrip(
       req.params.id,
-      req.requestContext.identity.cognitoIdentityId
+      req.requestContext.identity.cognitoIdentityId,
+      req.query?.includeStat
     );
     return successResponse(res, result);
   } catch (error) {
