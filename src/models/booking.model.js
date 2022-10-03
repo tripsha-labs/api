@@ -25,12 +25,16 @@ export class BookingModel {
     return booking.save();
   }
 
-  static update(id, params = {}) {
-    return Booking.updateOne({ _id: id }, { $set: params });
+  static update(id, params = {}, upsert = {}) {
+    return Booking.updateOne({ _id: id }, { $set: params }, upsert);
   }
 
   static updateMany(filter, params) {
     return Booking.updateMany(filter, { $set: params });
+  }
+
+  static updateUnsetMany(filter, params) {
+    return Booking.updateMany(filter, { $unset: params });
   }
 
   static aggregate(params = {}) {
@@ -50,5 +54,8 @@ export class BookingModel {
   }
   static addOrUpdate(filter, update) {
     return Booking.updateMany(filter, { $set: update }, { upsert: true });
+  }
+  static bulkWrite(params) {
+    return Booking.bulkWrite(params);
   }
 }

@@ -24,7 +24,9 @@ export class UserModel {
     const user = new User(params);
     return user.save();
   }
-
+  static insertMany(params = []) {
+    return User.insertMany(params);
+  }
   static update(filter, params = {}) {
     return User.updateOne(filter, { $set: params });
   }
@@ -43,5 +45,8 @@ export class UserModel {
 
   static getUserByAWSUsername(username, select = {}) {
     return User.findOne({ awsUsername: username }, select);
+  }
+  static bulkWrite(params) {
+    return User.bulkWrite(params);
   }
 }

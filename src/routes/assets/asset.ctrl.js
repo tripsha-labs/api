@@ -6,7 +6,6 @@ import { Types } from 'mongoose';
 import { AssetLinkModel, AssetModel, UserModel } from '../../models';
 import { prepareCommonFilter } from '../../helpers';
 import { ERROR_KEYS } from '../../constants';
-import AWS from 'aws-sdk';
 
 export class AssetController {
   static async listAssets(filter, awsUserId) {
@@ -21,6 +20,12 @@ export class AssetController {
       searchParams['caption'] = {
         $regex: new RegExp(filter.searchText || '', 'i'),
       };
+    if (filter && (filter.imageOnly == true || filter.imageOnly == 'true'))
+      searchParams['type'] = {
+        $regex: new RegExp(/^image/, 'i'),
+      };
+    console.log(filter);
+    console.log(searchParams);
     const params = {
       filter: searchParams,
       ...prepareCommonFilter(filter, ['createdAt']),

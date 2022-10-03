@@ -177,7 +177,18 @@ const tripSchema = {
         questionText: { type: 'string' },
         type: {
           type: 'enum',
-          values: ['OneLine', 'MultiLine', 'OneChoice', 'MultiChoice'],
+          values: [
+            'OneLine',
+            'MultiLine',
+            'OneChoice',
+            'MultiChoice',
+            'UploadFile',
+            'Url',
+            'Date',
+            'DateRange',
+            'Consent',
+            'YesNo',
+          ],
         },
         options: {
           type: 'array',
@@ -190,7 +201,9 @@ const tripSchema = {
             },
           },
         },
-        isRequired: { type: 'boolean' },
+        isRequired: { type: 'boolean', optional: true },
+        showAtBooking: { type: 'boolean', optional: true },
+        hideQuestion: { type: 'boolean', optional: true },
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
         showOtherText: { type: 'string', optional: true, default: 'Other' },
@@ -201,11 +214,15 @@ const tripSchema = {
   priceExcludes: { type: 'string', optional: true },
   isPublic: { type: 'boolean', optional: true },
   lastBookingDate: { type: 'number', optional: true },
-  status: { type: 'string' },
+  status: { type: 'string', optional: true },
   showAttendees: { type: 'boolean', optional: true },
   allowExpressCheckout: { type: 'boolean', optional: true },
   isAutoPayEnabled: { type: 'boolean', optional: true },
   bookingExpiryDays: { type: 'number', optional: true },
+  isRSVPEnabled: { type: 'boolean', optional: true },
+  autoRegisterRSVP: { type: 'boolean', optional: true },
+  isBookingEnabled: { type: 'boolean', optional: true },
+  autoAcceptBookingRequest: { type: 'boolean', optional: true },
   $$strict: 'remove',
 };
 
@@ -239,8 +256,45 @@ const tripUpdateSchema = {
     ...tripSchema.isDepositApplicable,
     optional: true,
   },
+  travelerViewName: {
+    type: 'string',
+    optional: true,
+  },
+  travelerCustomColumns: {
+    type: 'array',
+    optional: true,
+  },
+  travelerViews: {
+    type: 'array',
+    optional: true,
+  },
+  paymentViews: {
+    type: 'array',
+    optional: true,
+  },
+  questionsView: {
+    type: 'array',
+    optional: true,
+  },
+  attendeeView: {
+    type: 'array',
+    optional: true,
+  },
 };
 
+const draftpSchema = {
+  title: { type: 'string', empty: false },
+  pictureUrls: {
+    type: 'array',
+    optional: true,
+    items: 'string',
+  },
+  thumbnailUrls: {
+    type: 'array',
+    optional: true,
+    items: 'string',
+  },
+};
 export const validateTripLength = (startDate, endDate) => {
   try {
     startDate = moment(startDate, DATE_FORMAT);
@@ -251,5 +305,6 @@ export const validateTripLength = (startDate, endDate) => {
   }
 };
 
+export const draftTripValidation = new Validator().compile(draftpSchema);
 export const createTripValidation = new Validator().compile(tripSchema);
 export const updateTripValidation = new Validator().compile(tripUpdateSchema);

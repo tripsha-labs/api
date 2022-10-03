@@ -57,14 +57,14 @@ export const EmailSender = (
   if (isChatNotification)
     return sendChatEmail({
       emails: emails,
-      name: user['username'],
+      name: user?.username || '',
       subject: subject,
       message: message(...params),
     });
   else
     return sendEmail({
       emails: emails,
-      name: user['firstName'],
+      name: user?.firstName || '',
       subject: subject,
       message: message(...params),
     });

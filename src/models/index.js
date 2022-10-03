@@ -61,3 +61,10 @@ export * from './asset.validation';
 
 export * from './asset-link.model';
 export * from './asset-link.schema';
+
+export * from './payment.model';
+export * from './payment.schema';
+export * from './payment.validation';
+
+export * from './member-directory.model';
+export * from './member-directory.schema';

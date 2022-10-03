@@ -147,6 +147,14 @@ const updateUserSchema = {
       },
     },
   },
+  showUpcomingTrips: {
+    type: 'boolean',
+    optional: true,
+  },
+  showPastTrips: {
+    type: 'boolean',
+    optional: true,
+  },
   $$strict: true,
 };
 

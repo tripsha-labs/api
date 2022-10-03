@@ -64,6 +64,19 @@ export const EmailMessages = {
     `;
     },
   },
+  MEMBER_INVITE_HOST: {
+    subject: 'You have invited to join the trip!',
+    message: (tripId, tripName) => {
+      const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}/book`;
+      return `
+      You just received a invite for joining the trip <a href="${trip_url}" target="_blank">${tripName}</a>.
+      <br/>
+      <br/>
+      As always, please feel free to message us from your Tripsha inbox if you need any assistance.
+      <br/>
+    `;
+    },
+  },
   BOOKING_REQUEST_24_HOURS_LEFT_HOST: {
     subject: 'A booking request on your trip is about to expire!',
     message: (tripId, tripName) => {

@@ -181,13 +181,13 @@ export class TripController {
         params['startDate'],
         params['endDate']
       );
+
       if (
         tripLength <= 0 ||
         tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
         isNaN(tripLength)
       )
         throw ERROR_KEYS.INVALID_DATES;
-
       params['tripLength'] = tripLength + 1;
 
       const user = await UserModel.get({ awsUserId: params.ownerId });
@@ -312,7 +312,10 @@ export class TripController {
       ) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
-
+      const exustingMemberCount = await MemberModel.count({ tripId });
+      if (exustingMemberCount > 1 && trip.status === 'draft') {
+        throw ERROR_KEYS.CANNOT_CHANGE_TO_DRAFT;
+      }
       if (
         trip['startDate'] &&
         trip['startDate'] != '' &&
@@ -376,7 +379,10 @@ export class TripController {
       const maxGroupSize = trip['maxGroupSize']
         ? trip['maxGroupSize']
         : tripDetails['maxGroupSize'];
-      if (totalMemberCount > maxGroupSize) {
+      if (
+        totalMemberCount > maxGroupSize &&
+        tripDetails['status'] !== 'draft'
+      ) {
         throw ERROR_KEYS.INVALID_ETERNAL_COUNT;
       }
       trip['guestCount'] = guestCount;
@@ -481,13 +487,19 @@ export class TripController {
     }
   }
 
-  static async getTrip(tripId, memberId) {
+  static async getTrip(tripId, memberId, includeStat) {
     try {
       let trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       trip = JSON.parse(JSON.stringify(trip));
       trip['ownerDetails'] = await UserModel.getById(trip.ownerId);
       if (memberId) {
+        if (includeStat) {
+          trip['awaitingCount'] = await BookingModel.count({
+            tripId: tripId,
+            status: 'invited',
+          });
+        }
         const user = await UserModel.get({ awsUserId: memberId });
         if (user) {
           const memberParams = {
@@ -801,6 +813,16 @@ export class TripController {
         groupSize: 1,
         maxGroupSize: 1,
         tripPaymentType: 1,
+        paymentViewName: 1,
+        paymentCustomColumns: 1,
+        paymentViews: 1,
+        travelerViewName: 1,
+        travelerCustomColumns: 1,
+        travelerViews: 1,
+        questionsView: 1,
+        attendeeView: 1,
+        isRSVPEnabled: 1,
+        isBookingEnabled: 1,
       });
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       // const user = await UserModel.get({ awsUserId: awsUserId });
@@ -822,6 +844,20 @@ export class TripController {
             addOns: 1,
             rooms: 1,
             attendees: 1,
+            company: 1,
+            team: 1,
+            property: 1,
+            coupon: 1,
+            discount: 1,
+            currentDue: 1,
+            paidAmout: 1,
+            pendingAmount: 1,
+            paymentHistory: 1,
+            customFields: 1,
+            updatedAt: 1,
+            questions: 1,
+            isRSVPEnabled: 1,
+            isBookingEnabled: 1,
           },
         },
         {
@@ -887,7 +923,7 @@ export class TripController {
           });
         const bookingInfo = {
           _id: booking._id,
-          attendeeName: `${firstName} ${lastName}`,
+          attendeeName: `${firstName} ${lastName || ''}`,
           username: username,
           email: email,
           location: livesIn,
@@ -895,7 +931,8 @@ export class TripController {
           company: booking.company,
           team: booking.team,
           property: booking.property,
-          discountCode: booking.discountCode,
+          discount: booking.discount,
+          coupon: booking.coupon,
           currentDue: booking.currentDue,
           paidAmout: booking.paidAmout,
           pendingAmount: booking.pendingAmount,
@@ -903,6 +940,19 @@ export class TripController {
           attendees: booking.attendees,
           rooms: Object.values(roomInfo),
           addOns: Object.values(addOnsInfo),
+          travelerViewName: booking.travelerViewName,
+          travelerCustomColumns: booking.travelerCustomColumns,
+          travelerViews: booking.travelerViews,
+          paymentViewName: booking.paymentViewName,
+          paymentCustomColumns: booking.paymentCustomColumns,
+          paymentViews: booking.paymentViews,
+          customFields: booking.customFields,
+          updatedAt: booking.updatedAt,
+          questions: booking.questions,
+          questionsView: booking.questionsView,
+          attendeeView: booking.attendeeView,
+          isRSVPEnabled: booking.isBookingEnabled,
+          isBookingEnabled: booking.isBookingEnabled,
         };
         return bookingInfo;
       });
