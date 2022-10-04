@@ -223,6 +223,19 @@ const tripSchema = {
   autoRegisterRSVP: { type: 'boolean', optional: true },
   isBookingEnabled: { type: 'boolean', optional: true },
   autoAcceptBookingRequest: { type: 'boolean', optional: true },
+  coHosts: {
+    type: 'array',
+    optional: true,
+    items: {
+      type: 'object',
+      optional: true,
+      props: {
+        id: { type: 'string' },
+        addedBy: { type: 'number' },
+        addedAt: { type: 'number' },
+      },
+    },
+  },
   $$strict: 'remove',
 };
 

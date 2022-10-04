@@ -49,6 +49,7 @@ export class MemberController {
         const trip = await TripModel.getById(objTripId);
         if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
         if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+        const coHosts = trip?.coHosts?.map(h => h.id);
         const isOwner = trip.ownerId == user._id.toString();
         let guestCount = trip['guestCount'] || 0;
         const actions = memberIds.map(async memberId => {
@@ -69,7 +70,11 @@ export class MemberController {
             });
             switch (action) {
               case 'addMember':
-                if (isOwner || user.isAdmin === true) {
+                if (
+                  isOwner ||
+                  coHosts?.includes(user._id.toString()) ||
+                  user.isAdmin === true
+                ) {
                   if (trip.spotsAvailable <= 0 && !forceAddTraveler) {
                     return Promise.reject(ERROR_KEYS.TRIP_IS_FULL_HOST);
                   }
@@ -192,6 +197,7 @@ export class MemberController {
               case 'removeMember':
                 if (
                   isOwner ||
+                  coHosts?.includes(user._id.toString()) ||
                   user.isAdmin == true ||
                   memberDetails._id.toString() == user._id.toString()
                 ) {

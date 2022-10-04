@@ -58,7 +58,7 @@ const auth = () => {
   app.use(async (req, res, next) => {
     if (process.env.IS_OFFLINE) {
       req.requestContext.identity.cognitoIdentityId =
-        'us-east-1:b80a7272-8cd5-4299-8e36-1baa709e3867';
+        'us-east-1:1570527a-efa7-46b3-a317-b4b8c4108494';
     }
     await dbConnect(res);
     next();
@@ -72,11 +72,11 @@ const auth = () => {
       return failureResponse(res, ERROR_KEYS.INVALID_TOKEN);
     }
   };
-  app.use('/trips', Trips);
+  app.use('/trips', verifyToken, Trips);
   app.use('/activities', Activities);
   app.use('/host-requests', HostRequests);
   app.use('/approvals', Approvals);
-  app.use('/bookings', Bookings);
+  app.use('/bookings', verifyToken, Bookings);
   app.use('/members', Members);
   app.use('/conversations', Messages);
   app.use('/payments', Payments);

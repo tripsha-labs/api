@@ -342,6 +342,26 @@ export const getUserByUsername = async (req, res) => {
 };
 
 /**
+ * Get user by username
+ */
+export const getUserByEmailORUsername = async (req, res) => {
+  if (!req?.query?.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+
+  const username = req?.query?.email;
+  try {
+    const result = await UserController.get(
+      {
+        $or: [{ username: username }, { email: username }],
+      },
+      { stripeCustomerId: 0, stripeAccountId: 0 }
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    return failureResponse(res, error);
+  }
+};
+
+/**
  * Update user
  */
 export const updateUser = async (req, res) => {

@@ -44,9 +44,14 @@ export class BookingController {
   static async createInvite(params, awsUserId) {
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    if (user.isHost || user.isAdmin) {
-      const trip = await TripModel.getById(params.tripId);
-      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    const trip = await TripModel.getById(params.tripId);
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    const coHosts = trip?.coHosts?.map(h => h.id);
+    if (
+      coHosts?.includes(user._id.toString()) ||
+      trip.ownerId.toString() === user._id.toString() ||
+      user.isAdmin
+    ) {
       let users = await UserModel.list({
         filter: { email: { $in: params.emails } },
         select: { email: 1 },
@@ -320,7 +325,14 @@ export class BookingController {
     if (!filters.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(filters.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    if (!(user.isAdmin || trip.ownerId.toString() === user._id.toString())) {
+    const coHosts = trip?.coHosts?.map(h => h.id);
+    if (
+      !(
+        user.isAdmin ||
+        coHosts?.includes(user._id.toString()) ||
+        trip.ownerId.toString() === user._id.toString()
+      )
+    ) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
     const bookingProjection = {
@@ -396,7 +408,14 @@ export class BookingController {
     if (!params.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    if (!(user.isAdmin || trip.ownerId.toString() === user._id.toString())) {
+    const coHosts = trip?.coHosts?.map(h => h.id);
+    if (
+      !(
+        user.isAdmin ||
+        coHosts?.includes(user._id.toString()) ||
+        trip.ownerId.toString() === user._id.toString()
+      )
+    ) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
     const bookingList = BookingModel.list({ tripId: params.tripId });
@@ -417,6 +436,7 @@ export class BookingController {
       tripUpdate['spotsReserved'] < 0 ? 0 : tripUpdate['spotsReserved'];
     let validForUpdate = false;
     let bookingUpdate = {};
+    const coHosts = trip?.coHosts?.map(h => h.id);
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
@@ -427,7 +447,11 @@ export class BookingController {
         case 'approve':
           validForUpdate = true;
           if (
-            !(user.isAdmin || trip.ownerId.toString() === user._id.toString())
+            !(
+              user.isAdmin ||
+              coHosts?.includes(user._id.toString()) ||
+              trip.ownerId.toString() === user._id.toString()
+            )
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -616,7 +640,11 @@ export class BookingController {
         case 'decline':
           validForUpdate = true;
           if (
-            !(user.isAdmin || trip.ownerId.toString() == user._id.toString())
+            !(
+              user.isAdmin ||
+              coHosts?.includes(user._id.toString()) ||
+              trip.ownerId.toString() == user._id.toString()
+            )
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
