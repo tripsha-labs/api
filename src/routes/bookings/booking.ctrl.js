@@ -263,16 +263,15 @@ export class BookingController {
     });
     if (
       existingBooking &&
-      ['approved', 'pending', 'invited', 'invite-accepted'].includes(
-        existingBooking.status
-      )
+      ['approved', 'pending'].includes(existingBooking.status)
     )
       throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
     finalBookingData['status'] = 'pending';
     const status = getTripResourceValidity(trip, bookingData);
     if (status.rooms && status.addOns) throw ERROR_KEYS.TRIP_RESOURCES_FULL;
     let booking;
-    if (existingBooking?._id)
+    let bookingId = null;
+    if (existingBooking?._id) {
       booking = await BookingModel.update(
         existingBooking._id,
         finalBookingData,
@@ -280,7 +279,12 @@ export class BookingController {
           upsert: true,
         }
       );
-    else booking = await BookingModel.create(finalBookingData);
+      bookingId = existingBooking?._id;
+    } else {
+      booking = await BookingModel.create(finalBookingData);
+      bookingId = booking?._id?.toString();
+    }
+    booking = await BookingModel.getById(bookingId);
     const tripUpdate = {
       isLocked: true,
       rooms: addRoomResources(bookingData, trip, ['reserved']),
@@ -971,11 +975,27 @@ export class BookingController {
     });
     return booking;
   }
-  static async respondInvite(bookingId, params) {
-    const booking = await BookingModel.update(
-      Types.ObjectId(bookingId),
-      params
-    );
-    return booking;
+  static async respondInvite(tripId, params, user) {
+    let payload = {};
+
+    if (params?.bookingId) {
+      payload = {
+        status: params?.status,
+      };
+      await BookingModel.update(Types.ObjectId(params.bookingId), params);
+    } else {
+      payload = {
+        tripId: tripId,
+        memberId: user._id.toString(),
+        addedByHost: false,
+        status: params?.status,
+      };
+      await BookingModel.updateQuery(
+        { tripId: tripId, memberId: user._id.toString() },
+        params,
+        { upsert: true }
+      );
+    }
+    return 'success';
   }
 }

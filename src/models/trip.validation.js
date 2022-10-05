@@ -131,6 +131,7 @@ const tripSchema = {
         name: { type: 'string' },
         cost: { type: 'number' },
         available: { type: 'number' },
+        restrictPerTraveler: { type: 'boolean' },
       },
     },
   },

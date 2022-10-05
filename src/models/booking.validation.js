@@ -43,6 +43,7 @@ const bookingSchema = {
         cost: { type: 'number' },
         available: { type: 'number' },
         attendees: { type: 'number' },
+        restrictPerTraveler: { type: 'boolean' },
       },
     },
   },

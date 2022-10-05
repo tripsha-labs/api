@@ -266,13 +266,16 @@ export const getInvites = async (req, res) => {
 };
 export const respondInvite = async (req, res) => {
   try {
-    const bookingId = req?.params?.id;
-    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const tripId = req?.params?.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const data = req.body || {};
     if (data?.status) {
-      const result = await BookingController.respondInvite(bookingId, {
-        status: data?.status,
-      });
+      const result = await BookingController.respondInvite(
+        tripId,
+        data,
+        req.currentUser
+      );
+
       return successResponse(res, result);
     } else {
       throw ERROR_KEYS.BAD_REQUEST;
