@@ -24,7 +24,14 @@ export class PaymentController {
     if (!filters.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(filters.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    if (!(user.isAdmin || trip.ownerId.toString() === user._id.toString())) {
+    const coHosts = trip?.coHosts?.map(h => h.id);
+    if (
+      !(
+        user.isAdmin ||
+        coHosts?.includes(user._id.toString()) ||
+        trip.ownerId.toString() === user._id.toString()
+      )
+    ) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
     return await PaymentModel.list({
