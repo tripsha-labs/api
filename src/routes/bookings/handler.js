@@ -8,9 +8,60 @@ import {
   createBookingValidation,
   hostBookingActionValidation,
   updateBookingValidation,
+  createInviteValidation,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
+/***
+ * createInvite
+ */
+export const createInvite = async (req, res) => {
+  try {
+    const data = req.body || {};
+    const validation = createInviteValidation(data);
+    if (validation != true) throw validation.shift();
+    const result = await BookingController.createInvite(
+      data,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+export const removeInvite = async (req, res) => {
+  try {
+    const data = req.body || {};
+    if (data?.booking_id) {
+      const result = await BookingController.removeInvite(
+        data,
+        req.requestContext.identity.cognitoIdentityId
+      );
+      return successResponse(res, result);
+    } else
+      throw {
+        ...ERROR_KEYS.MISSING_FIELD,
+        field: 'booking_id',
+      };
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
 
+export const sendReminder = async (req, res) => {
+  try {
+    const data = req.body || {};
+    const result = await BookingController.sendReminder(
+      data,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
 /**
  * Create booking
  */
@@ -25,7 +76,18 @@ export const createBooking = async (req, res) => {
       data,
       req.requestContext.identity.cognitoIdentityId
     );
-
+    const trip = result?.trip;
+    let awsUserId = result?.awsUserId;
+    if (awsUserId && Array.isArray(awsUserId) && awsUserId.length > 0) {
+      awsUserId = awsUserId[0];
+    }
+    if (trip?.autoAcceptBookingRequest) {
+      await BookingController.bookingsAction(
+        { action: 'approve' },
+        result._id.toString(),
+        awsUserId
+      );
+    }
     return successResponse(res, result);
   } catch (error) {
     logError(error);
@@ -62,7 +124,6 @@ export const listBookings = async (req, res) => {
  */
 export const getBooking = async (req, res) => {
   try {
-    const data = req.body || {};
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const result = await BookingController.getBooking(req.params.id);
@@ -78,7 +139,6 @@ export const getBooking = async (req, res) => {
  */
 export const doPartPayment = async (req, res) => {
   try {
-    const data = req.body || {};
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const result = await BookingController.doPartPayment(
@@ -127,6 +187,96 @@ export const updateBooking = async (req, res) => {
     if (validation != true) throw validation.shift();
     const result = await BookingController.updateBooking(bookingId, data);
     return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+export const updateCustomFields = async (req, res) => {
+  try {
+    const bookingId = req.params && req.params.id;
+    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const data = req.body || {};
+    const keys = Object.keys(data);
+    let isValid = true;
+    keys?.forEach(key => {
+      if (!key.includes('customFields.')) isValid = false;
+    });
+    if (!isValid) {
+      throw { ...ERROR_KEYS.BAD_REQUEST };
+    }
+    const result = await BookingController.updateBooking(bookingId, data);
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+export const multiUpdateBooking = async (req, res) => {
+  try {
+    const data = req.body || {};
+    if (
+      data &&
+      !data.hasOwnProperty('booking') &&
+      !data.hasOwnProperty('unsetFields')
+    )
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'booking or unsetFields' };
+    if (data && !data.hasOwnProperty('bookingIds'))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'bookingIds' };
+    const customFields = data.booking || {};
+    const unsetFields = data.unsetFields || [];
+    const validation = updateBookingValidation({ customFields });
+    if (validation != true) throw validation.shift();
+    const keys = Object.keys(customFields);
+    const payload = {};
+    if (keys && keys.length > 0)
+      keys.forEach(key => {
+        payload[`customFields.${key}`] = customFields[key];
+      });
+    const unsetPayload = {};
+    if (unsetFields && unsetFields.length > 0)
+      unsetFields.forEach(key => {
+        unsetPayload[`customFields.${key}`] = 1;
+      });
+    const result = await BookingController.multiUpdateBooking(
+      data.bookingIds,
+      payload,
+      unsetPayload
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+export const getInvites = async (req, res) => {
+  try {
+    const tripId = req.params && req.params.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await BookingController.getInvites(
+      req.requestContext.identity.cognitoIdentityId,
+      tripId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+export const respondInvite = async (req, res) => {
+  try {
+    const bookingId = req?.params?.id;
+    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = req.body || {};
+    if (data?.status) {
+      const result = await BookingController.respondInvite(bookingId, {
+        status: data?.status,
+      });
+      return successResponse(res, result);
+    } else {
+      throw ERROR_KEYS.BAD_REQUEST;
+    }
   } catch (error) {
     logError(error);
     return failureResponse(res, error);

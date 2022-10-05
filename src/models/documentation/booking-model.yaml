@@ -35,8 +35,6 @@ components:
           type: object
         status:
           type: string
-        nextPaymentDate:
-          type: string
         totalBaseFare:
           type: number
         totalAddonFare:

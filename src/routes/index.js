@@ -21,6 +21,12 @@ import Seeds from './seeds';
 import AdminApi from './users/admin';
 import Coupons from './coupons';
 import Schedules from './schedules';
+import EmailNotifications from './email-notifications';
+import Assets from './assets';
+import UserExists from './user-exists';
+import HostPayment from './host-payments';
+import DirectoryMembers from './member-directory';
+import { UserModel } from '../models';
 
 const noAuth = () => {
   const app = express();
@@ -39,6 +45,7 @@ const noAuth = () => {
   app.use('/public/seeds', Seeds);
   app.use('/public/trip-tags', TripTags);
   app.use('/public/trips', NoAuthTrips);
+  app.use('/public/check-user-exists', UserExists);
   return app;
 };
 
@@ -49,9 +56,22 @@ const auth = () => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(async (req, res, next) => {
+    if (process.env.IS_OFFLINE) {
+      req.requestContext.identity.cognitoIdentityId =
+        'us-east-1:b80a7272-8cd5-4299-8e36-1baa709e3867';
+    }
     await dbConnect(res);
     next();
   });
+  const verifyToken = async (req, res, next) => {
+    try {
+      const awsUserId = req.requestContext.identity.cognitoIdentityId;
+      req.currentUser = await UserModel.get({ awsUserId: awsUserId });
+      return next();
+    } catch (err) {
+      return failureResponse(res, ERROR_KEYS.INVALID_TOKEN);
+    }
+  };
   app.use('/trips', Trips);
   app.use('/activities', Activities);
   app.use('/host-requests', HostRequests);
@@ -63,6 +83,10 @@ const auth = () => {
   app.use('/users', Users);
   app.use('/admin', AdminApi);
   app.use('/coupons', Coupons);
+  app.use('/email-notifications', EmailNotifications);
+  app.use('/assets', Assets);
+  app.use('/host-payments', HostPayment);
+  app.use('/directory-members', verifyToken, DirectoryMembers);
   return app;
 };
 

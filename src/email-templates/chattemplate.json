@@ -1,0 +1,8 @@
+{
+  "Template": {
+    "TemplateName": "ChatNotificationTemplate",
+    "SubjectPart": "{{subject}}",
+    "HtmlPart": "<p>Message From: {{name}},</p><p>{{message}}</p><p>---</p><p><span style='color: #808080;'>Messages sent in the same conversation within 10 minutes do not trigger new emails. To view the full conversation and respond please visit your inbox at</span> <span style='color: #33cccc;'><a style='color: #33cccc;' href='https://app.tripsha.com/messages'>https://app.tripsha.com/messages</a></span></p>",
+    "TextPart": "Hi {{name}}, {{message}} Thanks, Tripsha Team"
+  }
+}

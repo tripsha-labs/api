@@ -7,3 +7,8 @@ autoPayment:
   handler: src/schedules/trips/auto-payment.autoPayment
   events:
     - schedule: rate(1 hour)
+
+emailNotification:
+  handler: src/schedules/trips/email-notifications.send
+  events:
+    - schedule: rate(10 minutes)

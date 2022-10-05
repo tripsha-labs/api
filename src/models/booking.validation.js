@@ -71,7 +71,13 @@ const bookingSchema = {
         questionText: { type: 'string' },
         type: {
           type: 'enum',
-          values: ['OneLine', 'MultiLine', 'OneChoice', 'MultiChoice'],
+          values: [
+            'OneLine',
+            'MultiLine',
+            'OneChoice',
+            'MultiChoice',
+            'UploadFile',
+          ],
         },
         options: {
           type: 'array',
@@ -84,7 +90,10 @@ const bookingSchema = {
             },
           },
         },
-        isRequired: { type: 'boolean' },
+        isRequired: { type: 'boolean', optional: true },
+        showAtBooking: { type: 'boolean', optional: true },
+        hideQuestion: { type: 'boolean', optional: true },
+        answer: { type: 'string', optional: true },
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
         showOtherText: { type: 'string', optional: true, default: 'Other' },
@@ -106,7 +115,6 @@ const bookingSchema = {
     type: 'object',
     optional: true,
     props: {
-      name: { type: 'string' },
       discType: { type: 'enum', values: ['amount', 'percentage'] },
       amount: { type: 'number' },
       couponCode: { type: 'string' },
@@ -131,6 +139,7 @@ const bookingSchema = {
 };
 const updateBookingSchema = {
   message: { type: 'string', optional: true },
+  customFields: { type: 'object', optional: true },
   guests: {
     type: 'array',
     optional: true,
@@ -147,6 +156,26 @@ const updateBookingSchema = {
   },
   $$strict: 'remove',
 };
+export const createInviteValidation = new Validator().compile({
+  tripId: { type: 'string', empty: false },
+  emails: {
+    type: 'array',
+    empty: false,
+    items: {
+      type: 'email',
+    },
+    save_to_members: {
+      type: 'bolean',
+      optional: true,
+    },
+    send_invite: {
+      type: 'bolean',
+      optional: true,
+    },
+    direct_attendee: { type: 'bolean', optional: true },
+  },
+  $$strict: 'remove',
+});
 export const createBookingValidation = new Validator().compile(bookingSchema);
 
 export const updateBookingValidation = new Validator().compile(

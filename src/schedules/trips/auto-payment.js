@@ -101,6 +101,7 @@ const chargePayment = async () => {
         autoChargeDate: {
           $lt: moment().unix(),
         },
+        isAutoPayEnabled: true,
         status: 'approved',
         paymentRetryCount: { $lt: 7 },
         currentDue: {

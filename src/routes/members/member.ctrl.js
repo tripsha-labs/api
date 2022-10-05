@@ -118,7 +118,7 @@ export class MemberController {
                       {
                         memberId: memberDetails._id.toString(),
                         tripId: tripId,
-                        status: { $in: ['pending', 'approved'] },
+                        // status: { $in: ['pending', 'approved'] },
                       },
                       bookingInfo
                     );

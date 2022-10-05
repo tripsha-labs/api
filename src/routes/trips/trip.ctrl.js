@@ -15,6 +15,8 @@ import {
   ConversationModel,
   MessageModel,
   BookingModel,
+  AssetModel,
+  AssetLinkModel,
 } from '../../models';
 import {
   ERROR_KEYS,
@@ -179,18 +181,51 @@ export class TripController {
         params['startDate'],
         params['endDate']
       );
+
       if (
         tripLength <= 0 ||
         tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
         isNaN(tripLength)
       )
         throw ERROR_KEYS.INVALID_DATES;
-
       params['tripLength'] = tripLength + 1;
 
       const user = await UserModel.get({ awsUserId: params.ownerId });
       params['ownerId'] = user;
       const trip = await TripModel.create(params);
+      try {
+        const urlList = [];
+        if (trip && trip.pictureUrls && trip.pictureUrls.length > 0) {
+          urlList.concat(trip.pictureUrls);
+        }
+        if (trip && trip.rooms && trip.rooms.length > 0) {
+          trip.rooms.map(room => {
+            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+              urlList.concat(room.pictureUrls.map(url => url.url));
+              return room;
+            }
+          });
+        }
+        if (trip && trip.itineraries && trip.itineraries.length > 0) {
+          urlList.concat(trip.itineraries.map(itr => itr.imageUrl));
+        }
+        const items = new Set(urlList);
+        const assets = await AssetModel.find({
+          filter: { url: { $in: [...items] } },
+          select: { _id: 1 },
+        });
+        const assetLinks = assets.map(ast => {
+          return {
+            asset_id: ast._id,
+            resource_id: trip._id,
+            user_id: user._id,
+            type: 'trip',
+          };
+        });
+        await AssetLinkModel.insertMany(assetLinks);
+      } catch (err) {
+        console.log('Failed to created links', err);
+      }
       const addMemberParams = {
         memberId: user._id.toString(),
         tripId: trip._id,
@@ -277,7 +312,10 @@ export class TripController {
       ) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
-
+      const exustingMemberCount = await MemberModel.count({ tripId });
+      if (exustingMemberCount > 1 && trip.status === 'draft') {
+        throw ERROR_KEYS.CANNOT_CHANGE_TO_DRAFT;
+      }
       if (
         trip['startDate'] &&
         trip['startDate'] != '' &&
@@ -341,7 +379,10 @@ export class TripController {
       const maxGroupSize = trip['maxGroupSize']
         ? trip['maxGroupSize']
         : tripDetails['maxGroupSize'];
-      if (totalMemberCount > maxGroupSize) {
+      if (
+        totalMemberCount > maxGroupSize &&
+        tripDetails['status'] !== 'draft'
+      ) {
         throw ERROR_KEYS.INVALID_ETERNAL_COUNT;
       }
       trip['guestCount'] = guestCount;
@@ -354,6 +395,70 @@ export class TripController {
       trip['isFull'] = totalMemberCount >= maxGroupSize;
 
       await TripModel.update(tripId, trip);
+      try {
+        let urlList = [];
+        if (trip && trip.pictureUrls && trip.pictureUrls.length > 0) {
+          urlList = [...urlList, ...trip.pictureUrls];
+        } else if (
+          tripDetails &&
+          tripDetails.pictureUrls &&
+          tripDetails.pictureUrls.length > 0
+        ) {
+          urlList = [...urlList, ...tripDetails.pictureUrls];
+        }
+        if (trip && trip.rooms && trip.rooms.length > 0) {
+          trip.rooms.map(room => {
+            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+              urlList = [...urlList, ...room.pictureUrls.map(url => url.url)];
+              return room;
+            }
+          });
+        } else if (
+          tripDetails &&
+          tripDetails.rooms &&
+          tripDetails.rooms.length > 0
+        ) {
+          tripDetails.rooms.map(room => {
+            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+              urlList = [...urlList, ...room.pictureUrls.map(url => url.url)];
+              return room;
+            }
+          });
+        }
+        if (trip && trip.itineraries && trip.itineraries.length > 0) {
+          urlList = [...urlList, ...trip.itineraries.map(itr => itr.imageUrl)];
+        } else if (
+          tripDetails &&
+          tripDetails.itineraries &&
+          tripDetails.itineraries.length > 0
+        ) {
+          urlList = [
+            ...urlList,
+            ...tripDetails.itineraries.map(itr => itr.imageUrl),
+          ];
+        }
+        const items = new Set(urlList);
+        const assets = await AssetModel.list({
+          filter: { url: { $in: [...items] } },
+          select: { _id: 1 },
+        });
+        const assetLinks = assets.map(ast => {
+          return {
+            asset_id: ast._id,
+            resource_id: tripDetails._id,
+            user_id: user._id,
+            type: 'trip',
+          };
+        });
+        await AssetLinkModel.deleteMany({
+          type: 'trip',
+          user_id: user._id,
+          resource_id: tripDetails._id,
+        });
+        await AssetLinkModel.insertMany(assetLinks);
+      } catch (err) {
+        console.log('Failed to create links', err);
+      }
       const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
       const logMessage =
         tripDetails['status'] == 'draft' && trip['status'] == 'published'
@@ -382,13 +487,19 @@ export class TripController {
     }
   }
 
-  static async getTrip(tripId, memberId) {
+  static async getTrip(tripId, memberId, includeStat) {
     try {
       let trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       trip = JSON.parse(JSON.stringify(trip));
       trip['ownerDetails'] = await UserModel.getById(trip.ownerId);
       if (memberId) {
+        if (includeStat) {
+          trip['awaitingCount'] = await BookingModel.count({
+            tripId: tripId,
+            status: 'invited',
+          });
+        }
         const user = await UserModel.get({ awsUserId: memberId });
         if (user) {
           const memberParams = {
@@ -504,8 +615,6 @@ export class TripController {
         delete filterParams['isMember'];
         filterParams['isFavorite'] = true;
       }
-
-      // filterParams['isOwner'] = { $exists: false };
 
       const params = [
         {
@@ -704,6 +813,16 @@ export class TripController {
         groupSize: 1,
         maxGroupSize: 1,
         tripPaymentType: 1,
+        paymentViewName: 1,
+        paymentCustomColumns: 1,
+        paymentViews: 1,
+        travelerViewName: 1,
+        travelerCustomColumns: 1,
+        travelerViews: 1,
+        questionsView: 1,
+        attendeeView: 1,
+        isRSVPEnabled: 1,
+        isBookingEnabled: 1,
       });
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       // const user = await UserModel.get({ awsUserId: awsUserId });
@@ -725,6 +844,20 @@ export class TripController {
             addOns: 1,
             rooms: 1,
             attendees: 1,
+            company: 1,
+            team: 1,
+            property: 1,
+            coupon: 1,
+            discount: 1,
+            currentDue: 1,
+            paidAmout: 1,
+            pendingAmount: 1,
+            paymentHistory: 1,
+            customFields: 1,
+            updatedAt: 1,
+            questions: 1,
+            isRSVPEnabled: 1,
+            isBookingEnabled: 1,
           },
         },
         {
@@ -765,7 +898,8 @@ export class TripController {
           return addOn;
         });
       return bookings.map(booking => {
-        const { email, firstName, lastName, username } = booking.user || {};
+        const { email, firstName, lastName, username, livesIn } =
+          booking.user || {};
         const roomInfo = JSON.parse(JSON.stringify(rooms));
         const addOnsInfo = JSON.parse(JSON.stringify(addOns));
         booking.rooms &&
@@ -789,11 +923,36 @@ export class TripController {
           });
         const bookingInfo = {
           _id: booking._id,
-          user: { email, firstName, lastName, username },
+          attendeeName: `${firstName} ${lastName || ''}`,
+          username: username,
+          email: email,
+          location: livesIn,
           guests: booking.guests,
+          company: booking.company,
+          team: booking.team,
+          property: booking.property,
+          discount: booking.discount,
+          coupon: booking.coupon,
+          currentDue: booking.currentDue,
+          paidAmout: booking.paidAmout,
+          pendingAmount: booking.pendingAmount,
+          paymentHistory: booking.paymentHistory,
           attendees: booking.attendees,
           rooms: Object.values(roomInfo),
           addOns: Object.values(addOnsInfo),
+          travelerViewName: booking.travelerViewName,
+          travelerCustomColumns: booking.travelerCustomColumns,
+          travelerViews: booking.travelerViews,
+          paymentViewName: booking.paymentViewName,
+          paymentCustomColumns: booking.paymentCustomColumns,
+          paymentViews: booking.paymentViews,
+          customFields: booking.customFields,
+          updatedAt: booking.updatedAt,
+          questions: booking.questions,
+          questionsView: booking.questionsView,
+          attendeeView: booking.attendeeView,
+          isRSVPEnabled: booking.isBookingEnabled,
+          isBookingEnabled: booking.isBookingEnabled,
         };
         return bookingInfo;
       });

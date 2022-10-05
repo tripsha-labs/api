@@ -8,7 +8,7 @@ export class CouponModel {
   static list(params = {}) {
     const { filter, select, pagination, sort } = params;
     const coupons = Coupon.find(filter, select || {});
-    if (sort) hosts.sort(sort);
+    if (sort) coupons.sort(sort);
     if (pagination) {
       coupons.limit(pagination.limit);
       coupons.skip(pagination.skip);
