@@ -174,6 +174,15 @@ export class BookingController {
       return 'success';
     } else throw ERROR_KEYS.TRIP_NOT_FOUND;
   }
+  static async sendCustomEmail(params) {
+    const user = await UserModel.getById(params.memberId);
+    await EmailSender(
+      user,
+      { message: () => params.message, subject: params.subject },
+      ['', '']
+    );
+    return 'success';
+  }
   static async sendReminder(params, awsUserId) {
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
@@ -181,7 +190,7 @@ export class BookingController {
       filter: { email: { $in: params.emails } },
       select: { email: 1, firstName: 1, lastName: 1, username: 1 },
     });
-    if (users && users.length > 0) {
+    if (users?.length > 0) {
       const bookings = await BookingModel.list({
         filter: {
           memberId: { $in: users.map(user => user._id.toString()) },

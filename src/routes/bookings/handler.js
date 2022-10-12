@@ -48,7 +48,16 @@ export const removeInvite = async (req, res) => {
     return failureResponse(res, error);
   }
 };
-
+export const sendCustomEmail = async (req, res) => {
+  try {
+    const data = req.body || {};
+    const result = await BookingController.sendCustomEmail(data);
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
 export const sendReminder = async (req, res) => {
   try {
     const data = req.body || {};
