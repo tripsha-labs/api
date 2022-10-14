@@ -36,6 +36,7 @@ export class MemberController {
         message,
         forceAddTraveler,
         action,
+        autoRegisterRSVP,
       } = params || {
         memberIds: [],
       };
@@ -50,7 +51,8 @@ export class MemberController {
         const isActionAllowed =
           trip.ownerId == user._id.toString() ||
           coHosts?.includes(user._id.toString()) ||
-          user.isAdmin === true;
+          user.isAdmin === true ||
+          autoRegisterRSVP;
 
         let guestCount = trip['guestCount'] || 0;
         const actions = memberIds.map(async memberId => {
@@ -203,6 +205,7 @@ export class MemberController {
                     bookingStatus['status'] = 'removed';
                   }
                   bookingStatus['reason'] = message;
+                  console.log(memberExists);
                   if (memberExists?.bookingId) {
                     await BookingModel.update(
                       Types.ObjectId(memberExists.bookingId),

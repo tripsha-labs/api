@@ -16,7 +16,13 @@ import {
   removeRoomResources,
   getTripResourceValidity,
 } from '../../helpers';
-import { BookingModel, UserModel, TripModel, MemberModel } from '../../models';
+import {
+  BookingModel,
+  UserModel,
+  TripModel,
+  MemberModel,
+  Trip,
+} from '../../models';
 import {
   ERROR_KEYS,
   LogMessages,
@@ -294,6 +300,7 @@ export class BookingController {
       throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
 
     finalBookingData['status'] = 'pending';
+
     const status = getTripResourceValidity(trip, bookingData);
     if (status.rooms && status.addOns) throw ERROR_KEYS.TRIP_RESOURCES_FULL;
 
@@ -347,7 +354,18 @@ export class BookingController {
       trip.bookingExpiryDays || 3,
     ]);
     booking['trip'] = trip;
+    let awsOwnerUserId = tripOwner.awsUserId;
+    if (Array.isArray(tripOwner.awsUserId) && tripOwner.awsUserId.length > 0) {
+      awsOwnerUserId = tripOwner.awsUserId[0];
+    }
     booking['awsUserId'] = tripOwner.awsUserId;
+    if (trip?.autoAcceptBookingRequest) {
+      await BookingController.bookingsAction(
+        { action: 'approve' },
+        bookingId,
+        awsOwnerUserId
+      );
+    }
     return booking;
   }
 
@@ -642,14 +660,17 @@ export class BookingController {
             };
           }
           await BookingModel.update(booking._id, bookingUpdate);
-          await MemberController.memberAction({
-            tripId: booking.tripId,
-            action: 'addMember',
-            forceAddTraveler: forceAddTraveler,
-            memberIds: [booking.memberId],
-            bookingId: bookingId,
-            awsUserId: awsUserId,
-          });
+          await MemberController.memberAction(
+            {
+              tripId: booking.tripId,
+              action: 'addMember',
+              forceAddTraveler: forceAddTraveler,
+              memberIds: [booking.memberId],
+              bookingId: bookingId,
+              awsUserId: awsUserId,
+            },
+            user
+          );
 
           await logActivity({
             ...LogMessages.BOOKING_REQUEST_APPROVE_TRAVELER(trip['title']),
@@ -1005,10 +1026,13 @@ export class BookingController {
   }
   static async respondInvite(tripId, params, user) {
     let payload = {};
-
+    let status = params?.status;
+    const trip = await TripModel.getById(tripId);
+    if (trip.autoRegisterRSVP && params?.status === 'invite-accepted')
+      status = 'approved';
     if (params?.bookingId) {
       payload = {
-        status: params?.status,
+        status: status,
       };
       await BookingModel.update(Types.ObjectId(params.bookingId), params);
     } else {
@@ -1016,12 +1040,33 @@ export class BookingController {
         tripId: tripId,
         memberId: user._id.toString(),
         addedByHost: false,
-        status: params?.status,
+        status: status,
       };
       await BookingModel.updateQuery(
         { tripId: tripId, memberId: user._id.toString() },
-        params,
+        payload,
         { upsert: true }
+      );
+    }
+
+    if (trip.autoRegisterRSVP && params?.status === 'invite-accepted') {
+      const booking = await BookingModel.get({
+        tripId: tripId,
+        memberId: user._id.toString(),
+      });
+
+      await MemberController.memberAction(
+        {
+          memberIds: [user._id.toString()],
+          tripId: tripId,
+          message: params?.message || '',
+          awsUserId: user.awsUserId,
+          action: 'addMember',
+          forceAddTraveler: true,
+          bookingId: booking?._id?.toString(),
+          autoRegisterRSVP: true,
+        },
+        user
       );
     }
     return 'success';
