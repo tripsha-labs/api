@@ -41,25 +41,27 @@ export class BookingController {
       );
     return username;
   }
-  static async createInvite(params, awsUserId) {
-    const user = await UserModel.get({ awsUserId: awsUserId });
-    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+  static async createInvite(params, currentUser) {
+    const user = currentUser;
+    // Fetch trip information
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    // Fetch co host ids
     const coHosts = trip?.coHosts?.map(h => h.id);
     if (
       coHosts?.includes(user._id.toString()) ||
       trip.ownerId.toString() === user._id.toString() ||
       user.isAdmin
     ) {
+      // Check if emails are already exists
       let users = await UserModel.list({
         filter: { email: { $in: params.emails } },
         select: { email: 1 },
       });
       const foundEmails = users.map(user => user.email);
       const difference = _.difference(params.emails, foundEmails);
-      // Create user if not exists already
-      if (difference && difference.length > 0) {
+      // Create users if not exists already
+      if (difference?.length > 0) {
         const createUsers = difference.map(async email => {
           const username = email.split('@')[0];
           return {
@@ -81,19 +83,22 @@ export class BookingController {
         await UserModel.bulkWrite(insertData);
       }
 
-      // Add members to directory
+      // Add members to member directory
       if (params.save_to_members) {
         const data = params?.emails?.split(',')?.map(email => {
           return { email: email };
         });
         if (data) await MemberDirectoryController.createMembers(data);
       }
+      // Fetch user list once again for newly added users
       users = await UserModel.list({
         filter: { email: { $in: params.emails } },
         select: { email: 1 },
       });
+      // Collect user ids
       const memberIds = users.map(user => user._id.toString());
-      if (params.attendee_action === 'direct_attendee') {
+      // Add invitee as attendee directly
+      if (params?.attendee_action === 'direct_attendee') {
         const objMemberIds = users.map(user => user._id);
         const foundMembers = await MemberModel.list({
           filter: {
@@ -107,15 +112,19 @@ export class BookingController {
         );
         const diffIds = _.difference(memberIds, foundMemberIds);
         if (diffIds?.length > 0)
-          await MemberController.memberAction({
-            memberIds: diffIds,
-            tripId: params.tripId,
-            message: params.message || '',
-            awsUserId,
-            action: 'addMember',
-            forceAddTraveler: true,
-          });
+          await MemberController.memberAction(
+            {
+              memberIds: diffIds,
+              tripId: params.tripId,
+              message: params.message || '',
+              awsUserId: user.awsUserId,
+              action: 'addMember',
+              forceAddTraveler: true,
+            },
+            currentUser
+          );
       } else {
+        // Check if members already approved or invite accepted status
         const approvedBookings = await BookingModel.list({
           filter: {
             memberId: {
@@ -152,7 +161,8 @@ export class BookingController {
             });
         });
         await BookingModel.bulkWrite(bookings);
-        if (params.attendee_action === 'send_invite') {
+        // Send email after create invite
+        if (params?.attendee_action === 'send_invite') {
           params?.emails?.map(async email => {
             await EmailSender(
               { email: email },
@@ -211,29 +221,35 @@ export class BookingController {
       });
     }
   }
-  static async createBooking(params, awsUserId) {
+  static async createBooking(params, currentUser) {
     const bookingData = params;
+    // Fetch trip information and validate if exists
     const trip = await TripModel.getById(params.tripId);
-
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+
     if (!trip.isBookingEnabled) throw ERROR_KEYS.BOOKING_DISABLED;
+
     if (bookingData.attendees > trip.spotsAvailable)
       throw ERROR_KEYS.TRIP_IS_FULL;
 
-    const user = await UserModel.get({ awsUserId: awsUserId });
+    const user = currentUser;
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-
+    // Fetch trip owner information
     const tripOwner = await UserModel.get({ _id: trip.ownerId });
     if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
+    // Validate trip either allowed to book
     if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
+
     bookingData['memberId'] = user._id.toString();
     bookingData['ownerId'] = tripOwner._id.toString();
     let costing = {};
+    // Fetch deposit status information and validate
     if (params['paymentStatus'] == 'deposit') {
       bookingData['isDepositApplicable'] = getDepositStatus(trip);
       if (!bookingData['isDepositApplicable'])
         throw ERROR_KEYS.TRIP_BOOKING_WITH_DEPOSIT_DATE_PASSED;
     }
+
     if (
       params['paymentStatus'] == 'full' ||
       params['paymentStatus'] == 'deposit'
@@ -270,14 +286,17 @@ export class BookingController {
       tripId: finalBookingData['tripId'],
       memberId: finalBookingData['memberId'],
     });
+    // Checks if booking already exists
     if (
       existingBooking &&
       ['approved', 'pending'].includes(existingBooking.status)
     )
       throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
+
     finalBookingData['status'] = 'pending';
     const status = getTripResourceValidity(trip, bookingData);
     if (status.rooms && status.addOns) throw ERROR_KEYS.TRIP_RESOURCES_FULL;
+
     let booking;
     let bookingId = null;
     if (existingBooking?._id) {

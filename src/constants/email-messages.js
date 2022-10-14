@@ -67,7 +67,7 @@ export const EmailMessages = {
   MEMBER_INVITE_HOST: {
     subject: 'You have invited to join the trip!',
     message: (tripId, tripName) => {
-      const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}/book`;
+      const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
       return `
       You just received a invite for joining the trip <a href="${trip_url}" target="_blank">${tripName}</a>.
       <br/>

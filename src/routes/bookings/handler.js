@@ -19,10 +19,7 @@ export const createInvite = async (req, res) => {
     const data = req.body || {};
     const validation = createInviteValidation(data);
     if (validation != true) throw validation.shift();
-    const result = await BookingController.createInvite(
-      data,
-      req.requestContext.identity.cognitoIdentityId
-    );
+    const result = await BookingController.createInvite(data, req.currentUser);
     return successResponse(res, result);
   } catch (error) {
     logError(error);
@@ -77,14 +74,12 @@ export const sendReminder = async (req, res) => {
 export const createBooking = async (req, res) => {
   try {
     const data = req.body || {};
-
+    // Validate booking request payload
     const validation = createBookingValidation(data);
     if (validation != true) throw validation.shift();
+    // Create booking
+    const result = await BookingController.createBooking(data, req.currentUser);
 
-    const result = await BookingController.createBooking(
-      data,
-      req.requestContext.identity.cognitoIdentityId
-    );
     const trip = result?.trip;
     let awsUserId = result?.awsUserId;
     if (awsUserId && Array.isArray(awsUserId) && awsUserId.length > 0) {
