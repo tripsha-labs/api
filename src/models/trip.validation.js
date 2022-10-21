@@ -224,6 +224,14 @@ const tripSchema = {
   autoRegisterRSVP: { type: 'boolean', optional: true },
   isBookingEnabled: { type: 'boolean', optional: true },
   autoAcceptBookingRequest: { type: 'boolean', optional: true },
+  budget: {
+    type: 'object',
+    optional: true,
+    props: {
+      currency: { type: 'string', optional: true },
+      amount: { type: 'number', optional: true },
+    },
+  },
   coHosts: {
     type: 'array',
     optional: true,

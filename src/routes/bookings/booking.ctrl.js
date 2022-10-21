@@ -91,7 +91,7 @@ export class BookingController {
 
       // Add members to member directory
       if (params.save_to_members) {
-        const data = params?.emails?.split(',')?.map(email => {
+        const data = params?.emails?.map(email => {
           return { email: email };
         });
         if (data) await MemberDirectoryController.createMembers(data);
