@@ -29,6 +29,10 @@ export class BookingModel {
     return Booking.updateOne({ _id: id }, { $set: params }, upsert);
   }
 
+  static updateQuery(query, params = {}, upsert = {}) {
+    return Booking.updateOne(query, { $set: params }, upsert);
+  }
+
   static updateMany(filter, params) {
     return Booking.updateMany(filter, { $set: params });
   }

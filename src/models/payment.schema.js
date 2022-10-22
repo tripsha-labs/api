@@ -16,6 +16,7 @@ const paymentSchema = new mongoose.Schema(
     attachments: { type: Array },
     comments: { type: Array },
     amount: { type: Number },
+    foreignAmount: { type: Number },
     currencyType: { type: String },
   },
   {

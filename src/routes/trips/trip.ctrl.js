@@ -196,18 +196,18 @@ export class TripController {
       const trip = await TripModel.create(params);
       try {
         const urlList = [];
-        if (trip && trip.pictureUrls && trip.pictureUrls.length > 0) {
+        if (trip?.pictureUrls?.length > 0) {
           urlList.concat(trip.pictureUrls);
         }
-        if (trip && trip.rooms && trip.rooms.length > 0) {
+        if (trip?.rooms?.length > 0) {
           trip.rooms.map(room => {
-            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+            if (room?.pictureUrls?.length > 0) {
               urlList.concat(room.pictureUrls.map(url => url.url));
               return room;
             }
           });
         }
-        if (trip && trip.itineraries && trip.itineraries.length > 0) {
+        if (trip?.itineraries?.length > 0) {
           urlList.concat(trip.itineraries.map(itr => itr.imageUrl));
         }
         const items = new Set(urlList);
@@ -305,9 +305,11 @@ export class TripController {
       const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.UNAUTHORIZED;
       if (!tripDetails) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      const coHosts = tripDetails?.coHosts?.map(h => h.id);
       if (
         !(
           tripDetails['ownerId'].toString() === user['_id'].toString() ||
+          coHosts?.includes(user._id.toString()) ||
           user['isAdmin'] === true
         )
       ) {
@@ -398,41 +400,29 @@ export class TripController {
       await TripModel.update(tripId, trip);
       try {
         let urlList = [];
-        if (trip && trip.pictureUrls && trip.pictureUrls.length > 0) {
+        if (trip?.pictureUrls?.length > 0) {
           urlList = [...urlList, ...trip.pictureUrls];
-        } else if (
-          tripDetails &&
-          tripDetails.pictureUrls &&
-          tripDetails.pictureUrls.length > 0
-        ) {
+        } else if (tripDetails?.pictureUrls?.length > 0) {
           urlList = [...urlList, ...tripDetails.pictureUrls];
         }
-        if (trip && trip.rooms && trip.rooms.length > 0) {
+        if (trip?.rooms?.length > 0) {
           trip.rooms.map(room => {
-            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+            if (room?.pictureUrls?.length > 0) {
               urlList = [...urlList, ...room.pictureUrls.map(url => url.url)];
               return room;
             }
           });
-        } else if (
-          tripDetails &&
-          tripDetails.rooms &&
-          tripDetails.rooms.length > 0
-        ) {
+        } else if (tripDetails?.rooms?.length > 0) {
           tripDetails.rooms.map(room => {
-            if (room && room.pictureUrls && room.pictureUrls.length > 0) {
+            if (room?.pictureUrls?.length > 0) {
               urlList = [...urlList, ...room.pictureUrls.map(url => url.url)];
               return room;
             }
           });
         }
-        if (trip && trip.itineraries && trip.itineraries.length > 0) {
+        if (trip?.itineraries?.length > 0) {
           urlList = [...urlList, ...trip.itineraries.map(itr => itr.imageUrl)];
-        } else if (
-          tripDetails &&
-          tripDetails.itineraries &&
-          tripDetails.itineraries.length > 0
-        ) {
+        } else if (tripDetails?.itineraries?.length > 0) {
           urlList = [
             ...urlList,
             ...tripDetails.itineraries.map(itr => itr.imageUrl),
@@ -954,49 +944,49 @@ export class TripController {
       const bookings = await BookingModel.aggregate(params);
       const rooms = {};
       const addOns = {};
-      trip.rooms &&
-        trip.rooms.map(room => {
-          room.variants &&
-            room.variants.map(variant => {
-              rooms[`${room.id}_${variant.id}`] = {
-                ...variant,
-                roomName: room.name,
-                roomId: room.id,
-              };
-              return variant;
-            });
+      trip.rooms?.map(room => {
+        room.variants?.forEach(variant => {
+          rooms[`${room.id}_${variant.id}`] = {
+            ...variant,
+            roomName: room.name,
+            roomId: room.id,
+          };
+        });
 
-          return room;
-        });
-      trip.addOns &&
-        trip.addOns.map(addOn => {
-          addOns[addOn.id] = addOn;
-          return addOn;
-        });
+        return room;
+      });
+      trip.addOns?.forEach(addOn => {
+        addOns[addOn.id] = addOn;
+      });
       return bookings.map(booking => {
         const { email, firstName, lastName, username, livesIn } =
           booking.user || {};
-        const roomInfo = JSON.parse(JSON.stringify(rooms));
+
         const addOnsInfo = JSON.parse(JSON.stringify(addOns));
-        booking.rooms &&
-          booking.rooms.map(room => {
-            if (roomInfo[`${room.room.id}_${room.variant.id}`])
-              roomInfo[`${room.room.id}_${room.variant.id}`] = {
-                ...roomInfo[`${room.room.id}_${room.variant.id}`],
-                attendees: room.attendees,
-              };
-            return room;
-          });
-        booking.addOns &&
-          booking.addOns.map(addOn => {
-            if (addOnsInfo[addOn.id]) {
-              addOnsInfo[addOn.id] = {
-                ...addOnsInfo[addOn.id],
-                attendees: addOn.attendees,
-              };
-            }
-            return addOn;
-          });
+        if (booking.rooms?.length > 0) {
+          const roomInfo = JSON.parse(JSON.stringify(rooms));
+          booking.rooms =
+            booking.rooms?.map(room => {
+              if (roomInfo[`${room.room.id}_${room.variant.id}`])
+                room = {
+                  ...roomInfo[`${room.room.id}_${room.variant.id}`],
+                  attendees: room.attendees,
+                };
+              return room;
+            }) || [];
+        }
+        if (booking.addOns?.length > 0) {
+          booking.addOns =
+            booking.addOns?.map(addOn => {
+              if (addOnsInfo[addOn.id]) {
+                addOn = {
+                  ...addOnsInfo[addOn.id],
+                  attendees: addOn.attendees,
+                };
+              }
+              return addOn;
+            }) || [];
+        }
         const bookingInfo = {
           _id: booking._id,
           attendeeName: `${firstName} ${lastName || ''}`,
@@ -1014,8 +1004,8 @@ export class TripController {
           pendingAmount: booking.pendingAmount,
           paymentHistory: booking.paymentHistory,
           attendees: booking.attendees,
-          rooms: Object.values(roomInfo),
-          addOns: Object.values(addOnsInfo),
+          rooms: booking.rooms,
+          addOns: booking.addOns,
           travelerViewName: booking.travelerViewName,
           travelerCustomColumns: booking.travelerCustomColumns,
           travelerViews: booking.travelerViews,

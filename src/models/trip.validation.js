@@ -131,6 +131,7 @@ const tripSchema = {
         name: { type: 'string' },
         cost: { type: 'number' },
         available: { type: 'number' },
+        restrictPerTraveler: { type: 'boolean' },
       },
     },
   },
@@ -203,7 +204,7 @@ const tripSchema = {
         },
         isRequired: { type: 'boolean', optional: true },
         showAtBooking: { type: 'boolean', optional: true },
-        hideQuestion: { type: 'boolean', optional: true },
+        showQuestion: { type: 'boolean', optional: true },
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
         showOtherText: { type: 'string', optional: true, default: 'Other' },
@@ -223,6 +224,14 @@ const tripSchema = {
   autoRegisterRSVP: { type: 'boolean', optional: true },
   isBookingEnabled: { type: 'boolean', optional: true },
   autoAcceptBookingRequest: { type: 'boolean', optional: true },
+  budget: {
+    type: 'object',
+    optional: true,
+    props: {
+      currency: { type: 'string', optional: true },
+      amount: { type: 'number', optional: true },
+    },
+  },
   coHosts: {
     type: 'array',
     optional: true,

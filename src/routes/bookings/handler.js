@@ -19,10 +19,7 @@ export const createInvite = async (req, res) => {
     const data = req.body || {};
     const validation = createInviteValidation(data);
     if (validation != true) throw validation.shift();
-    const result = await BookingController.createInvite(
-      data,
-      req.requestContext.identity.cognitoIdentityId
-    );
+    const result = await BookingController.createInvite(data, req.currentUser);
     return successResponse(res, result);
   } catch (error) {
     logError(error);
@@ -48,7 +45,16 @@ export const removeInvite = async (req, res) => {
     return failureResponse(res, error);
   }
 };
-
+export const sendCustomEmail = async (req, res) => {
+  try {
+    const data = req.body || {};
+    const result = await BookingController.sendCustomEmail(data);
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
 export const sendReminder = async (req, res) => {
   try {
     const data = req.body || {};
@@ -68,26 +74,24 @@ export const sendReminder = async (req, res) => {
 export const createBooking = async (req, res) => {
   try {
     const data = req.body || {};
-
+    // Validate booking request payload
     const validation = createBookingValidation(data);
     if (validation != true) throw validation.shift();
+    // Create booking
+    const result = await BookingController.createBooking(data, req.currentUser);
 
-    const result = await BookingController.createBooking(
-      data,
-      req.requestContext.identity.cognitoIdentityId
-    );
     const trip = result?.trip;
     let awsUserId = result?.awsUserId;
     if (awsUserId && Array.isArray(awsUserId) && awsUserId.length > 0) {
       awsUserId = awsUserId[0];
     }
-    if (trip?.autoAcceptBookingRequest) {
-      await BookingController.bookingsAction(
-        { action: 'approve' },
-        result._id.toString(),
-        awsUserId
-      );
-    }
+    // if (trip?.autoAcceptBookingRequest) {
+    //   await BookingController.bookingsAction(
+    //     { action: 'approve' },
+    //     result._id.toString(),
+    //     awsUserId
+    //   );
+    // }
     return successResponse(res, result);
   } catch (error) {
     logError(error);
@@ -266,13 +270,16 @@ export const getInvites = async (req, res) => {
 };
 export const respondInvite = async (req, res) => {
   try {
-    const bookingId = req?.params?.id;
-    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const tripId = req?.params?.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const data = req.body || {};
     if (data?.status) {
-      const result = await BookingController.respondInvite(bookingId, {
-        status: data?.status,
-      });
+      const result = await BookingController.respondInvite(
+        tripId,
+        data,
+        req.currentUser
+      );
+
       return successResponse(res, result);
     } else {
       throw ERROR_KEYS.BAD_REQUEST;

@@ -67,6 +67,7 @@ const auth = () => {
     try {
       const awsUserId = req.requestContext.identity.cognitoIdentityId;
       req.currentUser = await UserModel.get({ awsUserId: awsUserId });
+      if (req.currentUser) req.currentUser['awsUserId'] = awsUserId;
       return next();
     } catch (err) {
       return failureResponse(res, ERROR_KEYS.INVALID_TOKEN);
@@ -77,7 +78,7 @@ const auth = () => {
   app.use('/host-requests', HostRequests);
   app.use('/approvals', Approvals);
   app.use('/bookings', verifyToken, Bookings);
-  app.use('/members', Members);
+  app.use('/members', verifyToken, Members);
   app.use('/conversations', Messages);
   app.use('/payments', Payments);
   app.use('/users', Users);

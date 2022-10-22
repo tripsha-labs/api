@@ -13,6 +13,7 @@ import {
   removeInvite,
   getInvites,
   respondInvite,
+  sendCustomEmail,
 } from './handler';
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.post('/', createBooking);
 router.post('/invite', createInvite);
 router.delete('/invite', removeInvite);
 router.post('/invite/reminder', sendReminder);
+router.post('/invite/custom-email', sendCustomEmail);
 router.put('/', multiUpdateBooking);
 router.get('/:id', getBooking);
 router.get('/:id/invites', getInvites);
