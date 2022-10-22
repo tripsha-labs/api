@@ -90,11 +90,12 @@ export class BookingController {
       }
 
       // Add members to member directory
-      if (params.save_to_members) {
+      if (params?.save_to_members) {
         const data = params?.emails?.map(email => {
           return { email: email };
         });
-        if (data) await MemberDirectoryController.createMembers(data);
+        if (data?.length > 0)
+          await MemberDirectoryController.createMembers(data, user);
       }
       // Fetch user list once again for newly added users
       users = await UserModel.list({

@@ -43,6 +43,12 @@ const paymentSchema = {
   amount: { type: 'number', empty: false, optional: true },
   currencyType: { type: 'string', empty: false, optional: true },
   foreignAmount: { type: 'number', empty: false, optional: true },
+  type: {
+    type: 'string',
+    empty: false,
+    optional: true,
+    enum: ['Paid', 'Received'],
+  },
   $$strict: 'remove',
 };
 
