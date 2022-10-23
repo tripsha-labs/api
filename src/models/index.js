@@ -68,3 +68,7 @@ export * from './payment.validation';
 
 export * from './member-directory.model';
 export * from './member-directory.schema';
+
+export * from './resources.model';
+export * from './resources.schema';
+export * from './resources.validation';

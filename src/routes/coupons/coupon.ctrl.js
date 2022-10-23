@@ -29,7 +29,6 @@ export class CouponController {
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
-    console.log(params);
     const coupons = await CouponModel.list(params);
     return {
       data: coupons,
