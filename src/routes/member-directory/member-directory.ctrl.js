@@ -41,12 +41,26 @@ export class MemberDirectoryController {
     const members = await MemberDirectoryModel.aggregate(params);
     return { data: members, count: members.length };
   }
-  static async createMembers(records) {
+  static async createMembers(records, user) {
+    const memberEmails = records.map(member => member.email);
+    const users = await UserModel.list({
+      filter: { email: { $in: memberEmails } },
+      select: { email: 1, _id: 1 },
+    });
+    const userMap = {};
+    console.log(users);
+    users?.forEach(u => {
+      userMap[u.email] = u._id;
+    });
     const promises = records.map(async record => {
       return new Promise(resolve => {
+        if (userMap.hasOwnProperty(record.email)) {
+          record.tripshaId = userMap[record.email];
+        }
+        record.hostId = user._id.toString();
         return resolve({
           updateOne: {
-            filter: { email: record.email },
+            filter: { email: record.email, hostId: user._id.toString() },
             update: record,
             upsert: true,
           },
