@@ -2,13 +2,13 @@
  * @name - Resource Collection schema
  * @description - This is the mongoose collection schema.
  */
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const ResourceCollectionSchema = new mongoose.Schema(
   {
-    tripId: { type: String },
+    tripId: { type: Schema.Types.ObjectId },
     title: { type: String },
-    addedBy: { type: String },
+    addedBy: { type: Schema.Types.ObjectId },
   },
   {
     timestamps: true,
@@ -23,10 +23,10 @@ export const ResourceCollection =
 
 const ResourceSchema = new mongoose.Schema(
   {
-    tripId: { type: String },
+    tripId: { type: Schema.Types.ObjectId },
     title: { type: String },
-    addedBy: { type: String },
-    collectionId: { type: String },
+    addedBy: { type: Schema.Types.ObjectId },
+    collectionId: { type: Schema.Types.ObjectId },
     type: { type: String },
   },
   {

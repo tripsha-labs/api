@@ -5,14 +5,14 @@ export class ResourceController {
     return await ResourceCollectionModel.aggregate([
       {
         $match: {
-          tripId: params.tripId,
+          tripId: Types.ObjectId(params.tripId),
         },
       },
       {
         $lookup: {
           from: 'resources',
-          localField: 'collectionId',
-          foreignField: '_id',
+          localField: '_id',
+          foreignField: 'collectionId',
           as: 'Resources',
         },
       },
