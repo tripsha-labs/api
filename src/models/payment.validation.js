@@ -6,13 +6,16 @@ import Validator from 'fastest-validator';
 
 const paymentSchema = {
   description: { type: 'string', empty: false, optional: true },
-  paymentType: { type: 'string', empty: false, optional: true },
-  paymentDate: { type: 'number', empty: false, optional: true },
-  paymentMethod: {
-    type: 'string',
+  tags: {
+    type: 'array',
     empty: false,
     optional: true,
+    items: {
+      type: 'string',
+      optional: true,
+    },
   },
+  paymentDate: { type: 'number', empty: false, optional: true },
   attachments: {
     type: 'array',
     optional: true,
