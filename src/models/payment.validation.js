@@ -50,7 +50,7 @@ const paymentSchema = {
     type: 'string',
     empty: false,
     optional: true,
-    enum: ['Paid', 'Received'],
+    enum: ['Spent', 'Allocated', 'Refund'],
   },
   $$strict: 'remove',
 };
