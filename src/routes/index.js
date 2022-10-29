@@ -89,7 +89,7 @@ const auth = () => {
   app.use('/assets', Assets);
   app.use('/host-payments', HostPayment);
   app.use('/directory-members', verifyToken, DirectoryMembers);
-  app.use('/collections', verifyToken, Resources);
+  app.use('/resources', verifyToken, Resources);
   return app;
 };
 

@@ -39,13 +39,11 @@ export class ResourceController {
     return await ResourceModel.create(body);
   }
 
-  static async getResources(collectionId) {
-    return await ResourceModel.find({
-      collectionId: Types.ObjectId(collectionId),
-    });
+  static async getResource(id) {
+    return await ResourceModel.findById(id);
   }
-  static async deleteResource(query) {
-    return await ResourceModel.deleteOne(query);
+  static async deleteResources(query) {
+    return await ResourceModel.deleteMany(query);
   }
   static async updateResource(query, update) {
     return await ResourceModel.updateOne(query, update);

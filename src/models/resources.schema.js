@@ -8,7 +8,10 @@ const ResourceCollectionSchema = new mongoose.Schema(
   {
     tripId: { type: Schema.Types.ObjectId },
     title: { type: String },
+    resourceType: { type: String },
+    columns: { type: Array },
     addedBy: { type: Schema.Types.ObjectId },
+    updatedBy: { type: Schema.Types.ObjectId },
   },
   {
     timestamps: true,
@@ -25,9 +28,20 @@ const ResourceSchema = new mongoose.Schema(
   {
     tripId: { type: Schema.Types.ObjectId },
     title: { type: String },
+    resourceType: { type: String },
     addedBy: { type: Schema.Types.ObjectId },
+    updatedBy: { type: Schema.Types.ObjectId },
     collectionId: { type: Schema.Types.ObjectId },
-    type: { type: String },
+    airline: { type: String },
+    flightNumber: { type: String },
+    departureAirport: { type: String },
+    pickupPoint: { type: String },
+    dropPoint: { type: String },
+    departureTime: { type: Number },
+    arrivalAirport: { type: String },
+    arrivalTime: { type: Number },
+    quantity: { type: Number },
+    capacity: { type: Number },
   },
   {
     timestamps: true,

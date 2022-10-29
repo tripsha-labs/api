@@ -3,17 +3,14 @@ import { successResponse, failureResponse } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { Types } from 'mongoose';
 import {
-  createResourceCollectionValidation,
   createResourceValidation,
   ResourceCollectionModel,
-  TripModel,
-  updateResourceCollectionValidation,
   updateResourceValidation,
 } from '../../models';
 /**
- * List collections methods
+ * List listResources methods
  */
-export const listCollections = async (req, res) => {
+export const listResources = async (req, res) => {
   try {
     const params = req.query || {};
     if (!params?.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
@@ -27,81 +24,6 @@ export const listCollections = async (req, res) => {
     return failureResponse(res, error);
   }
 };
-/**
- * Get collection methods
- */
-export const getCollection = async (req, res) => {
-  try {
-    if (!req.params?.collectionId)
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'collectionId' };
-    const collection = await ResourceController.getCollection(
-      req.params.collectionId
-    );
-    if (!collection) throw ERROR_KEYS.COLLECTION_NOT_FOUND;
-    return successResponse(res, collection);
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
-
-/**
- * Create collection methods
- */
-export const createCollection = async (req, res) => {
-  try {
-    const body = req.body || {};
-    const validation = createResourceCollectionValidation(body);
-    if (validation != true) throw validation.shift();
-    body['addedBy'] = req.currentUser._id.toString();
-    const trip = await TripModel.getById(body.tripId);
-    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    body['tripId'] = trip._id;
-    await ResourceController.createCollection(body);
-    return successResponse(res, 'success');
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
-
-/**
- * Update collection methods
- */
-export const updateCollection = async (req, res) => {
-  try {
-    if (!req.params?.collectionId)
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'collectionId' };
-    const body = req.body || {};
-    const validation = updateResourceCollectionValidation(body);
-    if (validation != true) throw validation.shift();
-    await ResourceController.updateCollection(
-      { _id: Types.ObjectId(req.params?.collectionId) },
-      body
-    );
-    return successResponse(res, 'success');
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
-
-/**
- * Delete collection methods
- */
-export const deleteCollection = async (req, res) => {
-  if (!req.params?.collectionId)
-    throw { ...ERROR_KEYS.MISSING_FIELD, field: 'collectionId' };
-  try {
-    await ResourceController.deleteCollection({
-      _id: Types.ObjectId(req.params?.collectionId),
-    });
-    return successResponse(res, 'success');
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
 
 /**
  * Create resource methods
@@ -109,19 +31,28 @@ export const deleteCollection = async (req, res) => {
 export const createResource = async (req, res) => {
   try {
     const body = req.body || {};
-    if (!req.params?.collectionId)
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'collectionId' };
     const validation = createResourceValidation(body);
     if (validation != true) throw validation.shift();
-    const collection = await ResourceCollectionModel.findById(
-      req.params?.collectionId
-    );
-    if (!collection) throw ERROR_KEYS.COLLECTION_NOT_FOUND;
+    let collection = await ResourceCollectionModel.findOne({
+      title: body.collectionName,
+    });
+
+    if (!collection) {
+      collection = await ResourceCollectionModel.create({
+        resourceType: body.resourceType,
+        title: body.collectionName,
+        tripId: Types.ObjectId(body.tripId),
+        addedBy: req.currentUser._id,
+        updatedBy: req.currentUser._id,
+      });
+    }
+    delete body['collectionName'];
     const payload = {
-      ...req.body,
+      ...body,
       collectionId: collection._id,
-      tripId: collection.tripId,
+      tripId: Types.ObjectId(collection.tripId),
       addedBy: req.currentUser._id,
+      updatedBy: req.currentUser._id,
     };
     await ResourceController.createResource(payload);
     return successResponse(res, 'success');
@@ -132,15 +63,12 @@ export const createResource = async (req, res) => {
 };
 
 /**
- * Get resources methods
+ * Get resource methods
  */
-export const getResources = async (req, res) => {
-  if (!req.params?.collectionId)
-    throw { ...ERROR_KEYS.MISSING_FIELD, field: 'collectionId' };
+export const getResource = async (req, res) => {
+  if (!req.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
   try {
-    const resource = await ResourceController.getResources(
-      req.params.collectionId
-    );
+    const resource = await ResourceController.getResource(req.params.id);
     return successResponse(res, resource);
   } catch (error) {
     console.log(error);
@@ -149,15 +77,15 @@ export const getResources = async (req, res) => {
 };
 
 /**
- * Delete resource methods
+ * Delete resources methods
  */
-export const deleteResource = async (req, res) => {
-  if (!req.params?.resourceId)
-    throw { ...ERROR_KEYS.MISSING_FIELD, field: 'resourceId' };
+export const deleteResources = async (req, res) => {
+  const body = req.body || {};
+  if (Array.isArray(body?.resource_ids) && body?.resource_ids?.length == 0)
+    throw { ...ERROR_KEYS.MISSING_FIELD, field: 'resource_ids' };
   try {
-    await ResourceController.deleteResource({
-      _id: Types.ObjectId(req.params.resourceId),
-    });
+    const resourceIds = body?.resource_ids.map(id => Types.ObjectId(id));
+    await ResourceController.deleteResources({ _id: { $in: resourceIds } });
     return successResponse(res, 'success');
   } catch (error) {
     console.log(error);
@@ -170,14 +98,27 @@ export const deleteResource = async (req, res) => {
  */
 export const updateResource = async (req, res) => {
   try {
-    if (!req.params?.resourceId)
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'resourceId' };
+    if (!req.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const body = req.body || {};
     const validation = updateResourceValidation(body);
     if (validation != true) throw validation.shift();
+    let collection = await ResourceCollectionModel.find({
+      title: body.collectionName,
+    });
+    if (!collection) {
+      collection = await ResourceCollectionModel.create({
+        resourceType: body.resourceType,
+        title: body.collectionName,
+        tripId: Types.ObjectId(collection.tripId),
+        addedBy: req.currentUser._id,
+      });
+    }
+    body['collectionId'] = collection._id;
+    body['updatedBy'] = req.currentUser._id;
+    delete body['collectionName'];
     await ResourceController.updateResource(
       {
-        _id: Types.ObjectId(req.params.resourceId),
+        _id: Types.ObjectId(req.params.id),
       },
       body
     );
