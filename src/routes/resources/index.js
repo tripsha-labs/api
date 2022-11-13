@@ -6,6 +6,8 @@ import {
   getResource,
   deleteResources,
   updateResource,
+  updateCollection,
+  deleteCollection,
 } from './handler';
 
 router.get('/', listResources);
@@ -14,8 +16,8 @@ router.get('/:id', getResource);
 router.put('/:id', updateResource);
 router.delete('/', deleteResources);
 // router.get('/:collectionId', getCollection);
-// router.put('/:collectionId', updateCollection);
-// router.delete('/:collectionId', deleteCollection);
+router.put('/collection/:id', updateCollection);
+router.delete('/collection/:id', deleteCollection);
 // router.post('/:collectionId/resources', createResource);
 // router.get('/:collectionId/resources', getResources);
 // router.delete('/:collectionId/resources/:resourceId', deleteResource);

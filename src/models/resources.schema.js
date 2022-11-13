@@ -36,7 +36,7 @@ const ResourceSchema = new mongoose.Schema(
     flightNumber: { type: String },
     departureAirport: { type: String },
     pickupPoint: { type: String },
-    dropPoint: { type: String },
+    dropoffPoint: { type: String },
     departureTime: { type: Number },
     arrivalAirport: { type: String },
     arrivalTime: { type: Number },

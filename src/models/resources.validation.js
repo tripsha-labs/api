@@ -4,13 +4,9 @@
  */
 import Validator from 'fastest-validator';
 
-export const createResourceCollectionValidation = new Validator().compile({
-  tripId: { type: 'string', empty: false },
-  title: { type: 'string', empty: false },
-  $$strict: 'remove',
-});
 export const updateResourceCollectionValidation = new Validator().compile({
-  title: { type: 'string', empty: false },
+  title: { type: 'string', empty: false, optional: true },
+  column: { type: 'string', empty: false, optional: true },
   $$strict: 'remove',
 });
 const resourceShema = {

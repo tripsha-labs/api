@@ -6,6 +6,7 @@ import {
   createResourceValidation,
   ResourceCollectionModel,
   updateResourceValidation,
+  updateResourceCollectionValidation,
 } from '../../models';
 /**
  * List listResources methods
@@ -102,14 +103,14 @@ export const updateResource = async (req, res) => {
     const body = req.body || {};
     const validation = updateResourceValidation(body);
     if (validation != true) throw validation.shift();
-    let collection = await ResourceCollectionModel.find({
+    let collection = await ResourceCollectionModel.findOne({
       title: body.collectionName,
     });
     if (!collection) {
       collection = await ResourceCollectionModel.create({
         resourceType: body.resourceType,
         title: body.collectionName,
-        tripId: Types.ObjectId(collection.tripId),
+        tripId: Types.ObjectId(body.tripId),
         addedBy: req.currentUser._id,
       });
     }
@@ -122,6 +123,46 @@ export const updateResource = async (req, res) => {
       },
       body
     );
+    return successResponse(res, 'success');
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Update collection methods
+ */
+export const updateCollection = async (req, res) => {
+  try {
+    if (!req.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const body = req.body || {};
+    const validation = updateResourceCollectionValidation(body);
+    if (validation != true) throw validation.shift();
+    await ResourceCollectionModel.updateOne(
+      {
+        _id: Types.ObjectId(req.params?.id),
+      },
+      body
+    );
+
+    return successResponse(res, 'success');
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Delete collection methods
+ */
+export const deleteCollection = async (req, res) => {
+  try {
+    if (!req.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    await ResourceController.deleteCollection({
+      _id: Types.ObjectId(req.params?.id),
+    });
     return successResponse(res, 'success');
   } catch (error) {
     console.log(error);
