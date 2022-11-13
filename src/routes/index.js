@@ -27,6 +27,7 @@ import UserExists from './user-exists';
 import HostPayment from './host-payments';
 import DirectoryMembers from './member-directory';
 import Resources from './resources';
+import Links from './links';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -90,6 +91,7 @@ const auth = () => {
   app.use('/host-payments', HostPayment);
   app.use('/directory-members', verifyToken, DirectoryMembers);
   app.use('/resources', verifyToken, Resources);
+  app.use('/links', verifyToken, Links);
   return app;
 };
 

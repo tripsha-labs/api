@@ -72,3 +72,7 @@ export * from './member-directory.schema';
 export * from './resources.model';
 export * from './resources.schema';
 export * from './resources.validation';
+
+export * from './link.model';
+export * from './link.schema';
+export * from './link.validation';

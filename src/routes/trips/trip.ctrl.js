@@ -959,7 +959,7 @@ export class TripController {
         addOns[addOn.id] = addOn;
       });
       return bookings.map(booking => {
-        const { email, firstName, lastName, username, livesIn } =
+        const { email, firstName, lastName, username, livesIn, avatarUrl } =
           booking.user || {};
 
         const addOnsInfo = JSON.parse(JSON.stringify(addOns));
@@ -992,6 +992,7 @@ export class TripController {
           attendeeName: `${firstName} ${lastName || ''}`,
           username: username,
           email: email,
+          avatarUrl: avatarUrl,
           location: livesIn,
           guests: booking.guests,
           company: booking.company,
