@@ -42,6 +42,7 @@ const ResourceSchema = new mongoose.Schema(
     arrivalTime: { type: Number },
     quantity: { type: Number },
     capacity: { type: Number },
+    assigned: { type: Number },
   },
   {
     timestamps: true,
@@ -52,3 +53,20 @@ const ResourceSchema = new mongoose.Schema(
 
 export const Resource =
   mongoose.models.Resource || mongoose.model('Resource', ResourceSchema);
+
+const BookingResourceSchema = new mongoose.Schema(
+  {
+    tripId: { type: Schema.Types.ObjectId },
+    resourceId: { type: Schema.Types.ObjectId },
+    bookingId: { type: Schema.Types.ObjectId },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+    strict: true,
+  }
+);
+
+export const BookingResource =
+  mongoose.models.BookingResource ||
+  mongoose.model('BookingResource', BookingResourceSchema);

@@ -33,3 +33,10 @@ export const updateResourceValidation = new Validator().compile({
   ...resourceShema,
   $$strict: 'remove',
 });
+
+export const assignResourcesValidation = new Validator().compile({
+  tripId: { type: 'string', empty: false },
+  bookings: { type: 'array', empty: false },
+  resources: { type: 'array', empty: false },
+  $$strict: 'remove',
+});

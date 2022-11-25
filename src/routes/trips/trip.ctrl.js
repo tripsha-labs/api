@@ -940,6 +940,14 @@ export class TripController {
             preserveNullAndEmptyArrays: true,
           },
         },
+        {
+          $lookup: {
+            from: 'bookingresources',
+            localField: '_id',
+            foreignField: 'bookingId',
+            as: 'resources',
+          },
+        },
       ];
       const bookings = await BookingModel.aggregate(params);
       const rooms = {};
@@ -988,38 +996,12 @@ export class TripController {
             }) || [];
         }
         const bookingInfo = {
-          _id: booking._id,
           attendeeName: `${firstName} ${lastName || ''}`,
           username: username,
           email: email,
           avatarUrl: avatarUrl,
           location: livesIn,
-          guests: booking.guests,
-          company: booking.company,
-          team: booking.team,
-          property: booking.property,
-          discount: booking.discount,
-          coupon: booking.coupon,
-          currentDue: booking.currentDue,
-          paidAmout: booking.paidAmout,
-          pendingAmount: booking.pendingAmount,
-          paymentHistory: booking.paymentHistory,
-          attendees: booking.attendees,
-          rooms: booking.rooms,
-          addOns: booking.addOns,
-          travelerViewName: booking.travelerViewName,
-          travelerCustomColumns: booking.travelerCustomColumns,
-          travelerViews: booking.travelerViews,
-          paymentViewName: booking.paymentViewName,
-          paymentCustomColumns: booking.paymentCustomColumns,
-          paymentViews: booking.paymentViews,
-          customFields: booking.customFields,
-          updatedAt: booking.updatedAt,
-          questions: booking.questions,
-          questionsView: booking.questionsView,
-          attendeeView: booking.attendeeView,
-          isRSVPEnabled: booking.isBookingEnabled,
-          isBookingEnabled: booking.isBookingEnabled,
+          ...booking,
         };
         return bookingInfo;
       });

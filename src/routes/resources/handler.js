@@ -7,6 +7,7 @@ import {
   ResourceCollectionModel,
   updateResourceValidation,
   updateResourceCollectionValidation,
+  assignResourcesValidation,
 } from '../../models';
 /**
  * List listResources methods
@@ -163,6 +164,23 @@ export const deleteCollection = async (req, res) => {
     await ResourceController.deleteCollection({
       _id: Types.ObjectId(req.params?.id),
     });
+    return successResponse(res, 'success');
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Assign resources methods
+ */
+
+export const assignResources = async (req, res) => {
+  try {
+    const body = req.body || {};
+    const validation = assignResourcesValidation(body);
+    if (validation != true) throw validation.shift();
+    await ResourceController.assignResources(body);
     return successResponse(res, 'success');
   } catch (error) {
     console.log(error);

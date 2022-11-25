@@ -1,5 +1,9 @@
 import { Types } from 'mongoose';
-import { ResourceCollectionModel, ResourceModel } from '../../models';
+import {
+  BookingResource,
+  ResourceCollectionModel,
+  ResourceModel,
+} from '../../models';
 export class ResourceController {
   static async listCollections(params, user) {
     return await ResourceCollectionModel.aggregate([
@@ -47,5 +51,60 @@ export class ResourceController {
   }
   static async updateResource(query, update) {
     return await ResourceModel.updateOne(query, update);
+  }
+  static async assignResources(payload) {
+    const query = [];
+    payload.bookings.forEach(a => {
+      payload.resources.forEach(r => {
+        query.push({
+          updateOne: {
+            filter: {
+              tripId: Types.ObjectId(payload.tripId),
+              resourceId: Types.ObjectId(r),
+              bookingId: Types.ObjectId(a),
+            },
+            update: {
+              $set: {
+                tripId: Types.ObjectId(payload.tripId),
+                resourceId: Types.ObjectId(r),
+                bookingId: Types.ObjectId(a),
+              },
+            },
+            upsert: true,
+          },
+        });
+      });
+    });
+    await BookingResource.bulkWrite(query);
+    const resourceIds = payload.resources.map(r => Types.ObjectId(r));
+
+    let bookingResources = await BookingResource.aggregate([
+      {
+        $match: {
+          resourceId: { $in: resourceIds },
+        },
+      },
+      {
+        $group: {
+          _id: '$resourceId',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    bookingResources = bookingResources?.map(ra => {
+      return {
+        updateOne: {
+          filter: {
+            _id: ra._id,
+          },
+          update: {
+            $set: {
+              assigned: ra.count,
+            },
+          },
+        },
+      };
+    });
+    return await ResourceModel.bulkWrite(bookingResources);
   }
 }
