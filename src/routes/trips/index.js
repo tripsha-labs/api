@@ -13,12 +13,14 @@ import {
   addCoHost,
   deleteCoHost,
   getCoHosts,
+  invitedTrips,
 } from './handler';
 const router = express.Router();
 
 router.get('/', listTrips);
 router.post('/', createTrip);
 router.get('/mytrips', myTrips);
+router.get('/invited', invitedTrips);
 router.get('/saved-trips', savedTrips);
 router.get('/:id', getTrip);
 router.put('/:id', updateTrip);

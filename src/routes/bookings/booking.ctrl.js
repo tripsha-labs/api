@@ -3,7 +3,12 @@
  * @description - This will handle business logic for Booking module
  */
 import { Types } from 'mongoose';
-import { StripeAPI, logActivity, EmailSender } from '../../utils';
+import {
+  StripeAPI,
+  logActivity,
+  EmailSender,
+  bookingProjection,
+} from '../../utils';
 import {
   getCost,
   getBookingValidity,
@@ -16,13 +21,7 @@ import {
   removeRoomResources,
   getTripResourceValidity,
 } from '../../helpers';
-import {
-  BookingModel,
-  UserModel,
-  TripModel,
-  MemberModel,
-  Trip,
-} from '../../models';
+import { BookingModel, UserModel, TripModel, MemberModel } from '../../models';
 import {
   ERROR_KEYS,
   LogMessages,
@@ -145,8 +144,10 @@ export class BookingController {
         const bookings = [];
         users.forEach(user => {
           let bookingStatus = 'invite-pending';
+          let invited = false;
           if (params.attendee_action === 'send_invite') {
             bookingStatus = 'invited';
+            invited = true;
           }
           if (!approvedBookingIds.includes(user._id.toString()))
             bookings.push({
@@ -161,6 +162,7 @@ export class BookingController {
                     memberId: user._id.toString(),
                     addedByHost: true,
                     status: bookingStatus,
+                    invited: invited,
                   },
                 },
                 upsert: true,
@@ -218,7 +220,10 @@ export class BookingController {
         const booking = bookings.find(b => b.memberId === user._id.toString());
         if (booking && booking.status === 'invite-pending') {
           console.log('Updating invite.....');
-          await BookingModel.update(booking._id, { status: 'invited' });
+          await BookingModel.update(booking._id, {
+            status: 'invited',
+            invited: true,
+          });
         }
         await EmailSender(user, EmailMessages.MEMBER_INVITE_HOST, [
           trip._id.toString(),
@@ -386,34 +391,7 @@ export class BookingController {
     ) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
-    const bookingProjection = {
-      currency: 1,
-      addOns: 1,
-      guests: 1,
-      status: 1,
-      totalBaseFare: 1,
-      totalAddonFare: 1,
-      discountBaseFare: 1,
-      discountAddonFare: 1,
-      totalFare: 1,
-      currentDue: 1,
-      paidAmout: 1,
-      pendingAmount: 1,
-      paymentHistory: 1,
-      stripePaymentMethod: 1,
-      attendees: 1,
-      rooms: 1,
-      paymentStatus: 1,
-      message: 1,
-      deposit: 1,
-      discount: 1,
-      tripId: 1,
-      createdAt: 1,
-      updatedAt: 1,
-      autoChargeDate: 1,
-      bookingExpireOn: 1,
-      questions: 1,
-    };
+
     const params = [{ $match: { tripId: filters.tripId } }];
     params.push({
       $sort: prepareSortFilter(
@@ -912,33 +890,7 @@ export class BookingController {
   static async listGuestBookings(filters, guestAwsId) {
     const user = await UserModel.get({ awsUserId: guestAwsId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    const bookingProjection = {
-      currency: 1,
-      addOns: 1,
-      guests: 1,
-      status: 1,
-      totalBaseFare: 1,
-      totalAddonFare: 1,
-      discountBaseFare: 1,
-      discountAddonFare: 1,
-      totalFare: 1,
-      currentDue: 1,
-      paidAmout: 1,
-      pendingAmount: 1,
-      paymentHistory: 1,
-      stripePaymentMethod: 1,
-      attendees: 1,
-      rooms: 1,
-      paymentStatus: 1,
-      message: 1,
-      deposit: 1,
-      discount: 1,
-      memberId: 1,
-      createdAt: 1,
-      updatedAt: 1,
-      autoChargeDate: 1,
-      questions: 1,
-    };
+
     const params = [
       {
         $match: {

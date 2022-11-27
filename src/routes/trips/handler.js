@@ -319,3 +319,19 @@ export const getCoHosts = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+
+/**
+ * list invited trips
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const invitedTrips = async (req, res) => {
+  try {
+    const result = await TripController.getInviteList(req.currentUser);
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};

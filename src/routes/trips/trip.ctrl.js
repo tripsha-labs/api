@@ -5,7 +5,12 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { EmailSender, logActivity, success } from '../../utils';
+import {
+  bookingProjection,
+  EmailSender,
+  logActivity,
+  success,
+} from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -1095,6 +1100,59 @@ export class TripController {
           avatarUrl: 1,
         },
       });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async getInviteList(user) {
+    try {
+      const query = [
+        {
+          $match: {
+            memberId: user._id.toString(),
+            invited: true,
+          },
+        },
+        {
+          $project: {
+            ...bookingProjection,
+            tripId: {
+              $toObjectId: '$tripId',
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'trips',
+            localField: 'tripId',
+            foreignField: '_id',
+            as: 'trip',
+          },
+        },
+        {
+          $unwind: {
+            path: '$trip',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'trip.ownerId',
+            foreignField: '_id',
+            as: 'ownerDetails',
+          },
+        },
+        {
+          $unwind: {
+            path: '$ownerDetails',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ];
+
+      return await BookingModel.aggregate(query);
     } catch (err) {
       throw err;
     }
