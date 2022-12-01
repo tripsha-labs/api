@@ -60,6 +60,10 @@ const userSchema = new mongoose.Schema(
     hostRequestSent: { type: Boolean },
     showUpcomingTrips: { type: Boolean },
     showPastTrips: { type: Boolean },
+    visaStatus: String,
+    dietaryRequirements: String,
+    emergencyContact: String,
+    mobilityRestrictions: String,
   },
   {
     timestamps: true,

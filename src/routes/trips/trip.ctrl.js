@@ -5,12 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import {
-  bookingProjection,
-  EmailSender,
-  logActivity,
-  success,
-} from '../../utils';
+import { bookingProjection, EmailSender, logActivity } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -29,7 +24,6 @@ import {
   LogMessages,
   EmailMessages,
 } from '../../constants';
-import e from 'express';
 
 export class TripController {
   static async markForRemove(params, remove_requested) {
@@ -1106,6 +1100,7 @@ export class TripController {
   }
 
   static async getInviteList(user) {
+    const currentDate = parseInt(moment().format('YYYYMMDD'));
     try {
       const query = [
         {
@@ -1135,6 +1130,9 @@ export class TripController {
             path: '$trip',
             preserveNullAndEmptyArrays: true,
           },
+        },
+        {
+          $match: { 'trip.endDate': { $gte: currentDate } },
         },
         {
           $lookup: {

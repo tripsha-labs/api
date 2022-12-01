@@ -69,10 +69,6 @@ export const inviteUser = async (req, res) => {
         } catch (err) {
           console.log(err);
         }
-        // await subscribeUserToMailchimpAudience({
-        //   name: createUserInfo.firstName + ' ' + createUserInfo.lastName,
-        //   email: createUserInfo.email,
-        // });
 
         return successResponse(res, 'success');
       } else {
@@ -246,10 +242,7 @@ export const createUser = async (req, res) => {
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
       result = await UserController.createUser(createUserPayload);
-      // await subscribeUserToMailchimpAudience({
-      //   name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
-      //   email: createUserPayload.email,
-      // });
+
       // Add support user in the conversation
       await MessageController.addSupportMember(userInfo.awsUserId);
     }
@@ -290,6 +283,10 @@ export const getUser = async (req, res) => {
     await createUser(req, res);
     const result = await UserController.getUser(urldecode(userId), {
       stripeAccountId: 0,
+      visaStatus: 0,
+      dietaryRequirements: 0,
+      emergencyContact: 0,
+      mobilityRestrictions: 0,
     });
     return successResponse(res, result);
   } catch (err) {
@@ -353,7 +350,14 @@ export const getUserByEmailORUsername = async (req, res) => {
       {
         $or: [{ username: username }, { email: username }],
       },
-      { stripeCustomerId: 0, stripeAccountId: 0 }
+      {
+        stripeCustomerId: 0,
+        stripeAccountId: 0,
+        visaStatus: 0,
+        dietaryRequirements: 0,
+        emergencyContact: 0,
+        mobilityRestrictions: 0,
+      }
     );
     return successResponse(res, result);
   } catch (error) {

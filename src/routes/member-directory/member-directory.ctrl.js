@@ -34,6 +34,11 @@ export class MemberDirectoryController {
           livesIn: 1,
           avatarUrl: 1,
           name: 1,
+          passportCountry: 1,
+          visaStatus: 1,
+          dietaryRequirements: 1,
+          emergencyContact: 1,
+          mobilityRestrictions: 1,
         },
       },
     ];
@@ -48,7 +53,6 @@ export class MemberDirectoryController {
       select: { email: 1, _id: 1 },
     });
     const userMap = {};
-    console.log(users);
     users?.forEach(u => {
       userMap[u.email] = u._id;
     });

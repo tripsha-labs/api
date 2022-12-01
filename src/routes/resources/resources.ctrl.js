@@ -6,7 +6,7 @@ import {
 } from '../../models';
 export class ResourceController {
   static async listCollections(params, user) {
-    return await ResourceCollectionModel.aggregate([
+    const collections = await ResourceCollectionModel.aggregate([
       {
         $match: {
           tripId: Types.ObjectId(params.tripId),
@@ -21,6 +21,14 @@ export class ResourceController {
         },
       },
     ]);
+    const bookingResources = await BookingResource.aggregate([
+      {
+        $match: {
+          tripId: Types.ObjectId(params.tripId),
+        },
+      },
+    ]);
+    return { collections, bookingResources };
   }
 
   static async getCollection(collectionId) {

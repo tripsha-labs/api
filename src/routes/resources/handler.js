@@ -16,11 +16,22 @@ export const listResources = async (req, res) => {
   try {
     const params = req.query || {};
     if (!params?.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
-    const collections = await ResourceController.listCollections(
-      params,
-      req.currentUser
-    );
-    return successResponse(res, collections);
+    const {
+      collections,
+      bookingResources,
+    } = await ResourceController.listCollections(params, req.currentUser);
+
+    const collectionList = collections.map(collection => {
+      collection['Resources'] = collection.Resources.map(resource => {
+        const bookings = bookingResources.filter(r => {
+          return r.resourceId.toString() == resource._id.toString();
+        });
+        resource['bookings'] = bookings.map(b => b.bookingId);
+        return resource;
+      });
+      return collection;
+    });
+    return successResponse(res, collectionList);
   } catch (error) {
     console.log(error);
     return failureResponse(res, error);

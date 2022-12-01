@@ -5,6 +5,7 @@ plugins:
   - serverless-plugin-split-stacks
   - serverless-offline
   - serverless-plugin-include-dependencies
+  - serverless-prune-plugin
   # - serverless-domain-manager
 custom:
   stage: ${opt:stage, self:provider.stage}
