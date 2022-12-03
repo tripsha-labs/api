@@ -9,6 +9,7 @@ import {
   updateCollection,
   deleteCollection,
   assignResources,
+  unassignResources,
 } from './handler';
 
 router.get('/', listResources);
@@ -19,4 +20,5 @@ router.delete('/', deleteResources);
 router.put('/collection/:id', updateCollection);
 router.delete('/collection/:id', deleteCollection);
 router.post('/assign', assignResources);
+router.post('/unassign', unassignResources);
 export default router;

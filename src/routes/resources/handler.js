@@ -198,3 +198,20 @@ export const assignResources = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+
+/**
+ * Unassign resources methods
+ */
+
+export const unassignResources = async (req, res) => {
+  try {
+    const body = req.body || {};
+    const validation = assignResourcesValidation(body);
+    if (validation != true) throw validation.shift();
+    await ResourceController.unassignResources(body);
+    return successResponse(res, 'success');
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};

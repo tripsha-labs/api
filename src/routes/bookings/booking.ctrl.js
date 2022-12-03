@@ -198,7 +198,8 @@ export class BookingController {
     await EmailSender(
       user,
       { message: () => params.message, subject: params.subject },
-      ['', '']
+      ['', ''],
+      'custom'
     );
     return 'success';
   }

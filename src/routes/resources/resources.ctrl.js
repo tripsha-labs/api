@@ -115,4 +115,70 @@ export class ResourceController {
     });
     return await ResourceModel.bulkWrite(bookingResources);
   }
+
+  static async unassignResources(payload) {
+    const query = [];
+    payload.bookings.forEach(a => {
+      payload.resources.forEach(r => {
+        query.push({
+          deleteOne: {
+            filter: {
+              tripId: Types.ObjectId(payload.tripId),
+              resourceId: Types.ObjectId(r),
+              bookingId: Types.ObjectId(a),
+            },
+          },
+        });
+      });
+    });
+    await BookingResource.bulkWrite(query);
+
+    const resourceIds = payload.resources.map(r => Types.ObjectId(r));
+
+    let bookingResources = await BookingResource.aggregate([
+      {
+        $match: {
+          resourceId: { $in: resourceIds },
+        },
+      },
+      {
+        $group: {
+          _id: '$resourceId',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    if (bookingResources?.length > 0)
+      bookingResources = bookingResources?.map(ra => {
+        return {
+          updateOne: {
+            filter: {
+              _id: ra._id,
+            },
+            update: {
+              $set: {
+                assigned: ra.count,
+              },
+            },
+          },
+        };
+      });
+    else
+      bookingResources = resourceIds?.map(id => {
+        return {
+          updateOne: {
+            filter: {
+              _id: id,
+            },
+            update: {
+              $set: {
+                assigned: 0,
+              },
+            },
+          },
+        };
+      });
+
+    return await ResourceModel.bulkWrite(bookingResources);
+  }
 }
