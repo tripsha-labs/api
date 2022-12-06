@@ -55,7 +55,19 @@ export class ResourceController {
     return await ResourceModel.findById(id);
   }
   static async deleteResources(query) {
-    return await ResourceModel.deleteMany(query);
+    const resource = await ResourceModel.findOne(query);
+    await ResourceModel.deleteMany(query);
+    if (resource?.collectionId) {
+      const count = await ResourceModel.count({
+        collectionId: Types.ObjectId(resource?.collectionId),
+      });
+      if (count == 0) {
+        await ResourceCollectionModel.deleteOne({
+          _id: Types.ObjectId(resource?.collectionId),
+        });
+      }
+    }
+    return true;
   }
   static async updateResource(query, update) {
     return await ResourceModel.updateOne(query, update);

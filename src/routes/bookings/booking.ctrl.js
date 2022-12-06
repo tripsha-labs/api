@@ -914,10 +914,10 @@ export class BookingController {
     params.push({ $limit: limit });
     params.push({
       $project: {
+        ...bookingProjection,
         tripId: {
           $toObjectId: '$tripId',
         },
-        ...bookingProjection,
       },
     });
     params.push({

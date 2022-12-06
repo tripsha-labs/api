@@ -25,4 +25,5 @@ export const bookingProjection = {
   autoChargeDate: 1,
   bookingExpireOn: 1,
   questions: 1,
+  coupon: 1,
 };
