@@ -59,6 +59,7 @@ const BookingResourceSchema = new mongoose.Schema(
     tripId: { type: Schema.Types.ObjectId },
     resourceId: { type: Schema.Types.ObjectId },
     bookingId: { type: Schema.Types.ObjectId },
+    attendees: { type: Number },
   },
   {
     timestamps: true,

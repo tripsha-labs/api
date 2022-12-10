@@ -81,13 +81,14 @@ export class ResourceController {
             filter: {
               tripId: Types.ObjectId(payload.tripId),
               resourceId: Types.ObjectId(r),
-              bookingId: Types.ObjectId(a),
+              bookingId: Types.ObjectId(a.bookingId),
             },
             update: {
               $set: {
                 tripId: Types.ObjectId(payload.tripId),
                 resourceId: Types.ObjectId(r),
-                bookingId: Types.ObjectId(a),
+                bookingId: Types.ObjectId(a.bookingId),
+                attendees: a.attendees,
               },
             },
             upsert: true,
@@ -107,7 +108,7 @@ export class ResourceController {
       {
         $group: {
           _id: '$resourceId',
-          count: { $sum: 1 },
+          count: { $sum: '$attendees' },
         },
       },
     ]);
@@ -137,7 +138,7 @@ export class ResourceController {
             filter: {
               tripId: Types.ObjectId(payload.tripId),
               resourceId: Types.ObjectId(r),
-              bookingId: Types.ObjectId(a),
+              bookingId: Types.ObjectId(a.bookingId),
             },
           },
         });
@@ -156,7 +157,7 @@ export class ResourceController {
       {
         $group: {
           _id: '$resourceId',
-          count: { $sum: 1 },
+          count: { $sum: '$attendees' },
         },
       },
     ]);

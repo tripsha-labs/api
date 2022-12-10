@@ -58,7 +58,8 @@ export class CouponController {
       couponCode: params.couponCode,
       isActive: true,
     });
-    if (coupon.expiryDate)
+    if (!coupon) throw ERROR_KEYS.INVALID_COUPON_CODE;
+    if (coupon?.expiryDate)
       if (coupon.expiryDate < parseInt(moment().format('YYYYMMDD')))
         throw ERROR_KEYS.INVALID_COUPON_CODE;
     const trip = await TripModel.get({

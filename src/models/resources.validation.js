@@ -36,7 +36,17 @@ export const updateResourceValidation = new Validator().compile({
 
 export const assignResourcesValidation = new Validator().compile({
   tripId: { type: 'string', empty: false },
-  bookings: { type: 'array', empty: false },
+  bookings: {
+    type: 'array',
+    empty: false,
+    items: {
+      type: 'object',
+      props: {
+        bookingId: { type: 'string', required: true },
+        attendees: { type: 'number', required: true },
+      },
+    },
+  },
   resources: { type: 'array', empty: false },
   $$strict: 'remove',
 });

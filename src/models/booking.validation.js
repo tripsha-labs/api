@@ -78,6 +78,11 @@ const bookingSchema = {
             'OneChoice',
             'MultiChoice',
             'UploadFile',
+            'Url',
+            'Date',
+            'DateRange',
+            'Consent',
+            'YesNo',
           ],
         },
         options: {
