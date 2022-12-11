@@ -1155,4 +1155,41 @@ export class TripController {
       throw err;
     }
   }
+
+  static async listAdminTrips(filter) {
+    try {
+      const filterParams = {};
+      const params = [];
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'ownerDetails',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$ownerDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+
+      let resTrips = await TripModel.aggregate(params);
+      const resCount = await TripModel.count(filterParams);
+
+      return {
+        data: resTrips,
+        totalCount: resCount,
+        count: resTrips.length,
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }

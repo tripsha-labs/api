@@ -22,6 +22,7 @@ import {
   disableUser,
 } from '../../utils';
 import { updateUserValidation, adminUpdateUserValidation } from '../../models';
+import { TripController } from '../trips/trip.ctrl';
 
 /**
  * Invite Users
@@ -490,6 +491,28 @@ export const adminUserAction = async (req, res) => {
           console.log('invalid action');
       }
       return successResponse(res, 'success');
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * List all trips
+ */
+
+export const adminTrips = async (req, res) => {
+  try {
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser?.isAdmin) {
+      const params = req.query ? req.query : {};
+      const result = await TripController.listAdminTrips(params);
+      return successResponse(res, result);
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
