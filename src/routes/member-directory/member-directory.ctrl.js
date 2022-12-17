@@ -17,13 +17,13 @@ export class MemberDirectoryController {
           as: 'user',
         },
       },
-      {
-        $replaceRoot: {
-          newRoot: {
-            $mergeObjects: [{ $arrayElemAt: ['$user', 0] }, '$$ROOT'],
-          },
-        },
-      },
+      // {
+      //   $replaceRoot: {
+      //     newRoot: {
+      //       $mergeObjects: [{ $arrayElemAt: ['$user', 0] }, '$$ROOT'],
+      //     },
+      //   },
+      // },
       {
         $project: {
           email: 1,
@@ -39,6 +39,7 @@ export class MemberDirectoryController {
           dietaryRequirements: 1,
           emergencyContact: 1,
           mobilityRestrictions: 1,
+          user: 1,
         },
       },
     ];

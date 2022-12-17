@@ -18,11 +18,12 @@ const hostRequestSchema = new mongoose.Schema(
     targetingTypesOfTravelers: { type: String, required: true },
     groupTripHostingExperience: { type: String, required: true },
     pastAccomplishmentReferences: { type: String },
-    isActive: { type: Boolean, default: true },
+    isActive: { type: Boolean, default: true, index: true },
     status: {
       type: String,
       default: 'pending',
       enum: ['pending', 'approved', 'declined'],
+      index: true,
     },
   },
   {

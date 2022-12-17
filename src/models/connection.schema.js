@@ -8,8 +8,8 @@ import mongoose from 'mongoose';
 const connectionSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true, index: true },
-    connectionId: String,
-    awsUsername: String,
+    connectionId: { type: String, index: true },
+    awsUsername: { type: String, index: true },
   },
   {
     timestamps: true,

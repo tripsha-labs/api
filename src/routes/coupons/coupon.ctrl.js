@@ -54,22 +54,21 @@ export class CouponController {
     return await CouponModel.getById(couponId);
   }
   static async applyCoupon(params) {
-    const coupon = await CouponModel.get({
-      couponCode: params.couponCode,
-      isActive: true,
-    });
-    if (!coupon) throw ERROR_KEYS.INVALID_COUPON_CODE;
-    if (coupon?.expiryDate)
-      if (coupon.expiryDate < parseInt(moment().format('YYYYMMDD')))
-        throw ERROR_KEYS.INVALID_COUPON_CODE;
-    const trip = await TripModel.get({
-      _id: Types.ObjectId(params.tripId),
-      ownerId: Types.ObjectId(coupon.userId),
-    });
-    //name: 1, discType: 1, amount: 1, couponCode: 1
+    const trip = await TripModel.get(
+      {
+        _id: Types.ObjectId(params.tripId),
+      },
+      { ownerId: 1, coHosts: 1 }
+    );
 
+    const coupons = await CouponModel.list({
+      filter: {
+        couponCode: params.couponCode,
+        isActive: true,
+      },
+    });
     let validCoupon = null;
-    if (coupon) {
+    coupons.forEach(coupon => {
       switch (coupon.applicableType) {
         case 'site_wide':
           validCoupon = coupon;
@@ -82,18 +81,6 @@ export class CouponController {
             if (tripId === params.tripId) validCoupon = coupon;
           });
           break;
-        case 'countries':
-          if (trip)
-            coupon.specificValues.map(country => {
-              if (trip.destinations.includes(country)) validCoupon = coupon;
-            });
-          break;
-        case 'tags':
-          if (trip)
-            coupon.specificValues.map(tag => {
-              if (trip.interests.includes(tag)) validCoupon = coupon;
-            });
-          break;
         case 'hosts':
           if (trip)
             coupon.specificValues.map(host => {
@@ -103,7 +90,14 @@ export class CouponController {
         default:
           validCoupon = null;
       }
-    }
+      if (validCoupon?.expiryDate)
+        if (validCoupon.expiryDate < parseInt(moment().format('YYYYMMDD')))
+          throw ERROR_KEYS.INVALID_COUPON_CODE;
+      if (validCoupon) return true;
+    });
+
+    //name: 1, discType: 1, amount: 1, couponCode: 1
+
     if (validCoupon)
       return {
         _id: validCoupon._id,

@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema(
   {
-    tripId: { type: String },
+    tripId: { type: String, index: true },
     createdBy: { type: String },
     updatedBy: { type: String },
     description: { type: String },

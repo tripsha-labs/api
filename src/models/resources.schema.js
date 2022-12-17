@@ -56,9 +56,9 @@ export const Resource =
 
 const BookingResourceSchema = new mongoose.Schema(
   {
-    tripId: { type: Schema.Types.ObjectId },
-    resourceId: { type: Schema.Types.ObjectId },
-    bookingId: { type: Schema.Types.ObjectId },
+    tripId: { type: Schema.Types.ObjectId, index: true },
+    resourceId: { type: Schema.Types.ObjectId, index: true },
+    bookingId: { type: Schema.Types.ObjectId, index: true },
     attendees: { type: Number },
   },
   {

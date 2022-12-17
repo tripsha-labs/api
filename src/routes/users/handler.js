@@ -55,6 +55,7 @@ export const inviteUser = async (req, res) => {
         password: params.password,
         firstName: params.firstName || '',
         lastName: params.lastName || '',
+        notifyUser: params.notifyUser || false,
       };
       const user_result = await createCognitoUser(req, createUserInfo);
       if (user_result) {
@@ -172,6 +173,7 @@ export const createUser = async (req, res) => {
       try {
         await createCognitoUser(req, {
           ...createUserPayload,
+          notifyUser: true,
           password:
             'T' +
             Math.random()
@@ -472,8 +474,11 @@ export const adminUserAction = async (req, res) => {
     const currentUser = await UserController.getCurrentUser({
       awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
+    const params = req.body || {};
+    if (!params.email || !params.action) {
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email or action' };
+    }
     if (currentUser && currentUser.isAdmin) {
-      const params = req.body || {};
       switch (params.action) {
         case 'enable':
           // await enableUser(req, params);

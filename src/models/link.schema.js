@@ -6,7 +6,7 @@ import mongoose, { Schema } from 'mongoose';
 
 const LinkSchema = new mongoose.Schema(
   {
-    tripId: { type: Schema.Types.ObjectId },
+    tripId: { type: Schema.Types.ObjectId, index: true },
     title: { type: String },
     description: { type: String },
     url: { type: String },
