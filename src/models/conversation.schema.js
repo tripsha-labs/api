@@ -7,9 +7,9 @@ import mongoose from 'mongoose';
 
 const conversationSchema = new mongoose.Schema(
   {
-    userId: { type: String },
-    tripId: { type: String },
-    isGroup: { type: Boolean, default: false },
+    userId: { type: String, index: true },
+    tripId: { type: String, index: true },
+    isGroup: { type: Boolean, default: false, index: true },
     joinedOn: String,
     leftOn: String,
     memberId: { type: String, index: true },

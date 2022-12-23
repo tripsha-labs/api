@@ -24,6 +24,24 @@ getBooking:
         cors: true
         authorizer: aws_iam
 
+getInvites:
+  handler: src/routes/bookings/handler.getInvites
+  events:
+    - http:
+        path: bookings/invites
+        method: get
+        cors: true
+        authorizer: aws_iam
+
+respondInvite:
+  handler: src/routes/bookings/handler.respondInvite
+  events:
+    - http:
+        path: bookings/invites
+        method: post
+        cors: true
+        authorizer: aws_iam
+
 bookingsAction:
   handler: src/routes/bookings/handler.bookingsAction
   events:

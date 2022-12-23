@@ -72,7 +72,7 @@ export const send = async (event, context) => {
           message.toUser,
           EmailMessages.NEW_CHAT_MESSAGE,
           [message.message],
-          true
+          'notification'
         );
       });
     }

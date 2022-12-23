@@ -8,9 +8,9 @@ import mongoose, { Schema } from 'mongoose';
 const assetLinkSchema = new mongoose.Schema(
   {
     type: { type: String, enum: ['trip', 'chat', 'profile'] },
-    resource_id: { type: Schema.Types.ObjectId },
-    asset_id: { type: Schema.Types.ObjectId },
-    user_id: { type: Schema.Types.ObjectId },
+    resource_id: { type: Schema.Types.ObjectId, index: true },
+    asset_id: { type: Schema.Types.ObjectId, index: true },
+    user_id: { type: Schema.Types.ObjectId, index: true },
   },
   {
     strict: true,

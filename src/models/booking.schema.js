@@ -6,9 +6,9 @@ import mongoose from 'mongoose';
 
 const bookingSchema = new mongoose.Schema(
   {
-    tripId: { type: String },
-    onwerId: { type: String },
-    memberId: { type: String },
+    tripId: { type: String, index: true },
+    onwerId: { type: String, index: true },
+    memberId: { type: String, index: true },
     stripePaymentMethod: { type: Object },
     paymentMethod: { type: String },
     onwerStripeId: { type: String },
@@ -36,6 +36,7 @@ const bookingSchema = new mongoose.Schema(
         'invite-sent',
         'invite-accepted',
         'invite-declined',
+        'invite-maybe',
         'pending',
         'approved',
         'declined',
@@ -45,6 +46,7 @@ const bookingSchema = new mongoose.Schema(
         'removed',
       ],
       default: 'pending',
+      index: true,
     },
     // Payment details
     totalBaseFare: { type: Number, default: 0 },
@@ -66,6 +68,7 @@ const bookingSchema = new mongoose.Schema(
     isAutoPayEnabled: { type: Boolean, default: true },
     bookingExpireOn: { type: Number, default: 3 },
     customFields: { type: Object },
+    invited: { type: Boolean, default: false, index: true },
   },
   {
     timestamps: true,

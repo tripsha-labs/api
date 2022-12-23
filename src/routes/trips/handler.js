@@ -95,7 +95,8 @@ export const getTrip = async (req, res) => {
 
     const result = await TripController.getTrip(
       req.params.id,
-      req.requestContext.identity.cognitoIdentityId
+      req.requestContext.identity.cognitoIdentityId,
+      req.query?.includeStat
     );
     return successResponse(res, result);
   } catch (error) {
@@ -129,10 +130,20 @@ export const deleteTrip = async (req, res) => {
 export const myTrips = async (req, res) => {
   try {
     const params = req.query ? req.query : {};
-    const result = await TripController.myTrips({
-      ...params,
-      awsUserId: req.requestContext.identity.cognitoIdentityId,
-    });
+    let result = null;
+    if (params.isHost || params.status === 'draft')
+      result = await TripController.myActiveTrips(
+        {
+          ...params,
+          awsUserId: req.requestContext.identity.cognitoIdentityId,
+        },
+        req.currentUser
+      );
+    else
+      result = await TripController.myTrips({
+        ...params,
+        awsUserId: req.requestContext.identity.cognitoIdentityId,
+      });
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
@@ -209,6 +220,115 @@ export const tripBookings = async (req, res) => {
       req.params.id,
       req.requestContext.identity.cognitoIdentityId
     );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Transfer host
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const transferHost = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const result = await TripController.transferHost(
+      req.params.id,
+      req.body,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Add co host
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const addCoHost = async (req, res) => {
+  try {
+    if (!req?.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    if (!req?.body?.email)
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+
+    const result = await TripController.addCoHost(
+      req.params.id,
+      req?.body,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Delete co host
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const deleteCoHost = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    if (!req?.body?.hostId)
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'hostId' };
+    const result = await TripController.deleteCoHost(
+      req.params.id,
+      req.body.hostId,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * list co hosts
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const getCoHosts = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const result = await TripController.getCoHosts(
+      req.params.id,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * list invited trips
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const invitedTrips = async (req, res) => {
+  try {
+    const result = await TripController.getInviteList(req.currentUser);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);

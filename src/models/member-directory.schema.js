@@ -1,22 +1,28 @@
 /**
- * @name - Approval schema
- * @description - Mongouse schema for HostRequest.
+ * @name - Member directory schema
+ * @description - Mongoose schema for Member directory.
  */
 
 import mongoose, { Schema } from 'mongoose';
 
 const memberDirectorySchema = new mongoose.Schema(
   {
+    tripshaId: { type: Schema.Types.ObjectId, index: true },
+    hostId: { type: String, index: true },
     email: { type: String },
     name: { type: String },
-    livesIn: { type: String },
     company: { type: String },
     team: { type: String },
-    tripshaId: { type: Schema.Types.ObjectId },
-    hostId: { type: String },
+    visaStatus: String,
+    dietaryRequirements: String,
+    emergencyContact: String,
+    mobilityRestrictions: String,
+    livesIn: String,
+    passportCountry: { type: Array },
     isActive: {
       type: Boolean,
       default: true,
+      index: true,
     },
   },
   {
