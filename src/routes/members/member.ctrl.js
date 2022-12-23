@@ -12,6 +12,7 @@ import {
   UserModel,
   MessageModel,
   BookingModel,
+  BookingResource,
 } from '../../models';
 import { logActivity } from '../../utils';
 import { ERROR_KEYS, LogMessages } from '../../constants';
@@ -40,10 +41,12 @@ export class MemberController {
       } = params || {
         memberIds: [],
       };
+      const bookingIds = [];
+      const objTripId = Types.ObjectId(tripId);
       if (memberIds.length > 0) {
         const user = currentUser;
         if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-        const objTripId = Types.ObjectId(tripId);
+
         const tripUpdate = {};
         const trip = await TripModel.getById(objTripId);
         if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
@@ -205,8 +208,9 @@ export class MemberController {
                     bookingStatus['status'] = 'removed';
                   }
                   bookingStatus['reason'] = message;
-                  console.log(memberExists);
+
                   if (memberExists?.bookingId) {
+                    bookingIds.push(memberExists.bookingId);
                     await BookingModel.update(
                       Types.ObjectId(memberExists.bookingId),
                       bookingStatus
@@ -288,6 +292,12 @@ export class MemberController {
                 updateParams['isFavorite'] = false;
                 updateParams['unFavoriteOn'] = moment().unix();
                 break;
+            }
+            if (bookingIds?.length > 0) {
+              await BookingResource.deleteMany({
+                bookingId: { $in: bookingIds },
+                tripId: objTripId,
+              });
             }
             return MemberModel.update(
               {

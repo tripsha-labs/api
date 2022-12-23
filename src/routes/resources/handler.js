@@ -23,10 +23,11 @@ export const listResources = async (req, res) => {
 
     const collectionList = collections.map(collection => {
       collection['Resources'] = collection.Resources.map(resource => {
-        const bookings = bookingResources.filter(r => {
-          return r.resourceId.toString() == resource._id.toString();
-        });
-        resource['bookings'] = bookings.map(b => b.bookingId);
+        const bookingResource = bookingResources.find(
+          r => r._id.toString() == resource._id.toString()
+        );
+        resource['bookings'] = bookingResource?.bookings || [];
+        resource['assigned'] = bookingResource?.bookings?.length || 0;
         return resource;
       });
       return collection;
@@ -97,8 +98,7 @@ export const deleteResources = async (req, res) => {
   if (Array.isArray(body?.resource_ids) && body?.resource_ids?.length == 0)
     throw { ...ERROR_KEYS.MISSING_FIELD, field: 'resource_ids' };
   try {
-    const resourceIds = body?.resource_ids.map(id => Types.ObjectId(id));
-    await ResourceController.deleteResources({ _id: { $in: resourceIds } });
+    await ResourceController.deleteResources(body?.resource_ids);
     return successResponse(res, 'success');
   } catch (error) {
     console.log(error);

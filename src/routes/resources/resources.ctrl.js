@@ -5,7 +5,7 @@ import {
   ResourceModel,
 } from '../../models';
 export class ResourceController {
-  static async listCollections(params, user) {
+  static async listCollections(params) {
     const collections = await ResourceCollectionModel.aggregate([
       {
         $match: {
@@ -25,6 +25,12 @@ export class ResourceController {
       {
         $match: {
           tripId: Types.ObjectId(params.tripId),
+        },
+      },
+      {
+        $group: {
+          _id: '$resourceId',
+          bookings: { $push: '$bookingId' },
         },
       },
     ]);
@@ -54,9 +60,11 @@ export class ResourceController {
   static async getResource(id) {
     return await ResourceModel.findById(id);
   }
-  static async deleteResources(query) {
-    const resource = await ResourceModel.findOne(query);
-    await ResourceModel.deleteMany(query);
+  static async deleteResources(resource_ids) {
+    const resourceIds = resource_ids.map(id => Types.ObjectId(id));
+    const resource = await ResourceModel.findOne({ _id: { $in: resourceIds } });
+    await ResourceModel.deleteMany({ _id: { $in: resourceIds } });
+    await BookingResource.deleteMany({ resourceId: { $in: resourceIds } });
     if (resource?.collectionId) {
       const count = await ResourceModel.count({
         collectionId: Types.ObjectId(resource?.collectionId),
@@ -96,56 +104,10 @@ export class ResourceController {
         });
       });
     });
-    await BookingResource.bulkWrite(query);
-    const resourceIds = payload.resources.map(r => Types.ObjectId(r));
-
-    let bookingResources = await BookingResource.aggregate([
-      {
-        $match: {
-          resourceId: { $in: resourceIds },
-        },
-      },
-      {
-        $group: {
-          _id: '$resourceId',
-          count: { $sum: '$attendees' },
-        },
-      },
-    ]);
-    bookingResources = bookingResources?.map(ra => {
-      return {
-        updateOne: {
-          filter: {
-            _id: ra._id,
-          },
-          update: {
-            $set: {
-              assigned: ra.count,
-            },
-          },
-        },
-      };
-    });
-    return await ResourceModel.bulkWrite(bookingResources);
+    return await BookingResource.bulkWrite(query);
+    // return await ResourceController.setAteendeeCount(payload);
   }
-
-  static async unassignResources(payload) {
-    const query = [];
-    payload.bookings.forEach(a => {
-      payload.resources.forEach(r => {
-        query.push({
-          deleteOne: {
-            filter: {
-              tripId: Types.ObjectId(payload.tripId),
-              resourceId: Types.ObjectId(r),
-              bookingId: Types.ObjectId(a.bookingId),
-            },
-          },
-        });
-      });
-    });
-    await BookingResource.bulkWrite(query);
-
+  static async setAteendeeCount(payload) {
     const resourceIds = payload.resources.map(r => Types.ObjectId(r));
 
     let bookingResources = await BookingResource.aggregate([
@@ -193,5 +155,23 @@ export class ResourceController {
       });
 
     return await ResourceModel.bulkWrite(bookingResources);
+  }
+  static async unassignResources(payload) {
+    const query = [];
+    payload.bookings.forEach(a => {
+      payload.resources.forEach(r => {
+        query.push({
+          deleteOne: {
+            filter: {
+              tripId: Types.ObjectId(payload.tripId),
+              resourceId: Types.ObjectId(r),
+              bookingId: Types.ObjectId(a.bookingId),
+            },
+          },
+        });
+      });
+    });
+    return await BookingResource.bulkWrite(query);
+    // return await ResourceController.setAteendeeCount(payload);
   }
 }
