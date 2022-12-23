@@ -302,6 +302,7 @@ const tripUpdateSchema = {
     type: 'array',
     optional: true,
   },
+  linksView: { type: 'array', optional: true },
 };
 
 const draftpSchema = {

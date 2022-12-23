@@ -107,7 +107,14 @@ export class UserController {
             },
           ],
         },
-        select: { stripeCustomerId: 0, stripeAccountId: 0 },
+        select: {
+          stripeCustomerId: 0,
+          stripeAccountId: 0,
+          visaStatus: 0,
+          dietaryRequirements: 0,
+          emergencyContact: 0,
+          mobilityRestrictions: 0,
+        },
         ...prepareCommonFilter(filter, ['username', 'email', 'createdAt']),
       };
 

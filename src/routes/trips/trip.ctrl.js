@@ -5,7 +5,7 @@
 import moment from 'moment';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { EmailSender, logActivity, success } from '../../utils';
+import { bookingProjection, EmailSender, logActivity } from '../../utils';
 import { prepareSortFilter } from '../../helpers';
 import {
   TripModel,
@@ -24,7 +24,6 @@ import {
   LogMessages,
   EmailMessages,
 } from '../../constants';
-import e from 'express';
 
 export class TripController {
   static async markForRemove(params, remove_requested) {
@@ -940,6 +939,14 @@ export class TripController {
             preserveNullAndEmptyArrays: true,
           },
         },
+        {
+          $lookup: {
+            from: 'bookingresources',
+            localField: '_id',
+            foreignField: 'bookingId',
+            as: 'resources',
+          },
+        },
       ];
       const bookings = await BookingModel.aggregate(params);
       const rooms = {};
@@ -959,7 +966,7 @@ export class TripController {
         addOns[addOn.id] = addOn;
       });
       return bookings.map(booking => {
-        const { email, firstName, lastName, username, livesIn } =
+        const { email, firstName, lastName, username, livesIn, avatarUrl } =
           booking.user || {};
 
         const addOnsInfo = JSON.parse(JSON.stringify(addOns));
@@ -988,37 +995,12 @@ export class TripController {
             }) || [];
         }
         const bookingInfo = {
-          _id: booking._id,
           attendeeName: `${firstName} ${lastName || ''}`,
           username: username,
           email: email,
+          avatarUrl: avatarUrl,
           location: livesIn,
-          guests: booking.guests,
-          company: booking.company,
-          team: booking.team,
-          property: booking.property,
-          discount: booking.discount,
-          coupon: booking.coupon,
-          currentDue: booking.currentDue,
-          paidAmout: booking.paidAmout,
-          pendingAmount: booking.pendingAmount,
-          paymentHistory: booking.paymentHistory,
-          attendees: booking.attendees,
-          rooms: booking.rooms,
-          addOns: booking.addOns,
-          travelerViewName: booking.travelerViewName,
-          travelerCustomColumns: booking.travelerCustomColumns,
-          travelerViews: booking.travelerViews,
-          paymentViewName: booking.paymentViewName,
-          paymentCustomColumns: booking.paymentCustomColumns,
-          paymentViews: booking.paymentViews,
-          customFields: booking.customFields,
-          updatedAt: booking.updatedAt,
-          questions: booking.questions,
-          questionsView: booking.questionsView,
-          attendeeView: booking.attendeeView,
-          isRSVPEnabled: booking.isBookingEnabled,
-          isBookingEnabled: booking.isBookingEnabled,
+          ...booking,
         };
         return bookingInfo;
       });
@@ -1114,6 +1096,100 @@ export class TripController {
       });
     } catch (err) {
       throw err;
+    }
+  }
+
+  static async getInviteList(user) {
+    const currentDate = parseInt(moment().format('YYYYMMDD'));
+    try {
+      const query = [
+        {
+          $match: {
+            memberId: user._id.toString(),
+            invited: true,
+          },
+        },
+        {
+          $project: {
+            ...bookingProjection,
+            tripId: {
+              $toObjectId: '$tripId',
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'trips',
+            localField: 'tripId',
+            foreignField: '_id',
+            as: 'trip',
+          },
+        },
+        {
+          $unwind: {
+            path: '$trip',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: { 'trip.endDate': { $gte: currentDate } },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'trip.ownerId',
+            foreignField: '_id',
+            as: 'ownerDetails',
+          },
+        },
+        {
+          $unwind: {
+            path: '$ownerDetails',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ];
+
+      return await BookingModel.aggregate(query);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async listAdminTrips(filter) {
+    try {
+      const filterParams = {};
+      const params = [];
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'ownerDetails',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$ownerDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+
+      let resTrips = await TripModel.aggregate(params);
+      const resCount = await TripModel.count(filterParams);
+
+      return {
+        data: resTrips,
+        totalCount: resCount,
+        count: resTrips.length,
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
   }
 }

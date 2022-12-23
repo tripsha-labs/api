@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
     },
 
     username: { type: String, index: true },
-    awsUsername: { type: String },
+    awsUsername: { type: String, index: true },
     awsUserId: { type: Array },
     phone: String,
     identity: Object,
@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
     instagram_url: String,
     isAdmin: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
-    isActive: { type: Boolean, default: true },
+    isActive: { type: Boolean, default: true, index: true },
     isLookingForTravel: { type: Boolean, default: true },
     spokenLanguages: [String],
     interests: [String],
@@ -60,6 +60,10 @@ const userSchema = new mongoose.Schema(
     hostRequestSent: { type: Boolean },
     showUpcomingTrips: { type: Boolean },
     showPastTrips: { type: Boolean },
+    visaStatus: String,
+    dietaryRequirements: String,
+    emergencyContact: String,
+    mobilityRestrictions: String,
   },
   {
     timestamps: true,

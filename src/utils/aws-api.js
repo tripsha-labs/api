@@ -38,15 +38,19 @@ export const createCognitoUser = async (event, params) => {
       Value: params.lastName,
     });
   }
+  const createUserPayload = {
+    UserPoolId: userPoolId,
+    Username: params.email,
+    // MessageAction: 'SUPPRESS',
+    DesiredDeliveryMediums: ['EMAIL'],
+    TemporaryPassword: params.password || 'Tripsha@123',
+    UserAttributes: userAttributes,
+  };
+  if (!params.notifyUser) {
+    createUserPayload['MessageAction'] = 'SUPPRESS';
+  }
   const createUserRes = await cognitoClient
-    .adminCreateUser({
-      UserPoolId: userPoolId,
-      Username: params.email,
-      // MessageAction: 'SUPPRESS',
-      DesiredDeliveryMediums: ['EMAIL'],
-      TemporaryPassword: params.password || 'Tripsha@123',
-      UserAttributes: userAttributes,
-    })
+    .adminCreateUser(createUserPayload)
     .promise();
   await cognitoClient
     .adminSetUserPassword({

@@ -48,6 +48,22 @@ const updateUserSchema = {
     items: 'string',
     max: 5,
   },
+  visaStatus: {
+    type: 'string',
+    optional: true,
+  },
+  dietaryRequirements: {
+    type: 'string',
+    optional: true,
+  },
+  emergencyContact: {
+    type: 'string',
+    optional: true,
+  },
+  mobilityRestrictions: {
+    type: 'string',
+    optional: true,
+  },
   facebook_url: {
     type: 'string',
     optional: true,

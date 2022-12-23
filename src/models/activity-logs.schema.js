@@ -8,10 +8,10 @@ const activityLogsSchema = new mongoose.Schema(
   {
     audienceIds: { type: Array },
     message: { type: String },
-    type: { type: String },
-    tripId: { type: String },
-    bookingId: { type: String },
-    userId: { type: String },
+    type: { type: String, index: true },
+    tripId: { type: String, index: true },
+    bookingId: { type: String, index: true },
+    userId: { type: String, index: true },
   },
   {
     timestamps: true,

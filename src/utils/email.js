@@ -26,6 +26,22 @@ export const sendEmail = data => {
     .promise();
   return result;
 };
+export const sendCustomEmail = data => {
+  console.log('Inside sendCustomEmail', data);
+  const params = {
+    Destination: {
+      ToAddresses: data.emails,
+    },
+    Template: 'CustomMessageTemplate',
+    TemplateData: JSON.stringify(data),
+    Source: 'Tripsha <notifications@tripsha.com >',
+    ReplyToAddresses: ['notifications@tripsha.com '],
+  };
+  const result = new AWS.SES({ apiVersion: '2010-12-01' })
+    .sendTemplatedEmail(params)
+    .promise();
+  return result;
+};
 export const sendChatEmail = data => {
   console.log('Inside email', data);
   const params = {
@@ -46,7 +62,7 @@ export const EmailSender = (
   user,
   { subject, message },
   params,
-  isChatNotification = false
+  type = 'basic'
 ) => {
   let emails = [];
   if (user && user.additionalEmails && user.additionalEmails.length > 0) {
@@ -54,18 +70,27 @@ export const EmailSender = (
   } else {
     emails = [user['email']];
   }
-  if (isChatNotification)
-    return sendChatEmail({
-      emails: emails,
-      name: user?.username || '',
-      subject: subject,
-      message: message(...params),
-    });
-  else
-    return sendEmail({
-      emails: emails,
-      name: user?.firstName || '',
-      subject: subject,
-      message: message(...params),
-    });
+  switch (type) {
+    case 'notification':
+      return sendChatEmail({
+        emails: emails,
+        name: user?.username || '',
+        subject: subject,
+        message: message(...params),
+      });
+    case 'custom':
+      return sendCustomEmail({
+        emails: emails,
+        name: user?.username || '',
+        subject: subject,
+        message: message(...params),
+      });
+    default:
+      return sendEmail({
+        emails: emails,
+        name: user?.firstName || '',
+        subject: subject,
+        message: message(...params),
+      });
+  }
 };
