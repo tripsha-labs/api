@@ -104,6 +104,7 @@ export const updateUserAdmin = async (req, res) => {
       const user = await UserController.get({
         _id: Types.ObjectId(req.params.id),
       });
+      console.log('=========check user');
       if (params.username) {
         const exists = await _check_username_exists(
           user['email'],
@@ -111,7 +112,7 @@ export const updateUserAdmin = async (req, res) => {
         );
         if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
       }
-
+      console.log('=========set password');
       if (params['password'] && params['password'] != '') {
         await setUserPassword(req, {
           password: params['password'],
@@ -119,6 +120,7 @@ export const updateUserAdmin = async (req, res) => {
         });
         delete params['password'];
       }
+      console.log('=========update user');
       await UserController.updateUserAdmin(req.params.id, params);
       return successResponse(res, 'success');
     } else {
