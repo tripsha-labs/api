@@ -11,9 +11,7 @@ import {
   updateCustomFields,
   sendReminder,
   removeInvite,
-  getInvites,
-  respondInvite,
-  sendCustomEmail,
+  sendCustomReminderMessage,
 } from './handler';
 const router = express.Router();
 

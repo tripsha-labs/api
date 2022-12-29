@@ -9,8 +9,10 @@ import {
   hostBookingActionValidation,
   updateBookingValidation,
   createInviteValidation,
+  BookingModel,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
+import { Types } from 'aws-sdk/clients/acm';
 /***
  * createInvite
  */
@@ -59,6 +61,19 @@ export const sendReminder = async (req, res) => {
   try {
     const data = req.body || {};
     const result = await BookingController.sendReminder(
+      data,
+      req.requestContext.identity.cognitoIdentityId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+export const sendCustomReminderMessage = async (req, res) => {
+  try {
+    const data = req.body || {};
+    const result = await BookingController.sendCustomMessage(
       data,
       req.requestContext.identity.cognitoIdentityId
     );
@@ -248,36 +263,48 @@ export const multiUpdateBooking = async (req, res) => {
     return failureResponse(res, error);
   }
 };
-export const getInvites = async (req, res) => {
+
+export const getInvite = async (req, res) => {
   try {
-    const tripId = req.params && req.params.id;
-    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-    const result = await BookingController.getInvites(
-      req.requestContext.identity.cognitoIdentityId,
-      tripId
-    );
-    return successResponse(res, result);
+    const reqBody = req.query || {};
+    if (!reqBody.inviteToken)
+      throw {
+        ...ERROR_KEYS.MISSING_FIELD,
+        field: 'inviteToken',
+      };
+    const result = await BookingModel.getById(reqBody.inviteToken, {
+      status: 1,
+      createdAt: 1,
+    });
+    if (result) return successResponse(res, result);
+    else throw ERROR_KEYS.BOOKING_NOT_FOUND;
   } catch (error) {
     logError(error);
     return failureResponse(res, error);
   }
 };
-export const respondInvite = async (req, res) => {
-  try {
-    const tripId = req?.params?.id;
-    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-    const data = req.body || {};
-    if (data?.status) {
-      const result = await BookingController.respondInvite(
-        tripId,
-        data,
-        req.currentUser
-      );
 
-      return successResponse(res, result);
-    } else {
-      throw ERROR_KEYS.BAD_REQUEST;
+export const respond = async (req, res) => {
+  try {
+    const reqBody = req.query || {};
+    if (!reqBody.inviteToken)
+      throw {
+        ...ERROR_KEYS.MISSING_FIELD,
+        field: 'inviteToken',
+      };
+    if (['yes', 'no'].includes(reqBody.response)) {
+      const result = await BookingModel.getById(reqBody.inviteToken, {
+        status: 1,
+        createdAt: 1,
+      });
+
+      if (result?.status == 'invited') {
+        const data = { status: 'invite-declined' };
+        if (reqBody.response === 'yes') data.status = 'invite-accepted';
+        await BookingController.updateBooking(reqBody.inviteToken, data);
+      }
     }
+    return successResponse(res, 'success');
   } catch (error) {
     logError(error);
     return failureResponse(res, error);
