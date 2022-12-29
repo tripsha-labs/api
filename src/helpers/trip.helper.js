@@ -146,39 +146,34 @@ export const getTripResourceValidity = (trip, bookingData) => {
   if (trip.tripPaymentType == 'pay') {
     const rooms = {};
     const addOns = {};
-    bookingData.rooms &&
-      bookingData.rooms.map(room => {
-        rooms[`${room.room.id}_${room.variant.id}`] = room.attendees;
-        return room;
-      });
-    bookingData.addOns &&
-      bookingData.addOns.map(addOn => {
-        addOns[addOn.id] = addOn.attendees;
-        return addOn;
-      });
-    trip.rooms &&
-      trip.rooms.map(room => {
-        room.variants &&
-          room.variants.map(variant => {
-            if (
-              rooms[`${room.id}_${variant.id}`] &&
-              variant.available - (variant.reserved || 0) <
-                rooms[`${room.id}_${variant.id}`]
-            )
-              status.rooms = true;
-            return variant;
-          });
-        return room;
-      });
-    trip.addOns &&
-      trip.addOns.map(addOn => {
+    bookingData.rooms?.map(room => {
+      rooms[`${room.room.id}_${room.variant.id}`] = room.attendees;
+      return room;
+    });
+    bookingData.addOns?.map(addOn => {
+      addOns[addOn.id] = addOn.attendees;
+      return addOn;
+    });
+    trip.rooms?.map(room => {
+      room.variants?.map(variant => {
         if (
-          addOns[addOn.id] &&
-          addOn.available - (addOn.reserved || 0) < addOns[addOn.id]
+          rooms[`${room.id}_${variant.id}`] &&
+          variant.available - (variant.reserved || 0) <
+            rooms[`${room.id}_${variant.id}`]
         )
-          status.addOns = true;
-        return addOn;
+          status.rooms = true;
+        return variant;
       });
+      return room;
+    });
+    trip.addOns?.map(addOn => {
+      if (
+        addOns[addOn.id] &&
+        addOn.available - (addOn.reserved || 0) < addOns[addOn.id]
+      )
+        status.addOns = true;
+      return addOn;
+    });
   }
   return status;
 };
@@ -210,8 +205,7 @@ export const addRoomResources = (booking, trip, fields) => {
 export const addAddonResources = (booking, trip, fields) => {
   const addOns = [];
   trip.addOns.forEach(addOn => {
-    const bAddon =
-      booking.addOns && booking.addOns.find(bAddOn => bAddOn.id === addOn.id);
+    const bAddon = booking.addOns?.find(bAddOn => bAddOn.id === addOn.id);
     if (bAddon && fields && fields.length > 0) {
       if (fields.includes('filled'))
         addOn['filled'] = addOn['filled']
@@ -230,13 +224,10 @@ export const removeRoomResources = (booking, trip, fields) => {
   const rooms = [];
   trip.rooms.forEach(room => {
     room['variants'] = room.variants.map(variant => {
-      const foundVariant =
-        booking &&
-        booking.rooms &&
-        booking.rooms.find(
-          rm => rm.room.id == room.id && rm.variant.id == variant.id
-        );
-      if (foundVariant && fields && fields.length > 0) {
+      const foundVariant = booking?.rooms?.find(
+        rm => rm.room.id == room.id && rm.variant.id == variant.id
+      );
+      if (foundVariant && fields?.length > 0) {
         if (fields.includes('filled')) {
           variant['filled'] = variant['filled'] - booking.attendees;
           variant['filled'] = variant['filled'] > 0 ? variant['filled'] : 0;
@@ -256,11 +247,8 @@ export const removeRoomResources = (booking, trip, fields) => {
 export const removeAddonResources = (booking, trip, fields) => {
   const addOns = [];
   trip.addOns.forEach(addOn => {
-    const bAddon =
-      booking &&
-      booking.addOns &&
-      booking.addOns.find(bAddOn => bAddOn.id === addOn.id);
-    if (bAddon && fields && fields.length > 0) {
+    const bAddon = booking?.addOns?.find(bAddOn => bAddOn.id === addOn.id);
+    if (bAddon && fields?.length > 0) {
       if (fields.includes('filled')) {
         addOn['filled'] = addOn['filled'] - bAddon.attendees;
         addOn['filled'] = addOn['filled'] > 0 ? addOn['filled'] : 0;

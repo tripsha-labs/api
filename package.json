@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "sls offline start --stage=staging",
+    "start:prod": "sls offline start --stage=prod-api",
     "deploy": "sls deploy --stage=dev",
     "remove": "sls remove --stage=dev",
     "deploy:staging": "sls deploy --stage=staging",
@@ -25,7 +26,10 @@
     "test:ci": "jest --ci --colors --coverage",
     "pretty": "prettier --write --tab-width 2 \"src/**/*.js\"",
     "create-domain": "sls create_domain",
-    "delete-domain": "sls delete_domain"
+    "delete-domain": "sls delete_domain",
+    "delete-version:staging": "sls prune -n 50 --stage staging",
+    "delete-version:dev": "sls prune -n 10 --stage dev",
+    "delete-version:prod": "sls prune -n 50 --stage prod-api"
   },
   "lint-staged": {
     "*.{js,json}": [
@@ -50,6 +54,7 @@
     "serverless-hooks-plugin": "^1.1.0",
     "serverless-offline": "^6.9.0",
     "serverless-plugin-include-dependencies": "^4.1.0",
+    "serverless-prune-plugin": "^2.0.1",
     "serverless-webpack": "^5.3.5",
     "serverless-websockets-plugin": "^1.0.0",
     "source-map-support": "^0.4.18",

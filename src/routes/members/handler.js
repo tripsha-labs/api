@@ -15,7 +15,7 @@ export const memberActions = async (req, res) => {
     const errors = memberActionValidation(params);
     if (errors != true) throw errors.shift();
     params['awsUserId'] = req.requestContext.identity.cognitoIdentityId;
-    const result = await MemberController.memberAction(params);
+    const result = await MemberController.memberAction(params, req.currentUser);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);

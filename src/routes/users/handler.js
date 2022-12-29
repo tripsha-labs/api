@@ -22,6 +22,7 @@ import {
   disableUser,
 } from '../../utils';
 import { updateUserValidation, adminUpdateUserValidation } from '../../models';
+import { TripController } from '../trips/trip.ctrl';
 
 /**
  * Invite Users
@@ -54,6 +55,7 @@ export const inviteUser = async (req, res) => {
         password: params.password,
         firstName: params.firstName || '',
         lastName: params.lastName || '',
+        notifyUser: params.notifyUser || false,
       };
       const user_result = await createCognitoUser(req, createUserInfo);
       if (user_result) {
@@ -69,10 +71,6 @@ export const inviteUser = async (req, res) => {
         } catch (err) {
           console.log(err);
         }
-        // await subscribeUserToMailchimpAudience({
-        //   name: createUserInfo.firstName + ' ' + createUserInfo.lastName,
-        //   email: createUserInfo.email,
-        // });
 
         return successResponse(res, 'success');
       } else {
@@ -106,6 +104,7 @@ export const updateUserAdmin = async (req, res) => {
       const user = await UserController.get({
         _id: Types.ObjectId(req.params.id),
       });
+      console.log('=========check user');
       if (params.username) {
         const exists = await _check_username_exists(
           user['email'],
@@ -113,7 +112,7 @@ export const updateUserAdmin = async (req, res) => {
         );
         if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
       }
-
+      console.log('=========set password');
       if (params['password'] && params['password'] != '') {
         await setUserPassword(req, {
           password: params['password'],
@@ -121,6 +120,7 @@ export const updateUserAdmin = async (req, res) => {
         });
         delete params['password'];
       }
+      console.log('=========update user');
       await UserController.updateUserAdmin(req.params.id, params);
       return successResponse(res, 'success');
     } else {
@@ -175,6 +175,7 @@ export const createUser = async (req, res) => {
       try {
         await createCognitoUser(req, {
           ...createUserPayload,
+          notifyUser: true,
           password:
             'T' +
             Math.random()
@@ -246,10 +247,7 @@ export const createUser = async (req, res) => {
       createUserPayload['username'] = username;
       createUserPayload['awsUserId'] = [userInfo.awsUserId];
       result = await UserController.createUser(createUserPayload);
-      // await subscribeUserToMailchimpAudience({
-      //   name: createUserPayload.firstName + ' ' + createUserPayload.lastName,
-      //   email: createUserPayload.email,
-      // });
+
       // Add support user in the conversation
       await MessageController.addSupportMember(userInfo.awsUserId);
     }
@@ -290,6 +288,10 @@ export const getUser = async (req, res) => {
     await createUser(req, res);
     const result = await UserController.getUser(urldecode(userId), {
       stripeAccountId: 0,
+      visaStatus: 0,
+      dietaryRequirements: 0,
+      emergencyContact: 0,
+      mobilityRestrictions: 0,
     });
     return successResponse(res, result);
   } catch (err) {
@@ -334,6 +336,33 @@ export const getUserByUsername = async (req, res) => {
         username: username,
       },
       { stripeCustomerId: 0, stripeAccountId: 0 }
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Get user by username
+ */
+export const getUserByEmailORUsername = async (req, res) => {
+  if (!req?.query?.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+
+  const username = req?.query?.email;
+  try {
+    const result = await UserController.get(
+      {
+        $or: [{ username: username }, { email: username }],
+      },
+      {
+        stripeCustomerId: 0,
+        stripeAccountId: 0,
+        visaStatus: 0,
+        dietaryRequirements: 0,
+        emergencyContact: 0,
+        mobilityRestrictions: 0,
+      }
     );
     return successResponse(res, result);
   } catch (error) {
@@ -447,8 +476,11 @@ export const adminUserAction = async (req, res) => {
     const currentUser = await UserController.getCurrentUser({
       awsUserId: req.requestContext.identity.cognitoIdentityId,
     });
+    const params = req.body || {};
+    if (!params.email || !params.action) {
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email or action' };
+    }
     if (currentUser && currentUser.isAdmin) {
-      const params = req.body || {};
       switch (params.action) {
         case 'enable':
           // await enableUser(req, params);
@@ -466,6 +498,28 @@ export const adminUserAction = async (req, res) => {
           console.log('invalid action');
       }
       return successResponse(res, 'success');
+    } else {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * List all trips
+ */
+
+export const adminTrips = async (req, res) => {
+  try {
+    const currentUser = await UserController.getCurrentUser({
+      awsUserId: req.requestContext.identity.cognitoIdentityId,
+    });
+    if (currentUser?.isAdmin) {
+      const params = req.query ? req.query : {};
+      const result = await TripController.listAdminTrips(params);
+      return successResponse(res, result);
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;
     }

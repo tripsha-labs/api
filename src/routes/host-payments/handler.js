@@ -89,7 +89,7 @@ export const multiDeletePayment = async (req, res) => {
     const data = req.body || {};
     if (data && !data.hasOwnProperty('paymentIds'))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'paymentIds' };
-    const result = await PaymentController.multiDeletePayment(data.paymentIds);
+    const result = await PaymentController.deletePayment(data.paymentIds);
     return successResponse(res, result);
   } catch (error) {
     logError(error);

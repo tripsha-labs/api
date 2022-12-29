@@ -9,8 +9,8 @@ const tripSchema = new mongoose.Schema(
     // Fields collected from UI
     title: { type: String, index: true },
     description: { type: String },
-    startDate: { type: Number },
-    endDate: { type: Number },
+    startDate: { type: Number, index: true },
+    endDate: { type: Number, index: true },
     focus: { type: String },
     destinations: [String],
     minGroupSize: { type: Number, default: 2 },
@@ -38,6 +38,7 @@ const tripSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['draft', 'published', 'completed', 'cancelled'],
+      index: true,
     },
 
     // Backend generated fields
@@ -48,11 +49,11 @@ const tripSchema = new mongoose.Schema(
     favoriteCount: { type: Number, default: 0 },
     tripLength: { type: Number, default: 0 },
     groupSize: { type: Number, default: 0 },
-    ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
+    ownerId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
-    isPublic: { type: Boolean, default: true },
-    isActive: { type: Boolean, default: true },
-    isArchived: { type: Boolean, default: false },
+    isPublic: { type: Boolean, default: true, index: true },
+    isActive: { type: Boolean, default: true, index: true },
+    isArchived: { type: Boolean, default: false, index: true },
     isConversationArchived: { type: Boolean, default: false },
     isLocked: { type: Boolean, default: false },
     isFull: { type: Boolean, default: false },
@@ -75,6 +76,9 @@ const tripSchema = new mongoose.Schema(
     paymentViews: { type: Array, default: [], optional: true },
     attendeeView: { type: Array, optional: true },
     questionsView: { type: Array, optional: true },
+    coHosts: { type: Array, optional: true },
+    budget: { type: Object, optional: true },
+    linksView: { type: Array, optional: true },
   },
   {
     timestamps: true,

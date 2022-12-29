@@ -26,6 +26,8 @@ import Assets from './assets';
 import UserExists from './user-exists';
 import HostPayment from './host-payments';
 import DirectoryMembers from './member-directory';
+import Resources from './resources';
+import Links from './links';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -67,17 +69,18 @@ const auth = () => {
     try {
       const awsUserId = req.requestContext.identity.cognitoIdentityId;
       req.currentUser = await UserModel.get({ awsUserId: awsUserId });
+      if (req.currentUser) req.currentUser['awsUserId'] = awsUserId;
       return next();
     } catch (err) {
       return failureResponse(res, ERROR_KEYS.INVALID_TOKEN);
     }
   };
-  app.use('/trips', Trips);
+  app.use('/trips', verifyToken, Trips);
   app.use('/activities', Activities);
   app.use('/host-requests', HostRequests);
   app.use('/approvals', Approvals);
-  app.use('/bookings', Bookings);
-  app.use('/members', Members);
+  app.use('/bookings', verifyToken, Bookings);
+  app.use('/members', verifyToken, Members);
   app.use('/conversations', Messages);
   app.use('/payments', Payments);
   app.use('/users', Users);
@@ -87,6 +90,8 @@ const auth = () => {
   app.use('/assets', Assets);
   app.use('/host-payments', HostPayment);
   app.use('/directory-members', verifyToken, DirectoryMembers);
+  app.use('/resources', verifyToken, Resources);
+  app.use('/links', verifyToken, Links);
   return app;
 };
 

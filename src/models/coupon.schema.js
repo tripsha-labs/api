@@ -9,20 +9,23 @@ const couponSchema = new mongoose.Schema(
   {
     name: { type: String },
     description: { type: String },
-    couponCode: { type: String }, // length 4-12, number+letter
+    couponCode: { type: String, index: true }, // length 4-12, number+letter
     discType: { type: String },
     amount: { type: Number },
     maxRedemptions: { type: Number, default: 0 },
     timesRedeemed: { type: Number, default: 0 },
     expiryDate: {
       type: String,
+      index: true,
     },
     userId: {
       type: String,
+      index: true,
     },
     isActive: {
       type: Boolean,
       default: true,
+      index: true,
     },
     applicableType: {
       type: String,
@@ -30,10 +33,6 @@ const couponSchema = new mongoose.Schema(
     specificValues: {
       type: Array,
       default: [],
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
     },
   },
   {

@@ -12,6 +12,7 @@ import {
   UserModel,
   MessageModel,
   BookingModel,
+  BookingResource,
 } from '../../models';
 import { logActivity } from '../../utils';
 import { ERROR_KEYS, LogMessages } from '../../constants';
@@ -28,28 +29,34 @@ export class MemberController {
       removeRequested: remove_requested,
     });
   }
-  static async memberAction(params) {
+  static async memberAction(params, currentUser) {
     try {
       const {
         memberIds,
         tripId,
         message,
-        awsUserId,
         forceAddTraveler,
         action,
+        autoRegisterRSVP,
       } = params || {
         memberIds: [],
       };
+      const bookingIds = [];
+      const objTripId = Types.ObjectId(tripId);
       if (memberIds.length > 0) {
-        const user = await UserModel.get({
-          awsUserId: awsUserId,
-        });
-        const objTripId = Types.ObjectId(tripId);
+        const user = currentUser;
+        if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+
         const tripUpdate = {};
         const trip = await TripModel.getById(objTripId);
         if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-        if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-        const isOwner = trip.ownerId == user._id.toString();
+        const coHosts = trip?.coHosts?.map(h => h.id);
+        const isActionAllowed =
+          trip.ownerId == user._id.toString() ||
+          coHosts?.includes(user._id.toString()) ||
+          user.isAdmin === true ||
+          autoRegisterRSVP;
+
         let guestCount = trip['guestCount'] || 0;
         const actions = memberIds.map(async memberId => {
           const query = { $or: [] };
@@ -69,7 +76,7 @@ export class MemberController {
             });
             switch (action) {
               case 'addMember':
-                if (isOwner || user.isAdmin === true) {
+                if (isActionAllowed) {
                   if (trip.spotsAvailable <= 0 && !forceAddTraveler) {
                     return Promise.reject(ERROR_KEYS.TRIP_IS_FULL_HOST);
                   }
@@ -78,15 +85,15 @@ export class MemberController {
                     const booking = await BookingModel.getById(
                       params['bookingId']
                     );
-                    if (booking && booking.attendees > 1) {
+                    if (booking?.attendees > 1) {
                       guestCount = guestCount + booking.attendees - 1;
                     }
-                    if (booking.rooms && booking.rooms.length > 0) {
+                    if (booking.rooms?.length > 0) {
                       tripUpdate['rooms'] = addRoomResources(booking, trip, [
                         'filled',
                       ]);
                     }
-                    if (booking.addOns && booking.addOns.length > 0) {
+                    if (booking.addOns?.length > 0) {
                       tripUpdate['addOns'] = addAddonResources(booking, trip, [
                         'filled',
                       ]);
@@ -118,7 +125,6 @@ export class MemberController {
                       {
                         memberId: memberDetails._id.toString(),
                         tripId: tripId,
-                        // status: { $in: ['pending', 'approved'] },
                       },
                       bookingInfo
                     );
@@ -191,8 +197,7 @@ export class MemberController {
                 break;
               case 'removeMember':
                 if (
-                  isOwner ||
-                  user.isAdmin == true ||
+                  isActionAllowed ||
                   memberDetails._id.toString() == user._id.toString()
                 ) {
                   console.log('Inside member info');
@@ -203,25 +208,27 @@ export class MemberController {
                     bookingStatus['status'] = 'removed';
                   }
                   bookingStatus['reason'] = message;
-                  if (memberExists && memberExists['bookingId']) {
+
+                  if (memberExists?.bookingId) {
+                    bookingIds.push(memberExists.bookingId);
                     await BookingModel.update(
-                      Types.ObjectId(memberExists['bookingId']),
+                      Types.ObjectId(memberExists.bookingId),
                       bookingStatus
                     );
                     const booking = await BookingModel.getById(
-                      memberExists['bookingId']
+                      memberExists.bookingId
                     );
-                    if (booking && booking.attendees > 1) {
+                    if (booking?.attendees > 1) {
                       guestCount = guestCount - (booking.attendees - 1);
                       guestCount = guestCount < 0 ? 0 : guestCount;
                     }
-                    if (booking.rooms && booking.rooms.length > 0) {
+                    if (booking.rooms?.length > 0) {
                       tripUpdate['rooms'] = removeRoomResources(booking, trip, [
                         'filled',
                         'reserved',
                       ]);
                     }
-                    if (booking.addOns && booking.addOns.length > 0) {
+                    if (booking.addOns?.length > 0) {
                       tripUpdate['addOns'] = removeAddonResources(
                         booking,
                         trip,
@@ -285,6 +292,12 @@ export class MemberController {
                 updateParams['isFavorite'] = false;
                 updateParams['unFavoriteOn'] = moment().unix();
                 break;
+            }
+            if (bookingIds?.length > 0) {
+              await BookingResource.deleteMany({
+                bookingId: { $in: bookingIds },
+                tripId: objTripId,
+              });
             }
             return MemberModel.update(
               {

@@ -25,28 +25,15 @@ export const listMembers = async (req, res) => {
 export const createMembers = async (req, res) => {
   try {
     const params = req.body || {};
-    if (params.members && params.members.length > 0) {
-      const memberEmails = params.members.map(member => member.email);
-      const users = await UserModel.list({
-        filter: { email: { $in: memberEmails } },
-        select: { email: 1, _id: 1 },
-      });
-      const userMap = {};
-      users &&
-        users.forEach(user => {
-          userMap[user.email] = user._id;
-        });
-      const data = params.members.map(member => {
-        if (userMap.hasOwnProperty(member.email)) {
-          member.tripshaId = userMap[member.email];
-        }
-        member.hostId = req.currentUser._id.toString();
-        return member;
-      });
-      await MemberDirectoryController.createMembers(data);
+    if (params.members?.length > 0) {
+      await MemberDirectoryController.createMembers(
+        params.members,
+        req.currentUser
+      );
     }
     return successResponse(res, 'success');
   } catch (error) {
+    console.log(error);
     return failureResponse(res, error);
   }
 };
@@ -54,7 +41,7 @@ export const createMembers = async (req, res) => {
 export const deleteMembers = async (req, res) => {
   try {
     const params = req.body || {};
-    if (params && params.memberIds && params.memberIds.length > 0) {
+    if (params?.memberIds?.length > 0) {
       await MemberDirectoryController.deleteMembers(params.memberIds);
     }
     return successResponse(res, 'success');

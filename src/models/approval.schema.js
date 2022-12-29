@@ -7,14 +7,16 @@ import mongoose from 'mongoose';
 
 const approvalSchema = new mongoose.Schema(
   {
-    tripId: { type: String },
-    memberId: { type: String },
+    tripId: { type: String, index: true },
+    memberId: { type: String, index: true },
     type: {
       type: String,
       enum: ['TripRemove', 'MemberRemove'],
+      index: true,
     },
     userId: {
       type: String,
+      index: true,
     },
     message: {
       type: String,
@@ -23,6 +25,7 @@ const approvalSchema = new mongoose.Schema(
       type: String,
       default: 'pending',
       enum: ['pending', 'approve', 'decline', 'cancel'],
+      index: true,
     },
   },
   {

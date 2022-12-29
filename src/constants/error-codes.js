@@ -9,6 +9,11 @@ export const ERROR_KEYS = {
     message: 'The requested item was not found.',
     code: 404,
   },
+  COLLECTION_NOT_FOUND: {
+    type: 'collectionNotFound',
+    message: "Hmm we can't find that collection. Please go back and try again.",
+    code: 404,
+  },
   BAD_REQUEST: {
     type: 'badRequest',
     message:

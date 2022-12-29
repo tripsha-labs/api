@@ -38,15 +38,19 @@ export const createCognitoUser = async (event, params) => {
       Value: params.lastName,
     });
   }
+  const createUserPayload = {
+    UserPoolId: userPoolId,
+    Username: params.email,
+    // MessageAction: 'SUPPRESS',
+    DesiredDeliveryMediums: ['EMAIL'],
+    TemporaryPassword: params.password || 'Tripsha@123',
+    UserAttributes: userAttributes,
+  };
+  if (!params.notifyUser) {
+    createUserPayload['MessageAction'] = 'SUPPRESS';
+  }
   const createUserRes = await cognitoClient
-    .adminCreateUser({
-      UserPoolId: userPoolId,
-      Username: params.email,
-      // MessageAction: 'SUPPRESS',
-      DesiredDeliveryMediums: ['EMAIL'],
-      TemporaryPassword: params.password || 'Tripsha@123',
-      UserAttributes: userAttributes,
-    })
+    .adminCreateUser(createUserPayload)
     .promise();
   await cognitoClient
     .adminSetUserPassword({
@@ -66,14 +70,19 @@ export const setUserPassword = async (event, params) => {
     event.requestContext.identity.cognitoAuthenticationProvider;
   const IDP_REGEX = /.*\/.*,(.*)\/(.*):CognitoSignIn:(.*)/;
   const [, , userPoolId, userSub] = authProvider.match(IDP_REGEX);
-  await cognitoClient
-    .adminSetUserPassword({
-      UserPoolId: userPoolId,
-      Username: params.email,
-      Password: params.password || 'Tripsha@123',
-      Permanent: true,
-    })
-    .promise();
+  try {
+    await cognitoClient
+      .adminSetUserPassword({
+        UserPoolId: userPoolId,
+        Username: params.email,
+        Password: params.password || 'Tripsha@123',
+        Permanent: true,
+      })
+      .promise();
+  } catch (err) {
+    console.log(err);
+    await createCognitoUser(event, params);
+  }
 };
 export const enableUser = async (event, params) => {
   const cognitoClient = new AWS.CognitoIdentityServiceProvider();

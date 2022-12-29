@@ -6,12 +6,12 @@ import mongoose, { Schema } from 'mongoose';
 
 const memberSchema = new mongoose.Schema(
   {
-    tripId: { type: Schema.Types.ObjectId, ref: 'Trip' },
-    memberId: { type: Schema.Types.ObjectId, ref: 'User' },
-    bookingId: { type: String },
-    isActive: { type: Boolean, default: true },
-    isOwner: { type: Boolean, default: false },
-    isMember: { type: Boolean, default: false },
+    tripId: { type: Schema.Types.ObjectId, ref: 'Trip', index: true },
+    memberId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    bookingId: { type: String, index: true },
+    isActive: { type: Boolean, default: true, index: true },
+    isOwner: { type: Boolean, default: false, index: true },
+    isMember: { type: Boolean, default: false, index: true },
     joinedOn: { type: String },
     leftOn: { type: String },
     isFavorite: { type: Boolean, default: false },

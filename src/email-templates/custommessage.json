@@ -1,0 +1,8 @@
+{
+  "Template": {
+    "TemplateName": "CustomMessageTemplate",
+    "SubjectPart": "{{subject}}",
+    "HtmlPart": "<p>{{message}}</p>",
+    "TextPart": "{{message}}"
+  }
+}
