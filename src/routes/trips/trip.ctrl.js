@@ -1159,7 +1159,10 @@ export class TripController {
   static async listAdminTrips(filter) {
     try {
       const filterParams = {};
-      const params = [];
+      if (filter.status) {
+        filterParams['status'] = filter.status;
+      }
+      const params = [{ $match: filterParams }];
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
       params.push({ $skip: limit * page });
