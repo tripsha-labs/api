@@ -12,7 +12,6 @@ import {
   BookingModel,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
-import { Types } from 'aws-sdk/clients/acm';
 /***
  * createInvite
  */
@@ -50,7 +49,7 @@ export const removeInvite = async (req, res) => {
 export const sendCustomEmail = async (req, res) => {
   try {
     const data = req.body || {};
-    const result = await BookingController.sendCustomEmail(data);
+    const result = await BookingController.sendCustomEmailMessage(data);
     return successResponse(res, result);
   } catch (error) {
     logError(error);

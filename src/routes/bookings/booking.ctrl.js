@@ -8,6 +8,7 @@ import {
   logActivity,
   EmailSender,
   sendCustomEmail,
+  bookingProjection,
 } from '../../utils';
 import {
   getCost,
@@ -215,7 +216,7 @@ export class BookingController {
       return 'success';
     } else throw ERROR_KEYS.TRIP_NOT_FOUND;
   }
-  static async sendCustomEmail(params) {
+  static async sendCustomEmailMessage(params) {
     const user = await UserModel.getById(params.memberId);
     await EmailSender(
       user,
