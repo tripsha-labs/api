@@ -9,10 +9,6 @@ PublicAPI:
   handler: src/routes/index.PublicAPI
   events:
     - http:
-        path: public/invite/response
-        method: GET
-        cors: true
-    - http:
         path: public/trips/{id}
         method: GET
         cors: true

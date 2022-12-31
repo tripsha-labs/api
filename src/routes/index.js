@@ -29,7 +29,6 @@ import DirectoryMembers from './member-directory';
 import Resources from './resources';
 import Links from './links';
 import { UserModel } from '../models';
-import NoAuthBookings from './bookings/noAuthBookings';
 
 const noAuth = () => {
   const app = express();
@@ -49,7 +48,6 @@ const noAuth = () => {
   app.use('/public/trip-tags', TripTags);
   app.use('/public/trips', NoAuthTrips);
   app.use('/public/check-user-exists', UserExists);
-  app.use('/public/invite', NoAuthBookings);
   return app;
 };
 

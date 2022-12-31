@@ -12,6 +12,8 @@ import {
   sendReminder,
   removeInvite,
   sendCustomReminderMessage,
+  getInvites,
+  respondInvite,
 } from './handler';
 const router = express.Router();
 
@@ -23,8 +25,8 @@ router.post('/invite/reminder', sendReminder);
 router.post('/invite/custom-email', sendCustomReminderMessage);
 router.put('/', multiUpdateBooking);
 router.get('/:id', getBooking);
-// router.get('/:id/invites', getInvites);
-// router.post('/:id/invites', respondInvite);
+router.get('/:id/invites', getInvites);
+router.post('/:id/invites', respondInvite);
 router.put('/:id', updateBooking);
 router.put('/:id/custom-fields', updateCustomFields);
 router.post('/:id/action', bookingsAction);
