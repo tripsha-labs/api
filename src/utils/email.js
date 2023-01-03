@@ -54,8 +54,8 @@ export const sendEmail = data => {
     .promise();
   return result;
 };
-export const sendCustomEmail = data => {
-  console.log('Inside sendCustomEmail', data);
+export const sendCustomMessage = data => {
+  console.log('Inside sendCustomMessage', data);
   const params = {
     Destination: {
       ToAddresses: data.emails,

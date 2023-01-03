@@ -8,6 +8,7 @@ import {
   logActivity,
   EmailSender,
   sendCustomEmail,
+  bookingProjection,
 } from '../../utils';
 import {
   getCost,
@@ -215,7 +216,7 @@ export class BookingController {
       return 'success';
     } else throw ERROR_KEYS.TRIP_NOT_FOUND;
   }
-  static async sendCustomEmail(params) {
+  static async sendCustomEmailMessage(params) {
     const user = await UserModel.getById(params.memberId);
     await EmailSender(
       user,
@@ -224,26 +225,6 @@ export class BookingController {
       'custom'
     );
     return 'success';
-  }
-  static async sendReminder(params, awsUserId) {
-    const hostUser = await UserModel.get({ awsUserId: awsUserId });
-    if (!hostUser) throw ERROR_KEYS.USER_NOT_FOUND;
-    if (hostUser.isAdmin || hostUser.isHost)
-      await EmailSender(
-        user,
-        EmailMessages.MEMBER_REMINDER_CUSTOM_MESSAGE_HOST,
-        [params.message]
-      );
-  }
-  static async sendReminder(params, awsUserId) {
-    const hostUser = await UserModel.get({ awsUserId: awsUserId });
-    if (!hostUser) throw ERROR_KEYS.USER_NOT_FOUND;
-    if (hostUser.isAdmin || hostUser.isHost)
-      await EmailSender(
-        user,
-        EmailMessages.MEMBER_REMINDER_CUSTOM_MESSAGE_HOST,
-        [params.message]
-      );
   }
   static async sendReminder(params, awsUserId) {
     const hostUser = await UserModel.get({ awsUserId: awsUserId });
@@ -1028,5 +1009,61 @@ export class BookingController {
         [params.message]
       );
     } else throw ERROR_KEYS.UNAUTHORIZED;
+  }
+  static async getInvites(awsUserId, tripId) {
+    const user = await UserModel.get({ awsUserId: awsUserId });
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    const booking = await BookingModel.get({
+      memberId: user._id,
+      tripId: tripId,
+    });
+    return booking;
+  }
+  static async respondInvite(tripId, params, user) {
+    let payload = {};
+    let status = params?.status;
+    const trip = await TripModel.getById(tripId);
+    if (trip.autoRegisterRSVP && params?.status === 'invite-accepted')
+      status = 'approved';
+    if (params?.bookingId) {
+      payload = {
+        status: status,
+      };
+      await BookingModel.update(Types.ObjectId(params.bookingId), params);
+    } else {
+      payload = {
+        tripId: tripId,
+        memberId: user._id.toString(),
+        addedByHost: false,
+        status: status,
+      };
+      await BookingModel.updateQuery(
+        { tripId: tripId, memberId: user._id.toString() },
+        payload,
+        { upsert: true }
+      );
+    }
+
+    if (trip.autoRegisterRSVP && params?.status === 'invite-accepted') {
+      const booking = await BookingModel.get({
+        tripId: tripId,
+        memberId: user._id.toString(),
+      });
+
+      await MemberController.memberAction(
+        {
+          memberIds: [user._id.toString()],
+          tripId: tripId,
+          message: params?.message || '',
+          awsUserId: user.awsUserId,
+          action: 'addMember',
+          forceAddTraveler: true,
+          bookingId: booking?._id?.toString(),
+          autoRegisterRSVP: true,
+        },
+        user
+      );
+    }
+    return 'success';
   }
 }

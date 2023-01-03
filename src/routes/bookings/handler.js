@@ -12,7 +12,6 @@ import {
   BookingModel,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
-import { Types } from 'aws-sdk/clients/acm';
 /***
  * createInvite
  */
@@ -50,7 +49,7 @@ export const removeInvite = async (req, res) => {
 export const sendCustomEmail = async (req, res) => {
   try {
     const data = req.body || {};
-    const result = await BookingController.sendCustomEmail(data);
+    const result = await BookingController.sendCustomEmailMessage(data);
     return successResponse(res, result);
   } catch (error) {
     logError(error);
@@ -305,6 +304,42 @@ export const respond = async (req, res) => {
       }
     }
     return successResponse(res, 'success');
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const getInvites = async (req, res) => {
+  try {
+    const tripId = req.params && req.params.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await BookingController.getInvites(
+      req.requestContext.identity.cognitoIdentityId,
+      tripId
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+export const respondInvite = async (req, res) => {
+  try {
+    const tripId = req?.params?.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = req.body || {};
+    if (data?.status) {
+      const result = await BookingController.respondInvite(
+        tripId,
+        data,
+        req.currentUser
+      );
+
+      return successResponse(res, result);
+    } else {
+      throw ERROR_KEYS.BAD_REQUEST;
+    }
   } catch (error) {
     logError(error);
     return failureResponse(res, error);
