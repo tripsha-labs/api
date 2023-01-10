@@ -106,6 +106,8 @@ const bookingSchema = {
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
         showOtherText: { type: 'string', optional: true, default: 'Other' },
+        lockResponse: { type: 'boolean', optional: true, default: false },
+        answerDeadline: { type: 'number', optional: true },
       },
     },
   },
