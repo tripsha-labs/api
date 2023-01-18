@@ -460,7 +460,10 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
-      if (trip['status'] == 'published') {
+      if (
+        trip['status'] == 'published' &&
+        tripDetails['status'] !== trip['status']
+      ) {
         try {
           await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
             tripId,

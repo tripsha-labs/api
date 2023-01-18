@@ -49,8 +49,8 @@ export class BookingModel {
     return Booking.deleteOne(params);
   }
 
-  static getById(id) {
-    return Booking.findById(id);
+  static getById(id, select = {}) {
+    return Booking.findById(id, select);
   }
 
   static get(params) {

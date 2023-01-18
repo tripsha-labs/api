@@ -159,7 +159,7 @@ export const listUser = async (req, res) => {
 /**
  * Create user
  */
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, skipResponse = false) => {
   try {
     const userInfo = await getCurrentUser(req);
     if (!userInfo) throw 'Create User failed';
@@ -251,11 +251,10 @@ export const createUser = async (req, res) => {
       // Add support user in the conversation
       await MessageController.addSupportMember(userInfo.awsUserId);
     }
-
-    return successResponse(res, result);
+    if (!skipResponse) return successResponse(res, result);
   } catch (error) {
     console.log(error);
-    return failureResponse(res, error);
+    if (!skipResponse) return failureResponse(res, error);
   }
 };
 /**
@@ -285,7 +284,7 @@ export const getUser = async (req, res) => {
   }
   console.log('User not found creating new user');
   try {
-    await createUser(req, res);
+    await createUser(req, res, true);
     const result = await UserController.getUser(urldecode(userId), {
       stripeAccountId: 0,
       visaStatus: 0,

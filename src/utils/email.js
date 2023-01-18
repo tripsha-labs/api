@@ -10,6 +10,34 @@ AWS.config.update({ region: 'us-east-1' });
 // }
 
 // Update template - aws ses update-template --cli-input-json file://mytemplate.json
+export const sendCustomEmail = (user, { subject, message }, params) => {
+  let emails = [];
+  if (user && user.additionalEmails && user.additionalEmails.length > 0) {
+    emails = user.additionalEmails.map(em => em.email);
+  } else {
+    emails = [user['email']];
+  }
+
+  const payload = {
+    Destination: {
+      ToAddresses: emails,
+    },
+    Template: 'CustomEmailTemplate',
+    TemplateData: JSON.stringify({
+      emails: emails,
+      name: user?.firstName || '',
+      subject: subject,
+      message: message(...params),
+    }),
+    Source: 'Tripsha <notifications@tripsha.com >',
+    ReplyToAddresses: ['notifications@tripsha.com '],
+  };
+  const result = new AWS.SES({ apiVersion: '2010-12-01' })
+    .sendTemplatedEmail(payload)
+    .promise();
+  return result;
+};
+
 export const sendEmail = data => {
   console.log('Inside email', data);
   const params = {
@@ -26,8 +54,8 @@ export const sendEmail = data => {
     .promise();
   return result;
 };
-export const sendCustomEmail = data => {
-  console.log('Inside sendCustomEmail', data);
+export const sendCustomMessage = data => {
+  console.log('Inside sendCustomMessage', data);
   const params = {
     Destination: {
       ToAddresses: data.emails,
