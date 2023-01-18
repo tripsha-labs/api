@@ -171,6 +171,10 @@ const updateUserSchema = {
     type: 'boolean',
     optional: true,
   },
+  paymentMethod: {
+    type: 'string',
+    optional: true,
+  },
   $$strict: true,
 };
 

@@ -23,7 +23,7 @@ export const createInvite = async (req, res) => {
     const result = await BookingController.createInvite(data, req.currentUser);
     return successResponse(res, result);
   } catch (error) {
-    logError(error);
+    console.log(error);
     return failureResponse(res, error);
   }
 };
@@ -65,7 +65,7 @@ export const sendReminder = async (req, res) => {
     );
     return successResponse(res, result);
   } catch (error) {
-    logError(error);
+    console.log(error);
     return failureResponse(res, error);
   }
 };
@@ -78,7 +78,7 @@ export const sendCustomReminderMessage = async (req, res) => {
     );
     return successResponse(res, result);
   } catch (error) {
-    logError(error);
+    console.log(error);
     return failureResponse(res, error);
   }
 };

@@ -1003,11 +1003,12 @@ export class BookingController {
         _id: Types.ObjectId(params.memberId),
       });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-      await sendCustomEmail(
+      const result = await sendCustomEmail(
         user,
         EmailMessages.MEMBER_REMINDER_CUSTOM_MESSAGE_HOST,
         [params.message]
       );
+      return 'success';
     } else throw ERROR_KEYS.UNAUTHORIZED;
   }
   static async getInvites(awsUserId, tripId) {

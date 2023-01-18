@@ -76,3 +76,7 @@ export * from './resources.validation';
 export * from './link.model';
 export * from './link.schema';
 export * from './link.validation';
+
+export * from './billing.model';
+export * from './billing.schema';
+export * from './billing.validation';
