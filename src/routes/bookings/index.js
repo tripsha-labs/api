@@ -14,6 +14,7 @@ import {
   sendCustomReminderMessage,
   getInvites,
   respondInvite,
+  updateGuestFields,
 } from './handler';
 const router = express.Router();
 
@@ -29,6 +30,7 @@ router.get('/:id/invites', getInvites);
 router.post('/:id/invites', respondInvite);
 router.put('/:id', updateBooking);
 router.put('/:id/custom-fields', updateCustomFields);
+router.put('/:id/guest-fields', updateGuestFields);
 router.post('/:id/action', bookingsAction);
 router.post('/:id/payment', doPartPayment);
 

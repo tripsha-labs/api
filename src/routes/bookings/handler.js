@@ -204,6 +204,32 @@ export const updateBooking = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+export const updateGuestFields = async (req, res) => {
+  try {
+    const bookingId = req.params && req.params.id;
+    if (!bookingId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const data = req.body || {};
+    const guestId = data.guestId;
+    if (!guestId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'guestId' };
+    const booking = await BookingModel.getById(bookingId, { guests: 1 });
+    if (booking) {
+      const guests = booking?.guests?.map(guest => {
+        if (guest.id === guestId) {
+          guest = { ...guest, ...data.fields };
+        }
+        return guest;
+      });
+      await BookingController.updateBooking(bookingId, {
+        guests,
+      });
+    }
+    return successResponse(res, 'sucess');
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
 export const updateCustomFields = async (req, res) => {
   try {
     const bookingId = req.params && req.params.id;
