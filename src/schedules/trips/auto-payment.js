@@ -141,70 +141,69 @@ export const autoPayment = async (event, context) => {
 
 export const generateInvoice = async (event, context) => {
   try {
-    if (moment().date() >= 3) {
-      return context.logStreamName;
-    }
-    await dbConnect();
-    const invoices = await InvoiceModel.find({
-      status: 'draft',
-      createdAt: {
-        $lte: new Date(
-          moment()
-            .endOf('month')
-            .subtract(1, 'months')
-            .format()
-        ),
-      },
-    });
-
-    const promises = invoices.map(invoice => {
-      return new Promise(async resolve => {
-        const user = await UserModel.get({ _id: invoice.userId });
-        const billings = await InvoiceItemModel.aggregate([
-          {
-            $match: {
-              invoiceId: invoice._id,
-            },
-          },
-          {
-            $group: {
-              _id: '$tripOwnerId',
-              records: { $push: '$$ROOT' },
-              guestCount: { $sum: '$guestCount' },
-              travelerCount: { $sum: '$travelerCount' },
-            },
-          },
-        ]);
-        console.log('Found billing entries: ', billings.length);
-        if (billings.length > 0) {
-          let guests = 0;
-          let travelers = 0;
-          billings.forEach(b => {
-            guests += b.guestCount;
-            travelers += b.travelerCount;
-          });
-          const totalUnits = travelers + guests;
-          const unitCost = 2.5;
-          await InvoiceModel.updateOne(
-            { _id: invoice._id },
-            {
-              $set: {
-                totalUnits,
-                travelers,
-                guests,
-                status: 'pending',
-                unitCost: unitCost,
-                amount: totalUnits * unitCost,
-                customerId: user?.stripeCustomerId,
-                paymentMethodId: user?.paymentMethod,
-              },
-            }
-          );
-        }
-        return resolve();
+    if (moment().date() <= 3) {
+      await dbConnect();
+      const invoices = await InvoiceModel.find({
+        status: 'draft',
+        createdAt: {
+          $lte: new Date(
+            moment()
+              .endOf('month')
+              .subtract(1, 'months')
+              .format()
+          ),
+        },
       });
-    });
-    await Promise.all(promises);
+
+      const promises = invoices.map(invoice => {
+        return new Promise(async resolve => {
+          const user = await UserModel.get({ _id: invoice.userId });
+          const billings = await InvoiceItemModel.aggregate([
+            {
+              $match: {
+                invoiceId: invoice._id,
+              },
+            },
+            {
+              $group: {
+                _id: '$tripOwnerId',
+                records: { $push: '$$ROOT' },
+                guestCount: { $sum: '$guestCount' },
+                travelerCount: { $sum: '$travelerCount' },
+              },
+            },
+          ]);
+          console.log('Found billing entries: ', billings.length);
+          if (billings.length > 0) {
+            let guests = 0;
+            let travelers = 0;
+            billings.forEach(b => {
+              guests += b.guestCount;
+              travelers += b.travelerCount;
+            });
+            const totalUnits = travelers + guests;
+            const unitCost = 2.5;
+            await InvoiceModel.updateOne(
+              { _id: invoice._id },
+              {
+                $set: {
+                  totalUnits,
+                  travelers,
+                  guests,
+                  status: 'pending',
+                  unitCost: unitCost,
+                  amount: totalUnits * unitCost,
+                  customerId: user?.stripeCustomerId,
+                  paymentMethodId: user?.paymentMethod,
+                },
+              }
+            );
+          }
+          return resolve();
+        });
+      });
+      await Promise.all(promises);
+    }
     return context.logStreamName;
   } catch (err) {
     console.log(err);
@@ -268,12 +267,11 @@ const chargeInvoice = async counter => {
 };
 export const chargeInvoicePayment = async (event, context) => {
   try {
-    if (moment().date() >= 3) {
-      return context.logStreamName;
+    if ([1, 4, 7].includes(moment().date())) {
+      console.log('Charge invoice payment');
+      await dbConnect();
+      await chargeInvoice(0);
     }
-    console.log('Charge invoice payment');
-    await dbConnect();
-    await chargeInvoice(0);
     return context.logStreamName;
   } catch (err) {
     console.log(err);

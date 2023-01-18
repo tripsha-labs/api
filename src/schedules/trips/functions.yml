@@ -15,7 +15,7 @@ emailNotification:
 chargeInvoicePayment:
   handler: src/schedules/trips/auto-payment.chargeInvoicePayment
   events:
-    - schedule: rate(3 hours)
+    - schedule: rate(1 day)
 
 generateInvoice:
   handler: src/schedules/trips/auto-payment.generateInvoice
