@@ -13,6 +13,7 @@ import {
   subscribeUserToMailchimpAudience,
   unsubscribeUserToMailchimpAudience,
   getCurrentUser,
+  StripeAPI,
 } from '../../utils';
 import { ERROR_KEYS, APP_CONSTANTS } from '../../constants';
 import {

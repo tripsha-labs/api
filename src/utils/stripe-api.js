@@ -54,7 +54,7 @@ const createPaymentIntent = async ({
   hostShare = HOST_PAYMENT_PART,
 }) => {
   const stripeInstance = stripe(STRIPE_SECRET_KEY, { maxNetworkRetries: 3 });
-  const paymentIntent = await stripeInstance.paymentIntents.create({
+  const paymentIntentPayload = {
     payment_method_types: ['card'],
     amount,
     currency,
@@ -63,11 +63,16 @@ const createPaymentIntent = async ({
     off_session: true,
     confirm: true,
     metadata,
-    transfer_data: {
+  };
+  if (beneficiary) {
+    paymentIntentPayload['transfer_data'] = {
       amount: parseInt((amount * hostShare) / 100),
       destination: beneficiary,
-    },
-  });
+    };
+  }
+  const paymentIntent = await stripeInstance.paymentIntents.create(
+    paymentIntentPayload
+  );
   return paymentIntent;
 };
 
