@@ -71,7 +71,7 @@ export const EmailMessages = {
     },
   },
   MEMBER_INVITE_HOST: {
-    subject: 'You have invited to join the trip!',
+    subject: 'You have been invited to join the trip!',
     message: (tripId, tripName, hostName, inviteId) => {
       const trip_url = `${process.env.CLIENT_BASE_URL}/trip/${tripId}`;
       return `
