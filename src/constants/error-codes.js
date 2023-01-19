@@ -176,6 +176,11 @@ export const ERROR_KEYS = {
     message: 'Unable to add new user.',
     code: 400,
   },
+  EMAIL_ALREADY_EXISTS: {
+    type: 'EMAIL_ALREADY_EXISTS',
+    message: 'The email already exists.',
+    code: 400,
+  },
   USERNAME_ALREADY_EXISTS: {
     type: 'USERNAME_ALREADY_EXISTS',
     message: 'The username already exists.',

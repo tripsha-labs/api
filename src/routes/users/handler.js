@@ -21,6 +21,7 @@ import {
   setUserPassword,
   enableUser,
   disableUser,
+  setUserEmail,
 } from '../../utils';
 import { updateUserValidation, adminUpdateUserValidation } from '../../models';
 import { TripController } from '../trips/trip.ctrl';
@@ -112,6 +113,16 @@ export const updateUserAdmin = async (req, res) => {
           params['username']
         );
         if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
+      }
+      console.log('=========check email');
+      if (params.email && user.email !== params.email) {
+        const exists = await _check_email_exists(params.email);
+        if (exists) throw ERROR_KEYS.EMAIL_ALREADY_EXISTS;
+        await setUserEmail(
+          req,
+          user.email.toLowerCase(),
+          params.email.toLowerCase()
+        );
       }
       console.log('=========set password');
       if (params['password'] && params['password'] != '') {

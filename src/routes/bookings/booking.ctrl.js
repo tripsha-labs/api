@@ -118,6 +118,17 @@ export class BookingController {
           member.memberId.toString()
         );
         const diffIds = _.difference(memberIds, foundMemberIds);
+        // Check if owner has booking
+        if (memberIds.includes(trip.ownerId.toString())) {
+          const booking = await BookingModel.get({
+            memberId: trip.ownerId.toString(),
+            tripId: params.tripId,
+          });
+          if (!booking?._id) {
+            diffIds.push(trip.ownerId.toString());
+          }
+        }
+
         if (diffIds?.length > 0)
           await MemberController.memberAction(
             {
