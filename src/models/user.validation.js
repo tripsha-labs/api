@@ -222,6 +222,10 @@ const adminUpdateUserSchema = {
     type: 'string',
     optional: true,
   },
+  email: {
+    type: 'string',
+    optional: true,
+  },
   additionalEmails: {
     type: 'array',
     optional: true,

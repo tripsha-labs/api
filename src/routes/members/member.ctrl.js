@@ -323,7 +323,6 @@ export class MemberController {
         const memberCount = await MemberModel.count({
           tripId: objTripId,
           isMember: true,
-          isOwner: { $ne: true },
         });
         const favoriteCount = await MemberModel.count({
           tripId: objTripId,
