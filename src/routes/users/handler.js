@@ -288,6 +288,20 @@ export const getUser = async (req, res) => {
       select['stripeCustomerId'] = 0;
     }
     const result = await UserController.getUser(urldecode(userId), select);
+    const forceCheck = req.query?.force || false;
+    if (forceCheck) {
+      const userInfo = await getCurrentUser(req);
+      if (!userInfo) throw 'Create User failed';
+      userInfo['email'] = userInfo['email'].toLowerCase();
+      if (userInfo['email'] != result.email) {
+        await UserController.updateUser(urldecode(userId), {
+          email: userInfo['email'],
+          awsUserId: [urldecode(userId)],
+        });
+        result['email'] = userInfo['email'];
+        result['awsUserId'] = [urldecode(userId)];
+      }
+    }
     return successResponse(res, result);
   } catch (error) {
     if (req.params.id != 'me') {
