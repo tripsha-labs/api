@@ -21,6 +21,7 @@ import {
   setUserPassword,
   enableUser,
   disableUser,
+  setUserEmail,
 } from '../../utils';
 import { updateUserValidation, adminUpdateUserValidation } from '../../models';
 import { TripController } from '../trips/trip.ctrl';
@@ -112,6 +113,16 @@ export const updateUserAdmin = async (req, res) => {
           params['username']
         );
         if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
+      }
+      console.log('=========check email');
+      if (params.email && user.email !== params.email) {
+        const exists = await _check_email_exists(params.email);
+        if (exists) throw ERROR_KEYS.EMAIL_ALREADY_EXISTS;
+        await setUserEmail(
+          req,
+          user.email.toLowerCase(),
+          params.email.toLowerCase()
+        );
       }
       console.log('=========set password');
       if (params['password'] && params['password'] != '') {
@@ -277,6 +288,20 @@ export const getUser = async (req, res) => {
       select['stripeCustomerId'] = 0;
     }
     const result = await UserController.getUser(urldecode(userId), select);
+    const forceCheck = req.query?.force || false;
+    if (forceCheck) {
+      const userInfo = await getCurrentUser(req);
+      if (!userInfo) throw 'Create User failed';
+      userInfo['email'] = userInfo['email'].toLowerCase();
+      if (userInfo['email'] != result.email) {
+        await UserController.updateUser(urldecode(userId), {
+          email: userInfo['email'],
+          awsUserId: [urldecode(userId)],
+        });
+        result['email'] = userInfo['email'];
+        result['awsUserId'] = [urldecode(userId)];
+      }
+    }
     return successResponse(res, result);
   } catch (error) {
     if (req.params.id != 'me') {

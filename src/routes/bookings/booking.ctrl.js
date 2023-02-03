@@ -117,7 +117,12 @@ export class BookingController {
         const foundMemberIds = foundMembers.map(member =>
           member.memberId.toString()
         );
+
         const diffIds = _.difference(memberIds, foundMemberIds);
+        // Check if owner has booking
+        if (memberIds.includes(trip.ownerId.toString())) {
+          diffIds.push(trip.ownerId.toString());
+        }
         if (diffIds?.length > 0)
           await MemberController.memberAction(
             {
