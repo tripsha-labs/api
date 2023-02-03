@@ -13,3 +13,17 @@ export const APP_CONSTANTS = {
 };
 
 export const DATE_FORMAT = 'YYYYMMDD';
+
+export const USER_BASIC_INFO = {
+  _id: 1,
+  firstName: 1,
+  lastName: 1,
+  username: 1,
+  avatarUrl: 1,
+  discord_url: 1,
+  facebook_url: 1,
+  instagram_url: 1,
+  twitter_url: 1,
+  website_url: 1,
+  bio: 1,
+};

@@ -23,6 +23,7 @@ import {
   APP_CONSTANTS,
   LogMessages,
   EmailMessages,
+  USER_BASIC_INFO,
 } from '../../constants';
 
 export class TripController {
@@ -757,6 +758,11 @@ export class TripController {
           localField: 'ownerId',
           foreignField: '_id',
           as: 'ownerDetails',
+          pipeline: [
+            {
+              $project: USER_BASIC_INFO,
+            },
+          ],
         },
       });
       params.push({
