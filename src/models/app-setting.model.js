@@ -3,9 +3,19 @@
  * @description - AppSetting DB model.
  */
 import moment from 'moment';
-import { InvoiceNumber } from 'invoice-number';
 import { AppSetting } from './app-setting.schema';
 
+const makeid = length => {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+};
 export class AppSettingModel {
   static get(params) {
     return AppSetting.findOne(params);
@@ -13,22 +23,26 @@ export class AppSettingModel {
   static addOrUpdate(filter, update) {
     return AppSetting.updateMany(filter, { $set: update }, { upsert: true });
   }
+
   static async getNextInvoiceNumber() {
-    const currentDate = moment();
-    const monthPart = currentDate.format('YYYY/MM');
-    const invoiceNumber = AppSetting.findOne({ name: 'invoiceNumber' });
-    let counter = 'AAA000';
-    if (invoiceNumber?.counter) {
-      const counterArray = invoiceNumber.counter?.split('/');
-      counter = counterArray.pop();
-      if (counterArray.join('/') !== monthPart) counter = 'AAA000';
+    const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let charCodes = {};
+    for (i = 0; i <= 25; i++) {
+      charCodes[i + 65] = char[i];
     }
-    let newCounter = InvoiceNumber.next(counter);
-    const newInvoiceNumber = `${monthPart}/${newCounter}`;
-    await AppSettingModel.addOrUpdate(
-      { name: 'invoiceNumber' },
-      { name: 'invoiceNumber', counter: newInvoiceNumber }
-    );
-    return newInvoiceNumber;
+    let uuid = (
+      moment().valueOf() -
+      moment()
+        .startOf('day')
+        .valueOf()
+    ).toString();
+    Object.keys(charCodes).forEach(number => {
+      uuid = uuid.replaceAll(number, charCodes[number]);
+    });
+    const reqLength = 10 - uuid.length;
+    uuid = makeid(reqLength) + uuid;
+    const currentDate = moment();
+    const monthPart = currentDate.format('YYYY-MM');
+    return `${monthPart}-${uuid}`;
   }
 }
