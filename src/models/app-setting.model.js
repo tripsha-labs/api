@@ -27,7 +27,7 @@ export class AppSettingModel {
   static async getNextInvoiceNumber() {
     const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let charCodes = {};
-    for (i = 0; i <= 25; i++) {
+    for (let i = 0; i <= 25; i++) {
       charCodes[i + 65] = char[i];
     }
     let uuid = (
@@ -37,7 +37,8 @@ export class AppSettingModel {
         .valueOf()
     ).toString();
     Object.keys(charCodes).forEach(number => {
-      uuid = uuid.replaceAll(number, charCodes[number]);
+      if (typeof value === 'string')
+        uuid = uuid.replaceAll(number, charCodes[number]);
     });
     const reqLength = 10 - uuid.length;
     uuid = makeid(reqLength) + uuid;

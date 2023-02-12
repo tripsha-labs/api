@@ -48,5 +48,6 @@ export const assignResourcesValidation = new Validator().compile({
     },
   },
   resources: { type: 'array', empty: false },
+  rooms: { type: 'object', optional: true },
   $$strict: 'remove',
 });

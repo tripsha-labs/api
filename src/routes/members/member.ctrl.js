@@ -152,9 +152,10 @@ export class MemberController {
                     isRead: true,
                   };
                   await MessageModel.create(messageParams);
+
                   // Add biiling entry
                   const invoice = await InvoiceModel.findOrInsert(
-                    memberDetails._id
+                    Types.ObjectId(trip.ownerId)
                   );
                   const invoiceItems = await InvoiceItemModel.find({
                     tripId: objTripId,
@@ -165,19 +166,22 @@ export class MemberController {
                   );
                   const count = {};
                   if (invoiceItem?._id) {
-                    let guestCount = 0;
+                    let gCount = 0;
                     // get the previous guest count
                     if (invoiceItems.length > 1) {
                       invoiceItems.forEach(ii => {
-                        guestCount += ii.guestCount;
+                        gCount += ii.guestCount;
                       });
                     } else {
-                      guestCount = invoiceItem.guestCount;
+                      gCount = invoiceItem.guestCount;
                     }
                     const newGuestCount = booking.attendees - 1;
-                    if (guestCount < newGuestCount) {
+                    if (gCount < newGuestCount) {
+                      const currentMonthCount =
+                        newGuestCount - gCount + invoiceItem.guestCount;
                       count['guestCount'] =
-                        newGuestCount - guestCount + invoiceItem.guestCount;
+                        currentMonthCount >= 0 ? currentMonthCount : 0;
+
                       await InvoiceItemModel.updateOne(
                         {
                           tripId: objTripId,
