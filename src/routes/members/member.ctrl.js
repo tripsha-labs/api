@@ -161,27 +161,28 @@ export class MemberController {
                     tripId: objTripId,
                     memberId: memberDetails._id,
                   });
-                  const invoiceItem = invoiceItems.find(
-                    ii => ii.invoiceId === invoice._id
-                  );
-                  const count = {};
-                  if (invoiceItem?._id) {
-                    let gCount = 0;
+                  const count = { guestCount: 0 };
+                  if (invoiceItems.length > 0) {
+                    const currentMonthItem = invoiceItems.find(
+                      ii => ii.invoiceId.toString() == invoice._id.toString()
+                    );
+                    let totalGuestCount = 0;
                     // get the previous guest count
                     if (invoiceItems.length > 1) {
                       invoiceItems.forEach(ii => {
-                        gCount += ii.guestCount;
+                        totalGuestCount += ii.guestCount;
                       });
-                    } else {
-                      gCount = invoiceItem.guestCount;
                     }
                     const newGuestCount = booking.attendees - 1;
-                    if (gCount < newGuestCount) {
+                    if (totalGuestCount < newGuestCount) {
                       const currentMonthCount =
-                        newGuestCount - gCount + invoiceItem.guestCount;
+                        newGuestCount -
+                          totalGuestCount +
+                          currentMonthItem?.guestCount || 0;
                       count['guestCount'] =
                         currentMonthCount >= 0 ? currentMonthCount : 0;
-
+                    }
+                    if (count?.guestCount > 0)
                       await InvoiceItemModel.updateOne(
                         {
                           tripId: objTripId,
@@ -190,10 +191,15 @@ export class MemberController {
                         },
                         {
                           $set: count,
+                          $setOnInsert: {
+                            tripId: objTripId,
+                            memberId: memberDetails._id,
+                            tripOwnerId: Types.ObjectId(trip.ownerId),
+                            invoiceId: invoice._id,
+                          },
                         },
                         { upsert: true }
                       );
-                    }
                   } else {
                     count['travelerCount'] = 1;
                     if (booking.attendees > 1) {

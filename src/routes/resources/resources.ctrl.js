@@ -21,6 +21,7 @@ export class ResourceController {
         },
       },
     ]);
+
     const bookingResources = await BookingResource.aggregate([
       {
         $match: {
@@ -30,7 +31,7 @@ export class ResourceController {
       {
         $group: {
           _id: '$resourceId',
-          bookings: { $push: '$bookingId' },
+          bookings: { $push: '$$ROOT' },
         },
       },
     ]);
@@ -82,30 +83,37 @@ export class ResourceController {
   }
   static async assignResources(payload) {
     const query = [];
+    const resourceId = payload.resources.pop();
     payload.bookings.forEach(a => {
-      payload.resources.forEach(r => {
-        query.push({
-          updateOne: {
-            filter: {
-              tripId: Types.ObjectId(payload.tripId),
-              resourceId: Types.ObjectId(r),
-              bookingId: Types.ObjectId(a.bookingId),
-            },
-            update: {
-              $set: {
-                tripId: Types.ObjectId(payload.tripId),
-                resourceId: Types.ObjectId(r),
-                bookingId: Types.ObjectId(a.bookingId),
-                attendees: a.attendees,
-              },
-            },
-            upsert: true,
+      const room = {};
+      if (a?.roomId) room['roomId'] = a.roomId;
+      query.push({
+        updateOne: {
+          filter: {
+            tripId: Types.ObjectId(payload.tripId),
+            resourceId: Types.ObjectId(resourceId),
+            bookingId: Types.ObjectId(a.bookingId),
           },
-        });
+          update: {
+            $set: {
+              tripId: Types.ObjectId(payload.tripId),
+              resourceId: Types.ObjectId(resourceId),
+              bookingId: Types.ObjectId(a.bookingId),
+              attendees: a.attendees,
+              ...room,
+            },
+          },
+          upsert: true,
+        },
       });
     });
+
+    if (payload.hasOwnProperty('rooms'))
+      await ResourceModel.updateOne(
+        { _id: Types.ObjectId(resourceId) },
+        { rooms: payload.rooms }
+      );
     return await BookingResource.bulkWrite(query);
-    // return await ResourceController.setAteendeeCount(payload);
   }
   static async setAteendeeCount(payload) {
     const resourceIds = payload.resources.map(r => Types.ObjectId(r));

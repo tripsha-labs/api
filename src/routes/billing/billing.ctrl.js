@@ -15,7 +15,7 @@ export class BillingController {
         },
         {
           $group: {
-            _id: '$tripOwnerId',
+            _id: '$tripId',
             guestCount: { $sum: '$guestCount' },
             tripId: { $first: '$tripId' },
             invoiceId: { $first: '$invoiceId' },

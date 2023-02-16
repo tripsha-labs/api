@@ -28,6 +28,7 @@ const ResourceSchema = new mongoose.Schema(
   {
     tripId: { type: Schema.Types.ObjectId },
     title: { type: String },
+    rooms: { type: Object },
     resourceType: { type: String },
     addedBy: { type: Schema.Types.ObjectId },
     updatedBy: { type: Schema.Types.ObjectId },
@@ -57,6 +58,7 @@ export const Resource =
 const BookingResourceSchema = new mongoose.Schema(
   {
     tripId: { type: Schema.Types.ObjectId, index: true },
+    roomId: { type: String },
     resourceId: { type: Schema.Types.ObjectId, index: true },
     bookingId: { type: Schema.Types.ObjectId, index: true },
     attendees: { type: Number },

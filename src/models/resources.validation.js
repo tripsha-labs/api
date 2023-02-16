@@ -11,6 +11,7 @@ export const updateResourceCollectionValidation = new Validator().compile({
 });
 const resourceShema = {
   title: { type: 'string', empty: false },
+  rooms: { type: 'object', optional: true },
   resourceType: { type: 'string', empty: false },
   collectionName: { type: 'string', empty: false },
   tripId: { type: 'string', empty: false },

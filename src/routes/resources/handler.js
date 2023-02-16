@@ -26,8 +26,28 @@ export const listResources = async (req, res) => {
         const bookingResource = bookingResources.find(
           r => r._id.toString() == resource._id.toString()
         );
+        let assignedCount = 0;
+        if (resource?.resourceType == 'venue') {
+          Object.entries(resource.rooms).map(([roomId, room]) => {
+            if (room.locked || room.attendees == room.capacity)
+              assignedCount += 1;
+            resource.rooms[roomId] = { ...room, items: [] };
+          });
+          bookingResource?.bookings?.forEach(b => {
+            if (resource?.rooms.hasOwnProperty(b.roomId))
+              resource?.rooms[b.roomId]?.items?.push({
+                bookingId: b.bookingId,
+                attendees: b.attendees,
+              });
+          });
+        } else {
+          assignedCount = bookingResource?.bookings?.reduce(
+            (s, b) => s + b.attendees,
+            0
+          );
+        }
         resource['bookings'] = bookingResource?.bookings || [];
-        resource['assigned'] = bookingResource?.bookings?.length || 0;
+        resource['assigned'] = assignedCount;
         return resource;
       });
       return collection;
@@ -49,6 +69,7 @@ export const createResource = async (req, res) => {
     if (validation != true) throw validation.shift();
     let collection = await ResourceCollectionModel.findOne({
       title: body.collectionName,
+      tripId: Types.ObjectId(body.tripId),
     });
 
     if (!collection) {

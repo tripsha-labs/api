@@ -658,13 +658,11 @@ export class TripController {
     }
   }
 
-  static async myTrips(filter) {
+  static async myTrips(filter, user) {
     try {
       const filterParams = {
         isMember: true,
       };
-      const user = await UserModel.get({ awsUserId: filter.awsUserId });
-      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       if (filter.memberId) {
         if (!Types.ObjectId.isValid(filter.memberId)) {
           throw 'Invalid memberID';
