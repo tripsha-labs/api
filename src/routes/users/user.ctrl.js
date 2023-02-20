@@ -120,6 +120,7 @@ export class UserController {
           isActive: 1,
           isBlocked: 1,
           additionalEmails: 1,
+          isConcierge: 1,
         },
         ...prepareCommonFilter(filter, ['username', 'email', 'createdAt']),
       };
