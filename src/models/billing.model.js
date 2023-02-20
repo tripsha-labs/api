@@ -9,7 +9,10 @@ export class InvoiceItemModel extends InvoiceItem {}
 
 export class InvoiceModel extends Invoice {
   static async findOrInsert(userId) {
-    const invoice = await InvoiceModel.findOne({ userId, status: 'draft' });
+    const invoice = await InvoiceModel.findOne({
+      userId,
+      status: 'draft',
+    });
     if (invoice) return invoice;
     const invoiceNumber = await AppSettingModel.getNextInvoiceNumber();
     console.log('invoiceNumber', invoiceNumber);

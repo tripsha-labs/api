@@ -29,7 +29,7 @@ const invoiceSchema = new mongoose.Schema(
     userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     invoiceNumber: { type: String, index: true },
     paymentMethodId: { type: String },
-    customerId: { type: String },
+    customerId: { type: String }, // stripe customer id
     paymentDate: { type: Number },
     paymentError: { type: Object },
     paymentRetryCount: { type: Number, default: 0 },

@@ -132,18 +132,8 @@ export const myTrips = async (req, res) => {
     const params = req.query ? req.query : {};
     let result = null;
     if (params.isHost || params.status === 'draft')
-      result = await TripController.myActiveTrips(
-        {
-          ...params,
-          awsUserId: req.requestContext.identity.cognitoIdentityId,
-        },
-        req.currentUser
-      );
-    else
-      result = await TripController.myTrips({
-        ...params,
-        awsUserId: req.requestContext.identity.cognitoIdentityId,
-      });
+      result = await TripController.myActiveTrips(params, req.currentUser);
+    else result = await TripController.myTrips(params, req.currentUser);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
