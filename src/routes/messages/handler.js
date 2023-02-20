@@ -204,10 +204,11 @@ export const listMessages = async (req, res) => {
 export const listConversations = async (req, res) => {
   // Get search string from queryparams
   const params = req.query || {};
-  params['userId'] = req.requestContext.identity.cognitoIdentityId;
-
   try {
-    const result = await MessageController.listConversations(params);
+    const result = await MessageController.listConversations(
+      params,
+      req.currentUser
+    );
     return successResponse(res, result);
   } catch (error) {
     console.log(error);

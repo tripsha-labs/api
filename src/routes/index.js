@@ -28,6 +28,7 @@ import HostPayment from './host-payments';
 import DirectoryMembers from './member-directory';
 import Resources from './resources';
 import Links from './links';
+import Billing from './billing';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -60,7 +61,7 @@ const auth = () => {
   app.use(async (req, res, next) => {
     if (process.env.IS_OFFLINE) {
       req.requestContext.identity.cognitoIdentityId =
-        'us-east-1:b80a7272-8cd5-4299-8e36-1baa709e3867';
+        'us-east-1:1570527a-efa7-46b3-a317-b4b8c4108494';
     }
     await dbConnect(res);
     next();
@@ -76,22 +77,23 @@ const auth = () => {
     }
   };
   app.use('/trips', verifyToken, Trips);
-  app.use('/activities', Activities);
-  app.use('/host-requests', HostRequests);
-  app.use('/approvals', Approvals);
+  app.use('/activities', verifyToken, Activities);
+  app.use('/host-requests', verifyToken, HostRequests);
+  app.use('/approvals', verifyToken, Approvals);
   app.use('/bookings', verifyToken, Bookings);
   app.use('/members', verifyToken, Members);
-  app.use('/conversations', Messages);
-  app.use('/payments', Payments);
-  app.use('/users', Users);
-  app.use('/admin', AdminApi);
-  app.use('/coupons', Coupons);
-  app.use('/email-notifications', EmailNotifications);
-  app.use('/assets', Assets);
-  app.use('/host-payments', HostPayment);
+  app.use('/conversations', verifyToken, Messages);
+  app.use('/payments', verifyToken, Payments);
+  app.use('/users', verifyToken, Users);
+  app.use('/admin', verifyToken, AdminApi);
+  app.use('/coupons', verifyToken, Coupons);
+  app.use('/email-notifications', verifyToken, EmailNotifications);
+  app.use('/assets', verifyToken, Assets);
+  app.use('/host-payments', verifyToken, HostPayment);
   app.use('/directory-members', verifyToken, DirectoryMembers);
   app.use('/resources', verifyToken, Resources);
   app.use('/links', verifyToken, Links);
+  app.use('/billing', verifyToken, Billing);
   return app;
 };
 

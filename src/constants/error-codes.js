@@ -66,6 +66,11 @@ export const ERROR_KEYS = {
     message: "Whoops! Looks like that person doesn't exist on Tripsha yet!",
     code: 404,
   },
+  RESOURCE_NOT_FOUND: {
+    type: 'resourceNotFound',
+    message: "Whoops! Looks like that resource doesn't exist on Tripsha yet!",
+    code: 404,
+  },
   MEMBER_NOT_FOUND: {
     type: 'memberNotFound',
     message: "Whoops! Looks like that person doesn't exist on Tripsha yet!",

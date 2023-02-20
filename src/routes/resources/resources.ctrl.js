@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { ERROR_KEYS } from '../../constants';
 import {
   BookingResource,
   ResourceCollectionModel,
@@ -21,6 +22,7 @@ export class ResourceController {
         },
       },
     ]);
+
     const bookingResources = await BookingResource.aggregate([
       {
         $match: {
@@ -30,7 +32,7 @@ export class ResourceController {
       {
         $group: {
           _id: '$resourceId',
-          bookings: { $push: '$bookingId' },
+          bookings: { $push: '$$ROOT' },
         },
       },
     ]);
@@ -82,30 +84,37 @@ export class ResourceController {
   }
   static async assignResources(payload) {
     const query = [];
+    const resourceId = payload.resources.pop();
     payload.bookings.forEach(a => {
-      payload.resources.forEach(r => {
-        query.push({
-          updateOne: {
-            filter: {
-              tripId: Types.ObjectId(payload.tripId),
-              resourceId: Types.ObjectId(r),
-              bookingId: Types.ObjectId(a.bookingId),
-            },
-            update: {
-              $set: {
-                tripId: Types.ObjectId(payload.tripId),
-                resourceId: Types.ObjectId(r),
-                bookingId: Types.ObjectId(a.bookingId),
-                attendees: a.attendees,
-              },
-            },
-            upsert: true,
+      const room = {};
+      if (a?.roomId) room['roomId'] = a.roomId;
+      query.push({
+        updateOne: {
+          filter: {
+            tripId: Types.ObjectId(payload.tripId),
+            resourceId: Types.ObjectId(resourceId),
+            bookingId: Types.ObjectId(a.bookingId),
           },
-        });
+          update: {
+            $set: {
+              tripId: Types.ObjectId(payload.tripId),
+              resourceId: Types.ObjectId(resourceId),
+              bookingId: Types.ObjectId(a.bookingId),
+              attendees: a.attendees,
+              ...room,
+            },
+          },
+          upsert: true,
+        },
       });
     });
+
+    if (payload.hasOwnProperty('rooms'))
+      await ResourceModel.updateOne(
+        { _id: Types.ObjectId(resourceId) },
+        { rooms: payload.rooms }
+      );
     return await BookingResource.bulkWrite(query);
-    // return await ResourceController.setAteendeeCount(payload);
   }
   static async setAteendeeCount(payload) {
     const resourceIds = payload.resources.map(r => Types.ObjectId(r));
@@ -157,20 +166,31 @@ export class ResourceController {
     return await ResourceModel.bulkWrite(bookingResources);
   }
   static async unassignResources(payload) {
+    const resourceId = payload.resources.pop();
+    const resource = await ResourceModel.findById(resourceId);
+    if (!resource) throw ERROR_KEYS.RESOURCE_NOT_FOUND;
     const query = [];
     payload.bookings.forEach(a => {
-      payload.resources.forEach(r => {
-        query.push({
-          deleteOne: {
-            filter: {
-              tripId: Types.ObjectId(payload.tripId),
-              resourceId: Types.ObjectId(r),
-              bookingId: Types.ObjectId(a.bookingId),
-            },
+      query.push({
+        deleteOne: {
+          filter: {
+            tripId: Types.ObjectId(payload.tripId),
+            resourceId: resource._id,
+            bookingId: Types.ObjectId(a.bookingId),
           },
-        });
+        },
       });
     });
+    const bIds = payload.bookings.map(b => b.bookingId);
+    const rooms = {};
+    Object.entries(resource.rooms).forEach(([columnId, column]) => {
+      if (column.items.length > 0) {
+        column.items = column.items.filter(b => !bIds.includes(b.bookingId));
+        column.attendees = column.items.reduce((s, a) => s + a.attendees, 0);
+      } else column.attendees = 0;
+      rooms[columnId] = column;
+    });
+    await ResourceModel.updateOne({ _id: resource._id }, { rooms });
     return await BookingResource.bulkWrite(query);
     // return await ResourceController.setAteendeeCount(payload);
   }

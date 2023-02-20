@@ -64,6 +64,7 @@ const userSchema = new mongoose.Schema(
     dietaryRequirements: String,
     emergencyContact: String,
     mobilityRestrictions: String,
+    paymentMethod: { type: String },
   },
   {
     timestamps: true,

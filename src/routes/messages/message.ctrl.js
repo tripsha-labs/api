@@ -128,10 +128,8 @@ export class MessageController {
     }
   }
 
-  static async listConversations(filter) {
+  static async listConversations(filter, user) {
     try {
-      const user = await UserModel.get({ awsUserId: filter.userId });
-      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const filterParams = {
         memberId: user._id.toString(),
       };
@@ -196,9 +194,9 @@ export class MessageController {
       });
 
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
-      params.push({ $limit: limit });
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
       params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
 
       params.push({
         $lookup: {
@@ -254,13 +252,13 @@ export class MessageController {
       });
 
       const conversations = await ConversationModel.aggregate(params);
-      const conversationsCount = await ConversationModel.count(filterParams);
 
       const result = {
         data: conversations,
-        totalCount: conversationsCount,
         count: conversations.length,
       };
+      if (filter.includeCount)
+        result['totalCount'] = await ConversationModel.count(filterParams);
       if (filter.includeSupport) {
         const supportUser = await UserModel.get(
           { email: 'hello@tripsha.com' },
