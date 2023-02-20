@@ -138,6 +138,7 @@ export const updateResource = async (req, res) => {
     if (validation != true) throw validation.shift();
     let collection = await ResourceCollectionModel.findOne({
       title: body.collectionName,
+      tripId: Types.ObjectId(body.tripId),
     });
     if (!collection) {
       collection = await ResourceCollectionModel.create({
