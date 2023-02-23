@@ -14,7 +14,13 @@ const archiveTrip = async () => {
   console.log('Archiving trips...');
   try {
     const filter = {
-      endDate: { $lt: parseInt(moment().format('YYYYMMDD')) },
+      endDate: {
+        $lt: parseInt(
+          moment()
+            .add(8, 'weeks')
+            .format('YYYYMMDD')
+        ),
+      },
       isArchived: false,
     };
     const select = {

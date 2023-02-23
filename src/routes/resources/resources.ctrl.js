@@ -108,7 +108,7 @@ export class ResourceController {
         },
       });
     });
-
+    console.log(payload.rooms);
     if (payload.hasOwnProperty('rooms'))
       await ResourceModel.updateOne(
         { _id: Types.ObjectId(resourceId) },
