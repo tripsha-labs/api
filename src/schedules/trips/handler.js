@@ -17,7 +17,7 @@ const archiveTrip = async () => {
       endDate: {
         $lt: parseInt(
           moment()
-            .add(8, 'weeks')
+            .subtract(8, 'weeks')
             .format('YYYYMMDD')
         ),
       },
