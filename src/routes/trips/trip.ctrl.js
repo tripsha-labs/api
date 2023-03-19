@@ -17,6 +17,7 @@ import {
   BookingModel,
   AssetModel,
   AssetLinkModel,
+  UserPermissionModel,
 } from '../../models';
 import {
   ERROR_KEYS,
@@ -25,6 +26,7 @@ import {
   EmailMessages,
   USER_BASIC_INFO,
 } from '../../constants';
+import { checkPermission } from '../../helpers/db-helper';
 
 export class TripController {
   static async markForRemove(params, remove_requested) {
@@ -299,20 +301,17 @@ export class TripController {
     }
   }
 
-  static async updateTrip(tripId, trip, awsUserId) {
+  static async updateTrip(tripId, trip, user) {
     try {
       const tripDetails = await TripModel.getById(tripId);
-      const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.UNAUTHORIZED;
       if (!tripDetails) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      const coHosts = tripDetails?.coHosts?.map(h => h.id);
-      if (
-        !(
-          tripDetails['ownerId'].toString() === user['_id'].toString() ||
-          coHosts?.includes(user._id.toString()) ||
-          user['isAdmin'] === true
-        )
-      ) {
+      let module = 'trip';
+      if (trip.hasOwnProperty('budget')) module = 'vendorPayments';
+      if (trip.hasOwnProperty('questions')) module = 'questions';
+      if (trip.hasOwnProperty('travelerViewName')) module = 'atteendees';
+      if (trip.hasOwnProperty('travelerViews')) module = 'atteendees';
+      if (!checkPermission(user, tripDetails, module, 'edit')) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
       const exustingMemberCount = await MemberModel.count({ tripId });
@@ -481,7 +480,13 @@ export class TripController {
     }
   }
 
-  static async getTrip(tripId, memberId, includeStat) {
+  static async getTrip(
+    tripId,
+    memberId,
+    currentUser,
+    includeStat = false,
+    includePermissions = false
+  ) {
     try {
       let trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
@@ -513,6 +518,12 @@ export class TripController {
             trip['bookingDetails'] = booking;
           }
         }
+      }
+      if (includePermissions) {
+        trip['permissions'] = await UserPermissionModel.findOne({
+          tripId: trip._id,
+          email: currentUser.email,
+        });
       }
       return trip;
     } catch (error) {
@@ -1083,10 +1094,9 @@ export class TripController {
     try {
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      if (
-        !(trip?.ownerId?.toString() == user?._id?.toString() || user?.isAdmin)
-      )
+      if (!checkPermission(user, trip, 'permissions', 'view'))
         throw ERROR_KEYS.UNAUTHORIZED;
+
       const ids = trip?.coHosts?.map(host => Types.ObjectId(host.id));
       return await UserModel.list({
         filter: {

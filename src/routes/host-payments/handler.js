@@ -17,10 +17,7 @@ export const createPayment = async (req, res) => {
     const validation = createPaymentValidation(data);
     if (validation != true) throw validation.shift();
 
-    const result = await PaymentController.createPayment(
-      data,
-      req.requestContext.identity.cognitoIdentityId
-    );
+    const result = await PaymentController.createPayment(data, req.currentUser);
 
     return successResponse(res, result);
   } catch (error) {
@@ -37,10 +34,7 @@ export const listPayments = async (req, res) => {
     const params = req.query ? req.query : {};
     let result = [];
 
-    result = await PaymentController.listPayments(
-      params,
-      req.requestContext.identity.cognitoIdentityId
-    );
+    result = await PaymentController.listPayments(params, req.currentUser);
 
     return successResponse(res, result);
   } catch (error) {

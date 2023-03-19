@@ -34,6 +34,7 @@ import { ObjectID } from 'mongodb';
 import moment from 'moment';
 import _ from 'lodash';
 import { MemberDirectoryController } from '../member-directory/member-directory.ctrl';
+import { checkPermission } from '../../helpers/db-helper';
 
 export class BookingController {
   static async getUsername(username) {
@@ -408,22 +409,14 @@ export class BookingController {
     return booking;
   }
 
-  static async listBookings(filters, awsUserId) {
-    const user = await UserModel.get({ awsUserId: awsUserId });
-    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+  static async listBookings(filters, currentUser) {
+    if (!currentUser) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!filters.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(filters.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    const coHosts = trip?.coHosts?.map(h => h.id);
-    if (
-      !(
-        user.isAdmin ||
-        coHosts?.includes(user._id.toString()) ||
-        trip.ownerId.toString() === user._id.toString()
-      )
-    ) {
+
+    if (!checkPermission(currentUser, trip, 'atteendees', 'view'))
       throw ERROR_KEYS.UNAUTHORIZED;
-    }
 
     const params = [{ $match: { tripId: filters.tripId } }];
     params.push({

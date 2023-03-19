@@ -3,35 +3,27 @@
  * @description - This will handle business logic for Payment module
  */
 import { Types } from 'mongoose';
-import { PaymentModel, UserModel, TripModel } from '../../models';
+import { PaymentModel, TripModel } from '../../models';
 import { ERROR_KEYS } from '../../constants';
+import { checkPermission } from '../../helpers/db-helper';
 
 export class PaymentController {
-  static async createPayment(params, awsUserId) {
+  static async createPayment(params, user) {
     const paymentData = params;
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     paymentData['createdBy'] = user._id.toString();
     paymentData['updatedBy'] = user._id.toString();
     return await PaymentModel.create(paymentData);
   }
 
-  static async listPayments(filters, awsUserId) {
-    const user = await UserModel.get({ awsUserId: awsUserId });
+  static async listPayments(filters, user) {
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!filters.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(filters.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    const coHosts = trip?.coHosts?.map(h => h.id);
-    if (
-      !(
-        user.isAdmin ||
-        coHosts?.includes(user._id.toString()) ||
-        trip.ownerId.toString() === user._id.toString()
-      )
-    ) {
+    if (!checkPermission(user, trip, 'vendorPayments')) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
     return await PaymentModel.list({

@@ -305,6 +305,7 @@ const tripUpdateSchema = {
     optional: true,
   },
   linksView: { type: 'array', optional: true },
+  userPermissionsView: { type: 'array', optional: true },
   hiddenAttendees: { type: 'object', optional: true },
 };
 

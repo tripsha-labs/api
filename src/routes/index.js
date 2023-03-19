@@ -29,6 +29,7 @@ import DirectoryMembers from './member-directory';
 import Resources from './resources';
 import Links from './links';
 import Billing from './billing';
+import Permissions from './permissions';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -94,6 +95,7 @@ const auth = () => {
   app.use('/resources', verifyToken, Resources);
   app.use('/links', verifyToken, Links);
   app.use('/billing', verifyToken, Billing);
+  app.use('/permissions', verifyToken, Permissions);
   return app;
 };
 

@@ -80,3 +80,7 @@ export * from './link.validation';
 export * from './billing.model';
 export * from './billing.schema';
 export * from './billing.validation';
+
+export * from './user-permission.model';
+export * from './user-permission.schema';
+export * from './user-permission.validation';
