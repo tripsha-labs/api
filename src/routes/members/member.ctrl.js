@@ -157,67 +157,66 @@ export class MemberController {
                   await MessageModel.create(messageParams);
 
                   // Add biiling entry
-                  if (!tripOwner?.isConcierge) {
-                    const invoice = await InvoiceModel.findOrInsert(
-                      Types.ObjectId(trip.ownerId)
+                  const invoice = await InvoiceModel.findOrInsert(
+                    Types.ObjectId(trip.ownerId)
+                  );
+                  const invoiceItems = await InvoiceItemModel.find({
+                    tripId: objTripId,
+                    memberId: memberDetails._id,
+                  });
+                  const count = { guestCount: 0 };
+                  if (invoiceItems.length > 0) {
+                    const currentMonthItem = invoiceItems.find(
+                      ii => ii.invoiceId.toString() == invoice._id.toString()
                     );
-                    const invoiceItems = await InvoiceItemModel.find({
-                      tripId: objTripId,
-                      memberId: memberDetails._id,
-                    });
-                    const count = { guestCount: 0 };
-                    if (invoiceItems.length > 0) {
-                      const currentMonthItem = invoiceItems.find(
-                        ii => ii.invoiceId.toString() == invoice._id.toString()
-                      );
-                      let totalGuestCount = 0;
-                      // get the previous guest count
-                      if (invoiceItems.length > 1) {
-                        invoiceItems.forEach(ii => {
-                          totalGuestCount += ii.guestCount;
-                        });
-                      }
-                      const newGuestCount = booking.attendees - 1;
-                      if (totalGuestCount < newGuestCount) {
-                        const currentMonthCount =
-                          newGuestCount -
-                            totalGuestCount +
-                            currentMonthItem?.guestCount || 0;
-                        count['guestCount'] =
-                          currentMonthCount >= 0 ? currentMonthCount : 0;
-                      }
-                      if (count?.guestCount > 0)
-                        await InvoiceItemModel.updateOne(
-                          {
-                            tripId: objTripId,
-                            memberId: memberDetails._id,
-                            invoiceId: invoice._id,
-                          },
-                          {
-                            $set: count,
-                            $setOnInsert: {
-                              tripId: objTripId,
-                              memberId: memberDetails._id,
-                              tripOwnerId: Types.ObjectId(trip.ownerId),
-                              invoiceId: invoice._id,
-                            },
-                          },
-                          { upsert: true }
-                        );
-                    } else {
-                      count['travelerCount'] = 1;
-                      if (booking.attendees > 1) {
-                        count['guestCount'] = booking.attendees - 1;
-                      }
-                      await InvoiceItemModel.create({
-                        tripId: objTripId,
-                        memberId: memberDetails._id,
-                        tripOwnerId: Types.ObjectId(trip.ownerId),
-                        invoiceId: invoice._id,
-                        ...count,
+                    let totalGuestCount = 0;
+                    // get the previous guest count
+                    if (invoiceItems.length > 1) {
+                      invoiceItems.forEach(ii => {
+                        totalGuestCount += ii.guestCount;
                       });
                     }
+                    const newGuestCount = booking.attendees - 1;
+                    if (totalGuestCount < newGuestCount) {
+                      const currentMonthCount =
+                        newGuestCount -
+                          totalGuestCount +
+                          currentMonthItem?.guestCount || 0;
+                      count['guestCount'] =
+                        currentMonthCount >= 0 ? currentMonthCount : 0;
+                    }
+                    if (count?.guestCount > 0)
+                      await InvoiceItemModel.updateOne(
+                        {
+                          tripId: objTripId,
+                          memberId: memberDetails._id,
+                          invoiceId: invoice._id,
+                        },
+                        {
+                          $set: count,
+                          $setOnInsert: {
+                            tripId: objTripId,
+                            memberId: memberDetails._id,
+                            tripOwnerId: Types.ObjectId(trip.ownerId),
+                            invoiceId: invoice._id,
+                          },
+                        },
+                        { upsert: true }
+                      );
+                  } else {
+                    count['travelerCount'] = 1;
+                    if (booking.attendees > 1) {
+                      count['guestCount'] = booking.attendees - 1;
+                    }
+                    await InvoiceItemModel.create({
+                      tripId: objTripId,
+                      memberId: memberDetails._id,
+                      tripOwnerId: Types.ObjectId(trip.ownerId),
+                      invoiceId: invoice._id,
+                      ...count,
+                    });
                   }
+
                   // conversation update
                   const memberAddDetails = {
                     memberId: memberDetails._id.toString(),

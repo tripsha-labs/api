@@ -96,9 +96,7 @@ export const inviteUser = async (req, res) => {
 
 export const updateUserAdmin = async (req, res) => {
   try {
-    const currentUser = await UserController.getCurrentUser({
-      awsUserId: req.requestContext.identity.cognitoIdentityId,
-    });
+    const currentUser = req?.currentUser || {};
     if (currentUser && currentUser.isAdmin) {
       const params = req.body;
       const errors = adminUpdateUserValidation(params);
@@ -106,7 +104,6 @@ export const updateUserAdmin = async (req, res) => {
       const user = await UserController.get({
         _id: Types.ObjectId(req.params.id),
       });
-      console.log('=========check user');
       if (params.username) {
         const exists = await _check_username_exists(
           user['email'],
