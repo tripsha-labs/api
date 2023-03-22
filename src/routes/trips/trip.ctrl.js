@@ -1172,6 +1172,10 @@ export class TripController {
       const params = [{ $match: filterParams }];
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      filter['sortOrder'] = -1;
+      params.push({
+        $sort: prepareSortFilter(filter, ['endDate'], 'endDate'),
+      });
       params.push({ $skip: limit * page });
       params.push({ $limit: limit });
       params.push({
