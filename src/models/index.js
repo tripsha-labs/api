@@ -20,6 +20,9 @@ export * from './member.validation';
 export * from './tag.schema';
 export * from './tag.model';
 
+export * from './currency.model';
+export * from './currency.schema';
+
 export * from './trip-tag.schema';
 export * from './trip-tag.model';
 
