@@ -5,6 +5,7 @@ const morgan = require('morgan');
 import { dbConnect } from '../utils';
 import Countries from './countries';
 import Tags from './tags';
+import Currency from './currency';
 import TripTags from './trip-tags';
 import Trips from './trips';
 import NoAuthTrips from './trips/noAuth';
@@ -43,6 +44,7 @@ const noAuth = () => {
     next();
   });
   app.use('/public/tags', Tags);
+  app.use('/public/currency-exchange', Currency);
   app.use('/public/schedules', Schedules);
   app.use('/public/countries', Countries);
   app.use('/public/migrations', Migrations);
