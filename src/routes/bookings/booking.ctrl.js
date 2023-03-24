@@ -380,18 +380,18 @@ export class BookingController {
       userId: user._id.toString(),
     });
     // Traveler email
-    await EmailSender(user, EmailMessages.BOOKING_REQUEST_TRAVELER, [
-      booking._id,
-      trip._id.toString(),
-      trip['title'],
-    ]);
+    // await EmailSender(user, EmailMessages.BOOKING_REQUEST_TRAVELER, [
+    //   booking._id,
+    //   trip._id.toString(),
+    //   trip['title'],
+    // ]);
 
     //Host email
-    await EmailSender(tripOwner, EmailMessages.BOOKING_REQUEST_HOST, [
-      trip._id.toString(),
-      trip['title'],
-      trip.bookingExpiryDays || 3,
-    ]);
+    // await EmailSender(tripOwner, EmailMessages.BOOKING_REQUEST_HOST, [
+    //   trip._id.toString(),
+    //   trip['title'],
+    //   trip.bookingExpiryDays || 3,
+    // ]);
     booking['trip'] = trip;
     let awsOwnerUserId = tripOwner.awsUserId;
     if (Array.isArray(tripOwner.awsUserId) && tripOwner.awsUserId.length > 0) {
@@ -607,18 +607,18 @@ export class BookingController {
                   });
                 }
                 // Traveler
-                await EmailSender(
-                  memberInfo,
-                  EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELER,
-                  [trip._id.toString(), trip['title']]
-                );
+                // await EmailSender(
+                //   memberInfo,
+                //   EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELER,
+                //   [trip._id.toString(), trip['title']]
+                // );
 
                 // host
-                await EmailSender(
-                  user,
-                  EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST,
-                  [trip._id.toString(), trip['title'], memberInfo['firstName']]
-                );
+                // await EmailSender(
+                //   user,
+                //   EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST,
+                //   [trip._id.toString(), trip['title'], memberInfo['firstName']]
+                // );
               } else {
                 throw 'payment failed';
               }
@@ -745,18 +745,18 @@ export class BookingController {
             userId: user._id.toString(),
           });
           // Traveler
-          await EmailSender(
-            memberInfo,
-            EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELER,
-            [trip._id.toString(), trip['title']]
-          );
+          // await EmailSender(
+          //   memberInfo,
+          //   EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELER,
+          //   [trip._id.toString(), trip['title']]
+          // );
 
           // host
-          await EmailSender(user, EmailMessages.BOOKING_REQUEST_DECLINED_HOST, [
-            trip._id.toString(),
-            trip['title'],
-            memberInfo['firstName'],
-          ]);
+          // await EmailSender(user, EmailMessages.BOOKING_REQUEST_DECLINED_HOST, [
+          //   trip._id.toString(),
+          //   trip['title'],
+          //   memberInfo['firstName'],
+          // ]);
           break;
         // guest
         case 'withdraw':
@@ -797,18 +797,18 @@ export class BookingController {
             userId: user._id.toString(),
           });
           // Traveler
-          await EmailSender(
-            memberInfo,
-            EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELER,
-            [trip._id.toString(), trip['title']]
-          );
+          // await EmailSender(
+          //   memberInfo,
+          //   EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELER,
+          //   [trip._id.toString(), trip['title']]
+          // );
 
           // host
-          await EmailSender(
-            tripOwner,
-            EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST,
-            [trip._id.toString(), trip['title'], memberInfo['firstName']]
-          );
+          // await EmailSender(
+          //   tripOwner,
+          //   EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST,
+          //   [trip._id.toString(), trip['title'], memberInfo['firstName']]
+          // );
           break;
 
         default:

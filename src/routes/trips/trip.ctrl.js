@@ -264,16 +264,16 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
-      if (params['status'] === 'published') {
-        try {
-          await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
-            trip['_id'],
-            params['title'],
-          ]);
-        } catch (err) {
-          console.log(err);
-        }
-      }
+      // if (params['status'] === 'published') {
+      //   try {
+      //     await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
+      //       trip['_id'],
+      //       params['title'],
+      //     ]);
+      //   } catch (err) {
+      //     console.log(err);
+      //   }
+      // }
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
@@ -461,20 +461,20 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
-      if (
-        trip['status'] == 'published' &&
-        tripDetails['status'] !== trip['status']
-      ) {
-        try {
-          await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
-            tripId,
-            tripName,
-          ]);
-          console.log('Email sent');
-        } catch (err) {
-          console.log(err);
-        }
-      }
+      // if (
+      //   trip['status'] == 'published' &&
+      //   tripDetails['status'] !== trip['status']
+      // ) {
+      //   try {
+      //     await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
+      //       tripId,
+      //       tripName,
+      //     ]);
+      //     console.log('Email sent');
+      //   } catch (err) {
+      //     console.log(err);
+      //   }
+      // }
       return 'success';
     } catch (error) {
       throw error;
@@ -557,14 +557,14 @@ export class TripController {
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
-          try {
-            await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
-              trip['title'],
-            ]);
-            console.log('Email sent');
-          } catch (err) {
-            console.log(err);
-          }
+          // try {
+          //   await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
+          //     trip['title'],
+          //   ]);
+          //   console.log('Email sent');
+          // } catch (err) {
+          //   console.log(err);
+          // }
         } else {
           throw ERROR_KEYS.CANNOT_DELETE_TRIP;
         }

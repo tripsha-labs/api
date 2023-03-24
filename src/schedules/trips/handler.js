@@ -146,18 +146,18 @@ const archiveBookingRequest = async () => {
                 userId: tripOwner._id.toString(),
               });
               // Traveller email
-              await EmailSender(
-                member,
-                EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER,
-                [trip._id.toString(), trip['title']]
-              );
+              // await EmailSender(
+              //   member,
+              //   EmailMessages.BOOKING_REQUEST_EXPIRED_TRAVELER,
+              //   [trip._id.toString(), trip['title']]
+              // );
 
               //Host email
-              await EmailSender(
-                tripOwner,
-                EmailMessages.BOOKING_REQUEST_EXPIRED_HOST,
-                [trip._id.toString(), trip['title'], member['firstName']]
-              );
+              // await EmailSender(
+              //   tripOwner,
+              //   EmailMessages.BOOKING_REQUEST_EXPIRED_HOST,
+              //   [trip._id.toString(), trip['title'], member['firstName']]
+              // );
               return resolve();
             } catch (err) {
               console.log(err);
@@ -203,14 +203,14 @@ const notify48hBookingRequest = async () => {
         promises.push(
           new Promise(async resolve => {
             try {
-              const trip = await TripModel.getById(booking.tripId);
-              const tripOwner = await UserModel.getById(trip.ownerId);
+              // const trip = await TripModel.getById(booking.tripId);
+              // const tripOwner = await UserModel.getById(trip.ownerId);
               //Host email
-              await EmailSender(
-                tripOwner,
-                EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST,
-                [trip._id.toString(), trip['title']]
-              );
+              // await EmailSender(
+              //   tripOwner,
+              //   EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST,
+              //   [trip._id.toString(), trip['title']]
+              // );
               await BookingModel.update(booking._id, {
                 is48hEmailSent: true,
               });
@@ -258,14 +258,14 @@ const notify24hBookingRequest = async () => {
         promises.push(
           new Promise(async resolve => {
             try {
-              const trip = await TripModel.getById(booking.tripId);
-              const tripOwner = await UserModel.getById(trip.ownerId);
+              // const trip = await TripModel.getById(booking.tripId);
+              // const tripOwner = await UserModel.getById(trip.ownerId);
               //Host email
-              await EmailSender(
-                tripOwner,
-                EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST,
-                [trip._id.toString(), trip['title']]
-              );
+              // await EmailSender(
+              //   tripOwner,
+              //   EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST,
+              //   [trip._id.toString(), trip['title']]
+              // );
               await BookingModel.update(booking._id, {
                 is24hEmailSent: true,
               });
