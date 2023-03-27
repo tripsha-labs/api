@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 const CurrencySchema = new mongoose.Schema(
   {
     currency: { type: String },
-    conversions: { type: Array },
+    conversions: { type: Object },
     lastUpdatedTime: { type: Number },
   },
   {

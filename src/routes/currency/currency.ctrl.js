@@ -11,12 +11,6 @@ export class CurrencyController {
   static async getCurrency() {
     let currency = await CurrencyModel.findOne({});
     if (!currency) currency = { currency: 'USD' };
-    console.log(
-      currency?.lastUpdatedTime <
-        moment()
-          .subtract(10, 'minutes')
-          .unix()
-    );
     if (
       !currency?.lastUpdatedTime ||
       currency?.lastUpdatedTime <
