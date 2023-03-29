@@ -3,6 +3,7 @@
  * @description - This will handle all business logic for Member directory
  */
 import { Types } from 'mongoose';
+import { USER_BASIC_INFO } from '../../constants';
 import { MemberDirectoryModel, UserModel } from '../../models';
 
 export class MemberDirectoryController {
@@ -15,6 +16,17 @@ export class MemberDirectoryController {
           localField: 'tripshaId',
           foreignField: '_id',
           as: 'user',
+          pipeline: [
+            {
+              $project: USER_BASIC_INFO,
+            },
+          ],
+        },
+      },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true,
         },
       },
       // {

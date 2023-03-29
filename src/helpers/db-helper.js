@@ -9,11 +9,10 @@ export const checkPermission = async (
   const query = { email: currentUser?.email, tripId: trip._id };
   const res = await UserPermissionModel.findOne(query);
   const { tabPermissions, viewPermissions } = res || {};
-  console.log(currentUser, trip);
   const coHosts = trip?.coHosts?.map(h => h.id);
   if (
     currentUser.isAdmin ||
-    coHosts?.includes(currentUser?._id?.toString()) ||
+    res.coHost ||
     trip?.ownerId?.toString() === currentUser?._id?.toString()
   ) {
     return true;

@@ -8,7 +8,8 @@ const UserPermissionSchema = new mongoose.Schema(
   {
     tripId: { type: Schema.Types.ObjectId, index: true },
     userId: { type: Schema.Types.ObjectId, index: true },
-    email: { type: String },
+    email: { type: String, index: true },
+    coHost: { type: Boolean },
     tabPermissions: { type: Object },
     viewPermissions: { type: Object },
     groups: { type: Array },

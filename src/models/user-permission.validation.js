@@ -18,6 +18,7 @@ const UserPermissionSchema = {
     type: 'object',
     optional: true,
   },
+  coHost: { type: 'boolean', optional: true },
   viewPermissions: {
     type: 'object',
     optional: true,
