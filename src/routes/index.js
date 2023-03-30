@@ -31,6 +31,7 @@ import Resources from './resources';
 import Links from './links';
 import Billing from './billing';
 import Permissions from './permissions';
+import Topics from './topics';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -98,6 +99,7 @@ const auth = () => {
   app.use('/links', verifyToken, Links);
   app.use('/billing', verifyToken, Billing);
   app.use('/permissions', verifyToken, Permissions);
+  app.use('/topics', verifyToken, Topics);
   return app;
 };
 
