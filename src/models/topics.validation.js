@@ -27,7 +27,8 @@ const editTopicSchema = {
 export const editTopicValidation = new Validator().compile(editTopicSchema);
 
 const editMessageSchema = {
-  message: { type: 'string', empty: false },
+  message: { type: 'string', empty: false, optional: true },
+  pinned: { type: 'boolean', optional: true },
   $$strict: 'remove',
 };
 

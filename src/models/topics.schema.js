@@ -32,6 +32,8 @@ const TopicMessageSchema = new mongoose.Schema(
     tripId: { type: Schema.Types.ObjectId, ref: 'Trip', index: true },
     topicId: { type: Schema.Types.ObjectId, ref: 'Topic', index: true },
     message: { type: String },
+    pinned: { type: Boolean, default: false },
+    edited: { type: Boolean, default: false },
   },
   {
     timestamps: true,

@@ -72,6 +72,7 @@ export class TopicController {
     return 'success';
   }
   static async updateMessage(messageId, payload) {
+    payload['edited'] = true;
     await TopicMessageModel.updateOne({ _id: messageId }, { $set: payload });
     return 'success';
   }
