@@ -29,13 +29,6 @@ export class MemberDirectoryController {
           preserveNullAndEmptyArrays: true,
         },
       },
-      // {
-      //   $replaceRoot: {
-      //     newRoot: {
-      //       $mergeObjects: [{ $arrayElemAt: ['$user', 0] }, '$$ROOT'],
-      //     },
-      //   },
-      // },
       {
         $project: {
           email: 1,

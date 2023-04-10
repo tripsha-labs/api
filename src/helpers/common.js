@@ -27,6 +27,15 @@ export const prepareCommonFilter = (params, allowedFields = []) => {
   return filter;
 };
 
+export const prepareCommonPagination = params => {
+  const limit = params.limit ? parseInt(params.limit) : APP_CONSTANTS.LIMIT;
+  const page = params.page ? parseInt(params.page) : APP_CONSTANTS.PAGE;
+  const pagination = [];
+  pagination.push({ $skip: limit * page });
+  pagination.push({ $limit: limit });
+  return pagination;
+};
+
 /**
  * This will prepare a sort object for mongodb query
  */

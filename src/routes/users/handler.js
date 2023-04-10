@@ -155,7 +155,7 @@ export const listUser = async (req, res) => {
         currentUser.isIdentityVerified)
     ) {
       const params = req.query ? req.query : {};
-      const users = await UserController.listUser(params);
+      const users = await UserController.listUserv2(params);
       return successResponse(res, users);
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;

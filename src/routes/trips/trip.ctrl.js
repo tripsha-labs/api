@@ -538,7 +538,6 @@ export class TripController {
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      const coHosts = trip?.coHosts?.map(h => h.id);
       const members = await MemberModel.list({
         filter: { tripId: tripId },
       });
@@ -549,10 +548,7 @@ export class TripController {
         },
       });
 
-      if (
-        coHosts?.includes(user._id.toString()) ||
-        trip.ownerId == user._id.toString()
-      ) {
+      if (checkPermission(currentUser, trip, 'trip', 'edit')) {
         if (
           trip.status == 'draft' ||
           members.length <= 1 ||

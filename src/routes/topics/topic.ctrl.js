@@ -64,6 +64,11 @@ export class TopicController {
           preserveNullAndEmptyArrays: true,
         },
       },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
     ]);
     return topics;
   }

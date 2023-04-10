@@ -54,12 +54,7 @@ export class BookingController {
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
     // Fetch co host ids
-    const coHosts = trip?.coHosts?.map(h => h.id);
-    if (
-      coHosts?.includes(user._id.toString()) ||
-      trip.ownerId.toString() === user._id.toString() ||
-      user.isAdmin
-    ) {
+    if (checkPermission(currentUser, trip, 'travelerManagement', 'edit')) {
       // Check if emails are already exists
       let users = await UserModel.list({
         filter: { email: { $in: params.emails } },
@@ -463,14 +458,7 @@ export class BookingController {
     if (!params.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    const coHosts = trip?.coHosts?.map(h => h.id);
-    if (
-      !(
-        user.isAdmin ||
-        coHosts?.includes(user._id.toString()) ||
-        trip.ownerId.toString() === user._id.toString()
-      )
-    ) {
+    if (!(trip.ownerId.toString() === user._id.toString())) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
     const bookingList = BookingModel.list({ tripId: params.tripId });
@@ -491,7 +479,6 @@ export class BookingController {
       tripUpdate['spotsReserved'] < 0 ? 0 : tripUpdate['spotsReserved'];
     let validForUpdate = false;
     let bookingUpdate = {};
-    const coHosts = trip?.coHosts?.map(h => h.id);
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
@@ -502,11 +489,7 @@ export class BookingController {
         case 'approve':
           validForUpdate = true;
           if (
-            !(
-              user.isAdmin ||
-              coHosts?.includes(user._id.toString()) ||
-              trip.ownerId.toString() === user._id.toString()
-            )
+            !checkPermission(currentUser, trip, 'travelerManagement', 'edit')
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -698,11 +681,7 @@ export class BookingController {
         case 'decline':
           validForUpdate = true;
           if (
-            !(
-              user.isAdmin ||
-              coHosts?.includes(user._id.toString()) ||
-              trip.ownerId.toString() == user._id.toString()
-            )
+            !checkPermission(currentUser, trip, 'travelerManagement', 'edit')
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }

@@ -24,6 +24,7 @@ import {
   removeAddonResources,
   removeRoomResources,
 } from '../../helpers';
+import { checkPermission } from '../../helpers/db-helper';
 
 export class MemberController {
   static async markForRemove(params, remove_requested) {
@@ -52,11 +53,9 @@ export class MemberController {
         const tripUpdate = {};
         const trip = await TripModel.getById(objTripId);
         if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-        const coHosts = trip?.coHosts?.map(h => h.id);
+
         const isActionAllowed =
-          trip.ownerId == user._id.toString() ||
-          coHosts?.includes(user._id.toString()) ||
-          user.isAdmin === true ||
+          checkPermission(currentUser, trip, 'travelerManagement', 'edit') ||
           autoRegisterRSVP;
 
         let guestCount = trip['guestCount'] || 0;

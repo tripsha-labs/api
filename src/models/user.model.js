@@ -49,4 +49,7 @@ export class UserModel {
   static bulkWrite(params) {
     return User.bulkWrite(params);
   }
+  static aggregate(params) {
+    return User.aggregate(params);
+  }
 }

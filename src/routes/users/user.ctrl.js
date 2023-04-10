@@ -4,7 +4,11 @@
  */
 import { Types } from 'mongoose';
 import { UserModel } from '../../models';
-import { prepareCommonFilter } from '../../helpers';
+import {
+  prepareCommonFilter,
+  prepareCommonPagination,
+  prepareSortFilter,
+} from '../../helpers';
 import { ERROR_KEYS } from '../../constants';
 
 export class UserController {
@@ -80,6 +84,106 @@ export class UserController {
     }
   }
 
+  static async listUserv2(filter) {
+    try {
+      const queryFilter = {
+        $or: [
+          {
+            username: {
+              $regex: new RegExp('^' + (filter.search || ''), 'i'),
+            },
+          },
+          {
+            firstName: {
+              $regex: new RegExp('^' + (filter.search || ''), 'i'),
+            },
+          },
+          {
+            lastName: {
+              $regex: new RegExp('^' + (filter.search || ''), 'i'),
+            },
+          },
+          {
+            email: {
+              $regex: new RegExp('^' + (filter.search || ''), 'i'),
+            },
+          },
+        ],
+      };
+
+      // types
+      if (filter.userType) {
+        switch (filter.userType) {
+          case 'host':
+            queryFilter['isHost'] = true;
+            break;
+          case 'admin':
+            queryFilter['isAdmin'] = true;
+            break;
+          default:
+        }
+      }
+      // statuses
+      if (filter.userStatus) {
+        switch (filter.userStatus) {
+          case 'active':
+            queryFilter['isBlocked'] = false;
+            queryFilter['isActive'] = true;
+            break;
+          case 'deleted':
+            queryFilter['isActive'] = false;
+            break;
+          case 'blocked':
+            queryFilter['isBlocked'] = true;
+            break;
+          default:
+        }
+      }
+      const query = [
+        { $match: queryFilter },
+        {
+          $project: {
+            firstName: 1,
+            lastName: 1,
+            email: { $toLower: '$email' },
+            createdAt: 1,
+            avatarUrl: 1,
+            username: { $toLower: '$username' },
+            isHost: 1,
+            hostShare: 1,
+            isAdmin: 1,
+            isActive: 1,
+            isBlocked: 1,
+            additionalEmails: 1,
+            isConcierge: 1,
+            name: {
+              $concat: [
+                { $toLower: '$firstName' },
+                ' ',
+                { $toLower: '$lastName' },
+              ],
+            },
+          },
+        },
+        {
+          $sort: prepareSortFilter(filter, [
+            'name',
+            'username',
+            'email',
+            'createdAt',
+          ]),
+        },
+        ...prepareCommonPagination(filter),
+      ];
+
+      const userCount = await UserModel.count(queryFilter);
+      const users = await UserModel.aggregate(query);
+      return { data: users, count: userCount };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
   static async listUser(filter) {
     try {
       const params = {
