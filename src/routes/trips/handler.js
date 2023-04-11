@@ -117,7 +117,7 @@ export const deleteTrip = async (req, res) => {
 
     const result = await TripController.deleteTrip(
       req.params.id,
-      req.requestContext.identity.cognitoIdentityId
+      req.currentUser
     );
     return successResponse(res, result);
   } catch (error) {

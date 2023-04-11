@@ -3,7 +3,7 @@ import { UserPermissionModel } from '../models';
 export const checkPermission = async (
   currentUser,
   trip,
-  module,
+  module = 'common',
   permission = 'view'
 ) => {
   const query = { email: currentUser?.email, tripId: trip._id };
@@ -36,4 +36,11 @@ export const checkPermission = async (
         );
     }
   } else return false;
+};
+
+export const getTripsByPermissions = async currentUser => {
+  const query = { email: currentUser?.email };
+  const permissions = await UserPermissionModel.find(query);
+  if (permissions.length > 0) return permissions?.map(p => p.tripId);
+  return [];
 };
