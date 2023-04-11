@@ -42,6 +42,7 @@ const invoiceSchema = new mongoose.Schema(
     status: { type: String, index: true, default: 'draft' },
     isArchived: { type: Boolean, default: false },
     paymentIntentId: { type: String },
+    isWaivedOff: { type: Boolean, default: false },
   },
   {
     timestamps: true,

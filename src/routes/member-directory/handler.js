@@ -4,8 +4,7 @@
  */
 import { successResponse, failureResponse } from '../../utils';
 import { MemberDirectoryController } from './member-directory.ctrl';
-import { ERROR_KEYS } from '../../constants';
-import { UserModel } from '../../models';
+
 /**
  * List members
  */

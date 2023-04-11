@@ -76,6 +76,7 @@ const tripSchema = new mongoose.Schema(
     paymentViews: { type: Array, default: [], optional: true },
     attendeeView: { type: Array, optional: true },
     linksView: { type: Array, optional: true },
+    userPermissionsView: { type: Array, optional: true },
     questionsView: { type: Array, optional: true },
     hiddenAttendees: { type: Object, optional: true },
     coHosts: { type: Array, optional: true },
