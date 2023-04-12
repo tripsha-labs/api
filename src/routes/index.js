@@ -65,7 +65,7 @@ const auth = () => {
   app.use(async (req, res, next) => {
     if (process.env.IS_OFFLINE) {
       req.requestContext.identity.cognitoIdentityId =
-        'us-east-1:1570527a-efa7-46b3-a317-b4b8c4108494';
+        'us-east-1:2dfc839a-b0a5-49f2-8f92-6b1cf1e68089';
     }
     await dbConnect(res);
     next();

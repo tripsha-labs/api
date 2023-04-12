@@ -18,6 +18,7 @@ import {
   AssetModel,
   AssetLinkModel,
   UserPermissionModel,
+  TopicModel,
 } from '../../models';
 import {
   ERROR_KEYS,
@@ -26,7 +27,10 @@ import {
   EmailMessages,
   USER_BASIC_INFO,
 } from '../../constants';
-import { checkPermission } from '../../helpers/db-helper';
+import {
+  checkPermission,
+  getTripsByPermissions,
+} from '../../helpers/db-helper';
 
 export class TripController {
   static async markForRemove(params, remove_requested) {
@@ -197,6 +201,25 @@ export class TripController {
       params['ownerId'] = user;
       const trip = await TripModel.create(params);
       try {
+        const topics = [
+          { title: 'Accommodation' },
+          { title: 'Flights' },
+          { title: 'Ground transport' },
+          { title: 'Activities' },
+          { title: 'Food & Beverage' },
+          { title: 'Meeting/Work Space' },
+          { title: 'Technology' },
+          { title: 'Attendees & Guests' },
+          { title: 'Swag' },
+          { title: 'Travel Insurance' },
+        ];
+        const topicsPayload = topics.map(t => {
+          t['tripId'] = trip._id;
+          t['updatedBy'] = user._id;
+          t['createdBy'] = user._id;
+          return t;
+        });
+        await TopicModel.insertMany(topicsPayload);
         const urlList = [];
         if (trip?.pictureUrls?.length > 0) {
           urlList.concat(trip.pictureUrls);
@@ -532,9 +555,8 @@ export class TripController {
     }
   }
 
-  static async deleteTrip(tripId, awsUserId) {
+  static async deleteTrip(tripId, user) {
     try {
-      const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
@@ -548,7 +570,7 @@ export class TripController {
         },
       });
 
-      if (checkPermission(currentUser, trip, 'trip', 'edit')) {
+      if (checkPermission(user, trip, 'trip', 'edit')) {
         if (
           trip.status == 'draft' ||
           members.length <= 1 ||
@@ -600,11 +622,13 @@ export class TripController {
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
 
       // Filter trips
+      const trips = await getTripsByPermissions(user);
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const tripParams = {
         isActive: true,
-        $or: [{ ownerId: user._id }, { 'coHosts.id': user._id.toString() }],
+        $or: [{ ownerId: user._id }, { _id: { $in: trips } }],
       };
+
       if (filter.isPublic) tripParams['isPublic'] = filter.isPublic;
       if (filter.status) tripParams['status'] = filter.status;
       if (filter.status !== 'draft') tripParams['status'] = { $nin: ['draft'] };
