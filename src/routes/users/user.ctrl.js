@@ -65,7 +65,7 @@ export class UserController {
           throw ERROR_KEYS.USER_ALREADY_EXISTS;
         }
       }
-      await UserModel.update({ awsUserId: { $in: [id] } }, user);
+      await UserModel.update({ _id: id }, user);
       return 'success';
     } catch (error) {
       console.log(error);

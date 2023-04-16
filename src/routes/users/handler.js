@@ -399,15 +399,18 @@ export const updateUser = async (req, res) => {
   try {
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-
+    const currentUser = req.currentUser;
     const id =
-      req.params.id === 'me'
-        ? req.requestContext.identity.cognitoIdentityId
-        : req.params.id;
+      req.params.id == 'me' ? currentUser._id : Types.ObjectId(req.params.id);
+    if (
+      !(currentUser?._id?.toString() == id.toString() || currentUser.isAdmin)
+    ) {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
     const data = req.body;
     const errors = updateUserValidation(data);
     if (errors != true) throw errors.shift();
-    const result = await UserController.updateUser(urldecode(id), {
+    const result = await UserController.updateUser(id, {
       ...data,
     });
     // Add support user in the conversation

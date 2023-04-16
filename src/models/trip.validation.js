@@ -204,6 +204,7 @@ const tripSchema = {
         },
         isRequired: { type: 'boolean', optional: true },
         showAtBooking: { type: 'boolean', optional: true },
+        showAtRSVP: { type: 'boolean', optional: true },
         showQuestion: { type: 'boolean', optional: true },
         infoText: { type: 'string', optional: true },
         showOtherOption: { type: 'boolean', optional: true, default: false },
