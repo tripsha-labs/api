@@ -218,14 +218,22 @@ const chargeInvoice = async counter => {
       const promises = invoices.map(invoice => {
         return new Promise(async resolve => {
           try {
-            const paymentIntent = await StripeAPI.createPaymentIntent({
-              amount: parseInt(invoice.amount * 100),
-              currency: invoice.currency,
-              customerId: invoice.customerId,
-              paymentMethod: invoice.paymentMethodId,
-              confirm: true,
-            });
-            if (paymentIntent) {
+            const user = await UserModel.get(
+              { _id: invoice.userId },
+              { isConcierge: 1 }
+            );
+            const isConcierge = user && user.hasOwnProperty('isConcierge');
+            let paymentIntent = null;
+            if (!isConcierge) {
+              paymentIntent = await StripeAPI.createPaymentIntent({
+                amount: parseInt(invoice.amount * 100),
+                currency: invoice.currency,
+                customerId: invoice.customerId,
+                paymentMethod: invoice.paymentMethodId,
+                confirm: true,
+              });
+            }
+            if (paymentIntent && !isConcierge) {
               await InvoiceModel.updateOne(
                 { _id: invoice._id },
                 {
@@ -233,6 +241,17 @@ const chargeInvoice = async counter => {
                     status: 'paid',
                     paymentDate: moment().unix(),
                     paymentIntentId: paymentIntent.id,
+                  },
+                }
+              );
+            } else {
+              await InvoiceModel.updateOne(
+                { _id: invoice._id },
+                {
+                  $set: {
+                    status: 'paid',
+                    paymentDate: moment().unix(),
+                    isWaivedOff: true,
                   },
                 }
               );

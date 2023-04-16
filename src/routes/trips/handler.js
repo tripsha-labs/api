@@ -76,7 +76,7 @@ export const updateTrip = async (req, res) => {
       {
         ...data,
       },
-      req.requestContext.identity.cognitoIdentityId
+      req.currentUser
     );
     return successResponse(res, result);
   } catch (error) {
@@ -96,7 +96,9 @@ export const getTrip = async (req, res) => {
     const result = await TripController.getTrip(
       req.params.id,
       req.requestContext.identity.cognitoIdentityId,
-      req.query?.includeStat
+      req.currentUser,
+      req.query?.includeStat,
+      req.query?.includePermissions
     );
     return successResponse(res, result);
   } catch (error) {
@@ -115,7 +117,7 @@ export const deleteTrip = async (req, res) => {
 
     const result = await TripController.deleteTrip(
       req.params.id,
-      req.requestContext.identity.cognitoIdentityId
+      req.currentUser
     );
     return successResponse(res, result);
   } catch (error) {

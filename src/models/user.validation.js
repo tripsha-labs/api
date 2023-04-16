@@ -230,6 +230,10 @@ const adminUpdateUserSchema = {
     type: 'string',
     optional: true,
   },
+  isConcierge: {
+    type: 'boolean',
+    optional: true,
+  },
   additionalEmails: {
     type: 'array',
     optional: true,

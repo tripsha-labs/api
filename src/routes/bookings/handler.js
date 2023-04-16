@@ -115,10 +115,7 @@ export const listBookings = async (req, res) => {
     const params = req.query ? req.query : {};
     let result = [];
     if (params.isHost == true || params.isHost == 'true')
-      result = await BookingController.listBookings(
-        params,
-        req.requestContext.identity.cognitoIdentityId
-      );
+      result = await BookingController.listBookings(params, req.currentUser);
     else
       result = await BookingController.listGuestBookings(
         params,

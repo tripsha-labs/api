@@ -5,6 +5,7 @@ const morgan = require('morgan');
 import { dbConnect } from '../utils';
 import Countries from './countries';
 import Tags from './tags';
+import Currency from './currency';
 import TripTags from './trip-tags';
 import Trips from './trips';
 import NoAuthTrips from './trips/noAuth';
@@ -29,6 +30,8 @@ import DirectoryMembers from './member-directory';
 import Resources from './resources';
 import Links from './links';
 import Billing from './billing';
+import Permissions from './permissions';
+import Topics from './topics';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -42,6 +45,7 @@ const noAuth = () => {
     next();
   });
   app.use('/public/tags', Tags);
+  app.use('/public/currency-exchange', Currency);
   app.use('/public/schedules', Schedules);
   app.use('/public/countries', Countries);
   app.use('/public/migrations', Migrations);
@@ -61,7 +65,7 @@ const auth = () => {
   app.use(async (req, res, next) => {
     if (process.env.IS_OFFLINE) {
       req.requestContext.identity.cognitoIdentityId =
-        'us-east-1:1570527a-efa7-46b3-a317-b4b8c4108494';
+        'us-east-1:2dfc839a-b0a5-49f2-8f92-6b1cf1e68089';
     }
     await dbConnect(res);
     next();
@@ -94,6 +98,8 @@ const auth = () => {
   app.use('/resources', verifyToken, Resources);
   app.use('/links', verifyToken, Links);
   app.use('/billing', verifyToken, Billing);
+  app.use('/permissions', verifyToken, Permissions);
+  app.use('/topics', verifyToken, Topics);
   return app;
 };
 

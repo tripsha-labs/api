@@ -34,6 +34,7 @@ import { ObjectID } from 'mongodb';
 import moment from 'moment';
 import _ from 'lodash';
 import { MemberDirectoryController } from '../member-directory/member-directory.ctrl';
+import { checkPermission } from '../../helpers/db-helper';
 
 export class BookingController {
   static async getUsername(username) {
@@ -53,12 +54,7 @@ export class BookingController {
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
     // Fetch co host ids
-    const coHosts = trip?.coHosts?.map(h => h.id);
-    if (
-      coHosts?.includes(user._id.toString()) ||
-      trip.ownerId.toString() === user._id.toString() ||
-      user.isAdmin
-    ) {
+    if (checkPermission(currentUser, trip, 'travelerManagement', 'edit')) {
       // Check if emails are already exists
       let users = await UserModel.list({
         filter: { email: { $in: params.emails } },
@@ -380,18 +376,18 @@ export class BookingController {
       userId: user._id.toString(),
     });
     // Traveler email
-    await EmailSender(user, EmailMessages.BOOKING_REQUEST_TRAVELER, [
-      booking._id,
-      trip._id.toString(),
-      trip['title'],
-    ]);
+    // await EmailSender(user, EmailMessages.BOOKING_REQUEST_TRAVELER, [
+    //   booking._id,
+    //   trip._id.toString(),
+    //   trip['title'],
+    // ]);
 
     //Host email
-    await EmailSender(tripOwner, EmailMessages.BOOKING_REQUEST_HOST, [
-      trip._id.toString(),
-      trip['title'],
-      trip.bookingExpiryDays || 3,
-    ]);
+    // await EmailSender(tripOwner, EmailMessages.BOOKING_REQUEST_HOST, [
+    //   trip._id.toString(),
+    //   trip['title'],
+    //   trip.bookingExpiryDays || 3,
+    // ]);
     booking['trip'] = trip;
     let awsOwnerUserId = tripOwner.awsUserId;
     if (Array.isArray(tripOwner.awsUserId) && tripOwner.awsUserId.length > 0) {
@@ -408,22 +404,14 @@ export class BookingController {
     return booking;
   }
 
-  static async listBookings(filters, awsUserId) {
-    const user = await UserModel.get({ awsUserId: awsUserId });
-    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+  static async listBookings(filters, currentUser) {
+    if (!currentUser) throw ERROR_KEYS.USER_NOT_FOUND;
     if (!filters.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(filters.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    const coHosts = trip?.coHosts?.map(h => h.id);
-    if (
-      !(
-        user.isAdmin ||
-        coHosts?.includes(user._id.toString()) ||
-        trip.ownerId.toString() === user._id.toString()
-      )
-    ) {
+
+    if (!checkPermission(currentUser, trip, 'atteendees', 'view'))
       throw ERROR_KEYS.UNAUTHORIZED;
-    }
 
     const params = [{ $match: { tripId: filters.tripId } }];
     params.push({
@@ -470,14 +458,7 @@ export class BookingController {
     if (!params.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    const coHosts = trip?.coHosts?.map(h => h.id);
-    if (
-      !(
-        user.isAdmin ||
-        coHosts?.includes(user._id.toString()) ||
-        trip.ownerId.toString() === user._id.toString()
-      )
-    ) {
+    if (!(trip.ownerId.toString() === user._id.toString())) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
     const bookingList = BookingModel.list({ tripId: params.tripId });
@@ -498,7 +479,6 @@ export class BookingController {
       tripUpdate['spotsReserved'] < 0 ? 0 : tripUpdate['spotsReserved'];
     let validForUpdate = false;
     let bookingUpdate = {};
-    const coHosts = trip?.coHosts?.map(h => h.id);
     const memberInfo = await UserModel.get({
       _id: ObjectID(booking.memberId),
     });
@@ -509,11 +489,7 @@ export class BookingController {
         case 'approve':
           validForUpdate = true;
           if (
-            !(
-              user.isAdmin ||
-              coHosts?.includes(user._id.toString()) ||
-              trip.ownerId.toString() === user._id.toString()
-            )
+            !checkPermission(currentUser, trip, 'travelerManagement', 'edit')
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -607,18 +583,18 @@ export class BookingController {
                   });
                 }
                 // Traveler
-                await EmailSender(
-                  memberInfo,
-                  EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELER,
-                  [trip._id.toString(), trip['title']]
-                );
+                // await EmailSender(
+                //   memberInfo,
+                //   EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELER,
+                //   [trip._id.toString(), trip['title']]
+                // );
 
                 // host
-                await EmailSender(
-                  user,
-                  EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST,
-                  [trip._id.toString(), trip['title'], memberInfo['firstName']]
-                );
+                // await EmailSender(
+                //   user,
+                //   EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST,
+                //   [trip._id.toString(), trip['title'], memberInfo['firstName']]
+                // );
               } else {
                 throw 'payment failed';
               }
@@ -705,11 +681,7 @@ export class BookingController {
         case 'decline':
           validForUpdate = true;
           if (
-            !(
-              user.isAdmin ||
-              coHosts?.includes(user._id.toString()) ||
-              trip.ownerId.toString() == user._id.toString()
-            )
+            !checkPermission(currentUser, trip, 'travelerManagement', 'edit')
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -745,18 +717,18 @@ export class BookingController {
             userId: user._id.toString(),
           });
           // Traveler
-          await EmailSender(
-            memberInfo,
-            EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELER,
-            [trip._id.toString(), trip['title']]
-          );
+          // await EmailSender(
+          //   memberInfo,
+          //   EmailMessages.BOOKING_REQUEST_DECLINED_TRAVELER,
+          //   [trip._id.toString(), trip['title']]
+          // );
 
           // host
-          await EmailSender(user, EmailMessages.BOOKING_REQUEST_DECLINED_HOST, [
-            trip._id.toString(),
-            trip['title'],
-            memberInfo['firstName'],
-          ]);
+          // await EmailSender(user, EmailMessages.BOOKING_REQUEST_DECLINED_HOST, [
+          //   trip._id.toString(),
+          //   trip['title'],
+          //   memberInfo['firstName'],
+          // ]);
           break;
         // guest
         case 'withdraw':
@@ -797,18 +769,18 @@ export class BookingController {
             userId: user._id.toString(),
           });
           // Traveler
-          await EmailSender(
-            memberInfo,
-            EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELER,
-            [trip._id.toString(), trip['title']]
-          );
+          // await EmailSender(
+          //   memberInfo,
+          //   EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELER,
+          //   [trip._id.toString(), trip['title']]
+          // );
 
           // host
-          await EmailSender(
-            tripOwner,
-            EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST,
-            [trip._id.toString(), trip['title'], memberInfo['firstName']]
-          );
+          // await EmailSender(
+          //   tripOwner,
+          //   EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST,
+          //   [trip._id.toString(), trip['title'], memberInfo['firstName']]
+          // );
           break;
 
         default:

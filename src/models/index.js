@@ -20,6 +20,9 @@ export * from './member.validation';
 export * from './tag.schema';
 export * from './tag.model';
 
+export * from './currency.model';
+export * from './currency.schema';
+
 export * from './trip-tag.schema';
 export * from './trip-tag.model';
 
@@ -80,3 +83,11 @@ export * from './link.validation';
 export * from './billing.model';
 export * from './billing.schema';
 export * from './billing.validation';
+
+export * from './user-permission.model';
+export * from './user-permission.schema';
+export * from './user-permission.validation';
+
+export * from './topics.model';
+export * from './topics.schema';
+export * from './topics.validation';

@@ -17,6 +17,8 @@ import {
   BookingModel,
   AssetModel,
   AssetLinkModel,
+  UserPermissionModel,
+  TopicModel,
 } from '../../models';
 import {
   ERROR_KEYS,
@@ -25,6 +27,10 @@ import {
   EmailMessages,
   USER_BASIC_INFO,
 } from '../../constants';
+import {
+  checkPermission,
+  getTripsByPermissions,
+} from '../../helpers/db-helper';
 
 export class TripController {
   static async markForRemove(params, remove_requested) {
@@ -195,6 +201,25 @@ export class TripController {
       params['ownerId'] = user;
       const trip = await TripModel.create(params);
       try {
+        const topics = [
+          { title: 'Accommodation' },
+          { title: 'Flights' },
+          { title: 'Ground transport' },
+          { title: 'Activities' },
+          { title: 'Food & Beverage' },
+          { title: 'Meeting/Work Space' },
+          { title: 'Technology' },
+          { title: 'Attendees & Guests' },
+          { title: 'Swag' },
+          { title: 'Travel Insurance' },
+        ];
+        const topicsPayload = topics.map(t => {
+          t['tripId'] = trip._id;
+          t['updatedBy'] = user._id;
+          t['createdBy'] = user._id;
+          return t;
+        });
+        await TopicModel.insertMany(topicsPayload);
         const urlList = [];
         if (trip?.pictureUrls?.length > 0) {
           urlList.concat(trip.pictureUrls);
@@ -264,16 +289,16 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
-      if (params['status'] === 'published') {
-        try {
-          await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
-            trip['_id'],
-            params['title'],
-          ]);
-        } catch (err) {
-          console.log(err);
-        }
-      }
+      // if (params['status'] === 'published') {
+      //   try {
+      //     await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
+      //       trip['_id'],
+      //       params['title'],
+      //     ]);
+      //   } catch (err) {
+      //     console.log(err);
+      //   }
+      // }
       const memberCount = await MemberModel.count({
         tripId: trip._id,
         isMember: true,
@@ -299,20 +324,17 @@ export class TripController {
     }
   }
 
-  static async updateTrip(tripId, trip, awsUserId) {
+  static async updateTrip(tripId, trip, user) {
     try {
       const tripDetails = await TripModel.getById(tripId);
-      const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.UNAUTHORIZED;
       if (!tripDetails) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      const coHosts = tripDetails?.coHosts?.map(h => h.id);
-      if (
-        !(
-          tripDetails['ownerId'].toString() === user['_id'].toString() ||
-          coHosts?.includes(user._id.toString()) ||
-          user['isAdmin'] === true
-        )
-      ) {
+      let module = 'trip';
+      if (trip.hasOwnProperty('budget')) module = 'vendorPayments';
+      if (trip.hasOwnProperty('questions')) module = 'questions';
+      if (trip.hasOwnProperty('travelerViewName')) module = 'atteendees';
+      if (trip.hasOwnProperty('travelerViews')) module = 'atteendees';
+      if (!checkPermission(user, tripDetails, module, 'edit')) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
       const exustingMemberCount = await MemberModel.count({ tripId });
@@ -461,27 +483,33 @@ export class TripController {
         audienceIds: [user._id.toString()],
         userId: user._id.toString(),
       });
-      if (
-        trip['status'] == 'published' &&
-        tripDetails['status'] !== trip['status']
-      ) {
-        try {
-          await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
-            tripId,
-            tripName,
-          ]);
-          console.log('Email sent');
-        } catch (err) {
-          console.log(err);
-        }
-      }
+      // if (
+      //   trip['status'] == 'published' &&
+      //   tripDetails['status'] !== trip['status']
+      // ) {
+      //   try {
+      //     await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
+      //       tripId,
+      //       tripName,
+      //     ]);
+      //     console.log('Email sent');
+      //   } catch (err) {
+      //     console.log(err);
+      //   }
+      // }
       return 'success';
     } catch (error) {
       throw error;
     }
   }
 
-  static async getTrip(tripId, memberId, includeStat) {
+  static async getTrip(
+    tripId,
+    memberId,
+    currentUser,
+    includeStat = false,
+    includePermissions = false
+  ) {
     try {
       let trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
@@ -514,6 +542,12 @@ export class TripController {
           }
         }
       }
+      if (includePermissions) {
+        trip['permissions'] = await UserPermissionModel.findOne({
+          tripId: trip._id,
+          email: currentUser.email,
+        });
+      }
       return trip;
     } catch (error) {
       console.log(error);
@@ -521,13 +555,11 @@ export class TripController {
     }
   }
 
-  static async deleteTrip(tripId, awsUserId) {
+  static async deleteTrip(tripId, user) {
     try {
-      const user = await UserModel.get({ awsUserId: awsUserId });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      const coHosts = trip?.coHosts?.map(h => h.id);
       const members = await MemberModel.list({
         filter: { tripId: tripId },
       });
@@ -538,10 +570,7 @@ export class TripController {
         },
       });
 
-      if (
-        coHosts?.includes(user._id.toString()) ||
-        trip.ownerId == user._id.toString()
-      ) {
+      if (checkPermission(user, trip, 'trip', 'edit')) {
         if (
           trip.status == 'draft' ||
           members.length <= 1 ||
@@ -557,14 +586,14 @@ export class TripController {
             audienceIds: [user._id.toString()],
             userId: user._id.toString(),
           });
-          try {
-            await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
-              trip['title'],
-            ]);
-            console.log('Email sent');
-          } catch (err) {
-            console.log(err);
-          }
+          // try {
+          //   await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
+          //     trip['title'],
+          //   ]);
+          //   console.log('Email sent');
+          // } catch (err) {
+          //   console.log(err);
+          // }
         } else {
           throw ERROR_KEYS.CANNOT_DELETE_TRIP;
         }
@@ -593,11 +622,13 @@ export class TripController {
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
 
       // Filter trips
+      const trips = await getTripsByPermissions(user);
       const currentDate = parseInt(moment().format('YYYYMMDD'));
       const tripParams = {
         isActive: true,
-        $or: [{ ownerId: user._id }, { 'coHosts.id': user._id.toString() }],
+        $or: [{ ownerId: user._id }, { _id: { $in: trips } }],
       };
+
       if (filter.isPublic) tripParams['isPublic'] = filter.isPublic;
       if (filter.status) tripParams['status'] = filter.status;
       if (filter.status !== 'draft') tripParams['status'] = { $nin: ['draft'] };
@@ -1083,10 +1114,9 @@ export class TripController {
     try {
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      if (
-        !(trip?.ownerId?.toString() == user?._id?.toString() || user?.isAdmin)
-      )
+      if (!checkPermission(user, trip, 'permissions', 'view'))
         throw ERROR_KEYS.UNAUTHORIZED;
+
       const ids = trip?.coHosts?.map(host => Types.ObjectId(host.id));
       return await UserModel.list({
         filter: {
@@ -1113,7 +1143,7 @@ export class TripController {
         {
           $match: {
             memberId: user._id.toString(),
-            invited: true,
+            status: { $in: ['invited', 'invite-accepted', 'invite-declined'] },
           },
         },
         {
@@ -1172,6 +1202,10 @@ export class TripController {
       const params = [{ $match: filterParams }];
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
       const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      filter['sortOrder'] = -1;
+      params.push({
+        $sort: prepareSortFilter(filter, ['endDate'], 'endDate'),
+      });
       params.push({ $skip: limit * page });
       params.push({ $limit: limit });
       params.push({

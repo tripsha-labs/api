@@ -24,6 +24,7 @@ import {
   removeAddonResources,
   removeRoomResources,
 } from '../../helpers';
+import { checkPermission } from '../../helpers/db-helper';
 
 export class MemberController {
   static async markForRemove(params, remove_requested) {
@@ -52,11 +53,9 @@ export class MemberController {
         const tripUpdate = {};
         const trip = await TripModel.getById(objTripId);
         if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-        const coHosts = trip?.coHosts?.map(h => h.id);
+
         const isActionAllowed =
-          trip.ownerId == user._id.toString() ||
-          coHosts?.includes(user._id.toString()) ||
-          user.isAdmin === true ||
+          checkPermission(currentUser, trip, 'travelerManagement', 'edit') ||
           autoRegisterRSVP;
 
         let guestCount = trip['guestCount'] || 0;
@@ -66,6 +65,9 @@ export class MemberController {
             query['$or'].push({ _id: Types.ObjectId(memberId) });
           query['$or'].push({ username: memberId });
           const memberDetails = await UserModel.get(query);
+          const tripOwner = await UserModel.get({
+            _id: Types.ObjectId(trip.ownerId),
+          });
           if (memberDetails) {
             const updateParams = {
               memberId: memberDetails._id.toString(),
@@ -148,7 +150,7 @@ export class MemberController {
                       memberDetails['firstName'] + ' has joined the group',
                     messageType: 'info',
                     isGroupMessage: true,
-                    fromMemberId: user._id.toString(),
+                    fromMemberId: tripOwner._id.toString(),
                     isRead: true,
                   };
                   await MessageModel.create(messageParams);
@@ -213,6 +215,7 @@ export class MemberController {
                       ...count,
                     });
                   }
+
                   // conversation update
                   const memberAddDetails = {
                     memberId: memberDetails._id.toString(),

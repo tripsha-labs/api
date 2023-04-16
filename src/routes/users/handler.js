@@ -96,9 +96,7 @@ export const inviteUser = async (req, res) => {
 
 export const updateUserAdmin = async (req, res) => {
   try {
-    const currentUser = await UserController.getCurrentUser({
-      awsUserId: req.requestContext.identity.cognitoIdentityId,
-    });
+    const currentUser = req?.currentUser || {};
     if (currentUser && currentUser.isAdmin) {
       const params = req.body;
       const errors = adminUpdateUserValidation(params);
@@ -106,7 +104,6 @@ export const updateUserAdmin = async (req, res) => {
       const user = await UserController.get({
         _id: Types.ObjectId(req.params.id),
       });
-      console.log('=========check user');
       if (params.username) {
         const exists = await _check_username_exists(
           user['email'],
@@ -158,7 +155,7 @@ export const listUser = async (req, res) => {
         currentUser.isIdentityVerified)
     ) {
       const params = req.query ? req.query : {};
-      const users = await UserController.listUser(params);
+      const users = await UserController.listUserv2(params);
       return successResponse(res, users);
     } else {
       throw ERROR_KEYS.UNAUTHORIZED;
@@ -402,15 +399,18 @@ export const updateUser = async (req, res) => {
   try {
     if (!(req.params && req.params.id))
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-
+    const currentUser = req.currentUser;
     const id =
-      req.params.id === 'me'
-        ? req.requestContext.identity.cognitoIdentityId
-        : req.params.id;
+      req.params.id == 'me' ? currentUser._id : Types.ObjectId(req.params.id);
+    if (
+      !(currentUser?._id?.toString() == id.toString() || currentUser.isAdmin)
+    ) {
+      throw ERROR_KEYS.UNAUTHORIZED;
+    }
     const data = req.body;
     const errors = updateUserValidation(data);
     if (errors != true) throw errors.shift();
-    const result = await UserController.updateUser(urldecode(id), {
+    const result = await UserController.updateUser(id, {
       ...data,
     });
     // Add support user in the conversation
