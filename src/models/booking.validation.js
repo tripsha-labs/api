@@ -98,6 +98,7 @@ const bookingSchema = {
         },
         isRequired: { type: 'boolean', optional: true },
         showAtBooking: { type: 'boolean', optional: true },
+        showAtRSVP: { type: 'boolean', optional: true },
         showQuestion: { type: 'boolean', optional: true },
         answer: {
           type: 'any',

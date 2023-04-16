@@ -1143,7 +1143,7 @@ export class TripController {
         {
           $match: {
             memberId: user._id.toString(),
-            invited: true,
+            status: { $in: ['invited', 'invite-accepted', 'invite-declined'] },
           },
         },
         {
