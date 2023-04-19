@@ -49,9 +49,39 @@ export const createCognitoUser = async (event, params) => {
   if (!params.notifyUser) {
     createUserPayload['MessageAction'] = 'SUPPRESS';
   }
-  const createUserRes = await cognitoClient
-    .adminCreateUser(createUserPayload)
-    .promise();
+  try {
+    await cognitoClient.adminCreateUser(createUserPayload).promise();
+  } catch (err) {
+    switch (err.name) {
+      case 'UsernameExistsException':
+        const user = await cognitoClient
+          .adminGetUser({
+            UserPoolId: userPoolId,
+            Username: params.email,
+          })
+          .promise();
+        if (user.UserStatus == 'UNCONFIRMED') {
+          await cognitoClient
+            .adminConfirmSignUp({
+              UserPoolId: userPoolId,
+              Username: params.email,
+            })
+            .promise();
+          await cognitoClient
+            .adminSetUserPassword({
+              UserPoolId: userPoolId,
+              Username: params.email,
+              Password: params.password || 'Tripsha@123',
+              Permanent: true,
+            })
+            .promise();
+          return user;
+        }
+        return false;
+      default:
+        return false;
+    }
+  }
   await cognitoClient
     .adminSetUserPassword({
       UserPoolId: userPoolId,

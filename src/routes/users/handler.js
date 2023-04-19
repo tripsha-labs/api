@@ -32,9 +32,7 @@ import { TripController } from '../trips/trip.ctrl';
 
 export const inviteUser = async (req, res) => {
   try {
-    const currentUser = await UserController.getCurrentUser({
-      awsUserId: req.requestContext.identity.cognitoIdentityId,
-    });
+    const currentUser = req.currentUser;
     if (currentUser && currentUser.isAdmin) {
       const params = req.body;
       if (!params.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };

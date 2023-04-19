@@ -62,6 +62,8 @@ provider:
         - 'cognito-idp:AdminEnableUser'
         - 'cognito-idp:AdminDisableUser'
         - 'cognito-idp:AdminUpdateUserAttributes'
+        - 'cognito-idp:adminConfirmSignUp'
+        - 'cognito-idp:adminGetUser'
       Resource:
         - 'arn:aws:cognito-idp:*'
       Effect: Allow
