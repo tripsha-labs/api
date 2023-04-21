@@ -58,7 +58,7 @@ export class UserController {
     try {
       if (user && user.username) {
         const res = await UserModel.count({
-          awsUserId: { $nin: [id] },
+          _id: { $nin: [id] },
           username: user.username,
         });
         if (res && res > 0) {
@@ -72,10 +72,9 @@ export class UserController {
       throw error;
     }
   }
-
   static async getUser(id, select = {}) {
     try {
-      const user = await UserModel.get({ awsUserId: { $in: [id] } }, select);
+      const user = await UserModel.get({ _id: id }, select);
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       return user;
     } catch (error) {

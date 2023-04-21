@@ -32,9 +32,7 @@ import { TripController } from '../trips/trip.ctrl';
 
 export const inviteUser = async (req, res) => {
   try {
-    const currentUser = await UserController.getCurrentUser({
-      awsUserId: req.requestContext.identity.cognitoIdentityId,
-    });
+    const currentUser = req.currentUser;
     if (currentUser && currentUser.isAdmin) {
       const params = req.body;
       if (!params.email) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
@@ -215,9 +213,18 @@ export const createUser = async (req, res, skipResponse = false) => {
     }
     let user = false;
     try {
-      user = await UserController.get({
-        email: createUserPayload['email'],
-      });
+      user = await UserController.get(
+        {
+          email: createUserPayload['email'],
+        },
+        {
+          stripeAccountId: 0,
+          visaStatus: 0,
+          dietaryRequirements: 0,
+          emergencyContact: 0,
+          mobilityRestrictions: 0,
+        }
+      );
     } catch (err) {
       user = false;
     }
@@ -261,6 +268,7 @@ export const createUser = async (req, res, skipResponse = false) => {
       await MessageController.addSupportMember(userInfo.awsUserId);
     }
     if (!skipResponse) return successResponse(res, result);
+    return result;
   } catch (error) {
     console.log(error);
     if (!skipResponse) return failureResponse(res, error);
@@ -274,9 +282,7 @@ export const getUser = async (req, res) => {
     throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
   const userId =
-    req.params.id == 'me'
-      ? req.requestContext.identity.cognitoIdentityId
-      : req.params.id;
+    req.params.id == 'me' ? req.currentUser?._id?.toString() : req.params.id;
   try {
     const select = {
       stripeAccountId: 0,
@@ -284,38 +290,36 @@ export const getUser = async (req, res) => {
     if (req.params.id !== 'me') {
       select['stripeCustomerId'] = 0;
     }
-    const result = await UserController.getUser(urldecode(userId), select);
+    const result = await UserController.getUser(Types.ObjectId(userId), select);
+    if (result && result?._id && !result.hasOwnProperty('isActive')) {
+      await UserController.updateUser(Types.ObjectId(userId), {
+        isActive: true,
+      });
+    }
     const forceCheck = req.query?.force || false;
     if (forceCheck) {
       const userInfo = await getCurrentUser(req);
       if (!userInfo) throw 'Create User failed';
       userInfo['email'] = userInfo['email'].toLowerCase();
       if (userInfo['email'] != result.email) {
-        await UserController.updateUser(urldecode(userId), {
+        await UserController.updateUser(Types.ObjectId(userId), {
           email: userInfo['email'],
-          awsUserId: [urldecode(userId)],
         });
         result['email'] = userInfo['email'];
-        result['awsUserId'] = [urldecode(userId)];
       }
     }
     return successResponse(res, result);
   } catch (error) {
+    console.log(error);
     if (req.params.id != 'me') {
       return failureResponse(res, error);
     }
   }
   console.log('User not found creating new user');
   try {
-    await createUser(req, res, true);
-    const result = await UserController.getUser(urldecode(userId), {
-      stripeAccountId: 0,
-      visaStatus: 0,
-      dietaryRequirements: 0,
-      emergencyContact: 0,
-      mobilityRestrictions: 0,
-    });
-    return successResponse(res, result);
+    const res_user = await createUser(req, res, true);
+    console.log(res_user);
+    return successResponse(res, res_user);
   } catch (err) {
     console.log(err);
     return failureResponse(res, err);
