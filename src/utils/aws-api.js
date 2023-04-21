@@ -49,18 +49,21 @@ export const createCognitoUser = async (event, params) => {
   if (!params.notifyUser) {
     createUserPayload['MessageAction'] = 'SUPPRESS';
   }
+  let createUserRes = false;
   try {
-    await cognitoClient.adminCreateUser(createUserPayload).promise();
+    createUserRes = await cognitoClient
+      .adminCreateUser(createUserPayload)
+      .promise();
   } catch (err) {
     switch (err.name) {
       case 'UsernameExistsException':
-        const user = await cognitoClient
+        createUserRes = await cognitoClient
           .adminGetUser({
             UserPoolId: userPoolId,
             Username: params.email,
           })
           .promise();
-        if (user.UserStatus == 'UNCONFIRMED') {
+        if (createUserRes.UserStatus == 'UNCONFIRMED') {
           await cognitoClient
             .adminConfirmSignUp({
               UserPoolId: userPoolId,
@@ -75,7 +78,7 @@ export const createCognitoUser = async (event, params) => {
               Permanent: true,
             })
             .promise();
-          return user;
+          return createUserRes;
         }
         return false;
       default:
@@ -166,7 +169,6 @@ export const disableUser = async (event, params) => {
 };
 export const getCurrentUser = async event => {
   try {
-    console.log(event.requestContext);
     const cognitoClient = new AWS.CognitoIdentityServiceProvider();
     const IDP_REGEX = /.*\/.*,(.*)\/(.*):CognitoSignIn:(.*)/;
     const authProvider =

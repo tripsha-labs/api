@@ -73,7 +73,9 @@ const auth = () => {
   const verifyToken = async (req, res, next) => {
     try {
       const awsUserId = req.requestContext.identity.cognitoIdentityId;
+      console.log(awsUserId);
       req.currentUser = await UserModel.get({ awsUserId: awsUserId });
+      console.log(req.currentUser);
       if (req.currentUser) req.currentUser['awsUserId'] = awsUserId;
       return next();
     } catch (err) {
