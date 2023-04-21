@@ -65,7 +65,7 @@ const auth = () => {
   app.use(async (req, res, next) => {
     if (process.env.IS_OFFLINE) {
       req.requestContext.identity.cognitoIdentityId =
-        'us-east-1:2dfc839a-b0a5-49f2-8f92-6b1cf1e68089';
+        'us-east-1:b80a7272-8cd5-4299-8e36-1baa709e3867';
     }
     await dbConnect(res);
     next();
@@ -73,7 +73,9 @@ const auth = () => {
   const verifyToken = async (req, res, next) => {
     try {
       const awsUserId = req.requestContext.identity.cognitoIdentityId;
+      console.log(awsUserId);
       req.currentUser = await UserModel.get({ awsUserId: awsUserId });
+      console.log(req.currentUser);
       if (req.currentUser) req.currentUser['awsUserId'] = awsUserId;
       return next();
     } catch (err) {
