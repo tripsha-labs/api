@@ -23,6 +23,10 @@ const UserPermissionSchema = {
     type: 'object',
     optional: true,
   },
+  topicPermissions: {
+    type: 'object',
+    optional: true,
+  },
   groups: {
     type: 'array',
     optional: true,
