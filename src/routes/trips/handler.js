@@ -9,6 +9,7 @@ import {
   updateTripValidation,
   createTripValidation,
   draftTripValidation,
+  createProjectValidation,
 } from '../../models';
 
 /**
@@ -21,6 +22,24 @@ export const listTrips = async (req, res) => {
       params,
       req.requestContext.identity.cognitoIdentityId
     );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Create project
+ */
+export const createProject = async (req, res) => {
+  try {
+    const payload = req.body || {};
+    const errors = createProjectValidation(payload);
+    if (errors != true) throw errors.shift();
+    payload['ownerId'] = req.currentUser._id;
+    payload['updatedBy'] = req.currentUser._id;
+    const result = await TripController.createProject(payload);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
@@ -86,6 +105,29 @@ export const updateTrip = async (req, res) => {
 };
 
 /**
+ * Update Draft Trip
+ */
+export const updateDraftTrip = async (req, res) => {
+  try {
+    const data = req.body || {};
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const errors = draftTripValidation(data);
+    if (errors != true) throw errors.shift();
+    const result = await TripController.updateDraftTrip(
+      req.params.id,
+      data,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
  * Get Trip
  */
 export const getTrip = async (req, res) => {
@@ -136,6 +178,20 @@ export const myTrips = async (req, res) => {
     if (params.isHost || params.status === 'draft')
       result = await TripController.myActiveTrips(params, req.currentUser);
     else result = await TripController.myTrips(params, req.currentUser);
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * List active trips
+ */
+export const activeTrips = async (req, res) => {
+  try {
+    const params = req.query ? req.query : {};
+    const result = await TripController.activeTrips(params, req.currentUser);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);

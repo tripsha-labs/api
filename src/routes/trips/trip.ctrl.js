@@ -31,6 +31,7 @@ import {
   checkPermission,
   getTripsByPermissions,
 } from '../../helpers/db-helper';
+import { TopicController } from '../topics/topic.ctrl';
 
 export class TripController {
   static async markForRemove(params, remove_requested) {
@@ -46,12 +47,10 @@ export class TripController {
           .format('YYYYMMDD')
       );
       const filterParams = {
-        // isArchived: false,
         isActive: true,
         isPublic: true,
         status: { $in: ['published', 'completed'] },
         endDate: { $gte: currentDate },
-        // isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
       if (filter.pastTrips) {
         currentDate = parseInt(moment().format('YYYYMMDD'));
@@ -180,7 +179,14 @@ export class TripController {
       throw error;
     }
   }
-
+  static async createProject(payload) {
+    try {
+      const trip = await TripModel.create(payload);
+      await TopicController.addDefaultTopics(trip._id, payload.ownerId);
+      return trip;
+    } catch (err) {}
+  }
+  /** Depricated */
   static async createTrip(params) {
     try {
       // Validate trip fields against the strict schema
@@ -503,6 +509,22 @@ export class TripController {
     }
   }
 
+  static async updateDraftTrip(tripId, trip, user) {
+    try {
+      if (!user) throw ERROR_KEYS.UNAUTHORIZED;
+      const payload = {};
+      Object.keys(trip).forEach(k => {
+        payload[`draft.${k}`] = trip[k];
+      });
+      payload['lastSavedDate'] = moment().unix();
+      payload['updatedBy'] = user._id;
+      await TripModel.update(Types.ObjectId(tripId), payload);
+      return 'success';
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async getTrip(
     tripId,
     memberId,
@@ -685,6 +707,66 @@ export class TripController {
         count: resTrips.length,
       };
     } catch (error) {
+      throw error;
+    }
+  }
+
+  static async activeTrips(filter, user) {
+    try {
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+
+      // Filter trips
+      const trips = await getTripsByPermissions(user);
+      const tripParams = {
+        isActive: true,
+        isArchived: false,
+        $or: [{ ownerId: user._id }, { _id: { $in: trips } }],
+      };
+      const params = [];
+      params.push({
+        $match: tripParams,
+      });
+
+      params.push({
+        $sort: prepareSortFilter(
+          filter,
+          ['updatedAt', 'startDate', 'spotsFilled'],
+          'updatedAt'
+        ),
+      });
+
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'ownerDetails',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$ownerDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $project: {
+          trip: 0,
+          memberId: 0,
+          tripId: 0,
+        },
+      });
+      const resTrips = await TripModel.aggregate(params);
+      return {
+        data: resTrips,
+        count: resTrips.length,
+      };
+    } catch (error) {
+      console.log(error);
       throw error;
     }
   }
@@ -1143,7 +1225,9 @@ export class TripController {
         {
           $match: {
             memberId: user._id.toString(),
-            status: { $in: ['invited', 'invite-accepted', 'invite-declined'] },
+            status: {
+              $in: ['invited', 'invite-accepted', 'invite-declined'],
+            },
           },
         },
         {

@@ -311,7 +311,7 @@ const tripUpdateSchema = {
 };
 
 const draftpSchema = {
-  title: { type: 'string', empty: false },
+  title: { type: 'string', empty: false, optional: true },
   pictureUrls: {
     type: 'array',
     optional: true,
@@ -322,6 +322,30 @@ const draftpSchema = {
     optional: true,
     items: 'string',
   },
+  rooms: {
+    ...tripSchema.rooms,
+    optional: true,
+  },
+  isDiscountApplicable: {
+    ...tripSchema.isDiscountApplicable,
+    optional: true,
+  },
+  isDepositApplicable: {
+    ...tripSchema.isDepositApplicable,
+    optional: true,
+  },
+  minGroupSize: {
+    ...tripSchema.minGroupSize,
+    optional: true,
+  },
+  maxGroupSize: {
+    ...tripSchema.maxGroupSize,
+    optional: true,
+  },
+};
+
+const createProjectSchema = {
+  name: { type: 'string', empty: false },
 };
 export const validateTripLength = (startDate, endDate) => {
   try {
@@ -332,7 +356,9 @@ export const validateTripLength = (startDate, endDate) => {
     return -1;
   }
 };
-
+export const createProjectValidation = new Validator().compile(
+  createProjectSchema
+);
 export const draftTripValidation = new Validator().compile(draftpSchema);
 export const createTripValidation = new Validator().compile(tripSchema);
 export const updateTripValidation = new Validator().compile(tripUpdateSchema);
