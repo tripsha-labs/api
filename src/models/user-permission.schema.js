@@ -12,6 +12,7 @@ const UserPermissionSchema = new mongoose.Schema(
     coHost: { type: Boolean },
     tabPermissions: { type: Object },
     viewPermissions: { type: Object },
+    topicPermissions: { type: Object },
     groups: { type: Array },
     addedBy: { type: Schema.Types.ObjectId },
     updatedBy: { type: Schema.Types.ObjectId },
