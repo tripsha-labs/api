@@ -10,6 +10,7 @@ import {
   createTripValidation,
   draftTripValidation,
   createProjectValidation,
+  TripModel,
 } from '../../models';
 
 /**
@@ -116,6 +117,29 @@ export const updateDraftTrip = async (req, res) => {
     const errors = draftTripValidation(data);
     if (errors != true) throw errors.shift();
     const result = await TripController.updateDraftTrip(
+      req.params.id,
+      data,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Publish trip Trip
+ */
+export const publishTrip = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const trip = await TripModel.getById(req.params.id);
+    const payload = trip.draft;
+    const errors = updateTripValidation(payload);
+    if (errors != true) throw errors.shift();
+    const result = await TripController.publishTrip(
       req.params.id,
       data,
       req.currentUser

@@ -525,6 +525,18 @@ export class TripController {
     }
   }
 
+  static async publishTrip(tripId, payload, user) {
+    try {
+      if (!user) throw ERROR_KEYS.UNAUTHORIZED;
+      payload['lastPublishedDate'] = moment().unix();
+      payload['lastSavedDate'] = payload['lastPublishedDate'];
+      payload['updatedBy'] = user._id;
+      await TripModel.update(Types.ObjectId(tripId), payload);
+    } catch (err) {
+      throw err;
+    }
+  }
+
   static async getTrip(
     tripId,
     memberId,

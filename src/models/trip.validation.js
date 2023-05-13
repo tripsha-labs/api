@@ -92,7 +92,7 @@ const tripSchema = {
       props: {
         id: { type: 'string' },
         name: { type: 'string' },
-        primaryPictureId: { type: 'string' },
+        primaryPictureId: { type: 'string', optional: true },
         variants: {
           type: 'array',
           optional: true,
@@ -101,8 +101,21 @@ const tripSchema = {
             props: {
               id: { type: 'string' },
               name: { type: 'string' },
-              cost: { type: 'number' },
+              cost: { type: 'number', optional: true },
               available: { type: 'number' },
+              pictureUrls: {
+                type: 'array',
+                optional: true,
+                items: {
+                  type: 'object',
+                  props: {
+                    id: { type: 'string' },
+                    caption: { type: 'string' },
+                    url: { type: 'string' },
+                  },
+                },
+              },
+              location: { type: 'string', optional: true },
             },
           },
         },
@@ -131,6 +144,18 @@ const tripSchema = {
         name: { type: 'string' },
         cost: { type: 'number' },
         available: { type: 'number' },
+        pictureUrls: {
+          type: 'array',
+          optional: true,
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              caption: { type: 'string' },
+              url: { type: 'string' },
+            },
+          },
+        },
         restrictPerTraveler: { type: 'boolean' },
       },
     },
@@ -311,7 +336,7 @@ const tripUpdateSchema = {
 };
 
 const draftpSchema = {
-  title: { type: 'string', empty: false, optional: true },
+  title: { type: 'string', optional: true },
   pictureUrls: {
     type: 'array',
     optional: true,
@@ -321,14 +346,6 @@ const draftpSchema = {
     type: 'array',
     optional: true,
     items: 'string',
-  },
-  rooms: {
-    ...tripSchema.rooms,
-    optional: true,
-  },
-  isDiscountApplicable: {
-    ...tripSchema.isDiscountApplicable,
-    optional: true,
   },
   isDepositApplicable: {
     ...tripSchema.isDepositApplicable,

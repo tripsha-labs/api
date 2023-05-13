@@ -17,6 +17,7 @@ import {
   createProject,
   activeTrips,
   updateDraftTrip,
+  publishTrip,
 } from './handler';
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.get('/saved-trips', savedTrips);
 router.get('/:id', getTrip);
 router.put('/:id', updateTrip);
 router.put('/:id/draft', updateDraftTrip);
+router.put('/:id/publish', publishTrip);
 router.delete('/:id', deleteTrip);
 router.post('/:id/transfer-host', transferHost);
 router.post('/:id/co-hosts', addCoHost);
