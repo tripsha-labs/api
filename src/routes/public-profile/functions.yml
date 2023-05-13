@@ -1,0 +1,115 @@
+listUser:
+  handler: src/routes/users/handler.listUser
+  events:
+    - http:
+        path: users
+        method: get
+        cors: true
+        authorizer: aws_iam
+createUser:
+  handler: src/routes/users/handler.createUser
+  events:
+    - http:
+        path: users
+        method: post
+        cors: true
+        authorizer: aws_iam
+
+inviteUser:
+  handler: src/routes/users/handler.inviteUser
+  events:
+    - http:
+        path: users/invite
+        method: post
+        cors: true
+        authorizer: aws_iam
+
+signin:
+  handler: src/routes/users/handler.signin
+  events:
+    - http:
+        path: signin
+        method: post
+        cors: true
+        authorizer: aws_iam
+
+searchUser:
+  handler: src/routes/users/handler.listUser
+  events:
+    - http:
+        path: search-users
+        method: get
+        cors: true
+        authorizer: aws_iam
+
+getUser:
+  handler: src/routes/users/handler.getUser
+  events:
+    - http:
+        path: users/{id}
+        method: get
+        cors: true
+        authorizer: aws_iam
+
+getUserByUsername:
+  handler: src/routes/users/handler.getUserByUsername
+  events:
+    - http:
+        path: username/{username}
+        method: get
+        cors: true
+        authorizer: aws_iam
+
+updateUserAdmin:
+  handler: src/routes/users/handler.updateUserAdmin
+  events:
+    - http:
+        path: admin/users/{id}
+        method: put
+        cors: true
+        authorizer: aws_iam
+
+updateUser:
+  handler: src/routes/users/handler.updateUser
+  events:
+    - http:
+        path: users/{id}
+        method: put
+        cors: true
+        authorizer: aws_iam
+
+deleteUser:
+  handler: src/routes/users/handler.deleteUser
+  events:
+    - http:
+        path: users/{id}
+        method: delete
+        cors: true
+        authorizer: aws_iam
+
+checkExists:
+  handler: src/routes/users/handler.isUserExists
+  events:
+    - http:
+        path: users/check-user-exists
+        method: post
+        authorizer: aws_iam
+        cors: true
+
+subscribeUser:
+  handler: src/routes/users/handler.subscribeUser
+  events:
+    - http:
+        path: subscribe
+        method: post
+        authorizer: aws_iam
+        cors: true
+
+unsubscribeUser:
+  handler: src/routes/users/handler.unsubscribeUser
+  events:
+    - http:
+        path: unsubscribe
+        method: post
+        authorizer: aws_iam
+        cors: true

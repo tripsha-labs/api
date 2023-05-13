@@ -25,6 +25,7 @@ import Schedules from './schedules';
 import EmailNotifications from './email-notifications';
 import Assets from './assets';
 import UserExists from './user-exists';
+import PublicProfile from './public-profile';
 import HostPayment from './host-payments';
 import DirectoryMembers from './member-directory';
 import Resources from './resources';
@@ -53,6 +54,7 @@ const noAuth = () => {
   app.use('/public/trip-tags', TripTags);
   app.use('/public/trips', NoAuthTrips);
   app.use('/public/check-user-exists', UserExists);
+  app.use('/public/profile', PublicProfile);
   return app;
 };
 
@@ -73,9 +75,7 @@ const auth = () => {
   const verifyToken = async (req, res, next) => {
     try {
       const awsUserId = req.requestContext.identity.cognitoIdentityId;
-      console.log(awsUserId);
       req.currentUser = await UserModel.get({ awsUserId: awsUserId });
-      console.log(req.currentUser);
       if (req.currentUser) req.currentUser['awsUserId'] = awsUserId;
       return next();
     } catch (err) {
