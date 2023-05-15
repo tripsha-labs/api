@@ -1,5 +1,9 @@
 import { Types } from 'mongoose';
-import { UserPermissionModel, UserModel } from '../../models';
+import {
+  UserPermissionModel,
+  UserModel,
+  GroupPermissionModel,
+} from '../../models';
 
 export class PermissionsController {
   static async listUserPermissions(params) {
@@ -64,5 +68,41 @@ export class PermissionsController {
 
   static async deleteUserPermissions(query) {
     return await UserPermissionModel.deleteMany(query);
+  }
+
+  static async listGroupPermissions(params) {
+    return await GroupPermissionModel.aggregate([
+      {
+        $match: {
+          tripId: Types.ObjectId(params.tripId),
+        },
+      },
+    ]);
+  }
+
+  static async createGroupPermission(body) {
+    const tripId = Types.ObjectId(body.tripId);
+
+    const createOrUpdatePermission = [
+      {
+        updateOne: {
+          filter: { name: body.name, tripId: tripId },
+          update: {
+            $set: {
+              ...body,
+              tripId: tripId,
+            },
+          },
+          upsert: true,
+        },
+      },
+    ];
+    const data = await Promise.all(createOrUpdatePermission);
+    await GroupPermissionModel.bulkWrite(data);
+    return 'success';
+  }
+
+  static async deleteGroupPermissions(query) {
+    return await GroupPermissionModel.deleteMany(query);
   }
 }
