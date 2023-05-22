@@ -3,6 +3,7 @@ import { successResponse, failureResponse } from '../../utils';
 import { ERROR_KEYS } from '../../constants';
 import { Types } from 'mongoose';
 import {
+  UserModel,
   createGroupPermissionValidation,
   createUserPermissionValidation,
   updateUserPermissionValidation,
@@ -108,4 +109,13 @@ export const deleteGroupPermissions = async (req, res) => {
     console.log(error);
     return failureResponse(res, error);
   }
+};
+
+export const testPermissions = async (req, res) => {
+  const user = await UserModel.get({ email: req.query.email });
+  const result = await PermissionsController.generateInheritedPermissionsByUser(
+    req.query.tripId,
+    user
+  );
+  return successResponse(res, result);
 };

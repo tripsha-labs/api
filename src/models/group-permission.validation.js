@@ -23,6 +23,19 @@ const GroupPermissionSchema = {
     type: 'object',
     optional: true,
   },
+  memberEmails: {
+    type: 'array',
+    optional: true,
+    items: 'string',
+  },
+  viewId: {
+    type: 'string',
+    optional: true,
+  },
+  type: {
+    type: 'string',
+    optional: true,
+  },
 };
 export const createGroupPermissionValidation = new Validator().compile({
   ...GroupPermissionSchema,
