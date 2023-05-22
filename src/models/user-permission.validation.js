@@ -14,20 +14,26 @@ const UserPermissionSchema = {
     },
   },
   tripId: { type: 'string', empty: false, required: true },
-  tabPermissions: {
-    type: 'object',
+  directPermissions: {
     optional: true,
+    type: 'object',
+    props: {
+      tabPermissions: {
+        type: 'object',
+        optional: true,
+      },
+      viewPermissions: {
+        type: 'object',
+        optional: true,
+      },
+      topicPermissions: {
+        type: 'object',
+        optional: true,
+      },
+    },
   },
   coHost: { type: 'boolean', optional: true },
-  viewPermissions: {
-    type: 'object',
-    optional: true,
-  },
-  topicPermissions: {
-    type: 'object',
-    optional: true,
-  },
-  groups: {
+  groupIds: {
     type: 'array',
     optional: true,
     items: {

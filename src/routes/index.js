@@ -25,6 +25,7 @@ import Schedules from './schedules';
 import EmailNotifications from './email-notifications';
 import Assets from './assets';
 import UserExists from './user-exists';
+import PublicProfile from './public-profile';
 import HostPayment from './host-payments';
 import DirectoryMembers from './member-directory';
 import Resources from './resources';
@@ -53,6 +54,7 @@ const noAuth = () => {
   app.use('/public/trip-tags', TripTags);
   app.use('/public/trips', NoAuthTrips);
   app.use('/public/check-user-exists', UserExists);
+  app.use('/public/profile', PublicProfile);
   return app;
 };
 

@@ -32,6 +32,7 @@ import {
   getTripsByPermissions,
 } from '../../helpers/db-helper';
 import { TopicController } from '../topics/topic.ctrl';
+import { PermissionsController } from '../permissions/permissions.ctrl';
 
 export class TripController {
   static async markForRemove(params, remove_requested) {
@@ -577,10 +578,16 @@ export class TripController {
         }
       }
       if (includePermissions) {
-        trip['permissions'] = await UserPermissionModel.findOne({
-          tripId: trip._id,
-          email: currentUser.email,
-        });
+        trip[
+          'permissions'
+        ] = await PermissionsController.generateInheritedPermissionsByUser(
+          tripId,
+          currentUser
+        );
+        // trip['permissions'] = await UserPermissionModel.findOne({
+        //   tripId: trip._id,
+        //   email: currentUser.email,
+        // });
       }
       return trip;
     } catch (error) {

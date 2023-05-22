@@ -1,0 +1,93 @@
+components:
+  requestBodies:
+    createUser:
+      description: Create user payload
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              email:
+                type: string
+              dob:
+                type: number
+                format: 'YYYYMMDD'
+                description: Date of birth in `YYYYMMDD` format
+              firstName:
+                type: string
+              lastName:
+                type: string
+              username:
+                type: string
+              avatarUrl:
+                type: string
+    updateUser:
+      description: Update user payload
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              dob:
+                type: number
+                format: 'YYYYMMDD'
+              phone:
+                type: string
+              livesIn:
+                type: string
+              gender:
+                type: string
+              spokenLanguages:
+                type: string
+                description: 'List of languages user can speak separated by comma'
+              bio:
+                type: string
+              facebook_url:
+                type: string
+              instagram_url:
+                type: string
+              twitter_url:
+                type: string
+              isLookingForTravel:
+                type: boolean
+              avatarUrl:
+                type: string
+              username:
+                type: string
+              interests:
+                type: array
+                items:
+                  type: string
+              bucketList:
+                type: array
+                items:
+                  type: string
+              travelStyle:
+                type: string
+              travelWithHostReason:
+                type: string
+              itemsTravelWith:
+                type: string
+              isTripAgreed:
+                type: boolean
+              showDashboardTutorial:
+                type: boolean
+              hasFirstBooking:
+                type: boolean
+              isHostFirstLogin:
+                type: boolean
+    checkUserExists:
+      description: Check user exists payload
+      required: true
+      content:
+        application/json:
+          schema:
+            properties:
+              username:
+                type: string
+              email:
+                type: string

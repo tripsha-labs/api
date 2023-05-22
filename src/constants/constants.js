@@ -16,6 +16,7 @@ export const DATE_FORMAT = 'YYYYMMDD';
 
 export const USER_BASIC_INFO = {
   _id: 1,
+  email: 1,
   firstName: 1,
   lastName: 1,
   username: 1,

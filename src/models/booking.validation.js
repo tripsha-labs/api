@@ -204,5 +204,6 @@ export const hostBookingActionValidation = new Validator().compile({
   paymentMethod: { type: 'string', empty: false, optional: true },
   forceAddTraveler: { type: 'boolean', empty: true, optional: true },
   reason: { type: 'string', empty: true, optional: true },
+  comments: { type: 'array', items: 'string', empty: true, optional: true },
   $$strict: 'remove',
 });
