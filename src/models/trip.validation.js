@@ -11,6 +11,7 @@ const tripSchema = {
   description: { type: 'string', optional: true },
   startDate: { type: 'number', empty: false },
   endDate: { type: 'number', empty: false },
+  tripLength: { type: 'number', default: 0 },
   focus: {
     type: 'string',
     optional: true,
@@ -72,62 +73,140 @@ const tripSchema = {
   },
   itineraries: {
     type: 'array',
-    optional: true,
-    items: {
-      type: 'object',
-      optional: true,
-      props: {
-        id: { type: 'string' },
-        title: { type: 'string', optional: true },
-        description: { type: 'string', optional: true },
-        imageUrl: { type: 'string', optional: true },
-      },
-    },
-  },
-  rooms: {
-    type: 'array',
-    optional: true,
     items: {
       type: 'object',
       props: {
         id: { type: 'string' },
-        name: { type: 'string' },
-        primaryPictureId: { type: 'string', optional: true },
-        variants: {
+        title: { type: 'string', empty: false },
+        events: {
           type: 'array',
-          optional: true,
           items: {
             type: 'object',
             props: {
               id: { type: 'string' },
-              name: { type: 'string' },
-              cost: { type: 'number', optional: true },
-              available: { type: 'number' },
-              pictureUrls: {
+              title: {
+                type: 'string',
+                empty: false,
+                label: 'Title',
+              },
+              description: { type: 'string', optional: true },
+              duration: { type: 'number', optional: true },
+              durationUnit: { type: 'string', enum: ['Min', 'Hrs'] },
+              location: {
+                type: 'string',
+                optional: true,
+                label: 'Location',
+              },
+              startTime: {
+                type: 'string',
+                optional: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  venues: {
+    type: 'array',
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        title: { type: 'string', empty: false },
+        variants: {
+          type: 'array',
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              title: {
+                type: 'string',
+                empty: false,
+                label: 'Title',
+              },
+              description: {
+                type: 'string',
+                optional: true,
+                label: 'Description',
+              },
+              location: {
+                type: 'string',
+                optional: true,
+                label: 'Location',
+              },
+              images: {
                 type: 'array',
                 optional: true,
                 items: {
                   type: 'object',
                   props: {
                     id: { type: 'string' },
-                    caption: { type: 'string' },
-                    url: { type: 'string' },
+                    url: {
+                      type: 'string',
+                      label: 'Url',
+                    },
                   },
                 },
               },
-              location: { type: 'string', optional: true },
             },
           },
         },
-        pictureUrls: {
+      },
+    },
+  },
+  rooms: {
+    type: 'array',
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        name: { type: 'string', empty: false },
+        variants: {
           type: 'array',
-          optional: true,
           items: {
             type: 'object',
             props: {
               id: { type: 'string' },
-              caption: { type: 'string' },
-              url: { type: 'string' },
+              name: {
+                type: 'string',
+                empty: false,
+                label: 'Title',
+              },
+              cost: {
+                type: 'number',
+                optional: true,
+                label: 'Cost',
+              },
+              available: {
+                type: 'number',
+                empty: false,
+                label: 'Maximum that can be booked',
+              },
+              location: {
+                type: 'string',
+                optional: true,
+                label: 'Location',
+              },
+              images: {
+                type: 'array',
+                optional: true,
+                items: {
+                  type: 'object',
+                  props: {
+                    id: { type: 'string' },
+                    url: {
+                      type: 'string',
+                      label: 'Photos',
+                    },
+                  },
+                },
+              },
+              description: {
+                type: 'string',
+                optional: true,
+                label: 'Description',
+              },
             },
           },
         },
@@ -136,27 +215,59 @@ const tripSchema = {
   },
   addOns: {
     type: 'array',
-    optional: true,
     items: {
       type: 'object',
       props: {
         id: { type: 'string' },
-        name: { type: 'string' },
-        cost: { type: 'number' },
-        available: { type: 'number' },
-        pictureUrls: {
+        name: { type: 'string', empty: false, label: 'Title' },
+        variants: {
           type: 'array',
-          optional: true,
           items: {
             type: 'object',
             props: {
               id: { type: 'string' },
-              caption: { type: 'string' },
-              url: { type: 'string' },
+              name: {
+                type: 'string',
+                empty: false,
+                label: 'Title',
+              },
+              cost: {
+                type: 'number',
+                optional: true,
+                label: 'Cost',
+              },
+              available: {
+                type: 'number',
+                empty: false,
+                label: 'Maximum that can be booked',
+              },
+              restrictPerTraveler: {
+                type: 'boolean',
+                optional: true,
+                label: 'Restrict add-on to a maximum of one per traveler',
+              },
+              images: {
+                type: 'array',
+                optional: true,
+                items: {
+                  type: 'object',
+                  props: {
+                    id: { type: 'string' },
+                    url: {
+                      type: 'string',
+                      label: 'Url',
+                    },
+                  },
+                },
+              },
+              description: {
+                type: 'string',
+                optional: true,
+                label: 'Description',
+              },
             },
           },
         },
-        restrictPerTraveler: { type: 'boolean' },
       },
     },
   },
@@ -169,9 +280,9 @@ const tripSchema = {
     optional: true,
     type: 'object',
     props: {
-      amount: { type: 'number', positive: true },
-      expirationDate: { type: 'number' },
-      includeAddOns: { type: 'boolean' },
+      amount: { type: 'number', positive: true, optional: true },
+      expirationDate: { type: 'number', optional: true },
+      includeAddOns: { type: 'boolean', optional: true },
     },
   },
   isDiscountApplicable: {
@@ -298,6 +409,18 @@ const tripUpdateSchema = {
     ...tripSchema.rooms,
     optional: true,
   },
+  addOns: {
+    ...tripSchema.addOns,
+    optional: true,
+  },
+  venues: {
+    ...tripSchema.venues,
+    optional: true,
+  },
+  itineraries: {
+    ...tripSchema.itineraries,
+    optional: true,
+  },
   isDiscountApplicable: {
     ...tripSchema.isDiscountApplicable,
     optional: true,
@@ -363,6 +486,8 @@ const draftpSchema = {
 
 const createProjectSchema = {
   name: { type: 'string', empty: false },
+  content: { type: 'array', optional: true },
+  tripId: { type: 'string', optional: true },
 };
 export const validateTripLength = (startDate, endDate) => {
   try {

@@ -74,15 +74,8 @@ provider:
         - 'arn:aws:execute-api:*:*:**/@connections/*'
     - Effect: 'Allow'
       Action:
-        - 'SES:*'
-      Resource:
-        Fn::Join:
-          - ''
-          - - 'arn:aws:ses:'
-            - Ref: AWS::Region
-            - ':'
-            - Ref: AWS::AccountId
-            - ':identity/*'
+        - 'ses:*'
+      Resource: '*'
 
 package:
   individually: false

@@ -14,7 +14,7 @@ import {
 } from '../../models';
 
 /**
- * List trips
+ * List traveler trips
  */
 export const listTrips = async (req, res) => {
   try {
@@ -35,12 +35,13 @@ export const listTrips = async (req, res) => {
  */
 export const createProject = async (req, res) => {
   try {
-    const payload = req.body || {};
-    const errors = createProjectValidation(payload);
+    const data = req.body || {};
+    const errors = createProjectValidation(data);
     if (errors != true) throw errors.shift();
+    const payload = { name: data.name };
     payload['ownerId'] = req.currentUser._id;
     payload['updatedBy'] = req.currentUser._id;
-    const result = await TripController.createProject(payload);
+    const result = await TripController.createProject(payload, data);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
@@ -51,31 +52,31 @@ export const createProject = async (req, res) => {
 /**
  * Create Trip
  */
-export const createTrip = async (req, res) => {
-  try {
-    const data = req.body || {};
+// export const createTrip = async (req, res) => {
+//   try {
+//     const data = req.body || {};
 
-    if (typeof data.spotsAvailable === 'undefined') {
-      data.spotsAvailable = data.maxGroupSize - 1;
-    }
+//     if (typeof data.spotsAvailable === 'undefined') {
+//       data.spotsAvailable = data.maxGroupSize - 1;
+//     }
 
-    const errors =
-      data.status === 'draft'
-        ? draftTripValidation(data)
-        : createTripValidation(data);
-    if (errors != true) throw errors.shift();
+//     const errors =
+//       data.status === 'draft'
+//         ? draftTripValidation(data)
+//         : createTripValidation(data);
+//     if (errors != true) throw errors.shift();
 
-    const result = await TripController.createTrip({
-      ...data,
-      ownerId: req.requestContext.identity.cognitoIdentityId,
-    });
+//     const result = await TripController.createTrip({
+//       ...data,
+//       ownerId: req.requestContext.identity.cognitoIdentityId,
+//     });
 
-    return successResponse(res, result);
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
+//     return successResponse(res, result);
+//   } catch (error) {
+//     console.log(error);
+//     return failureResponse(res, error);
+//   }
+// };
 
 /**
  * Update Trip
@@ -129,7 +130,7 @@ export const updateDraftTrip = async (req, res) => {
 };
 
 /**
- * Publish trip Trip
+ * Publish trip page
  */
 export const publishTrip = async (req, res) => {
   try {
@@ -141,7 +142,24 @@ export const publishTrip = async (req, res) => {
     if (errors != true) throw errors.shift();
     const result = await TripController.publishTrip(
       req.params.id,
-      data,
+      payload,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+/**
+ * Unpublish trip page
+ */
+export const unPublishTrip = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const result = await TripController.unPublishTrip(
+      req.params.id,
       req.currentUser
     );
     return successResponse(res, result);
@@ -193,15 +211,15 @@ export const deleteTrip = async (req, res) => {
 };
 
 /**
- * List my trips
+ * List travelers trips
  */
 export const myTrips = async (req, res) => {
   try {
     const params = req.query ? req.query : {};
-    let result = null;
-    if (params.isHost || params.status === 'draft')
-      result = await TripController.myActiveTrips(params, req.currentUser);
-    else result = await TripController.myTrips(params, req.currentUser);
+    // let result = null;
+    // if (params.isHost || params.status === 'draft')
+    //   result = await TripController.myActiveTrips(params, req.currentUser);
+    const result = await TripController.myTrips(params, req.currentUser);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);
@@ -210,7 +228,7 @@ export const myTrips = async (req, res) => {
 };
 
 /**
- * List active trips
+ * List host permitted trips
  */
 export const activeTrips = async (req, res) => {
   try {
@@ -226,20 +244,20 @@ export const activeTrips = async (req, res) => {
 /**
  * List saved trips
  */
-export const savedTrips = async (req, res) => {
-  try {
-    const params = req.query ? req.query : {};
-    const result = await TripController.myTrips({
-      ...params,
-      isPublic: true,
-      awsUserId: req.requestContext.identity.cognitoIdentityId,
-    });
-    return successResponse(res, result);
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
+// export const savedTrips = async (req, res) => {
+//   try {
+//     const params = req.query ? req.query : {};
+//     const result = await TripController.myTrips({
+//       ...params,
+//       isPublic: true,
+//       awsUserId: req.requestContext.identity.cognitoIdentityId,
+//     });
+//     return successResponse(res, result);
+//   } catch (error) {
+//     console.log(error);
+//     return failureResponse(res, error);
+//   }
+// };
 
 export const sendEmails = async (req, res) => {
   const params = req.query ? req.query : {};
@@ -328,23 +346,23 @@ export const transferHost = async (req, res) => {
  * @param {*} res
  * @returns
  */
-export const addCoHost = async (req, res) => {
-  try {
-    if (!req?.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-    if (!req?.body?.email)
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
+// export const addCoHost = async (req, res) => {
+//   try {
+//     if (!req?.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+//     if (!req?.body?.email)
+//       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email' };
 
-    const result = await TripController.addCoHost(
-      req.params.id,
-      req?.body,
-      req.currentUser
-    );
-    return successResponse(res, result);
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
+//     const result = await TripController.addCoHost(
+//       req.params.id,
+//       req?.body,
+//       req.currentUser
+//     );
+//     return successResponse(res, result);
+//   } catch (error) {
+//     console.log(error);
+//     return failureResponse(res, error);
+//   }
+// };
 
 /**
  * Delete co host
@@ -352,23 +370,23 @@ export const addCoHost = async (req, res) => {
  * @param {*} res
  * @returns
  */
-export const deleteCoHost = async (req, res) => {
-  try {
-    if (!(req.params && req.params.id))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-    if (!req?.body?.hostId)
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'hostId' };
-    const result = await TripController.deleteCoHost(
-      req.params.id,
-      req.body.hostId,
-      req.currentUser
-    );
-    return successResponse(res, result);
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
+// export const deleteCoHost = async (req, res) => {
+//   try {
+//     if (!(req.params && req.params.id))
+//       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+//     if (!req?.body?.hostId)
+//       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'hostId' };
+//     const result = await TripController.deleteCoHost(
+//       req.params.id,
+//       req.body.hostId,
+//       req.currentUser
+//     );
+//     return successResponse(res, result);
+//   } catch (error) {
+//     console.log(error);
+//     return failureResponse(res, error);
+//   }
+// };
 
 /**
  * list co hosts
@@ -376,21 +394,21 @@ export const deleteCoHost = async (req, res) => {
  * @param {*} res
  * @returns
  */
-export const getCoHosts = async (req, res) => {
-  try {
-    if (!(req.params && req.params.id))
-      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+// export const getCoHosts = async (req, res) => {
+//   try {
+//     if (!(req.params && req.params.id))
+//       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
 
-    const result = await TripController.getCoHosts(
-      req.params.id,
-      req.currentUser
-    );
-    return successResponse(res, result);
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
+//     const result = await TripController.getCoHosts(
+//       req.params.id,
+//       req.currentUser
+//     );
+//     return successResponse(res, result);
+//   } catch (error) {
+//     console.log(error);
+//     return failureResponse(res, error);
+//   }
+// };
 
 /**
  * list invited trips
@@ -398,12 +416,12 @@ export const getCoHosts = async (req, res) => {
  * @param {*} res
  * @returns
  */
-export const invitedTrips = async (req, res) => {
-  try {
-    const result = await TripController.getInviteList(req.currentUser);
-    return successResponse(res, result);
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
+// export const invitedTrips = async (req, res) => {
+//   try {
+//     const result = await TripController.getInviteList(req.currentUser);
+//     return successResponse(res, result);
+//   } catch (error) {
+//     console.log(error);
+//     return failureResponse(res, error);
+//   }
+// };

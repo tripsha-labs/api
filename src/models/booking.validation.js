@@ -38,12 +38,19 @@ const bookingSchema = {
     items: {
       type: 'object',
       props: {
-        id: { type: 'string' },
-        name: { type: 'string' },
-        cost: { type: 'number' },
-        available: { type: 'number' },
+        variant: {
+          type: 'object',
+          props: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            cost: { type: 'number' },
+            available: { type: 'number' },
+          },
+        },
+        addOn: {
+          type: 'object',
+        },
         attendees: { type: 'number' },
-        restrictPerTraveler: { type: 'boolean' },
       },
     },
   },

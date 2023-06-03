@@ -100,15 +100,8 @@ export class PermissionsController {
       const viewMembers = await BookingModel.aggregate([
         {
           $match: {
-            tripId: tripId,
+            tripId: Types.ObjectId(tripId),
             status: 'approved',
-          },
-        },
-        {
-          $project: {
-            memberId: {
-              $toObjectId: '$memberId',
-            },
           },
         },
         {
@@ -262,16 +255,9 @@ export class PermissionsController {
       const viewMembers = await BookingModel.aggregate([
         {
           $match: {
-            tripId: tripId,
+            tripId: Types.ObjectId(tripId),
             status: 'approved',
-            memberId: userId,
-          },
-        },
-        {
-          $project: {
-            memberId: {
-              $toObjectId: '$memberId',
-            },
+            memberId: user._id,
           },
         },
         {
@@ -320,8 +306,6 @@ export class PermissionsController {
 
     const permList = userPermissionPayload.permissions;
     const groupIds = userPermissionPayload['groupIds'];
-    console.log(groupPermissions);
-    console.log(groupIds);
     groupPermissions?.forEach(gp => {
       if (groupIds.includes(gp._id.toString())) {
         permList.push({

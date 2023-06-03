@@ -18,13 +18,13 @@ import {
 } from '../../models';
 import { logActivity } from '../../utils';
 import { ERROR_KEYS, LogMessages } from '../../constants';
-import {
-  addAddonResources,
-  addRoomResources,
-  removeAddonResources,
-  removeRoomResources,
-} from '../../helpers';
-import { checkPermission } from '../../helpers/db-helper';
+// import {
+//   addAddonResources,
+//   addRoomResources,
+//   removeAddonResources,
+//   removeRoomResources,
+// } from '../../helpers';
+// import { checkPermission } from '../../helpers/db-helper';
 
 export class MemberController {
   static async markForRemove(params, remove_requested) {
@@ -32,350 +32,281 @@ export class MemberController {
       removeRequested: remove_requested,
     });
   }
-  static async memberAction(params, currentUser) {
+  static async memberAction(
+    { memberIds, tripId, message, action },
+    currentUser
+  ) {
+    const user = currentUser;
+    if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+    const trip = await TripModel.getById(tripId);
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
     try {
-      const {
-        memberIds,
-        tripId,
-        message,
-        forceAddTraveler,
-        action,
-        autoRegisterRSVP,
-      } = params || {
-        memberIds: [],
-      };
       const bookingIds = [];
       const objTripId = Types.ObjectId(tripId);
-      if (memberIds.length > 0) {
-        const user = currentUser;
-        if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-
+      if (memberIds && memberIds.length > 0) {
         const tripUpdate = {};
-        const trip = await TripModel.getById(objTripId);
-        if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-
-        const isActionAllowed =
-          checkPermission(currentUser, trip, 'travelerManagement', 'edit') ||
-          autoRegisterRSVP;
-
         let guestCount = trip['guestCount'] || 0;
+        // Process member one by one
         const actions = memberIds.map(async memberId => {
-          const query = { $or: [] };
-          if (Types.ObjectId.isValid(memberId))
-            query['$or'].push({ _id: Types.ObjectId(memberId) });
-          query['$or'].push({ username: memberId });
-          const memberDetails = await UserModel.get(query);
-          const tripOwner = await UserModel.get({
-            _id: Types.ObjectId(trip.ownerId),
+          // Get member information
+          const memberDetails = await UserModel.get({
+            _id: Types.ObjectId(memberId),
           });
-          if (memberDetails) {
-            const updateParams = {
-              memberId: memberDetails._id.toString(),
-              tripId: objTripId,
-            };
-            const memberExists = await MemberModel.get({
-              memberId: memberDetails._id,
-              tripId: objTripId,
-              isMember: true,
-            });
-            switch (action) {
-              case 'addMember':
-                if (isActionAllowed) {
-                  if (trip.spotsAvailable <= 0 && !forceAddTraveler) {
-                    return Promise.reject(ERROR_KEYS.TRIP_IS_FULL_HOST);
-                  }
-                  let booking = null;
-                  if (params['bookingId']) {
-                    updateParams['bookingId'] = params['bookingId'];
-                    booking = await BookingModel.getById(params['bookingId']);
-                    if (booking?.attendees > 1) {
-                      guestCount = guestCount + booking.attendees - 1;
-                    }
-                    if (booking.rooms?.length > 0) {
-                      tripUpdate['rooms'] = addRoomResources(booking, trip, [
-                        'filled',
-                      ]);
-                    }
-                    if (booking.addOns?.length > 0) {
-                      tripUpdate['addOns'] = addAddonResources(booking, trip, [
-                        'filled',
-                      ]);
-                    }
-                  } else {
-                    const bookingInfo = {
-                      currency: 'US',
-                      addOns: [],
-                      rooms: [],
-                      guests: [],
-                      status: 'approved',
-                      totalBaseFare: 0,
-                      totalAddonFare: 0,
-                      discountBaseFare: 0,
-                      discountAddonFare: 0,
-                      totalFare: 0,
-                      currentDue: 0,
-                      paidAmout: 0,
-                      pendingAmount: 0,
-                      paymentHistory: [],
-                      tripId: tripId,
-                      attendees: 1,
-                      tripPaymentType: trip.tripPaymentType,
-                      addedByHost: true,
-                      message: 'Member added by Host',
-                      memberId: memberDetails._id.toString(),
-                    };
-                    await BookingModel.addOrUpdate(
-                      {
-                        memberId: memberDetails._id.toString(),
-                        tripId: tripId,
-                      },
-                      bookingInfo
-                    );
-                    booking = await BookingModel.get({
-                      memberId: memberDetails._id.toString(),
-                      tripId: tripId,
-                      status: 'approved',
-                    });
-                    updateParams['bookingId'] = booking._id.toString();
-                  }
-                  updateParams['removeRequested'] = false;
-                  updateParams['leftOn'] = -1;
-                  updateParams['isMember'] = true;
-                  updateParams['joinedOn'] = moment().unix();
+          console.log(memberDetails);
+          if (!memberDetails)
+            return Promise.reject(ERROR_KEYS.MEMBER_NOT_FOUND);
 
-                  // Message update
-                  const messageParams = {
-                    tripId: trip._id.toString(),
-                    message:
-                      memberDetails['firstName'] + ' has joined the group',
-                    messageType: 'info',
-                    isGroupMessage: true,
-                    fromMemberId: tripOwner._id.toString(),
-                    isRead: true,
-                  };
-                  await MessageModel.create(messageParams);
-
-                  // Add biiling entry
-                  const invoice = await InvoiceModel.findOrInsert(
-                    Types.ObjectId(trip.ownerId)
-                  );
-                  const invoiceItems = await InvoiceItemModel.find({
-                    tripId: objTripId,
-                    memberId: memberDetails._id,
-                  });
-                  const count = { guestCount: 0 };
-                  if (invoiceItems.length > 0) {
-                    const currentMonthItem = invoiceItems.find(
-                      ii => ii.invoiceId.toString() == invoice._id.toString()
-                    );
-                    let totalGuestCount = 0;
-                    // get the previous guest count
-                    if (invoiceItems.length > 1) {
-                      invoiceItems.forEach(ii => {
-                        totalGuestCount += ii.guestCount;
-                      });
-                    }
-                    const newGuestCount = booking.attendees - 1;
-                    if (totalGuestCount < newGuestCount) {
-                      const currentMonthCount =
-                        newGuestCount -
-                          totalGuestCount +
-                          currentMonthItem?.guestCount || 0;
-                      count['guestCount'] =
-                        currentMonthCount >= 0 ? currentMonthCount : 0;
-                    }
-                    if (count?.guestCount > 0)
-                      await InvoiceItemModel.updateOne(
-                        {
-                          tripId: objTripId,
-                          memberId: memberDetails._id,
-                          invoiceId: invoice._id,
-                        },
-                        {
-                          $set: count,
-                          $setOnInsert: {
-                            tripId: objTripId,
-                            memberId: memberDetails._id,
-                            tripOwnerId: Types.ObjectId(trip.ownerId),
-                            invoiceId: invoice._id,
-                          },
-                        },
-                        { upsert: true }
-                      );
-                  } else {
-                    count['travelerCount'] = 1;
-                    if (booking.attendees > 1) {
-                      count['guestCount'] = booking.attendees - 1;
-                    }
-                    await InvoiceItemModel.create({
-                      tripId: objTripId,
-                      memberId: memberDetails._id,
-                      tripOwnerId: Types.ObjectId(trip.ownerId),
-                      invoiceId: invoice._id,
-                      ...count,
-                    });
-                  }
-
-                  // conversation update
-                  const memberAddDetails = {
-                    memberId: memberDetails._id.toString(),
-                    tripId: trip._id.toString(),
-                    message:
-                      memberDetails['firstName'] + ' has joined the group',
-                    messageType: 'info',
-                    isGroup: true,
-                  };
-                  // update to actionable member
-                  await ConversationModel.addOrUpdate(
-                    {
-                      tripId: tripId,
-                      memberId: memberDetails._id.toString(),
-                    },
-                    {
-                      ...memberAddDetails,
-                      joinedOn: moment().unix(),
-                      isArchived: false,
-                    }
-                  );
-                  delete memberAddDetails['memberId'];
-                  delete memberAddDetails['tripId'];
-                  // update to all the members
-                  await ConversationModel.addOrUpdate(
-                    {
-                      tripId: tripId,
-                    },
-                    memberAddDetails
-                  );
-
-                  await logActivity({
-                    ...LogMessages.TRAVELER_ADDED_IN_TRIP_BY_HOST(
-                      trip['title']
-                    ),
-                    tripId: trip._id.toString(),
-                    audienceIds: [memberDetails._id.toString()],
-                    userId: user._id.toString(),
-                  });
-                } else {
-                  return Promise.reject('Access denied');
-                }
-                break;
-              case 'removeMember':
-                if (
-                  isActionAllowed ||
-                  memberDetails._id.toString() == user._id.toString()
-                ) {
-                  console.log('Inside member info');
-                  const bookingStatus = {};
-                  if (memberDetails._id.toString() == user._id.toString()) {
-                    bookingStatus['status'] = 'cancelled';
-                  } else {
-                    bookingStatus['status'] = 'removed';
-                  }
-                  bookingStatus['reason'] = message;
-
-                  if (memberExists?.bookingId) {
-                    bookingIds.push(memberExists.bookingId);
-                    await BookingModel.update(
-                      Types.ObjectId(memberExists.bookingId),
-                      bookingStatus
-                    );
-                    const booking = await BookingModel.getById(
-                      memberExists.bookingId
-                    );
-                    if (booking?.attendees > 1) {
-                      guestCount = guestCount - (booking.attendees - 1);
-                      guestCount = guestCount < 0 ? 0 : guestCount;
-                    }
-                    if (booking.rooms?.length > 0) {
-                      tripUpdate['rooms'] = removeRoomResources(booking, trip, [
-                        'filled',
-                        'reserved',
-                      ]);
-                    }
-                    if (booking.addOns?.length > 0) {
-                      tripUpdate['addOns'] = removeAddonResources(
-                        booking,
-                        trip,
-                        ['filled', 'reserved']
-                      );
-                    }
-                  }
-                  updateParams['isMember'] = false;
-                  updateParams['leftOn'] = moment().unix();
-                  // conversation update
-                  if (memberExists) {
-                    // Message update
-                    const messageParams = {
-                      tripId: trip._id.toString(),
-                      message:
-                        memberDetails['firstName'] + ' has left the group',
-                      messageType: 'info',
-                      isGroupMessage: true,
-                      isRead: true,
-                      fromMemberId: user._id.toString(),
-                    };
-                    await MessageModel.create(messageParams);
-                    // Conversation update
-                    const memberRemoveDetails = {
-                      message:
-                        memberDetails['firstName'] + ' has left the group',
-                      messageType: 'info',
-                      isRead: false,
-                    };
-                    // update to actionable member
-                    await ConversationModel.addOrUpdate(
-                      {
-                        tripId: tripId,
-                        memberId: memberDetails._id.toString(),
-                      },
-                      {
-                        ...memberRemoveDetails,
-                        isRead: true,
-                        leftOn: moment().unix(),
-                        isArchived: true,
-                      }
-                    );
-                    // update to all the members
-                    await ConversationModel.addOrUpdate(
-                      {
-                        tripId: tripId,
-                      },
-                      memberRemoveDetails
-                    );
-                  }
-                } else {
-                  console.log('Inside rejection');
-                  return Promise.reject();
-                }
-                break;
-              case 'makeFavorite':
-                updateParams['isFavorite'] = true;
-                updateParams['favoriteOn'] = moment().unix();
-                break;
-              case 'makeUnFavorite':
-                updateParams['isFavorite'] = false;
-                updateParams['unFavoriteOn'] = moment().unix();
-                break;
-            }
-            if (bookingIds?.length > 0) {
-              await BookingResource.deleteMany({
-                bookingId: { $in: bookingIds },
-                tripId: objTripId,
-              });
-            }
-            return MemberModel.update(
-              {
+          // payload for update member
+          const updateParams = {
+            memberId: memberDetails._id,
+            tripId: objTripId,
+          };
+          // check if member already exists in the database
+          const memberExists = await MemberModel.get(updateParams);
+          switch (action) {
+            case 'addMember':
+              const booking = await BookingModel.get({
                 memberId: memberDetails._id,
                 tripId: objTripId,
-              },
+              });
+              if (!booking) return Promise.reject(ERROR_KEYS.BOOKING_NOT_FOUND);
+              if (booking?.attendees > 1) {
+                guestCount = guestCount + booking.attendees - 1;
+              }
+              // // Handle rooms calculation
+              // if (booking.rooms?.length > 0) {
+              //   tripUpdate['rooms'] = addRoomResources(booking, trip, [
+              //     'filled',
+              //   ]);
+              // }
+              // // Handle addons calculation
+              // if (booking.addOns?.length > 0) {
+              //   tripUpdate['addOns'] = addAddonResources(booking, trip, [
+              //     'filled',
+              //   ]);
+              // }
+
+              // Message update
+              const messageParams = {
+                tripId: trip._id.toString(),
+                message: memberDetails['firstName'] + ' has joined the group',
+                messageType: 'info',
+                isGroupMessage: true,
+                fromMemberId: trip.ownerId.toString(),
+                isRead: true,
+              };
+              await MessageModel.create(messageParams);
+
+              // Add biiling entry
+              const invoice = await InvoiceModel.findOrInsert(trip.ownerId);
+              const invoiceItems = await InvoiceItemModel.find({
+                tripId: objTripId,
+                memberId: memberDetails._id,
+              });
+              const count = {
+                guestCount: 0,
+              };
+              if (invoiceItems.length > 0) {
+                const currentMonthItem = invoiceItems.find(
+                  ii => ii.invoiceId.toString() == invoice._id.toString()
+                );
+                let totalGuestCount = 0;
+                // get the previous guest count
+                if (invoiceItems.length > 1) {
+                  invoiceItems.forEach(ii => {
+                    totalGuestCount += ii.guestCount;
+                  });
+                }
+                const newGuestCount = booking.attendees - 1;
+                if (totalGuestCount < newGuestCount) {
+                  const currentMonthCount =
+                    newGuestCount -
+                      totalGuestCount +
+                      currentMonthItem?.guestCount || 0;
+                  count['guestCount'] =
+                    currentMonthCount >= 0 ? currentMonthCount : 0;
+                }
+                if (count?.guestCount > 0)
+                  await InvoiceItemModel.updateOne(
+                    {
+                      tripId: objTripId,
+                      memberId: memberDetails._id,
+                      invoiceId: invoice._id,
+                    },
+                    {
+                      $set: count,
+                      $setOnInsert: {
+                        tripId: objTripId,
+                        memberId: memberDetails._id,
+                        tripOwnerId: trip.ownerId,
+                        invoiceId: invoice._id,
+                      },
+                    },
+                    {
+                      upsert: true,
+                    }
+                  );
+              } else {
+                count['travelerCount'] = 1;
+                if (booking.attendees > 1) {
+                  count['guestCount'] = booking.attendees - 1;
+                }
+                await InvoiceItemModel.create({
+                  tripId: objTripId,
+                  memberId: memberDetails._id,
+                  tripOwnerId: trip.ownerId,
+                  invoiceId: invoice._id,
+                  ...count,
+                });
+              }
+
+              // conversation update
+              const memberAddDetails = {
+                memberId: memberDetails._id.toString(),
+                tripId: trip._id.toString(),
+                message: memberDetails['firstName'] + ' has joined the group',
+                messageType: 'info',
+                isGroup: true,
+              };
+              // update to actionable member
+              await ConversationModel.addOrUpdate(
+                {
+                  tripId: tripId,
+                  memberId: memberDetails._id.toString(),
+                },
+                {
+                  ...memberAddDetails,
+                  joinedOn: moment().unix(),
+                  isArchived: false,
+                }
+              );
+              delete memberAddDetails['memberId'];
+              delete memberAddDetails['tripId'];
+              // update to all the members
+              await ConversationModel.addOrUpdate(
+                {
+                  tripId: tripId,
+                },
+                memberAddDetails
+              );
+
+              await logActivity({
+                ...LogMessages.TRAVELER_ADDED_IN_TRIP_BY_HOST(trip['title']),
+                tripId: trip._id.toString(),
+                audienceIds: [memberDetails._id.toString()],
+                userId: user._id.toString(),
+              });
+              break;
+            case 'removeMember':
+              const bookingStatus = {};
+              if (memberDetails._id.toString() == user._id.toString()) {
+                bookingStatus['status'] = 'canceled';
+              } else {
+                bookingStatus['status'] = 'removed';
+              }
+              bookingStatus['reason'] = message;
+              if (memberExists?.bookingId) {
+                bookingIds.push(memberExists.bookingId);
+                const booking = await BookingModel.getById(
+                  memberExists.bookingId.toString()
+                );
+                if (booking) {
+                  await BookingModel.update(booking._id, bookingStatus);
+                  if (booking?.attendees > 1) {
+                    guestCount = guestCount - (booking.attendees - 1);
+                    guestCount = guestCount < 0 ? 0 : guestCount;
+                  }
+                  // if (booking?.rooms?.length > 0) {
+                  //   tripUpdate['rooms'] = removeRoomResources(booking, trip, [
+                  //     'filled',
+                  //     'reserved',
+                  //   ]);
+                  // }
+                  // if (booking?.addOns?.length > 0) {
+                  //   tripUpdate['addOns'] = removeAddonResources(booking, trip, [
+                  //     'filled',
+                  //     'reserved',
+                  //   ]);
+                  // }
+                }
+              }
+              updateParams['isActive'] =
+                memberExists?.isFavorite || memberExists?.isInvite;
+              updateParams['isMember'] = false;
+              updateParams['leftOn'] = moment().unix();
+              // conversation update
+              if (memberExists) {
+                // Message update
+                const messageParams = {
+                  tripId: trip._id.toString(),
+                  message: memberDetails['firstName'] + ' has left the group',
+                  messageType: 'info',
+                  isGroupMessage: true,
+                  isRead: true,
+                  fromMemberId: user._id.toString(),
+                };
+                await MessageModel.create(messageParams);
+                // Conversation update
+                const memberRemoveDetails = {
+                  message: memberDetails['firstName'] + ' has left the group',
+                  messageType: 'info',
+                  isRead: false,
+                };
+                // update to actionable member
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                    memberId: memberDetails._id.toString(),
+                  },
+                  {
+                    ...memberRemoveDetails,
+                    isRead: true,
+                    leftOn: moment().unix(),
+                    isArchived: true,
+                  }
+                );
+                // update to all the members
+                await ConversationModel.addOrUpdate(
+                  {
+                    tripId: tripId,
+                  },
+                  memberRemoveDetails
+                );
+              }
+              break;
+            case 'makeFavorite':
+              updateParams['isFavorite'] = true;
+              updateParams['isActive'] = true;
+              updateParams['favoriteOn'] = moment().unix();
+              break;
+            case 'makeUnFavorite':
+              updateParams['isFavorite'] = false;
+              updateParams['unFavoriteOn'] = moment().unix();
+              updateParams['isActive'] =
+                memberExists?.isMember || memberExists?.isInvite;
+              break;
+            default:
+            // no action
+          }
+          if (action !== 'addMember') {
+            await MemberModel.update(
+              { memberId: memberDetails._id, tripId: objTripId },
               updateParams,
               { upsert: true }
             );
-          } else {
-            console.log('Inside MEMBER_NOT_FOUND info');
-            return Promise.reject(ERROR_KEYS.MEMBER_NOT_FOUND);
           }
+          return Promise.resolve();
         });
+        // Cleanup resources
+        // TODO: remove any other resources depends on member
+        if (bookingIds?.length > 0) {
+          await BookingResource.deleteMany({
+            bookingId: {
+              $in: bookingIds,
+            },
+            tripId: objTripId,
+          });
+        }
         try {
           await Promise.all(actions);
         } catch (err) {

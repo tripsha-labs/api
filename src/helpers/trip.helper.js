@@ -3,40 +3,40 @@ import moment from 'moment';
 export const getCost = preferences => {
   // Calculate room cost
   let totalRoomCost = 0;
-  preferences.rooms &&
-    preferences.rooms.forEach(room => {
+  preferences?.rooms &&
+    preferences?.rooms.forEach(room => {
       totalRoomCost += room.variant.cost * room.attendees;
     });
   totalRoomCost = parseFloat(totalRoomCost > 0 ? totalRoomCost.toFixed(2) : 0);
 
   // Calculate discounted room cost
   let discountedRoomCost = totalRoomCost;
-  if (preferences.isDiscountApplicable && preferences.discount) {
-    if (preferences.discount.discType === 'amount') {
+  if (preferences?.isDiscountApplicable && preferences?.discount) {
+    if (preferences?.discount?.discType === 'amount') {
       discountedRoomCost = totalRoomCost - preferences.discount.amount;
-    } else if (preferences.discount.discType === 'percentage') {
+    } else if (preferences?.discount?.discType === 'percentage') {
       discountedRoomCost =
         totalRoomCost -
-        (discountedRoomCost * preferences.discount.amount) / 100;
+        (discountedRoomCost * preferences?.discount?.amount) / 100;
     }
   }
 
   // Discount code
-  if (preferences.coupon) {
-    if (preferences.coupon.discType === 'amount') {
+  if (preferences?.coupon) {
+    if (preferences?.coupon.discType === 'amount') {
       discountedRoomCost = discountedRoomCost - preferences.coupon.amount;
-    } else if (preferences.coupon.discType === 'percentage') {
+    } else if (preferences?.coupon.discType === 'percentage') {
       discountedRoomCost =
         discountedRoomCost -
-        (discountedRoomCost * preferences.coupon.amount) / 100;
+        (discountedRoomCost * preferences?.coupon.amount) / 100;
     }
   }
 
   // Calculate add-on cost
   let totalAddOnCost = 0;
-  preferences.addOns &&
+  preferences?.addOns &&
     preferences.addOns.map(addOn => {
-      totalAddOnCost += addOn.cost * addOn.attendees;
+      totalAddOnCost += addOn.variant.cost * addOn.attendees;
       return addOn;
     });
   totalAddOnCost = parseFloat(
@@ -45,9 +45,9 @@ export const getCost = preferences => {
   let discountedAddOnCost = totalAddOnCost;
   if (
     discountedAddOnCost > 0 &&
-    preferences.isDiscountApplicable &&
-    preferences.discount &&
-    preferences.discount.includeAddOns
+    preferences?.isDiscountApplicable &&
+    preferences?.discount &&
+    preferences?.discount.includeAddOns
   ) {
     if (preferences.discount.discType === 'amount') {
       discountedAddOnCost = discountedAddOnCost - preferences.discount.amount;
@@ -62,7 +62,7 @@ export const getCost = preferences => {
   if (preferences.coupon) {
     if (preferences.coupon.discType === 'amount') {
       discountedAddOnCost = discountedAddOnCost - preferences.coupon.amount;
-    } else if (preferences.coupon.discType === 'percentage') {
+    } else if (preferences?.coupon?.discType === 'percentage') {
       discountedAddOnCost =
         discountedAddOnCost -
         (discountedAddOnCost * preferences.coupon.amount) / 100;
@@ -103,37 +103,41 @@ export const getCost = preferences => {
 
 export const getDiscountStatus = trip => {
   if (
-    trip.isDiscountApplicable &&
-    trip.discounts.length > 0 &&
-    trip.discounts[0].expirationDate
+    trip?.isDiscountApplicable &&
+    trip?.discounts?.length > 0 &&
+    trip?.discounts[0]?.expirationDate
   ) {
     const expiration = moment(
       trip.discounts[0].expirationDate.toString(),
       'YYYYMMDD'
     ).endOf('day');
     return expiration.diff(moment(), 'days') >= 0;
-  }
+  } else return false;
 };
 export const getDepositStatus = trip => {
-  if (trip.isDepositApplicable && trip.deposit && trip.deposit.expirationDate) {
+  if (
+    trip?.isDepositApplicable &&
+    trip?.deposit &&
+    trip?.deposit?.expirationDate
+  ) {
     const expiration = moment(
-      trip.deposit.expirationDate.toString(),
+      trip?.deposit?.expirationDate.toString(),
       'YYYYMMDD'
     ).endOf('day');
-    const startDate = moment(trip.startDate.toString(), 'YYYYMMDD').endOf(
+    const startDate = moment(trip?.startDate?.toString(), 'YYYYMMDD').endOf(
       'day'
     );
     return (
       expiration.diff(moment(), 'days') >= 0 &&
       startDate.diff(moment(), 'days') >= 30
     );
-  }
+  } else return false;
 };
 export const getBookingValidity = trip => {
-  if (trip.lastBookingDate) {
+  if (trip?.lastBookingDate) {
     const expiration = moment(trip.lastBookingDate, 'YYYYMMDD').endOf('day');
     return expiration.diff(moment(), 'days') >= 0;
-  } else if (trip.startDate) {
+  } else if (trip?.startDate) {
     const expiration = moment(trip.startDate, 'YYYYMMDD').endOf('day');
     return expiration.diff(moment(), 'days') >= 0;
   } else return false;
@@ -205,17 +209,24 @@ export const addRoomResources = (booking, trip, fields) => {
 export const addAddonResources = (booking, trip, fields) => {
   const addOns = [];
   trip.addOns.forEach(addOn => {
-    const bAddon = booking.addOns?.find(bAddOn => bAddOn.id === addOn.id);
-    if (bAddon && fields && fields.length > 0) {
-      if (fields.includes('filled'))
-        addOn['filled'] = addOn['filled']
-          ? addOn['filled'] + bAddon.attendees
-          : bAddon.attendees;
-      if (fields.includes('reserved'))
-        addOn['reserved'] = addOn['reserved']
-          ? addOn['reserved'] + bAddon.attendees
-          : bAddon.attendees;
-    }
+    addOn['variants'] = addOn.variants.map(variant => {
+      const foundVariant =
+        booking.addOns &&
+        booking.addOns.find(
+          rm => rm.addOn.id == addOn.id && rm.variant.id == variant.id
+        );
+      if (foundVariant && fields && fields.length > 0) {
+        if (fields.includes('filled'))
+          variant['filled'] = variant['filled']
+            ? variant['filled'] + foundVariant.attendees
+            : foundVariant.attendees;
+        if (fields.includes('reserved'))
+          variant['reserved'] = variant['reserved']
+            ? variant['reserved'] + foundVariant.attendees
+            : foundVariant.attendees;
+      }
+      return variant;
+    });
     addOns.push(addOn);
   });
   return addOns;
@@ -247,18 +258,25 @@ export const removeRoomResources = (booking, trip, fields) => {
 export const removeAddonResources = (booking, trip, fields) => {
   const addOns = [];
   trip.addOns.forEach(addOn => {
-    const bAddon = booking?.addOns?.find(bAddOn => bAddOn.id === addOn.id);
-    if (bAddon && fields?.length > 0) {
-      if (fields.includes('filled')) {
-        addOn['filled'] = addOn['filled'] - bAddon.attendees;
-        addOn['filled'] = addOn['filled'] > 0 ? addOn['filled'] : 0;
+    addOn['variants'] = addOn.variants.map(variant => {
+      const foundVariant = booking?.addOns?.find(
+        rm => rm.addOn.id == addOn.id && rm.variant.id == variant.id
+      );
+      if (foundVariant && fields?.length > 0) {
+        if (fields.includes('filled')) {
+          variant['filled'] = variant['filled'] - booking.attendees;
+          variant['filled'] = variant['filled'] > 0 ? variant['filled'] : 0;
+        }
+        if (fields.includes('reserved')) {
+          variant['reserved'] = variant['reserved'] - booking.attendees;
+          variant['reserved'] =
+            variant['reserved'] > 0 ? variant['reserved'] : 0;
+        }
       }
-      if (fields.includes('reserved')) {
-        addOn['reserved'] = addOn['reserved'] - bAddon.attendees;
-        addOn['reserved'] = addOn['reserved'] > 0 ? addOn['reserved'] : 0;
-      }
-    }
+      return variant;
+    });
     addOns.push(addOn);
   });
+
   return addOns;
 };

@@ -6,18 +6,18 @@ import mongoose, { Schema } from 'mongoose';
 
 const memberSchema = new mongoose.Schema(
   {
-    tripId: { type: Schema.Types.ObjectId, ref: 'Trip', index: true },
-    memberId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
-    bookingId: { type: String, index: true },
-    isActive: { type: Boolean, default: true, index: true },
-    isOwner: { type: Boolean, default: false, index: true },
-    isMember: { type: Boolean, default: false, index: true },
+    // Below two should be unique
+    tripId: { type: Schema.Types.ObjectId, index: true },
+    memberId: { type: Schema.Types.ObjectId, index: true },
+
+    bookingId: { type: Schema.Types.ObjectId, index: true }, // This is optional
+    isActive: { type: Boolean, default: true }, // Record is valid or not
+    isMember: { type: Boolean, default: false }, // Is registered member
+    isFavorite: { type: Boolean, default: false }, // Is interated member
+    isInvite: { type: Boolean, default: false }, // Is invited member
     joinedOn: { type: String },
     leftOn: { type: String },
-    isFavorite: { type: Boolean, default: false },
-    favoriteOn: { type: String },
-    unFavoriteOn: { type: String },
-    removeRequested: { type: Boolean },
+    removeRequested: { type: Boolean }, // Is remove membership requested
   },
   {
     timestamps: true,

@@ -49,18 +49,20 @@ export class BookingController {
     return username;
   }
   static async createInvite(params, currentUser) {
-    const user = currentUser;
-    // Fetch trip information
+    // Validate trip exists
     const trip = await TripModel.getById(params.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    // Fetch co host ids
-    if (checkPermission(currentUser, trip, 'travelerManagement', 'edit')) {
+    // Check permissions
+    if (
+      await checkPermission(currentUser, trip, 'travelerManagement', 'edit')
+    ) {
       // Check if emails are already exists
       let users = await UserModel.list({
         filter: { email: { $in: params.emails } },
         select: { email: 1 },
       });
       const foundEmails = users.map(user => user.email);
+      // Get the new emails to add
       const difference = _.difference(params.emails, foundEmails);
       // Create users if not exists already
       if (difference?.length > 0) {
@@ -91,128 +93,212 @@ export class BookingController {
           return { email: email };
         });
         if (data?.length > 0)
-          await MemberDirectoryController.createMembers(data, user);
+          await MemberDirectoryController.createMembers(data, currentUser);
       }
       // Fetch user list once again for newly added users
       users = await UserModel.list({
         filter: { email: { $in: params.emails } },
         select: { email: 1 },
       });
-      // Collect user ids
-      const memberIds = users.map(user => user._id.toString());
-      // Add invitee as attendee directly
-      if (params?.attendee_action === 'direct_attendee') {
-        const objMemberIds = users.map(user => user._id);
-        const foundMembers = await MemberModel.list({
-          filter: {
-            tripId: params.tripId,
-            memberId: objMemberIds,
-            isMember: true,
-          },
-        });
-        const foundMemberIds = foundMembers.map(member =>
-          member.memberId.toString()
-        );
-
-        const diffIds = _.difference(memberIds, foundMemberIds);
-        // Check if owner has booking
-        if (memberIds.includes(trip.ownerId.toString())) {
-          diffIds.push(trip.ownerId.toString());
+      const bookingList = await BookingModel.list({
+        filter: {
+          tripId: trip._id,
+          memberId: { $in: users.map(user => user._id) },
+        },
+      });
+      const bookingKeyPair = {};
+      bookingList.map(b => {
+        bookingKeyPair[b.memberId.toString()] = b;
+      });
+      // Step 1 create bookings entries
+      const bookings = [];
+      // Post booking operations like adding to conversation, sending email etc.
+      const membersToadd = [];
+      users?.forEach(user => {
+        const filter = { memberId: user._id, tripId: trip._id };
+        const bookingPayload = {
+          onwerId: trip.ownerId,
+          memberId: user._id,
+          tripId: trip._id,
+          addedByHost: true,
+          message: 'Member added by Host',
+          tripPaymentType: trip.tripPaymentType,
+        };
+        let updateRequired = true;
+        switch (params?.attendee_action) {
+          case 'direct_attendee':
+            bookingPayload['status'] = 'approved';
+            // TODO: handle email notifications
+            if (bookingKeyPair.hasOwnProperty(user._id.toString())) {
+              // TODO: If status==pending handle payment case
+              if (bookingKeyPair[user._id.toString()].status === 'approved')
+                updateRequired = false;
+            }
+            if (updateRequired) {
+              membersToadd.push(user._id.toString());
+            }
+            break;
+          case 'send_invite':
+            bookingPayload['status'] = 'invited';
+            if (bookingKeyPair.hasOwnProperty(user._id.toString())) {
+              updateRequired = ![
+                'approved',
+                'pending',
+                'invite-accepted',
+              ].includes(bookingKeyPair[user._id.toString()].status);
+            }
+            break;
+          case 'just_add':
+          default:
+            bookingPayload['status'] = 'invite-pending';
+            if (bookingKeyPair.hasOwnProperty(user._id.toString())) {
+              updateRequired = ![
+                'invited',
+                'approved',
+                'pending',
+                'invite-accepted',
+                'invite-declined',
+              ].includes(bookingKeyPair[user._id.toString()].status);
+            }
+            break;
         }
-        if (diffIds?.length > 0)
-          await MemberController.memberAction(
-            {
-              memberIds: diffIds,
-              tripId: params.tripId,
-              message: params.message || '',
-              awsUserId: user.awsUserId,
-              action: 'addMember',
-              forceAddTraveler: true,
-            },
-            currentUser
-          );
-      } else {
-        // Check if members already approved or invite accepted status
-        const approvedBookings = await BookingModel.list({
-          filter: {
-            memberId: {
-              $in: memberIds,
-            },
-            tripId: params.tripId,
-            status: { $in: ['invite-accepted', 'approved'] },
-          },
-        });
-        const approvedBookingIds = approvedBookings?.map(b => b.memberId) || [];
-        const bookings = [];
-        const booking_id_list = {};
-        users.forEach(user => {
-          let bookingStatus = 'invite-pending';
-          let invited = false;
-          if (params.attendee_action === 'send_invite') {
-            bookingStatus = 'invited';
-            booking_id_list[user._id.toString()] = user.email;
-          }
-          if (!approvedBookingIds.includes(user._id.toString()))
-            bookings.push({
-              updateOne: {
-                filter: {
-                  tripId: params.tripId,
-                  memberId: user._id.toString(),
-                },
-                update: {
-                  $set: {
-                    tripId: params.tripId,
-                    memberId: user._id.toString(),
-                    addedByHost: true,
-                    status: bookingStatus,
-                    invited: invited,
-                  },
-                },
-                upsert: true,
+        if (updateRequired)
+          bookings.push({
+            updateOne: {
+              filter: filter,
+              update: {
+                $set: bookingPayload,
               },
-            });
-        });
-        await BookingModel.bulkWrite(bookings);
-        if (params.attendee_action === 'send_invite') {
-          const bookingList = await BookingModel.list({
-            filter: {
-              tripId: params.tripId,
-              memberId: { $in: Object.keys(booking_id_list) },
+              upsert: true,
             },
           });
-          const invite_emails = bookingList.map(b => {
-            if (booking_id_list.hasOwnProperty(b.memberId))
-              return {
-                email: booking_id_list[b.memberId],
-                bookingId: b._id.toString(),
-              };
-            else return {};
-          });
-          invite_emails?.map(async e => {
-            if (e.email)
-              await EmailSender(
-                { email: e.email },
-                EmailMessages.MEMBER_INVITE_HOST,
-                [
-                  trip._id.toString(),
-                  trip['title'],
-                  `${user.firstName} ${user.lastName}`,
-                  e.bookingId,
-                ]
-              );
-          });
-        }
-      }
+      });
 
+      await BookingModel.bulkWrite(bookings);
+      // Step 2 create members
+      // Get all the bookings for member addition
+      const resBookings = await BookingModel.aggregate([
+        {
+          $match: {
+            tripId: trip._id,
+            memberId: { $in: users.map(user => user._id) },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'memberId',
+            foreignField: '_id',
+            as: 'user',
+            pipeline: [
+              {
+                $project: { email: 1, firstName: 1, lastName: 1 },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: '$user',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            user: 1,
+            status: 1,
+            memberId: 1,
+            tripId: 1,
+          },
+        },
+      ]);
+
+      const membersPayload = resBookings?.map(booking => {
+        const filter = {
+          tripId: booking.tripId,
+          memberId: booking.memberId,
+        };
+        const memberPayload = {
+          tripId: booking.tripId,
+          memberId: booking.memberId,
+          bookingId: booking._id,
+          isMember: booking.status == 'approved',
+          removeRequested: false,
+          isActive: true,
+          leftOn: -1,
+          joinedOn: moment().unix(),
+        };
+
+        return {
+          updateOne: {
+            filter: filter,
+            update: {
+              $set: memberPayload,
+            },
+            upsert: true,
+          },
+        };
+      });
+      await MemberModel.bulkUpdate(membersPayload);
+
+      if (params?.attendee_action === 'send_invite') {
+        const resEmails = resBookings.map(booking => {
+          return EmailSender(
+            { email: booking?.user?.email },
+            EmailMessages.MEMBER_INVITE_HOST,
+            [
+              trip._id.toString(),
+              trip['title'],
+              `${booking?.user?.firstName || ''} ${booking?.user?.lastName ||
+                ''}`,
+              booking._id.toString(),
+            ]
+          );
+        });
+        await Promise.all(resEmails);
+      }
+      // Step 3: post booking oprrations
+      if (membersToadd.length > 0) {
+        await MemberController.memberAction(
+          {
+            memberIds: membersToadd,
+            tripId: trip._id.toString(),
+            message: params.message || '',
+            action: 'addMember',
+          },
+          currentUser
+        );
+      }
       return 'success';
     } else throw ERROR_KEYS.UNAUTHORIZED;
   }
-  static async removeInvite(params, awsUserId) {
-    const user = await UserModel.get({ awsUserId: awsUserId });
+  static async removeInvite(params, user) {
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-    if (user.isHost || user.isAdmin) {
+    const booking = await BookingModel.getById(params.booking_id);
+    if (!booking) throw ERROR_KEYS.BOOKING_NOT_FOUND;
+    const trip = await TripModel.getById(booking.tripId.toString());
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    if (await checkPermission(user, trip, 'travelerManagement', 'edit')) {
+      const member = await MemberModel.get({
+        memberId: booking.memberId,
+        tripId: booking.tripId,
+      });
+      if (member.isMember || member.isFavorite)
+        await MemberModel.update(
+          { memberId: booking.memberId, tripId: booking.tripId },
+          {
+            message: params.message || '',
+            isInvite: false,
+            isActive: member.isMember || member.isFavorite,
+          }
+        );
+      else
+        await MemberModel.delete({
+          memberId: booking.memberId,
+          tripId: booking.tripId,
+        });
       await BookingModel.delete({
-        _id: Types.ObjectId(params.booking_id),
+        _id: booking._id,
       });
       return 'success';
     } else throw ERROR_KEYS.TRIP_NOT_FOUND;
@@ -227,41 +313,7 @@ export class BookingController {
     );
     return 'success';
   }
-  static async sendReminder(params, awsUserId) {
-    const hostUser = await UserModel.get({ awsUserId: awsUserId });
-    if (!hostUser) throw ERROR_KEYS.USER_NOT_FOUND;
-    const trip = await TripModel.getById(params.tripId);
-    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    const users = await UserModel.list({
-      filter: { email: { $in: params.emails } },
-      select: { email: 1, firstName: 1, lastName: 1, username: 1 },
-    });
-    if (users?.length > 0) {
-      const bookings = await BookingModel.list({
-        filter: {
-          memberId: { $in: users.map(user => user._id.toString()) },
-          tripId: params.tripId,
-        },
-      });
-      users.map(async user => {
-        const booking = bookings.find(b => b.memberId === user._id.toString());
-        if (booking && booking.status === 'invite-pending') {
-          console.log('Updating invite.....');
-          await BookingModel.update(booking._id, {
-            status: 'invited',
-            invited: true,
-          });
-        }
-        await EmailSender(user, EmailMessages.MEMBER_INVITE_HOST, [
-          trip._id.toString(),
-          trip['title'],
-          `${hostUser.firstName || ''} ${hostUser.lastName || ''}`,
-          booking._id,
-        ]);
-        return user;
-      });
-    }
-  }
+
   static async createBooking(params, currentUser) {
     const bookingData = params;
     // Fetch trip information and validate if exists
@@ -281,8 +333,8 @@ export class BookingController {
     // Validate trip either allowed to book
     if (!getBookingValidity(trip)) throw ERROR_KEYS.TRIP_BOOKING_CLOSED;
 
-    bookingData['memberId'] = user._id.toString();
-    bookingData['ownerId'] = tripOwner._id.toString();
+    bookingData['memberId'] = user._id;
+    bookingData['ownerId'] = tripOwner._id;
     let costing = {};
     // Fetch deposit status information and validate
     if (params['paymentStatus'] == 'deposit') {
@@ -323,8 +375,8 @@ export class BookingController {
       .add(trip.bookingExpiryDays || 3, 'days')
       .unix();
 
-    const existingBooking = await BookingModel.get({
-      tripId: finalBookingData['tripId'],
+    let existingBooking = await BookingModel.get({
+      tripId: trip._id,
       memberId: finalBookingData['memberId'],
     });
     // Checks if booking already exists
@@ -335,26 +387,38 @@ export class BookingController {
       throw ERROR_KEYS.BOOKING_ALREADY_EXISTS;
 
     finalBookingData['status'] = 'pending';
-
     const status = getTripResourceValidity(trip, bookingData);
     if (status.rooms && status.addOns) throw ERROR_KEYS.TRIP_RESOURCES_FULL;
-
-    let booking;
-    let bookingId = null;
-    if (existingBooking?._id) {
-      booking = await BookingModel.update(
-        existingBooking._id,
-        finalBookingData,
-        {
-          upsert: true,
-        }
-      );
-      bookingId = existingBooking?._id;
-    } else {
-      booking = await BookingModel.create(finalBookingData);
-      bookingId = booking?._id?.toString();
-    }
-    booking = await BookingModel.getById(bookingId);
+    await BookingModel.updateQuery(
+      {
+        tripId: trip._id,
+        memberId: finalBookingData['memberId'],
+      },
+      finalBookingData,
+      {
+        upsert: true,
+      }
+    );
+    if (!existingBooking)
+      existingBooking = await BookingModel.getById({
+        tripId: trip._id,
+        memberId: finalBookingData['memberId'],
+      });
+    const filter = {
+      tripId: existingBooking.tripId,
+      memberId: existingBooking.memberId,
+    };
+    const memberPayload = {
+      tripId: existingBooking.tripId,
+      memberId: existingBooking.memberId,
+      bookingId: existingBooking._id,
+      isMember: existingBooking.status == 'approved',
+      removeRequested: false,
+      isActive: true,
+      leftOn: -1,
+      joinedOn: moment().unix(),
+    };
+    await MemberModel.update(filter, memberPayload, { upsert: true });
     const tripUpdate = {
       isLocked: true,
       rooms: addRoomResources(bookingData, trip, ['reserved']),
@@ -375,30 +439,14 @@ export class BookingController {
       audienceIds: [tripOwner._id.toString()],
       userId: user._id.toString(),
     });
-    // Traveler email
-    // await EmailSender(user, EmailMessages.BOOKING_REQUEST_TRAVELER, [
-    //   booking._id,
-    //   trip._id.toString(),
-    //   trip['title'],
-    // ]);
 
-    //Host email
-    // await EmailSender(tripOwner, EmailMessages.BOOKING_REQUEST_HOST, [
-    //   trip._id.toString(),
-    //   trip['title'],
-    //   trip.bookingExpiryDays || 3,
-    // ]);
     booking['trip'] = trip;
-    let awsOwnerUserId = tripOwner.awsUserId;
-    if (Array.isArray(tripOwner.awsUserId) && tripOwner.awsUserId.length > 0) {
-      awsOwnerUserId = tripOwner.awsUserId[0];
-    }
     booking['awsUserId'] = tripOwner.awsUserId;
     if (trip?.autoAcceptBookingRequest) {
       await BookingController.bookingsAction(
         { action: 'approve' },
         bookingId,
-        awsOwnerUserId
+        tripOwner
       );
     }
     return booking;
@@ -410,10 +458,10 @@ export class BookingController {
     const trip = await TripModel.getById(filters.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
 
-    if (!checkPermission(currentUser, trip, 'atteendees', 'view'))
+    if (!(await checkPermission(currentUser, trip, 'atteendees', 'view')))
       throw ERROR_KEYS.UNAUTHORIZED;
 
-    const params = [{ $match: { tripId: filters.tripId } }];
+    const params = [{ $match: { tripId: Types.ObjectId(filters.tripId) } }];
     params.push({
       $sort: prepareSortFilter(
         filters,
@@ -426,14 +474,6 @@ export class BookingController {
     const page = filters.page ? parseInt(filters.page) : APP_CONSTANTS.PAGE;
     params.push({ $skip: limit * page });
     params.push({ $limit: limit });
-    params.push({
-      $project: {
-        memberId: {
-          $toObjectId: '$memberId',
-        },
-        ...bookingProjection,
-      },
-    });
     params.push({
       $lookup: {
         from: 'users',
@@ -461,16 +501,19 @@ export class BookingController {
     if (!(trip.ownerId.toString() === user._id.toString())) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
-    const bookingList = BookingModel.list({ tripId: params.tripId });
+    const bookingList = BookingModel.list({
+      filter: {
+        tripId: Types.ObjectId(params.tripId),
+      },
+    });
     return bookingList;
   }
 
-  static async bookingsAction(params, bookingId, awsUserId) {
-    const user = await UserModel.get({ awsUserId: awsUserId });
+  static async bookingsAction(params, bookingId, user) {
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const booking = await BookingModel.getById(bookingId);
     if (!booking) throw ERROR_KEYS.BOOKING_NOT_FOUND;
-    const trip = await TripModel.getById(booking.tripId);
+    const trip = await TripModel.getById(booking?.tripId?.toString());
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
     const tripUpdate = {
       spotsReserved: trip.spotsReserved - booking.attendees,
@@ -480,7 +523,7 @@ export class BookingController {
     let validForUpdate = false;
     let bookingUpdate = {};
     const memberInfo = await UserModel.get({
-      _id: ObjectID(booking.memberId),
+      _id: booking.memberId,
     });
     const { action, forceAddTraveler } = params || {};
     if (action) {
@@ -489,7 +532,12 @@ export class BookingController {
         case 'approve':
           validForUpdate = true;
           if (
-            !checkPermission(currentUser, trip, 'travelerManagement', 'edit')
+            !(await checkPermission(
+              currentUser,
+              trip,
+              'travelerManagement',
+              'edit'
+            ))
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -652,10 +700,8 @@ export class BookingController {
             {
               tripId: booking.tripId,
               action: 'addMember',
-              forceAddTraveler: forceAddTraveler,
+              message: '',
               memberIds: [booking.memberId],
-              bookingId: bookingId,
-              awsUserId: awsUserId,
             },
             user
           );
@@ -681,7 +727,12 @@ export class BookingController {
         case 'decline':
           validForUpdate = true;
           if (
-            !checkPermission(currentUser, trip, 'travelerManagement', 'edit')
+            !(await checkPermission(
+              currentUser,
+              trip,
+              'travelerManagement',
+              'edit'
+            ))
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -735,7 +786,12 @@ export class BookingController {
           validForUpdate = true;
           const tripOwner = await UserModel.get({ _id: trip.ownerId });
           if (!tripOwner) throw ERROR_KEYS.USER_NOT_FOUND;
-          if (!(user.isAdmin || booking.memberId === user._id.toString())) {
+          if (
+            !(
+              user.isAdmin ||
+              booking.memberId?.toString() === user._id.toString()
+            )
+          ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
           if (!(booking.status == 'pending' || booking.status == 'approved')) {
@@ -792,26 +848,24 @@ export class BookingController {
   }
 
   static async getBooking(bookingId) {
-    const booking = await BookingModel.getById(bookingId);
-    return booking;
+    return await BookingModel.getById(bookingId);
   }
 
-  static async doPartPayment(bookingId, awsUserId) {
-    const user = await UserModel.get({ awsUserId: awsUserId });
+  static async doPartPayment(bookingId, user) {
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const booking = await BookingModel.getById(bookingId);
     const memberInfo = await UserModel.get({
-      _id: ObjectID(booking.memberId),
+      _id: booking.memberId,
     });
 
-    if (user._id.toString() === booking.memberId) {
+    if (user._id.toString() === booking?.memberId?.toString()) {
       if (booking.totalFare && booking.totalFare > 0) {
         if (booking.status !== 'approved' && booking.currentDue <= 0) {
           console.log('Request already processed');
           throw ERROR_KEYS.INVALID_ACTION;
         }
         const tripInfo = await TripModel.get({
-          _id: ObjectID(booking.tripId),
+          _id: booking.tripId,
         });
         const ownerInfo = await UserModel.get({
           _id: tripInfo.ownerId,
@@ -972,15 +1026,20 @@ export class BookingController {
     if (booking)
       await BookingModel.updateMany({ _id: { $in: booking_ids } }, booking);
   }
-  static async sendCustomMessage(params, awsUserId) {
-    const hostUser = await UserModel.get({ awsUserId: awsUserId });
-    if (!hostUser) throw ERROR_KEYS.USER_NOT_FOUND;
-    if (hostUser.isAdmin || hostUser.isHost) {
+  static async sendCustomMessage(params, currentUser) {
+    if (!currentUser) throw ERROR_KEYS.USER_NOT_FOUND;
+    const trip = await TripModel.get({
+      _id: Types.ObjectId(params.tripId),
+    });
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    if (
+      await checkPermission(currentUser, trip, 'travelerManagement', 'edit')
+    ) {
       const user = await UserModel.get({
         _id: Types.ObjectId(params.memberId),
       });
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
-      const result = await sendCustomEmail(
+      await sendCustomEmail(
         user,
         EmailMessages.MEMBER_REMINDER_CUSTOM_MESSAGE_HOST,
         [params.message]
@@ -993,51 +1052,49 @@ export class BookingController {
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const booking = await BookingModel.get({
       memberId: user._id,
-      tripId: tripId,
+      tripId: Types.ObjectId(tripId),
     });
     return booking;
   }
   static async respondInvite(tripId, params, user) {
-    let payload = {};
-    let status = params?.status;
     const trip = await TripModel.getById(tripId);
-    if (trip.autoRegisterRSVP && params?.status === 'invite-accepted')
-      status = 'approved';
-    if (params?.bookingId) {
-      payload = {
-        status: status,
-      };
-      await BookingModel.update(Types.ObjectId(params.bookingId), params);
-    } else {
-      payload = {
-        tripId: tripId,
-        memberId: user._id.toString(),
-        addedByHost: false,
-        status: status,
-      };
-      await BookingModel.updateQuery(
-        { tripId: tripId, memberId: user._id.toString() },
-        payload,
-        { upsert: true }
-      );
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    let payload = {
+      onwerId: trip.ownerId,
+      memberId: user._id,
+      tripId: trip._id,
+      addedByHost: false,
+      message: '',
+      tripPaymentType: trip.tripPaymentType,
+      status: params?.status,
+    };
+    if (trip.autoRegisterRSVP && params?.status === 'invite-accepted') {
+      payload['status'] = 'approved';
+      payload['message'] = 'Member auto accepted via rsvp.';
     }
+
+    await BookingModel.updateQuery(
+      { tripId: trip._id, memberId: user._id },
+      payload,
+      { upsert: true }
+    );
 
     if (trip.autoRegisterRSVP && params?.status === 'invite-accepted') {
       const booking = await BookingModel.get({
-        tripId: tripId,
-        memberId: user._id.toString(),
+        tripId: trip._id,
+        memberId: user._id,
       });
-
+      await MemberModel.update(
+        { tripId: trip._id, memberId: user._id },
+        { isActive: true, isMember: true, bookingId: booking._id },
+        { upsert: true }
+      );
       await MemberController.memberAction(
         {
           memberIds: [user._id.toString()],
           tripId: tripId,
           message: params?.message || '',
-          awsUserId: user.awsUserId,
           action: 'addMember',
-          forceAddTraveler: true,
-          bookingId: booking?._id?.toString(),
-          autoRegisterRSVP: true,
         },
         user
       );

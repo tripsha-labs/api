@@ -8,11 +8,11 @@ const tripSchema = new mongoose.Schema(
   {
     // Project fields
     name: { type: String, index: true },
-    hiddenAttendees: { type: Object, optional: true }, //for contributors
+    hiddenAttendees: { type: Object, optional: true, default: {} }, // Hide attendees per view
     showAttendees: { type: Boolean, default: false }, // for travelers
-    budget: { type: Object, optional: true },
+    budget: { type: Object, optional: true, default: {} },
     questions: { type: Array, default: [] },
-    draft: { type: Object, default: {} },
+    draft: { type: Object, default: {} }, // All draft trip page details stored here
     lastPublishedDate: { type: Number },
     lastSavedDate: { type: Number },
     // Trip page fields controlled from UI
@@ -31,9 +31,11 @@ const tripSchema = new mongoose.Schema(
     thumbnailUrls: { type: Array, default: [], optional: true },
     itineraries: { type: Array, default: [], optional: true },
     rooms: { type: Array, default: [], optional: true },
+    venues: { type: Array, default: [], optional: true },
+    menuItems: { type: Array, default: [], optional: true },
     addOns: { type: Array, default: [] },
-    deposit: { type: Object },
-    discounts: { type: Object },
+    deposit: { type: Object, default: {} },
+    discount: { type: Object, default: {} },
     isDepositApplicable: { type: Boolean, default: false },
     isDiscountApplicable: { type: Boolean, default: false },
     tripPaymentType: {
@@ -54,8 +56,9 @@ const tripSchema = new mongoose.Schema(
     // Trip fields handled from backend
     status: {
       type: String,
-      enum: ['draft', 'published', 'completed', 'cancelled'],
+      enum: ['created', 'draft', 'published', 'completed', 'cancelled'],
       index: true,
+      default: 'created',
     },
     guestCount: { type: Number, default: 0 },
     externalCount: { type: Number, default: 0 },

@@ -1,3 +1,4 @@
+import { Types, isValidObjectId } from 'mongoose';
 import {
   UserModel,
   TripModel,
@@ -330,4 +331,64 @@ export const updateVariableNames = async () => {
     );
     resolve();
   });
+};
+
+export const updateObjectIds = async () => {
+  try {
+    // const bookings = await BookingModel.list({});
+    // const payload = bookings.map(booking => {
+    //   return {
+    //     updateOne: {
+    //       filter: {
+    //         _id: booking._id,
+    //       },
+    //       update: {
+    //         $set: {
+    //           tripId: Types.ObjectId(booking.tripId),
+    //           memberId: Types.ObjectId(booking.memberId),
+    //           onwerId: Types.ObjectId(booking.onwerId),
+    //         },
+    //       },
+    //       upsert: false,
+    //     },
+    //   };
+    // });
+    // await BookingModel.bulkWrite(payload);
+    const members = await MemberModel.list({});
+    const payload = members.map(member => {
+      if (
+        member.bookingId &&
+        typeof member.bookingId == 'string' &&
+        isValidObjectId(member.bookingId)
+      )
+        return {
+          updateOne: {
+            filter: {
+              _id: member._id,
+            },
+            update: {
+              $set: {
+                bookingId: Types.ObjectId(member.bookingId),
+              },
+            },
+            upsert: false,
+          },
+        };
+      else
+        return {
+          updateOne: {
+            filter: {
+              _id: member._id,
+            },
+            update: {
+              $set: { isInvite: false },
+            },
+            upsert: false,
+          },
+        };
+    });
+    await MemberModel.bulkUpdate(payload);
+  } catch (err) {
+    console.log(err);
+  }
 };

@@ -9,7 +9,6 @@ import {
   multiUpdateBooking,
   createInvite,
   updateCustomFields,
-  sendReminder,
   removeInvite,
   sendCustomReminderMessage,
   getInvites,
@@ -22,7 +21,6 @@ router.get('/', listBookings);
 router.post('/', createBooking);
 router.post('/invite', createInvite);
 router.delete('/invite', removeInvite);
-router.post('/invite/reminder', sendReminder);
 router.post('/invite/custom-email', sendCustomReminderMessage);
 router.put('/', multiUpdateBooking);
 router.get('/:id', getBooking);
