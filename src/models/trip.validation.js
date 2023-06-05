@@ -11,7 +11,7 @@ const tripSchema = {
   description: { type: 'string', optional: true },
   startDate: { type: 'number', empty: false },
   endDate: { type: 'number', empty: false },
-  tripLength: { type: 'number', default: 0 },
+  tripLength: { type: 'number', optional: true },
   focus: {
     type: 'string',
     optional: true,
