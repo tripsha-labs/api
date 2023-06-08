@@ -11,6 +11,7 @@ import {
   draftTripValidation,
   createProjectValidation,
   TripModel,
+  editProjectValidation,
 } from '../../models';
 
 /**
@@ -42,6 +43,22 @@ export const createProject = async (req, res) => {
     payload['ownerId'] = req.currentUser._id;
     payload['updatedBy'] = req.currentUser._id;
     const result = await TripController.createProject(payload, data);
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const editProject = async (req, res) => {
+  try {
+    const data = req.body || {};
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const errors = editProjectValidation(data);
+    if (errors != true) throw errors.shift();
+    data['updatedBy'] = req.currentUser._id;
+    const result = await TripController.editProject(req.params.id, data);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);

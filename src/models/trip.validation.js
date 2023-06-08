@@ -323,6 +323,8 @@ const tripSchema = {
             'Url',
             'Date',
             'DateRange',
+            'Time',
+            'DateTime',
             'Consent',
             'YesNo',
           ],
@@ -489,6 +491,11 @@ const createProjectSchema = {
   content: { type: 'array', optional: true },
   tripId: { type: 'string', optional: true },
 };
+const editProjectSchema = {
+  name: { type: 'string', empty: false },
+  content: { type: 'array', optional: true },
+  tripId: { type: 'string', optional: true },
+};
 export const validateTripLength = (startDate, endDate) => {
   try {
     startDate = moment(startDate, DATE_FORMAT);
@@ -501,6 +508,7 @@ export const validateTripLength = (startDate, endDate) => {
 export const createProjectValidation = new Validator().compile(
   createProjectSchema
 );
+export const editProjectValidation = new Validator().compile(editProjectSchema);
 export const draftTripValidation = new Validator().compile(draftpSchema);
 export const createTripValidation = new Validator().compile(tripSchema);
 export const updateTripValidation = new Validator().compile(tripUpdateSchema);

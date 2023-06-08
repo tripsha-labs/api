@@ -354,40 +354,41 @@ export const updateObjectIds = async () => {
     //   };
     // });
     // await BookingModel.bulkWrite(payload);
-    const members = await MemberModel.list({});
-    const payload = members.map(member => {
-      if (
-        member.bookingId &&
-        typeof member.bookingId == 'string' &&
-        isValidObjectId(member.bookingId)
-      )
-        return {
-          updateOne: {
-            filter: {
-              _id: member._id,
-            },
-            update: {
-              $set: {
-                bookingId: Types.ObjectId(member.bookingId),
-              },
-            },
-            upsert: false,
-          },
-        };
-      else
-        return {
-          updateOne: {
-            filter: {
-              _id: member._id,
-            },
-            update: {
-              $set: { isInvite: false },
-            },
-            upsert: false,
-          },
-        };
-    });
-    await MemberModel.bulkUpdate(payload);
+    // const members = await MemberModel.list({});
+    // const payload = members.map(member => {
+    //   if (
+    //     member.bookingId &&
+    //     typeof member.bookingId == 'string' &&
+    //     isValidObjectId(member.bookingId)
+    //   )
+    //     return {
+    //       updateOne: {
+    //         filter: {
+    //           _id: member._id,
+    //         },
+    //         update: {
+    //           $set: {
+    //             bookingId: Types.ObjectId(member.bookingId),
+    //           },
+    //         },
+    //         upsert: false,
+    //       },
+    //     };
+    //   else
+    //     return {
+    //       updateOne: {
+    //         filter: {
+    //           _id: member._id,
+    //         },
+    //         update: {
+    //           $set: { isInvite: false },
+    //         },
+    //         upsert: false,
+    //       },
+    //     };
+    // });
+    // await MemberModel.bulkUpdate(payload);
+    await UserModel.updateMany({}, { $set: { isConcierge: true } });
   } catch (err) {
     console.log(err);
   }

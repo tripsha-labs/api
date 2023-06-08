@@ -232,6 +232,12 @@ export class TripController {
       return resTrip;
     } catch (err) {}
   }
+  static async editProject(id, payload) {
+    try {
+      const resTrip = await TripModel.update(Types.ObjectId(id), payload);
+      return resTrip;
+    } catch (err) {}
+  }
   /** Depricated */
   // static async createTrip(params) {
   //   try {

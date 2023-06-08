@@ -52,4 +52,7 @@ export class UserModel {
   static aggregate(params) {
     return User.aggregate(params);
   }
+  static updateMany(query, params) {
+    return User.updateMany(query, params);
+  }
 }

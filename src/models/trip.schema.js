@@ -45,13 +45,13 @@ const tripSchema = new mongoose.Schema(
     priceIncludes: { type: String, optional: true },
     priceExcludes: { type: String, optional: true },
     lastBookingDate: { type: Number, optional: true },
-    showGroupHistory: { type: Boolean, default: true },
-    isAutoPayEnabled: { type: Boolean, default: true },
+    showGroupHistory: { type: Boolean, default: false },
+    isAutoPayEnabled: { type: Boolean, default: false },
     bookingExpiryDays: { type: Number, default: 3 },
-    isRSVPEnabled: { type: Boolean, default: true },
-    autoRegisterRSVP: { type: Boolean, default: true },
-    isBookingEnabled: { type: Boolean, default: true },
-    autoAcceptBookingRequest: { type: Boolean, default: true },
+    isRSVPEnabled: { type: Boolean, default: false },
+    autoRegisterRSVP: { type: Boolean, default: false },
+    isBookingEnabled: { type: Boolean, default: false },
+    autoAcceptBookingRequest: { type: Boolean, default: false },
 
     // Trip fields handled from backend
     status: {

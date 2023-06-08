@@ -88,6 +88,8 @@ const bookingSchema = {
             'Url',
             'Date',
             'DateRange',
+            'DateTime',
+            'Time',
             'Consent',
             'YesNo',
           ],

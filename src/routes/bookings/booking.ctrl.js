@@ -399,20 +399,20 @@ export class BookingController {
         upsert: true,
       }
     );
-    if (!existingBooking)
-      existingBooking = await BookingModel.getById({
-        tripId: trip._id,
-        memberId: finalBookingData['memberId'],
-      });
+
+    const booking = await BookingModel.get({
+      tripId: trip._id,
+      memberId: finalBookingData['memberId'],
+    }).lean();
     const filter = {
-      tripId: existingBooking.tripId,
-      memberId: existingBooking.memberId,
+      tripId: booking.tripId,
+      memberId: booking.memberId,
     };
     const memberPayload = {
-      tripId: existingBooking.tripId,
-      memberId: existingBooking.memberId,
-      bookingId: existingBooking._id,
-      isMember: existingBooking.status == 'approved',
+      tripId: booking.tripId,
+      memberId: booking.memberId,
+      bookingId: booking._id,
+      isMember: booking.status == 'approved',
       removeRequested: false,
       isActive: true,
       leftOn: -1,
@@ -445,7 +445,7 @@ export class BookingController {
     if (trip?.autoAcceptBookingRequest) {
       await BookingController.bookingsAction(
         { action: 'approve' },
-        bookingId,
+        booking._id.toString(),
         tripOwner
       );
     }
@@ -532,12 +532,7 @@ export class BookingController {
         case 'approve':
           validForUpdate = true;
           if (
-            !(await checkPermission(
-              currentUser,
-              trip,
-              'travelerManagement',
-              'edit'
-            ))
+            !(await checkPermission(user, trip, 'travelerManagement', 'edit'))
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }
@@ -727,12 +722,7 @@ export class BookingController {
         case 'decline':
           validForUpdate = true;
           if (
-            !(await checkPermission(
-              currentUser,
-              trip,
-              'travelerManagement',
-              'edit'
-            ))
+            !(await checkPermission(user, trip, 'travelerManagement', 'edit'))
           ) {
             throw ERROR_KEYS.UNAUTHORIZED;
           }

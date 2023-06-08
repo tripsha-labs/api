@@ -334,9 +334,10 @@ const _check_username_exists = async (email, username) => {
   return userExists;
 };
 
-const _check_email_exists = async email => {
+const _check_email_exists = async (email, userId) => {
   return await UserController.isExists({
     email: email,
+    userId,
   });
 };
 
