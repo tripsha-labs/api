@@ -12,13 +12,12 @@ import {
   MemberModel,
   validateTripLength,
   UserModel,
-  ConversationModel,
-  MessageModel,
+  TopicModel,
+  LinkModel,
   BookingModel,
   AssetModel,
   AssetLinkModel,
   UserPermissionModel,
-  TopicModel,
 } from '../../models';
 import {
   ERROR_KEYS,
@@ -180,55 +179,83 @@ export class TripController {
       throw error;
     }
   }
-  static async createProject(payload, data) {
+  static async createProject(createPayload, data) {
     try {
-      const resTrip = await TripModel.create(payload);
-      // const newTripId = resTrip._id;
-      // if (data.hasOwnProperty('tripId')) {
-      //   const trip = await TripModel.getById(data.tripId);
-      //   if (!trip) throw 'Unable to find trip';
-      //   const oldTripId = trip._id;
-      //   if (data.hasOwnProperty('content')) {
-      //     data.content?.forEach(content => {
-      //       switch (content) {
-      //         case 'trip_page':
-      //           // trip part
-      //           payload['draft'] = trip.draft;
-      //           break;
-      //         case 'topics':
-      //           // insert topics
-      //           payload['topics'] = trip.topics;
-      //           break;
-      //         case 'attendee_views':
-      //           // trip part
-      //           payload['topics'] = trip.topics;
-      //           break;
-      //         case 'resources':
-      //           // insert resource
-      //           payload['resources'] = trip.resources;
-      //           break;
-      //         case 'questions':
-      //           // trip part
-      //           payload['questions'] = trip.questions;
-      //           break;
-      //         case 'budget':
-      //           // trip part
-      //           payload['budget'] = trip.budget;
-      //           // insert payments
-      //           payload['budget'] = trip.budget;
-      //           break;
-      //         case 'links':
-      //           // insert links
-      //           payload['links'] = trip.links;
-      //           break;
-      //         case 'group_permissions':
-      //           // insert permissions
-      //           break;
-      //       }
-      //     });
-      //   }
-      // }
-      await TopicController.addDefaultTopics(resTrip._id, payload.ownerId);
+      const resTrip = await TripModel.create(createPayload);
+      const payload = {};
+      if (data.hasOwnProperty('tripId')) {
+        const trip = await TripModel.getById(data.tripId);
+        if (!trip) throw 'Unable to find trip';
+        if (data.hasOwnProperty('content')) {
+          data.content?.forEach(async content => {
+            switch (content) {
+              case 'trip_page':
+                // trip part
+                payload['pictureUrls'] = trip.pictureUrls;
+                payload['title'] = trip.title;
+                if (trip.location) payload['location'] = trip.location;
+                if (trip.maxGroupSize)
+                  payload['maxGroupSize'] = trip.maxGroupSize;
+                if (trip.description) payload['description'] = trip.description;
+                break;
+              case 'topics':
+                // insert topics
+                const topics = await TopicModel.find({
+                  tripId: Types.ObjectId(data.tripId),
+                }).lean();
+
+                const topicsPayload = topics?.map(topic => {
+                  topic['tripId'] = resTrip._id;
+                  delete topic['_id'];
+                  return topic;
+                });
+                await TopicModel.insertMany(topicsPayload);
+                if (trip.topics) payload['topics'] = trip.topics;
+                break;
+              case 'attendee_views':
+                if (trip.travelerViews)
+                  payload['travelerViews'] = trip.travelerViews;
+                break;
+              // case 'resources':
+              //   // insert resource
+              //   payload['resources'] = trip.resources;
+              //   break;
+              case 'questions':
+                // trip part
+                if (trip.questions) payload['questions'] = trip.questions;
+                if (trip?.questionsView)
+                  payload['questionsView'] = trip.questionsView;
+                break;
+              case 'budget':
+                // trip part
+                if (trip.budget) payload['budget'] = trip.budget;
+                break;
+              case 'links':
+                // insert links
+                const links = await LinkModel.find({
+                  tripId: Types.ObjectId(data.tripId),
+                }).lean();
+
+                const linksPayload = links?.map(link => {
+                  link['tripId'] = resTrip._id;
+                  delete link['_id'];
+                  return link;
+                });
+                await LinkModel.insertMany(linksPayload);
+                if (trip.linksView) payload['linksView'] = trip.linksView;
+                break;
+            }
+          });
+          if (!data.content?.includes('topics')) {
+            await TopicController.addDefaultTopics(
+              resTrip._id,
+              payload.ownerId
+            );
+          }
+        }
+      } else {
+        await TopicController.addDefaultTopics(resTrip._id, payload.ownerId);
+      }
       return resTrip;
     } catch (err) {}
   }

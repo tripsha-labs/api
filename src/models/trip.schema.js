@@ -79,6 +79,7 @@ const tripSchema = new mongoose.Schema(
     removeRequested: { type: Boolean, default: false },
     allowExpressCheckout: { type: Boolean, default: false },
     coHosts: { type: Array, default: [], optional: true },
+    location: { type: String, optional: true },
 
     // Traveler Filters
     travelerViewName: { type: String, optional: true },

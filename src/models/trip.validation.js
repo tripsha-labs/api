@@ -12,6 +12,7 @@ const tripSchema = {
   startDate: { type: 'number', empty: false },
   endDate: { type: 'number', empty: false },
   tripLength: { type: 'number', optional: true },
+  location: { type: 'string', optional: true },
   focus: {
     type: 'string',
     optional: true,
@@ -458,6 +459,7 @@ const tripUpdateSchema = {
   linksView: { type: 'array', optional: true },
   userPermissionsView: { type: 'array', optional: true },
   hiddenAttendees: { type: 'object', optional: true },
+  location: { type: 'string', optional: true },
 };
 
 const draftpSchema = {
@@ -484,6 +486,7 @@ const draftpSchema = {
     ...tripSchema.maxGroupSize,
     optional: true,
   },
+  location: { type: 'string', optional: true },
 };
 
 const createProjectSchema = {
