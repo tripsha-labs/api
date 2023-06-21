@@ -14,6 +14,8 @@ import {
   publishTrip,
   unPublishTrip,
   editProject,
+  cancelTrip,
+  restoreTrip,
 } from './handler';
 const router = express.Router();
 
@@ -27,6 +29,8 @@ router.put('/:id', updateTrip);
 router.put('/:id/draft', updateDraftTrip);
 router.put('/:id/publish', publishTrip);
 router.put('/:id/unpublish', unPublishTrip);
+router.delete('/:id/cancel', cancelTrip);
+router.put('/:id/restore', restoreTrip);
 router.delete('/:id', deleteTrip);
 router.post('/:id/transfer-host', transferHost);
 router.get('/:id/members', listMembers);

@@ -5,6 +5,7 @@ import {
   MemberModel,
   BookingModel,
   HostRequestModel,
+  TopicModel,
 } from '../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../constants';
 import uuid from 'uuid/v4';
@@ -388,7 +389,16 @@ export const updateObjectIds = async () => {
     //     };
     // });
     // await MemberModel.bulkUpdate(payload);
-    await UserModel.updateMany({}, { $set: { isConcierge: true } });
+    // await UserModel.updateMany({}, { $set: { isConcierge: true } });
+    // await TripModel.delete({ _id: Types.ObjectId('6487565a854493000850ac16') });
+    // await TopicModel.deleteMany({
+    //   tripId: Types.ObjectId('6487565a854493000850ac16'),
+    // });
+    // await MemberModel.deleteMany({ isOwner: true });
+    await MemberModel.updateMany(
+      { isActive: { $exists: false } },
+      { isActive: true }
+    );
   } catch (err) {
     console.log(err);
   }

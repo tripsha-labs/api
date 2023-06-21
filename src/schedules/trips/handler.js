@@ -17,7 +17,7 @@ const archiveTrip = async () => {
       endDate: {
         $lt: parseInt(
           moment()
-            .subtract(8, 'weeks')
+            .subtract(7, 'days')
             .format('YYYYMMDD')
         ),
       },
@@ -37,7 +37,7 @@ const archiveTrip = async () => {
         await TripModel.update(trip._id, {
           isArchived: true,
           archivedOn: parseInt(moment().format('YYYYMMDD')),
-          status: memberCount > 1 ? 'completed' : 'cancelled',
+          status: memberCount > 1 ? 'completed' : 'canceled',
         });
       } catch (err) {
         console.log(err);

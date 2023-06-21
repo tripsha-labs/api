@@ -44,7 +44,7 @@ const bookingSchema = new mongoose.Schema(
         'declined',
         'withdrawn',
         'expired',
-        'cancelled',
+        'canceled',
         'removed',
       ],
       default: 'invite-pending',

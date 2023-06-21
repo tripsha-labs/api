@@ -228,6 +228,44 @@ export const deleteTrip = async (req, res) => {
 };
 
 /**
+ * Canccel Trip
+ */
+export const cancelTrip = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const result = await TripController.cancelTrip(
+      req.params.id,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Restore Trip
+ */
+export const restoreTrip = async (req, res) => {
+  try {
+    if (!(req.params && req.params.id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+
+    const result = await TripController.restoreTrip(
+      req.params.id,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
  * List travelers trips
  */
 export const myTrips = async (req, res) => {

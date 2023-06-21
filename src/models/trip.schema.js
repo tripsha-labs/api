@@ -56,7 +56,7 @@ const tripSchema = new mongoose.Schema(
     // Trip fields handled from backend
     status: {
       type: String,
-      enum: ['created', 'draft', 'published', 'completed', 'cancelled'],
+      enum: ['created', 'draft', 'published', 'completed', 'canceled'],
       index: true,
       default: 'created',
     },
