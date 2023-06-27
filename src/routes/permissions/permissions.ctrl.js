@@ -222,6 +222,7 @@ export class PermissionsController {
       tabPermissions: {},
       topicPermissions: {},
       viewPermissions: {},
+      coHost: false,
     };
 
     if (!user) return finalPermissions;
@@ -231,6 +232,7 @@ export class PermissionsController {
       tripId: Types.ObjectId(tripId),
       email: user.email,
     }).lean();
+    finalPermissions.coHost = userPermission?.coHost || false;
     userPermissionPayload['permissions'] = [
       userPermission?.directPermissions || {},
     ];
@@ -248,8 +250,6 @@ export class PermissionsController {
     const groupPermissions = await GroupPermissionModel.find({
       tripId: Types.ObjectId(tripId),
     });
-    const userId = user._id.toString();
-
     const viewBasedGroups = groupPermissions?.filter(v => v.type == 'view');
     if (viewBasedGroups?.length > 0) {
       const viewMembers = await BookingModel.aggregate([

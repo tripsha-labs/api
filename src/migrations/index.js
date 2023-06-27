@@ -337,7 +337,7 @@ export const updateVariableNames = async () => {
 export const updateObjectIds = async () => {
   try {
     // const bookings = await BookingModel.list({});
-    // const payload = bookings.map(booking => {
+    // let payload = bookings.map(booking => {
     //   return {
     //     updateOne: {
     //       filter: {
@@ -356,7 +356,7 @@ export const updateObjectIds = async () => {
     // });
     // await BookingModel.bulkWrite(payload);
     // const members = await MemberModel.list({});
-    // const payload = members.map(member => {
+    // payload = members.map(member => {
     //   if (
     //     member.bookingId &&
     //     typeof member.bookingId == 'string' &&
@@ -390,15 +390,15 @@ export const updateObjectIds = async () => {
     // });
     // await MemberModel.bulkUpdate(payload);
     // await UserModel.updateMany({}, { $set: { isConcierge: true } });
-    // await TripModel.delete({ _id: Types.ObjectId('6487565a854493000850ac16') });
-    // await TopicModel.deleteMany({
-    //   tripId: Types.ObjectId('6487565a854493000850ac16'),
-    // });
+    // // await TripModel.delete({ _id: Types.ObjectId('6487565a854493000850ac16') });
+    // // await TopicModel.deleteMany({
+    // //   tripId: Types.ObjectId('6487565a854493000850ac16'),
+    // // });
     // await MemberModel.deleteMany({ isOwner: true });
-    await MemberModel.updateMany(
-      { isActive: { $exists: false } },
-      { isActive: true }
-    );
+    // await MemberModel.updateMany(
+    //   { isActive: { $exists: false } },
+    //   { isActive: true }
+    // );
   } catch (err) {
     console.log(err);
   }
