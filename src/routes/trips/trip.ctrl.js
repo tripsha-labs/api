@@ -1100,12 +1100,15 @@ export class TripController {
     try {
       const userFound = await UserModel.getById(params.hostId);
       if (!userFound) throw ERROR_KEYS.USER_NOT_FOUND;
-      if (!userFound.isHost) throw ERROR_KEYS.UNAUTHORIZED;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       if (!(trip?.ownerId == user._id.toString() || user.isAdmin))
         throw ERROR_KEYS.UNAUTHORIZED;
       await TripModel.update(trip._id, { ownerId: userFound._id });
+      await UserPermissionModel.deleteMany({
+        email: userFound.email,
+        tripId: trip._id,
+      });
       return 'success';
     } catch (err) {
       throw err;

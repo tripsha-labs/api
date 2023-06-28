@@ -18,12 +18,12 @@ import {
 } from '../../models';
 import { logActivity } from '../../utils';
 import { ERROR_KEYS, LogMessages } from '../../constants';
-// import {
-//   addAddonResources,
-//   addRoomResources,
-//   removeAddonResources,
-//   removeRoomResources,
-// } from '../../helpers';
+import {
+  addAddonResources,
+  addRoomResources,
+  removeAddonResources,
+  removeRoomResources,
+} from '../../helpers';
 // import { checkPermission } from '../../helpers/db-helper';
 
 export class MemberController {
@@ -52,7 +52,6 @@ export class MemberController {
           const memberDetails = await UserModel.get({
             _id: Types.ObjectId(memberId),
           });
-          console.log(memberDetails);
           if (!memberDetails)
             return Promise.reject(ERROR_KEYS.MEMBER_NOT_FOUND);
 
@@ -73,18 +72,18 @@ export class MemberController {
               if (booking?.attendees > 1) {
                 guestCount = guestCount + booking.attendees - 1;
               }
-              // // Handle rooms calculation
-              // if (booking.rooms?.length > 0) {
-              //   tripUpdate['rooms'] = addRoomResources(booking, trip, [
-              //     'filled',
-              //   ]);
-              // }
-              // // Handle addons calculation
-              // if (booking.addOns?.length > 0) {
-              //   tripUpdate['addOns'] = addAddonResources(booking, trip, [
-              //     'filled',
-              //   ]);
-              // }
+              // Handle rooms calculation
+              if (booking.rooms?.length > 0) {
+                tripUpdate['rooms'] = addRoomResources(booking, trip, [
+                  'filled',
+                ]);
+              }
+              // Handle addons calculation
+              if (booking.addOns?.length > 0) {
+                tripUpdate['addOns'] = addAddonResources(booking, trip, [
+                  'filled',
+                ]);
+              }
 
               // Message update
               const messageParams = {
@@ -216,18 +215,18 @@ export class MemberController {
                     guestCount = guestCount - (booking.attendees - 1);
                     guestCount = guestCount < 0 ? 0 : guestCount;
                   }
-                  // if (booking?.rooms?.length > 0) {
-                  //   tripUpdate['rooms'] = removeRoomResources(booking, trip, [
-                  //     'filled',
-                  //     'reserved',
-                  //   ]);
-                  // }
-                  // if (booking?.addOns?.length > 0) {
-                  //   tripUpdate['addOns'] = removeAddonResources(booking, trip, [
-                  //     'filled',
-                  //     'reserved',
-                  //   ]);
-                  // }
+                  if (booking?.rooms?.length > 0) {
+                    tripUpdate['rooms'] = removeRoomResources(booking, trip, [
+                      'filled',
+                      'reserved',
+                    ]);
+                  }
+                  if (booking?.addOns?.length > 0) {
+                    tripUpdate['addOns'] = removeAddonResources(booking, trip, [
+                      'filled',
+                      'reserved',
+                    ]);
+                  }
                 }
               }
               updateParams['isActive'] =

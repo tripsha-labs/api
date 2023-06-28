@@ -359,6 +359,7 @@ const tripSchema = {
   lastBookingDate: { type: 'number', optional: true },
   status: { type: 'string', optional: true },
   showAttendees: { type: 'boolean', optional: true },
+  showAttendeesCount: { type: 'boolean', optional: true },
   allowExpressCheckout: { type: 'boolean', optional: true },
   isAutoPayEnabled: { type: 'boolean', optional: true },
   bookingExpiryDays: { type: 'number', optional: true },
@@ -374,19 +375,7 @@ const tripSchema = {
       amount: { type: 'number', optional: true },
     },
   },
-  coHosts: {
-    type: 'array',
-    optional: true,
-    items: {
-      type: 'object',
-      optional: true,
-      props: {
-        id: { type: 'string' },
-        addedBy: { type: 'number' },
-        addedAt: { type: 'number' },
-      },
-    },
-  },
+  allowMultipleOptions: { type: 'boolean', optional: true },
   $$strict: 'remove',
 };
 

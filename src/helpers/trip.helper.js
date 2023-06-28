@@ -186,18 +186,19 @@ export const addRoomResources = (booking, trip, fields) => {
   trip.rooms.forEach(room => {
     room['variants'] = room.variants.map(variant => {
       const foundVariant =
-        booking.rooms &&
-        booking.rooms.find(
+        booking?.rooms &&
+        booking?.rooms.find(
           rm => rm.room.id == room.id && rm.variant.id == variant.id
         );
-      if (foundVariant && fields && fields.length > 0) {
+      console.log(foundVariant);
+      if (foundVariant && fields?.length > 0) {
         if (fields.includes('filled'))
-          variant['filled'] = variant['filled']
-            ? variant['filled'] + foundVariant.attendees
+          variant['filled'] = variant?.filled
+            ? variant?.filled + foundVariant.attendees
             : foundVariant.attendees;
         if (fields.includes('reserved'))
-          variant['reserved'] = variant['reserved']
-            ? variant['reserved'] + foundVariant.attendees
+          variant['reserved'] = variant?.reserved
+            ? variant?.reserved + foundVariant.attendees
             : foundVariant.attendees;
       }
       return variant;
@@ -211,19 +212,19 @@ export const addAddonResources = (booking, trip, fields) => {
   trip.addOns.forEach(addOn => {
     addOn['variants'] = addOn.variants.map(variant => {
       const foundVariant =
-        booking.addOns &&
+        booking?.addOns &&
         booking.addOns.find(
           rm => rm.addOn.id == addOn.id && rm.variant.id == variant.id
         );
       if (foundVariant && fields && fields.length > 0) {
         if (fields.includes('filled'))
-          variant['filled'] = variant['filled']
-            ? variant['filled'] + foundVariant.attendees
-            : foundVariant.attendees;
+          variant['filled'] = variant?.filled
+            ? (variant?.filled || 0) + (foundVariant.attendees || 0)
+            : foundVariant.attendees || 0;
         if (fields.includes('reserved'))
-          variant['reserved'] = variant['reserved']
-            ? variant['reserved'] + foundVariant.attendees
-            : foundVariant.attendees;
+          variant['reserved'] = variant?.reserved
+            ? (variant?.reserved || 0) + (foundVariant.attendees || 0)
+            : foundVariant.attendees || 0;
       }
       return variant;
     });
@@ -240,13 +241,14 @@ export const removeRoomResources = (booking, trip, fields) => {
       );
       if (foundVariant && fields?.length > 0) {
         if (fields.includes('filled')) {
-          variant['filled'] = variant['filled'] - booking.attendees;
-          variant['filled'] = variant['filled'] > 0 ? variant['filled'] : 0;
+          variant['filled'] =
+            (variant?.filled || 0) - (foundVariant?.attendees || 0);
+          variant['filled'] = variant?.filled > 0 ? variant?.filled : 0;
         }
         if (fields.includes('reserved')) {
-          variant['reserved'] = variant['reserved'] - booking.attendees;
           variant['reserved'] =
-            variant['reserved'] > 0 ? variant['reserved'] : 0;
+            (variant?.reserved || 0) - (foundVariant?.attendees || 0);
+          variant['reserved'] = variant?.reserved > 0 ? variant?.reserved : 0;
         }
       }
       return variant;
@@ -264,13 +266,14 @@ export const removeAddonResources = (booking, trip, fields) => {
       );
       if (foundVariant && fields?.length > 0) {
         if (fields.includes('filled')) {
-          variant['filled'] = variant['filled'] - booking.attendees;
-          variant['filled'] = variant['filled'] > 0 ? variant['filled'] : 0;
+          variant['filled'] =
+            (variant?.filled || 0) - (foundVariant?.attendees || 0);
+          variant['filled'] = variant?.filled > 0 ? variant?.filled : 0;
         }
         if (fields.includes('reserved')) {
-          variant['reserved'] = variant['reserved'] - booking.attendees;
           variant['reserved'] =
-            variant['reserved'] > 0 ? variant['reserved'] : 0;
+            (variant?.reserved || 0) - (foundVariant?.attendees || 0);
+          variant['reserved'] = variant?.reserved > 0 ? variant?.reserved : 0;
         }
       }
       return variant;

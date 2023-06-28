@@ -10,6 +10,7 @@ const tripSchema = new mongoose.Schema(
     name: { type: String, index: true },
     hiddenAttendees: { type: Object, optional: true, default: {} }, // Hide attendees per view
     showAttendees: { type: Boolean, default: false }, // for travelers
+    showAttendeesCount: { type: Boolean, default: false }, // for travelers
     budget: { type: Object, optional: true, default: {} },
     questions: { type: Array, default: [] },
     draft: { type: Object, default: {} }, // All draft trip page details stored here
@@ -92,6 +93,7 @@ const tripSchema = new mongoose.Schema(
     linksView: { type: Array, default: [], optional: true },
     userPermissionsView: { type: Array, default: [], optional: true },
     questionsView: { type: Array, default: [], optional: true },
+    allowMultipleOptions: { type: Boolean, default: false },
   },
   {
     timestamps: true,
