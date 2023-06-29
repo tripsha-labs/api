@@ -14,6 +14,8 @@ import {
   getInvites,
   respondInvite,
   updateGuestFields,
+  addGuests,
+  removeGuests,
 } from './handler';
 const router = express.Router();
 
@@ -31,5 +33,7 @@ router.put('/:id/custom-fields', updateCustomFields);
 router.put('/:id/guest-fields', updateGuestFields);
 router.post('/:id/action', bookingsAction);
 router.post('/:id/payment', doPartPayment);
+router.post('/:id/add-guests', addGuests);
+router.delete('/:id/remove-guests', removeGuests);
 
 export default router;

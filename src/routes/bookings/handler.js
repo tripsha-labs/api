@@ -348,3 +348,37 @@ export const respondInvite = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+
+export const addGuests = async (req, res) => {
+  try {
+    const tripId = req?.params?.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = req.body || {};
+    const result = await BookingController.addGuests(
+      tripId,
+      data,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const removeGuests = async (req, res) => {
+  try {
+    const tripId = req?.params?.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = req.body || {};
+    const result = await BookingController.removeGuests(
+      tripId,
+      data,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};

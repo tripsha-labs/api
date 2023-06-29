@@ -3,6 +3,7 @@
  * @description - This will handle business logic for Booking module
  */
 import { Types } from 'mongoose';
+import uuid from 'uuid/v4';
 import {
   StripeAPI,
   logActivity,
@@ -30,7 +31,6 @@ import {
   EmailMessages,
 } from '../../constants';
 import { MemberController } from '../members/member.ctrl';
-import { ObjectID } from 'mongodb';
 import moment from 'moment';
 import _ from 'lodash';
 import { MemberDirectoryController } from '../member-directory/member-directory.ctrl';
@@ -1089,6 +1089,59 @@ export class BookingController {
         user
       );
     }
+    return 'success';
+  }
+
+  static async addGuests(tripId, params, user) {
+    const trip = await TripModel.getById(tripId);
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    if (!(await checkPermission(user, trip, 'travelerManagement', 'edit')))
+      throw ERROR_KEYS.UNAUTHORIZED;
+
+    const payload = params?.guests?.map(guest => {
+      return {
+        updateOne: {
+          filter: { _id: Types.ObjectId(guest?.bookingId) },
+          update: {
+            $set: {
+              attendees: 2,
+              guests: [
+                {
+                  id: uuid(),
+                  email: guest?.email,
+                  name: guest?.name,
+                  relationship: guest?.relationship || '',
+                  username: guest?.username || '',
+                },
+              ],
+            },
+          },
+        },
+      };
+    });
+    await BookingModel.bulkWrite(payload);
+    return 'success';
+  }
+
+  static async removeGuests(tripId, params, user) {
+    const trip = await TripModel.getById(tripId);
+    if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+    if (!(await checkPermission(user, trip, 'travelerManagement', 'edit')))
+      throw ERROR_KEYS.UNAUTHORIZED;
+    const payload = params?.guests?.map(guest => {
+      return {
+        updateOne: {
+          filter: { _id: Types.ObjectId(guest?.bookingId) },
+          update: {
+            $set: {
+              attendees: 1,
+              guests: [],
+            },
+          },
+        },
+      };
+    });
+    await BookingModel.bulkWrite(payload);
     return 'success';
   }
 }
