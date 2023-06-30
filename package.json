@@ -28,9 +28,9 @@
     "pretty": "prettier --write --tab-width 2 \"src/**/*.js\"",
     "create-domain": "sls create_domain",
     "delete-domain": "sls delete_domain",
-    "delete-version:staging": "sls prune -n 50 --stage staging",
+    "delete-version:staging": "sls prune -n 40 --stage staging",
     "delete-version:dev": "sls prune -n 10 --stage dev",
-    "delete-version:prod": "sls prune -n 50 --stage prod-api"
+    "delete-version:prod": "sls prune -n 40 --stage prod-api"
   },
   "lint-staged": {
     "*.{js,json}": [
