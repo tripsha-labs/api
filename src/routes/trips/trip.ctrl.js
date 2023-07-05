@@ -213,8 +213,10 @@ export class TripController {
                 if (trip.topics) payload['topics'] = trip.topics;
                 break;
               case 'attendee_views':
-                if (trip.travelerViews)
+                if (trip?.travelerViews) {
                   payload['travelerViews'] = trip.travelerViews;
+                  payload['travelerViewName'] = trip?.travelerViewName;
+                }
                 break;
               // case 'resources':
               //   // insert resource
@@ -246,6 +248,9 @@ export class TripController {
                 break;
             }
           });
+          if (Object.keys(payload)?.length > 0) {
+            await TripModel.update(resTrip._id, payload);
+          }
           if (!data.content?.includes('topics')) {
             await TopicController.addDefaultTopics(
               resTrip._id,

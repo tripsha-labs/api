@@ -223,6 +223,7 @@ export class BookingController {
           memberId: booking.memberId,
           bookingId: booking._id,
           isMember: booking.status == 'approved',
+          isInvite: true,
           removeRequested: false,
           isActive: true,
           leftOn: -1,
@@ -283,7 +284,7 @@ export class BookingController {
         memberId: booking.memberId,
         tripId: booking.tripId,
       });
-      if (member.isMember || member.isFavorite)
+      if (member?.isMember || member?.isFavorite)
         await MemberModel.update(
           { memberId: booking.memberId, tripId: booking.tripId },
           {
@@ -1068,17 +1069,14 @@ export class BookingController {
       payload,
       { upsert: true }
     );
-
+    const memberPayload = { isActive: true, isInvite: true };
     if (trip.autoRegisterRSVP && params?.status === 'invite-accepted') {
       const booking = await BookingModel.get({
         tripId: trip._id,
         memberId: user._id,
       });
-      await MemberModel.update(
-        { tripId: trip._id, memberId: user._id },
-        { isActive: true, isMember: true, bookingId: booking._id },
-        { upsert: true }
-      );
+      memberPayload['isMember'] = true;
+      memberPayload['bookingId'] = booking._id;
       await MemberController.memberAction(
         {
           memberIds: [user._id.toString()],
@@ -1089,6 +1087,11 @@ export class BookingController {
         user
       );
     }
+    await MemberModel.update(
+      { tripId: trip._id, memberId: user._id },
+      memberPayload,
+      { upsert: true }
+    );
     return 'success';
   }
 
