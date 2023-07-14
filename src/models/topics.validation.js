@@ -21,6 +21,8 @@ const editTopicSchema = {
   attachments: { type: 'array', optional: true },
   links: { type: 'array', optional: true },
   status: { type: 'string', optional: true },
+  draftMessage: { type: 'string', optional: true },
+  draftSpecialMessage: { type: 'object', optional: true },
   $$strict: 'remove',
 };
 

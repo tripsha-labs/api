@@ -95,3 +95,7 @@ export * from './group-permission.validation';
 export * from './topics.model';
 export * from './topics.schema';
 export * from './topics.validation';
+
+export * from './properties.model';
+export * from './properties.schema';
+export * from './properties.validation';

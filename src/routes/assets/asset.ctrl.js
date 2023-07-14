@@ -7,6 +7,7 @@ import { AssetLinkModel, AssetModel, UserModel } from '../../models';
 import { prepareCommonFilter } from '../../helpers';
 import { ERROR_KEYS } from '../../constants';
 
+  
 export class AssetController {
   static async listAssets(filter, awsUserId) {
     const user = await UserModel.get({ awsUserId: awsUserId });
@@ -24,8 +25,6 @@ export class AssetController {
       searchParams['type'] = {
         $regex: new RegExp(/^image/, 'i'),
       };
-    console.log(filter);
-    console.log(searchParams);
     const params = {
       filter: searchParams,
       ...prepareCommonFilter(filter, ['createdAt']),

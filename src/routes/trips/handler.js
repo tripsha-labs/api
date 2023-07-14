@@ -271,9 +271,6 @@ export const restoreTrip = async (req, res) => {
 export const myTrips = async (req, res) => {
   try {
     const params = req.query ? req.query : {};
-    // let result = null;
-    // if (params.isHost || params.status === 'draft')
-    //   result = await TripController.myActiveTrips(params, req.currentUser);
     const result = await TripController.myTrips(params, req.currentUser);
     return successResponse(res, result);
   } catch (error) {

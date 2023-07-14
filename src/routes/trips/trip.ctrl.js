@@ -794,7 +794,7 @@ export class TripController {
       params.push({
         $unwind: {
           path: '$trip',
-          preserveNullAndEmptyArrays: true,
+          preserveNullAndEmptyArrays: false,
         },
       });
       params.push({
