@@ -1110,6 +1110,16 @@ export class TripController {
       if (!(trip?.ownerId == user._id.toString() || user.isAdmin))
         throw ERROR_KEYS.UNAUTHORIZED;
       await TripModel.update(trip._id, { ownerId: userFound._id });
+      await UserPermissionModel.updateOne({
+        email: user.email,
+        tripId: trip._id,
+      }, {
+        $set: {
+          email: user.email, coHost: true,
+          directPermissions: { tabPermissions: {}, viewPermissions: {}, topicPermissions: {} }
+        }
+      }, { upsert: true });
+      
       await UserPermissionModel.deleteMany({
         email: userFound.email,
         tripId: trip._id,
