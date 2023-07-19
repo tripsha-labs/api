@@ -94,6 +94,8 @@ const tripSchema = new mongoose.Schema(
     userPermissionsView: { type: Array, default: [], optional: true },
     questionsView: { type: Array, default: [], optional: true },
     allowMultipleOptions: { type: Boolean, default: false },
+    travelerNotifications: { type: Array, default: [], optional: true },
+    hostNotifications: { type: Array, default: [], optional: true },
   },
   {
     timestamps: true,
