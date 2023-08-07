@@ -13,6 +13,7 @@ import {
   TripModel,
   editProjectValidation,
 } from '../../models';
+import moment from 'moment';
 
 /**
  * List traveler trips
@@ -157,6 +158,12 @@ export const publishTrip = async (req, res) => {
     const payload = trip.draft;
     const errors = updateTripValidation(payload);
     if (errors != true) throw errors.shift();
+    const tripLength = payload?.tripLength || 0;
+    if (payload.startDate) {
+      payload['endDate'] = moment(payload.startDate, 'YYYYMMDD')
+        .add(tripLength, 'days')
+        .format('YYYYMMDD');
+    }
     const result = await TripController.publishTrip(
       req.params.id,
       payload,

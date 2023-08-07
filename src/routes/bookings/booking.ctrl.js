@@ -34,7 +34,7 @@ import { MemberController } from '../members/member.ctrl';
 import moment from 'moment';
 import _ from 'lodash';
 import { MemberDirectoryController } from '../member-directory/member-directory.ctrl';
-import { checkPermission } from '../../helpers/db-helper';
+import { checkPermission, sendNotifications } from '../../helpers/db-helper';
 
 export class BookingController {
   static async getUsername(username) {
@@ -58,7 +58,11 @@ export class BookingController {
     ) {
       // Check if emails are already exists
       let users = await UserModel.list({
-        filter: { email: { $in: params.emails } },
+        filter: {
+          email: {
+            $in: params.emails,
+          },
+        },
         select: { email: 1 },
       });
       const foundEmails = users.map(user => user.email);
@@ -70,7 +74,9 @@ export class BookingController {
           const username = email.split('@')[0];
           return {
             updateOne: {
-              filter: { email: email },
+              filter: {
+                email: email,
+              },
               update: {
                 $set: {
                   email: email,
@@ -90,20 +96,28 @@ export class BookingController {
       // Add members to member directory
       if (params?.save_to_members) {
         const data = params?.emails?.map(email => {
-          return { email: email };
+          return {
+            email: email,
+          };
         });
         if (data?.length > 0)
           await MemberDirectoryController.createMembers(data, currentUser);
       }
       // Fetch user list once again for newly added users
       users = await UserModel.list({
-        filter: { email: { $in: params.emails } },
+        filter: {
+          email: {
+            $in: params.emails,
+          },
+        },
         select: { email: 1 },
       });
       const bookingList = await BookingModel.list({
         filter: {
           tripId: trip._id,
-          memberId: { $in: users.map(user => user._id) },
+          memberId: {
+            $in: users.map(user => user._id),
+          },
         },
       });
       const bookingKeyPair = {};
@@ -115,7 +129,10 @@ export class BookingController {
       // Post booking operations like adding to conversation, sending email etc.
       const membersToadd = [];
       users?.forEach(user => {
-        const filter = { memberId: user._id, tripId: trip._id };
+        const filter = {
+          memberId: user._id,
+          tripId: trip._id,
+        };
         const bookingPayload = {
           onwerId: trip.ownerId,
           memberId: user._id,
@@ -181,7 +198,9 @@ export class BookingController {
         {
           $match: {
             tripId: trip._id,
-            memberId: { $in: users.map(user => user._id) },
+            memberId: {
+              $in: users.map(user => user._id),
+            },
           },
         },
         {
@@ -192,7 +211,11 @@ export class BookingController {
             as: 'user',
             pipeline: [
               {
-                $project: { email: 1, firstName: 1, lastName: 1 },
+                $project: {
+                  email: 1,
+                  firstName: 1,
+                  lastName: 1,
+                },
               },
             ],
           },
@@ -245,7 +268,9 @@ export class BookingController {
       if (params?.attendee_action === 'send_invite') {
         const resEmails = resBookings.map(booking => {
           return EmailSender(
-            { email: booking?.user?.email },
+            {
+              email: booking?.user?.email,
+            },
             EmailMessages.MEMBER_INVITE_HOST,
             [
               trip._id.toString(),
@@ -426,20 +451,84 @@ export class BookingController {
       addOns: addAddonResources(bookingData, trip, ['reserved']),
     };
     await TripModel.update(trip._id, tripUpdate);
+
+    const { hostNotifications, travelerNotifications } = trip || {};
+    const rsvpHost = hostNotifications?.find(a => a.id == 'booking_request');
+    const rsvpTraveler = travelerNotifications?.find(
+      a => a.id == 'booking_request'
+    );
+
+    const trip_url = `${
+      process.env.CLIENT_BASE_URL
+    }/trip/${trip._id.toString()}`;
+    const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
+    const travelerName = `${user?.firstName || ''} ${user?.lastName || ''}`;
+
     // Traveler activity record
-    await logActivity({
-      ...LogMessages.BOOKING_REQUEST_TRAVELER(trip['title']),
-      tripId: trip._id.toString(),
-      audienceIds: [user._id.toString()],
-      userId: user._id.toString(),
-    });
+    if (rsvpTraveler && rsvpTraveler?.hasOwnProperty('id')) {
+      const type = [];
+      if (rsvpTraveler?.inapp) type.push('app');
+      if (rsvpTraveler?.email) type.push('email');
+
+      await sendNotifications(
+        'booking_request_traveler',
+        user,
+        [user?._id],
+        trip._id,
+        {
+          messageParams: {
+            TripName: tripName,
+          },
+          emailParams: {
+            TripName: tripName,
+          },
+          subjectParams: {
+            TripName: trip['title'],
+          },
+        },
+        type
+      );
+    }
+    // await logActivity({
+    //   ...LogMessages.BOOKING_REQUEST_TRAVELER(trip['title']),
+    //   tripId: trip._id.toString(),
+    //   audienceIds: [user._id.toString()],
+    //   userId: user._id.toString(),
+    // });
+
     // Host activity record
-    await logActivity({
-      ...LogMessages.BOOKING_REQUEST_HOST(user['firstName'], trip['title']),
-      tripId: trip._id.toString(),
-      audienceIds: [tripOwner._id.toString()],
-      userId: user._id.toString(),
-    });
+    if (rsvpHost && rsvpHost?.hasOwnProperty('id')) {
+      const type = [];
+      if (rsvpHost?.inapp) type.push('app');
+      if (rsvpHost?.email) type.push('email');
+      await sendNotifications(
+        'booking_request_host',
+        tripOwner,
+        [tripOwner?._id],
+        trip._id,
+        {
+          messageParams: {
+            TripName: tripName,
+            TravelerName: travelerName,
+          },
+          emailParams: {
+            TripName: tripName,
+            TravelerName: travelerName,
+          },
+          subjectParams: {
+            TripName: trip['title'],
+            TravelerName: travelerName,
+          },
+        },
+        type
+      );
+    }
+    // await logActivity({
+    //   ...LogMessages.BOOKING_REQUEST_HOST(user['firstName'], trip['title']),
+    //   tripId: trip._id.toString(),
+    //   audienceIds: [tripOwner._id.toString()],
+    //   userId: user._id.toString(),
+    // });
 
     booking['trip'] = trip;
     booking['awsUserId'] = tripOwner.awsUserId;
@@ -527,6 +616,10 @@ export class BookingController {
       _id: booking.memberId,
     });
     const { action, forceAddTraveler } = params || {};
+    const trip_url = `${
+      process.env.CLIENT_BASE_URL
+    }/trip/${trip._id.toString()}`;
+    const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
     if (action) {
       switch (action) {
         // host
@@ -548,14 +641,16 @@ export class BookingController {
               console.log('Request already processed');
               throw ERROR_KEYS.INVALID_ACTION;
             }
+            const ownerInfo = await UserModel.get({
+              _id: trip.ownerId,
+            });
+            const { hostNotifications, travelerNotifications } = trip || {};
+
             try {
               let paymentIntent = true;
               let needStripeIdUpdate = false;
               if (booking.currentDue > 1) {
                 if (!booking.onwerStripeId) {
-                  const ownerInfo = await UserModel.get({
-                    _id: trip.ownerId,
-                  });
                   if (ownerInfo.stripeAccountId) {
                     booking['onwerStripeId'] = ownerInfo.stripeAccountId;
                     needStripeIdUpdate = true;
@@ -570,6 +665,7 @@ export class BookingController {
                   beneficiary: booking.onwerStripeId,
                   hostShare: user.hostShare,
                 });
+                console.log(paymentIntent);
               }
 
               if (paymentIntent) {
@@ -589,98 +685,89 @@ export class BookingController {
                 };
                 if (needStripeIdUpdate)
                   bookingUpdate['onwerStripeId'] = booking.onwerStripeId;
-                if (booking.paymentStatus == 'deposit') {
-                  await logActivity({
-                    ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_HOST(
-                      `${memberInfo.firstName} ${memberInfo.lastName}`,
-                      trip['title']
-                    ),
-                    tripId: trip._id.toString(),
-                    audienceIds: [user._id.toString()],
-                    userId: user._id.toString(),
-                  });
-                  await logActivity({
-                    ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_SUCCESS_TRAVELER(
-                      trip['title']
-                    ),
-                    tripId: trip._id.toString(),
-                    audienceIds: [memberInfo._id.toString()],
-                    userId: user._id.toString(),
-                  });
-                } else {
-                  await logActivity({
-                    ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_HOST(
-                      `${memberInfo.firstName} ${memberInfo.lastName}`,
-                      trip['title']
-                    ),
-                    tripId: trip._id.toString(),
-                    audienceIds: [user._id.toString()],
-                    userId: user._id.toString(),
-                  });
-                  await logActivity({
-                    ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_SUCCESS_TRAVELER(
-                      trip['title']
-                    ),
-                    tripId: trip._id.toString(),
-                    audienceIds: [memberInfo._id.toString()],
-                    userId: user._id.toString(),
-                  });
-                }
-                // Traveler
-                // await EmailSender(
-                //   memberInfo,
-                //   EmailMessages.BOOKING_REQUEST_ACCEPTED_TRAVELER,
-                //   [trip._id.toString(), trip['title']]
-                // );
 
-                // host
-                // await EmailSender(
-                //   user,
-                //   EmailMessages.BOOKING_REQUEST_ACCEPTED_HOST,
-                //   [trip._id.toString(), trip['title'], memberInfo['firstName']]
-                // );
+                const rsvpHost = hostNotifications?.find(
+                  a => a.id == 'payment_charged'
+                );
+                const rsvpTraveler = travelerNotifications?.find(
+                  a => a.id == 'payment_charged'
+                );
+                // Traveler
+                if (rsvpTraveler && rsvpTraveler?.hasOwnProperty('id')) {
+                  const type = [];
+                  if (rsvpTraveler?.inapp) type.push('app');
+                  if (rsvpTraveler?.email) type.push('email');
+                  await sendNotifications(
+                    'payment_charged_success_traveler',
+                    memberInfo,
+                    [memberInfo?._id],
+                    trip._id,
+                    {
+                      emailParams: {
+                        TripName: tripName,
+                      },
+                      messageParams: {
+                        TripName: tripName,
+                      },
+                    },
+                    type
+                  );
+                }
+                // Host
+                if (rsvpHost && rsvpHost?.hasOwnProperty('id')) {
+                  const type = [];
+                  if (rsvpHost?.inapp) type.push('app');
+                  if (rsvpHost?.email) type.push('email');
+                  const travelerName = `${memberInfo?.firstName ||
+                    ''} ${memberInfo?.lastName || ''}`;
+                  await sendNotifications(
+                    'payment_charged_success_host',
+                    ownerInfo,
+                    [ownerInfo?._id],
+                    trip._id,
+                    {
+                      emailParams: {
+                        TripName: tripName,
+                        TravelerName: travelerName,
+                      },
+                      messageParams: {
+                        TripName: tripName,
+                        TravelerName: travelerName,
+                      },
+                    },
+                    type
+                  );
+                }
               } else {
                 throw 'payment failed';
               }
             } catch (err) {
               console.log(err);
-              if (booking.paymentStatus == 'deposit') {
-                await logActivity({
-                  ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_HOST(
-                    `${memberInfo.firstName} ${memberInfo.lastName}`,
-                    trip['title']
-                  ),
-                  tripId: trip._id.toString(),
-                  audienceIds: [user._id.toString()],
-                  userId: user._id.toString(),
-                });
-                await logActivity({
-                  ...LogMessages.BOOKING_REQUEST_INITIAL_PAYMENT_FAILED_TRAVELER(
-                    trip['title']
-                  ),
-                  tripId: trip._id.toString(),
-                  audienceIds: [memberInfo._id.toString()],
-                  userId: user._id.toString(),
-                });
-              } else {
-                await logActivity({
-                  ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_FAILED_HOST(
-                    `${memberInfo.firstName} ${memberInfo.lastName}`,
-                    trip['title']
-                  ),
-                  tripId: trip._id.toString(),
-                  audienceIds: [user._id.toString()],
-                  userId: user._id.toString(),
-                });
-                await logActivity({
-                  ...LogMessages.BOOKING_REQUEST_FULL_PAYMENT_FAILED_TRAVELER(
-                    trip['title']
-                  ),
-                  tripId: trip._id.toString(),
-                  audienceIds: [memberInfo._id.toString()],
-                  userId: user._id.toString(),
-                });
+              // traveler payment failed
+              const rsvpTraveler = travelerNotifications?.find(
+                a => a.id == 'payment_charge_failure'
+              );
+              if (rsvpTraveler && rsvpTraveler?.hasOwnProperty('id')) {
+                const type = [];
+                if (rsvpTraveler?.inapp) type.push('app');
+                if (rsvpTraveler?.email) type.push('email');
+                await sendNotifications(
+                  'payment_charged_failure_traveler',
+                  memberInfo,
+                  [memberInfo?._id],
+                  trip._id,
+                  {
+                    emailParams: {
+                      TripName: tripName,
+                    },
+                    messageParams: {
+                      TripName: tripName,
+                    },
+                  },
+                  type
+                );
               }
+
               throw ERROR_KEYS.PAYMENT_FAILED;
             }
           } else {
@@ -702,21 +789,35 @@ export class BookingController {
             user
           );
 
-          await logActivity({
-            ...LogMessages.BOOKING_REQUEST_APPROVE_TRAVELER(trip['title']),
-            tripId: trip._id.toString(),
-            audienceIds: [memberInfo._id.toString()],
-            userId: user._id.toString(),
-          });
-          await logActivity({
-            ...LogMessages.BOOKING_REQUEST_APPROVE_HOST(
-              `${memberInfo.firstName} ${memberInfo.lastName}`,
-              trip['title']
-            ),
-            tripId: trip._id.toString(),
-            audienceIds: [user._id.toString()],
-            userId: user._id.toString(),
-          });
+          await sendNotifications(
+            'registered_traveler',
+            memberInfo,
+            [memberInfo?._id],
+            trip._id,
+            {
+              emailParams: {
+                TripName: tripName,
+              },
+              messageParams: {
+                TripName: tripName,
+              },
+            }
+          );
+          // await logActivity({
+          //   ...LogMessages.BOOKING_REQUEST_APPROVE_TRAVELER(trip['title']),
+          //   tripId: trip._id.toString(),
+          //   audienceIds: [memberInfo._id.toString()],
+          //   userId: user._id.toString(),
+          // });
+          // await logActivity({
+          //   ...LogMessages.BOOKING_REQUEST_APPROVE_HOST(
+          //     `${memberInfo.firstName} ${memberInfo.lastName}`,
+          //     trip['title']
+          //   ),
+          //   tripId: trip._id.toString(),
+          //   audienceIds: [user._id.toString()],
+          //   userId: user._id.toString(),
+          // });
           break;
 
         // host
@@ -742,22 +843,22 @@ export class BookingController {
             'reserved',
           ]);
           // Traveler
-          await logActivity({
-            ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELER(trip['title']),
-            tripId: trip._id.toString(),
-            audienceIds: [memberInfo._id.toString()],
-            userId: user._id.toString(),
-          });
-          // Host
-          await logActivity({
-            ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
-              `${memberInfo.firstName} ${memberInfo.lastName}`,
-              trip['title']
-            ),
-            tripId: trip._id.toString(),
-            audienceIds: [user._id.toString()],
-            userId: user._id.toString(),
-          });
+          // await logActivity({
+          //   ...LogMessages.BOOKING_REQUEST_DECLINE_TRAVELER(trip['title']),
+          //   tripId: trip._id.toString(),
+          //   audienceIds: [memberInfo._id.toString()],
+          //   userId: user._id.toString(),
+          // });
+          // // Host
+          // await logActivity({
+          //   ...LogMessages.BOOKING_REQUEST_DECLINE_HOST(
+          //     `${memberInfo.firstName} ${memberInfo.lastName}`,
+          //     trip['title']
+          //   ),
+          //   tripId: trip._id.toString(),
+          //   audienceIds: [user._id.toString()],
+          //   userId: user._id.toString(),
+          // });
           // Traveler
           // await EmailSender(
           //   memberInfo,
@@ -798,36 +899,60 @@ export class BookingController {
           tripUpdate['addOns'] = removeAddonResources(booking, trip, [
             'reserved',
           ]);
+          const travelerName = `${user?.firstName || ''} ${user?.lastName ||
+            ''}`;
+          const { hostNotifications, travelerNotifications } = trip || {};
+          const rsvpHost = hostNotifications?.find(
+            a => a.id == 'booking_request_withdrawn'
+          );
+          const rsvpTraveler = travelerNotifications?.find(
+            a => a.id == 'booking_request_withdrawn'
+          );
           // traveler
-          await logActivity({
-            ...LogMessages.BOOKING_REQUEST_WITHDRAW_TRAVELER(trip['title']),
-            tripId: trip._id.toString(),
-            audienceIds: [user._id.toString()],
-            userId: user._id.toString(),
-          });
+          if (rsvpTraveler && rsvpTraveler?.hasOwnProperty('id')) {
+            const type = [];
+            if (rsvpTraveler?.inapp) type.push('app');
+            if (rsvpTraveler?.email) type.push('email');
+            await sendNotifications(
+              'booking_request_withdrawn_traveler',
+              user,
+              [user?._id],
+              trip._id,
+              {
+                emailParams: {
+                  TripName: tripName,
+                },
+                messageParams: {
+                  TripName: tripName,
+                },
+              },
+              type
+            );
+          }
           // host
-          await logActivity({
-            ...LogMessages.BOOKING_REQUEST_WITHDRAW_HOST(
-              `${user.firstName} ${user.lastName}`,
-              trip['title']
-            ),
-            tripId: trip._id.toString(),
-            audienceIds: [trip.ownerId.toString()],
-            userId: user._id.toString(),
-          });
-          // Traveler
-          // await EmailSender(
-          //   memberInfo,
-          //   EmailMessages.BOOKING_REQUEST_WITHDRAWN_TRAVELER,
-          //   [trip._id.toString(), trip['title']]
-          // );
+          if (rsvpHost && rsvpHost?.hasOwnProperty('id')) {
+            const type = [];
+            if (rsvpHost?.inapp) type.push('app');
+            if (rsvpHost?.email) type.push('email');
+            await sendNotifications(
+              'booking_request_withdrawn_host',
+              tripOwner,
+              [tripOwner?._id],
+              trip._id,
+              {
+                emailParams: {
+                  TripName: tripName,
+                  TravelerName: travelerName,
+                },
+                messageParams: {
+                  TripName: tripName,
+                  TravelerName: travelerName,
+                },
+              },
+              type
+            );
+          }
 
-          // host
-          // await EmailSender(
-          //   tripOwner,
-          //   EmailMessages.BOOKING_REQUEST_WITHDRAWN_HOST,
-          //   [trip._id.toString(), trip['title'], memberInfo['firstName']]
-          // );
           break;
 
         default:
@@ -888,45 +1013,45 @@ export class BookingController {
             bookingUpdate['paymentStatus'] = 'full';
 
             await BookingModel.update(booking._id, bookingUpdate);
-            await logActivity({
-              ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST(
-                `${memberInfo.firstName} ${memberInfo.lastName}`,
-                tripInfo['title']
-              ),
-              tripId: tripInfo._id.toString(),
-              audienceIds: [ownerInfo._id.toString()],
-              userId: user._id.toString(),
-            });
-            await logActivity({
-              ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELER(
-                tripInfo['title']
-              ),
-              tripId: tripInfo._id.toString(),
-              audienceIds: [memberInfo._id.toString()],
-              userId: user._id.toString(),
-            });
+            // await logActivity({
+            //   ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST(
+            //     `${memberInfo.firstName} ${memberInfo.lastName}`,
+            //     tripInfo['title']
+            //   ),
+            //   tripId: tripInfo._id.toString(),
+            //   audienceIds: [ownerInfo._id.toString()],
+            //   userId: user._id.toString(),
+            // });
+            // await logActivity({
+            //   ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELER(
+            //     tripInfo['title']
+            //   ),
+            //   tripId: tripInfo._id.toString(),
+            //   audienceIds: [memberInfo._id.toString()],
+            //   userId: user._id.toString(),
+            // });
           } else {
             throw 'payment failed';
           }
         } catch (err) {
           console.log(err);
-          await logActivity({
-            ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_HOST(
-              `${memberInfo.firstName} ${memberInfo.lastName}`,
-              tripInfo['title']
-            ),
-            tripId: tripInfo._id.toString(),
-            audienceIds: [user._id.toString()],
-            userId: user._id.toString(),
-          });
-          await logActivity({
-            ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELER(
-              tripInfo['title']
-            ),
-            tripId: tripInfo._id.toString(),
-            audienceIds: [memberInfo._id.toString()],
-            userId: user._id.toString(),
-          });
+          // await logActivity({
+          //   ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_HOST(
+          //     `${memberInfo.firstName} ${memberInfo.lastName}`,
+          //     tripInfo['title']
+          //   ),
+          //   tripId: tripInfo._id.toString(),
+          //   audienceIds: [user._id.toString()],
+          //   userId: user._id.toString(),
+          // });
+          // await logActivity({
+          //   ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELER(
+          //     tripInfo['title']
+          //   ),
+          //   tripId: tripInfo._id.toString(),
+          //   audienceIds: [memberInfo._id.toString()],
+          //   userId: user._id.toString(),
+          // });
           throw ERROR_KEYS.PAYMENT_FAILED;
         }
       }
@@ -1002,8 +1127,34 @@ export class BookingController {
     return bookings;
   }
 
-  static async updateBooking(id, params) {
+  static async updateBooking(id, params, user) {
     await BookingModel.update(id, params);
+    if (params?.hasOwnProperty('questions')) {
+      const booking = await BookingModel.getById(id);
+      const trip = await TripModel.get({ _id: booking?.tripId });
+      const owner = await UserModel.get({ _id: trip?.ownerId });
+      const travelerName = `${user?.firstName || ''} ${user?.lastName || ''}`;
+      const trip_url = `${
+        process.env.CLIENT_BASE_URL
+      }/trip/${trip._id.toString()}`;
+      const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
+      await sendNotifications(
+        'questionaire_submitted_host',
+        owner,
+        [owner?._id],
+        trip._id,
+        {
+          emailParams: {
+            TripName: tripName,
+            TravelerName: travelerName,
+          },
+          messageParams: {
+            TripName: tripName,
+            TravelerName: travelerName,
+          },
+        }
+      );
+    }
     return 'success';
   }
 
@@ -1059,6 +1210,7 @@ export class BookingController {
       tripPaymentType: trip.tripPaymentType,
       status: params?.status,
     };
+    const tripOwner = await UserModel.get({ _id: trip.ownerId });
     if (trip.autoRegisterRSVP && params?.status === 'invite-accepted') {
       payload['status'] = 'approved';
       payload['message'] = 'Member auto accepted via rsvp.';
@@ -1092,6 +1244,73 @@ export class BookingController {
       memberPayload,
       { upsert: true }
     );
+    const trip_url = `${
+      process.env.CLIENT_BASE_URL
+    }/trip/${trip._id.toString()}`;
+    const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
+    const travelerName = `${user?.firstName || ''} ${user?.lastName || ''}`;
+    // Notifications
+    switch (params?.status) {
+      case 'invite-accepted':
+        const { hostNotifications, travelerNotifications } = trip || {};
+        const rsvpHost = hostNotifications?.find(a => a.id == 'rsvp_yes');
+        const rsvpTraveler = travelerNotifications?.find(
+          a => a.id == 'rsvp_yes'
+        );
+        // Traveler
+        if (rsvpTraveler && rsvpTraveler?.hasOwnProperty('id')) {
+          const type = [];
+          if (rsvpTraveler?.inapp) type.push('app');
+          if (rsvpTraveler?.email) type.push('email');
+          await sendNotifications(
+            'rsvp_yes_traveler',
+            user,
+            [user?._id],
+            trip._id,
+            {
+              messageParams: {
+                TripName: tripName,
+              },
+              emailParams: {
+                TripName: tripName,
+              },
+              subjectParams: {
+                TripName: trip['title'],
+              },
+            }
+          );
+        }
+        // Host
+        if (rsvpHost && rsvpHost?.hasOwnProperty('id')) {
+          const type = [];
+          if (rsvpHost?.inapp) type.push('app');
+          if (rsvpHost?.email) type.push('email');
+          await sendNotifications(
+            'rsvp_yes_host',
+            tripOwner,
+            [tripOwner?._id],
+            trip._id,
+            {
+              messageParams: {
+                TripName: tripName,
+                TravelerName: travelerName,
+              },
+              emailParams: {
+                TripName: tripName,
+                TravelerName: travelerName,
+              },
+              subjectParams: {
+                TripName: trip['title'],
+                TravelerName: travelerName,
+              },
+            },
+            type
+          );
+        }
+        break;
+      case 'invite-declined':
+        break;
+    }
     return 'success';
   }
 

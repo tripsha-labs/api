@@ -40,6 +40,7 @@ export class MemberController {
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const trip = await TripModel.getById(tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+
     try {
       const bookingIds = [];
       const objTripId = Types.ObjectId(tripId);
@@ -51,6 +52,9 @@ export class MemberController {
           // Get member information
           const memberDetails = await UserModel.get({
             _id: Types.ObjectId(memberId),
+          });
+          const tripOwner = await UserModel.get({
+            _id: trip?.ownerId,
           });
           if (!memberDetails)
             return Promise.reject(ERROR_KEYS.MEMBER_NOT_FOUND);
@@ -189,12 +193,12 @@ export class MemberController {
                 memberAddDetails
               );
 
-              await logActivity({
-                ...LogMessages.TRAVELER_ADDED_IN_TRIP_BY_HOST(trip['title']),
-                tripId: trip._id.toString(),
-                audienceIds: [memberDetails._id.toString()],
-                userId: user._id.toString(),
-              });
+              // await logActivity({
+              //   ...LogMessages.TRAVELER_ADDED_IN_TRIP_BY_HOST(trip['title']),
+              //   tripId: trip._id.toString(),
+              //   audienceIds: [memberDetails._id.toString()],
+              //   userId: user._id.toString(),
+              // });
               break;
             case 'removeMember':
               const bookingStatus = {};
@@ -270,6 +274,47 @@ export class MemberController {
                     tripId: tripId,
                   },
                   memberRemoveDetails
+                );
+              }
+              const trip_url = `${
+                process.env.CLIENT_BASE_URL
+              }/trip/${trip._id.toString()}`;
+              const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
+
+              // traveler
+              if (memberDetails._id.toString() == user._id.toString()) {
+                await sendNotifications(
+                  'trip_canceled_by traveler_traveler',
+                  memberDetails,
+                  [memberDetails?._id],
+                  trip._id,
+                  {
+                    emailParams: {
+                      TripName: tripName,
+                    },
+                    messageParams: {
+                      TripName: tripName,
+                    },
+                  }
+                );
+                // host
+                const travelerName = `${memberDetails?.firstName ||
+                  ''} ${memberDetails?.lastName || ''}`;
+                await sendNotifications(
+                  'trip_canceled_by traveler_host',
+                  tripOwner,
+                  [tripOwner?._id],
+                  trip._id,
+                  {
+                    emailParams: {
+                      TripName: tripName,
+                      TravelerName: travelerName,
+                    },
+                    messageParams: {
+                      TripName: tripName,
+                      TravelerName: travelerName,
+                    },
+                  }
                 );
               }
               break;

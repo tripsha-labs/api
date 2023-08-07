@@ -29,6 +29,7 @@ import {
 import {
   checkPermission,
   getTripsByPermissions,
+  sendNotifications,
 } from '../../helpers/db-helper';
 import { TopicController } from '../topics/topic.ctrl';
 import { PermissionsController } from '../permissions/permissions.ctrl';
@@ -197,6 +198,7 @@ export class TripController {
                 if (trip.maxGroupSize)
                   payload['maxGroupSize'] = trip.maxGroupSize;
                 if (trip.description) payload['description'] = trip.description;
+                payload['draft'] = trip?.draft;
                 break;
               case 'topics':
                 // insert topics
@@ -421,17 +423,17 @@ export class TripController {
       } catch (err) {
         console.log('Failed to create links', err);
       }
-      const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
-      const logMessage =
-        tripDetails['status'] == 'draft' && trip['status'] == 'published'
-          ? LogMessages.TRIP_PUBLISHED
-          : LogMessages.UPDATE_TRIP_HOST;
-      await logActivity({
-        ...logMessage(tripName),
-        tripId: tripId,
-        audienceIds: [user._id.toString()],
-        userId: user._id.toString(),
-      });
+      // const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
+      // const logMessage =
+      //   tripDetails['status'] == 'draft' && trip['status'] == 'published'
+      //     ? LogMessages.TRIP_PUBLISHED
+      //     : LogMessages.UPDATE_TRIP_HOST;
+      // await logActivity({
+      //   ...logMessage(tripName),
+      //   tripId: tripId,
+      //   audienceIds: [user._id.toString()],
+      //   userId: user._id.toString(),
+      // });
       // if (
       //   trip['status'] == 'published' &&
       //   tripDetails['status'] !== trip['status']
@@ -559,12 +561,12 @@ export class TripController {
         await TripModel.update(tripId, {
           isActive: false,
         });
-        await logActivity({
-          ...LogMessages.DELETE_TRIP_HOST(trip['title']),
-          tripId: trip._id.toString(),
-          audienceIds: [user._id.toString()],
-          userId: user._id.toString(),
-        });
+        // await logActivity({
+        //   ...LogMessages.DELETE_TRIP_HOST(trip['title']),
+        //   tripId: trip._id.toString(),
+        //   audienceIds: [user._id.toString()],
+        //   userId: user._id.toString(),
+        // });
         // try {
         //   await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
         //     trip['title'],
@@ -593,12 +595,55 @@ export class TripController {
           isArchived: true,
           status: 'canceled',
         });
-        await logActivity({
-          ...LogMessages.DELETE_TRIP_HOST(trip['title']),
-          tripId: trip._id.toString(),
-          audienceIds: [user._id.toString()],
-          userId: user._id.toString(),
+        const members = await MemberModel.aggregate([
+          { $match: { tripId: trip._id, isMember: true, isActive: true } },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'memberId',
+              foreignField: '_id',
+              as: 'memberDetails',
+            },
+          },
+          { $unwind: '$memberDetails' },
+          {
+            $replaceRoot: {
+              newRoot: {
+                $mergeObjects: ['$memberDetails', '$$ROOT'],
+              },
+            },
+          },
+        ]);
+        const trip_url = `${
+          process.env.CLIENT_BASE_URL
+        }/trip/${trip._id.toString()}`;
+        const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
+        const promises = members.map(async member => {
+          return new Promise(async (resolve, reject) => {
+            await sendNotifications(
+              'trip_canceled_by_host_traveler',
+              member,
+              [member?._id],
+              trip._id,
+              {
+                emailParams: {
+                  TripName: tripName,
+                },
+                messageParams: {
+                  TripName: tripName,
+                },
+              }
+            );
+            return resolve();
+          });
         });
+        await Promise.all(promises);
+        // await logActivity({
+        //   ...LogMessages.DELETE_TRIP_HOST(trip['title']),
+        //   tripId: trip._id.toString(),
+        //   audienceIds: [user._id.toString()],
+        //   userId: user._id.toString(),
+        // });
         // try {
         //   await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
         //     trip['title'],
@@ -1110,16 +1155,25 @@ export class TripController {
       if (!(trip?.ownerId == user._id.toString() || user.isAdmin))
         throw ERROR_KEYS.UNAUTHORIZED;
       await TripModel.update(trip._id, { ownerId: userFound._id });
-      await UserPermissionModel.updateOne({
-        email: user.email,
-        tripId: trip._id,
-      }, {
-        $set: {
-          email: user.email, coHost: true,
-          directPermissions: { tabPermissions: {}, viewPermissions: {}, topicPermissions: {} }
-        }
-      }, { upsert: true });
-      
+      await UserPermissionModel.updateOne(
+        {
+          email: user.email,
+          tripId: trip._id,
+        },
+        {
+          $set: {
+            email: user.email,
+            coHost: true,
+            directPermissions: {
+              tabPermissions: {},
+              viewPermissions: {},
+              topicPermissions: {},
+            },
+          },
+        },
+        { upsert: true }
+      );
+
       await UserPermissionModel.deleteMany({
         email: userFound.email,
         tripId: trip._id,

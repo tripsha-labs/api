@@ -1,6 +1,6 @@
 import moment from 'moment';
-import { dbConnect, logActivity, EmailSender } from '../../utils';
-import { EmailMessages, LogMessages } from '../../constants';
+import { dbConnect } from '../../utils';
+
 import {
   TripModel,
   MemberModel,
@@ -9,6 +9,7 @@ import {
   UserModel,
 } from '../../models';
 import { removeAddonResources, removeRoomResources } from '../../helpers';
+import { sendNotifications } from '../../helpers/db-helper';
 
 const archiveTrip = async () => {
   console.log('Archiving trips...');
@@ -132,25 +133,85 @@ const archiveBookingRequest = async () => {
                 'reserved',
               ]);
               await TripModel.update(trip._id, tripUpdate);
+
               const member = await UserModel.getById(booking.memberId);
+              const trip_url = `${
+                process.env.CLIENT_BASE_URL
+              }/trip/${trip._id.toString()}`;
+              const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
               const tripOwner = await UserModel.getById(trip.ownerId);
-              // Traveller activity record
-              await logActivity({
-                ...LogMessages.BOOKING_REQUEST_EXPIRED_TRAVELER(trip['title']),
-                tripId: trip._id.toString(),
-                audienceIds: [member._id.toString()],
-                userId: tripOwner._id.toString(),
-              });
-              // Host activity record
-              await logActivity({
-                ...LogMessages.BOOKING_REQUEST_EXPIRED_HOST(
-                  member['firstName'],
-                  trip['title']
-                ),
-                tripId: trip._id.toString(),
-                audienceIds: [tripOwner._id.toString()],
-                userId: tripOwner._id.toString(),
-              });
+              const travelerName = `${member?.firstName ||
+                ''} ${member?.lastName || ''}`;
+              const { hostNotifications, travelerNotifications } = trip || {};
+              const rsvpHost = hostNotifications?.find(
+                a => a.id == 'booking_request_expired'
+              );
+              const rsvpTraveler = travelerNotifications?.find(
+                a => a.id == 'booking_request_expired'
+              );
+
+              // Traveller notification
+              if (rsvpTraveler && rsvpTraveler?.hasOwnProperty('id')) {
+                const type = [];
+                if (rsvpTraveler?.inapp) type.push('app');
+                if (rsvpTraveler?.email) type.push('email');
+                await sendNotifications(
+                  'booking_request_expired_traveler',
+                  member,
+                  [member?._id],
+                  trip._id,
+                  {
+                    emailParams: {
+                      TripName: tripName,
+                    },
+                    messageParams: {
+                      TripName: trip['title'],
+                    },
+                  },
+                  type
+                );
+              }
+              // Host notification
+              if (rsvpHost && rsvpHost?.hasOwnProperty('id')) {
+                const type = [];
+                if (rsvpHost?.inapp) type.push('app');
+                if (rsvpHost?.email) type.push('email');
+                await sendNotifications(
+                  'booking_request_expired_host',
+                  tripOwner,
+                  [tripOwner?._id],
+                  trip._id,
+                  {
+                    emailParams: {
+                      TripName: tripName,
+                      TravelerName: travelerName,
+                    },
+                    messageParams: {
+                      TravelerName: travelerName,
+                      TripName: trip['title'],
+                    },
+                  },
+                  type
+                );
+              }
+
+              // // Traveller activity record
+              // await logActivity({
+              //   ...LogMessages.BOOKING_REQUEST_EXPIRED_TRAVELER(trip['title']),
+              //   tripId: trip._id.toString(),
+              //   audienceIds: [member._id.toString()],
+              //   userId: tripOwner._id.toString(),
+              // });
+              // // Host activity record
+              // await logActivity({
+              //   ...LogMessages.BOOKING_REQUEST_EXPIRED_HOST(
+              //     member['firstName'],
+              //     trip['title']
+              //   ),
+              //   tripId: trip._id.toString(),
+              //   audienceIds: [tripOwner._id.toString()],
+              //   userId: tripOwner._id.toString(),
+              // });
               // Traveller email
               // await EmailSender(
               //   member,
@@ -260,18 +321,36 @@ const notify24hBookingRequest = async () => {
     });
     if (bookings.length > 0) {
       const promises = [];
+      const { hostNotifications } = trip || {};
+      const rsvpHost = hostNotifications?.find(
+        a => a.id == 'booking_request_24_hours'
+      );
       bookings.forEach(async booking => {
         promises.push(
           new Promise(async resolve => {
             try {
-              // const trip = await TripModel.getById(booking.tripId);
-              // const tripOwner = await UserModel.getById(trip.ownerId);
-              //Host email
-              // await EmailSender(
-              //   tripOwner,
-              //   EmailMessages.BOOKING_REQUEST_24_HOURS_LEFT_HOST,
-              //   [trip._id.toString(), trip['title']]
-              // );
+              const trip = await TripModel.getById(booking.tripId);
+              const trip_url = `${
+                process.env.CLIENT_BASE_URL
+              }/trip/${trip._id.toString()}`;
+              const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
+              const tripOwner = await UserModel.getById(trip.ownerId);
+              if (rsvpHost && rsvpHost?.hasOwnProperty('id')) {
+                const type = [];
+                if (rsvpHost?.email) type.push('email');
+                await sendNotifications(
+                  'booking_request_24_hours_host',
+                  tripOwner,
+                  [tripOwner?._id],
+                  trip._id,
+                  {
+                    emailParams: {
+                      TripName: tripName,
+                    },
+                  },
+                  type
+                );
+              }
               await BookingModel.update(booking._id, {
                 is24hEmailSent: true,
               });

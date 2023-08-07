@@ -12,6 +12,7 @@ import {
   BookingModel,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
+
 /***
  * createInvite
  */
@@ -174,7 +175,11 @@ export const updateBooking = async (req, res) => {
     const data = req.body || {};
     const validation = updateBookingValidation(data);
     if (validation != true) throw validation.shift();
-    const result = await BookingController.updateBooking(bookingId, data);
+    const result = await BookingController.updateBooking(
+      bookingId,
+      data,
+      req.currentUser
+    );
     return successResponse(res, result);
   } catch (error) {
     logError(error);

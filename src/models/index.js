@@ -99,3 +99,6 @@ export * from './topics.validation';
 export * from './properties.model';
 export * from './properties.schema';
 export * from './properties.validation';
+
+export * from './notifications.model';
+export * from './notifications.schema';
