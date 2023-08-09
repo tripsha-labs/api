@@ -32,6 +32,7 @@ import Links from './links';
 import Billing from './billing';
 import Permissions from './permissions';
 import Topics from './topics';
+import Crypto from './crypto';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -75,7 +76,7 @@ const auth = () => {
       const awsUserId = req.requestContext.identity.cognitoIdentityId;
       console.log(awsUserId);
       req.currentUser = await UserModel.get({ awsUserId: awsUserId });
-      console.log(req.currentUser);
+      console.log('CURRENT USER', req.currentUser);
       if (req.currentUser) req.currentUser['awsUserId'] = awsUserId;
       return next();
     } catch (err) {
@@ -102,6 +103,7 @@ const auth = () => {
   app.use('/billing', verifyToken, Billing);
   app.use('/permissions', verifyToken, Permissions);
   app.use('/topics', verifyToken, Topics);
+  app.use('/crypto', verifyToken, Crypto);
   return app;
 };
 

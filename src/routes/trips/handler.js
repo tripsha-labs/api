@@ -34,6 +34,7 @@ export const listTrips = async (req, res) => {
 export const createTrip = async (req, res) => {
   try {
     const data = req.body || {};
+    console.log('CREATING TRIP', data);
 
     if (typeof data.spotsAvailable === 'undefined') {
       data.spotsAvailable = data.maxGroupSize - 1;

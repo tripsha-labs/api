@@ -9,6 +9,7 @@
   "scripts": {
     "start": "sls offline start --stage=staging",
     "start:prod": "sls offline start --stage=prod-api",
+    "start:staging": "sls offline start --stage=staging",
     "deploy": "sls deploy --stage=dev",
     "remove": "sls remove --stage=dev",
     "deploy:staging": "sls deploy --stage=staging",
@@ -78,6 +79,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-runtime": "^6.26.0",
     "cors": "^2.8.5",
+    "ethers": "5.7.0",
     "express": "^4.17.1",
     "extendify": "^1.0.0",
     "fastest-validator": "^0.6.19",
