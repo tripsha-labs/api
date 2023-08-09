@@ -44,4 +44,7 @@ export class ActivityLogModel {
   static get(params) {
     return ActivityLog.findOne(params);
   }
+  static updateMany(filter, payload) {
+    return ActivityLog.updateMany(filter, payload);
+  }
 }

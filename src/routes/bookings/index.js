@@ -9,12 +9,13 @@ import {
   multiUpdateBooking,
   createInvite,
   updateCustomFields,
-  sendReminder,
   removeInvite,
   sendCustomReminderMessage,
   getInvites,
   respondInvite,
   updateGuestFields,
+  addGuests,
+  removeGuests,
 } from './handler';
 const router = express.Router();
 
@@ -22,7 +23,6 @@ router.get('/', listBookings);
 router.post('/', createBooking);
 router.post('/invite', createInvite);
 router.delete('/invite', removeInvite);
-router.post('/invite/reminder', sendReminder);
 router.post('/invite/custom-email', sendCustomReminderMessage);
 router.put('/', multiUpdateBooking);
 router.get('/:id', getBooking);
@@ -33,5 +33,7 @@ router.put('/:id/custom-fields', updateCustomFields);
 router.put('/:id/guest-fields', updateGuestFields);
 router.post('/:id/action', bookingsAction);
 router.post('/:id/payment', doPartPayment);
+router.post('/:id/add-guests', addGuests);
+router.delete('/:id/remove-guests', removeGuests);
 
 export default router;

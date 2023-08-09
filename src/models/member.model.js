@@ -37,6 +37,14 @@ export class MemberModel {
     return Member.deleteOne(params);
   }
 
+  static deleteMany(params = {}) {
+    return Member.deleteMany(params);
+  }
+
+  static updateMany(query = {}, params = {}) {
+    return Member.updateMany(query, { $set: params });
+  }
+
   static getById(id) {
     return Member.findById(id);
   }

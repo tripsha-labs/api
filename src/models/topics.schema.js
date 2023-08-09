@@ -15,6 +15,8 @@ const TopicSchema = new mongoose.Schema(
     attachments: { type: Array, default: [] },
     links: { type: Array, default: [] },
     pinnedMessages: { type: Array, default: [] },
+    draftMessage: { type: String },
+    draftSpecialMessage: { type: Object },
   },
   {
     timestamps: true,

@@ -25,7 +25,6 @@ export class TopicController {
     await TopicModel.create(payload);
     return 'success';
   }
-
   static async updateTopic(topicId, payload) {
     await TopicModel.updateOne({ _id: topicId }, { $set: payload });
     return 'success';
@@ -84,5 +83,26 @@ export class TopicController {
   static async deleteMessage(messageId) {
     await TopicMessageModel.deleteOne({ _id: messageId });
     return 'success';
+  }
+  static async addDefaultTopics(tripId, userId) {
+    const topics = [
+      { title: 'Accommodation' },
+      { title: 'Flights' },
+      { title: 'Ground transport' },
+      { title: 'Activities' },
+      { title: 'Food & Beverage' },
+      { title: 'Meeting/Work Space' },
+      { title: 'Technology' },
+      { title: 'Attendees & Guests' },
+      { title: 'Swag' },
+      { title: 'Travel Insurance' },
+    ];
+    const topicsPayload = topics.map(t => {
+      t['tripId'] = tripId;
+      t['updatedBy'] = userId;
+      t['createdBy'] = userId;
+      return t;
+    });
+    await TopicModel.insertMany(topicsPayload);
   }
 }

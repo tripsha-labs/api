@@ -26,4 +26,5 @@ export const bookingProjection = {
   bookingExpireOn: 1,
   questions: 1,
   coupon: 1,
+  comments: 1,
 };

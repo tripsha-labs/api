@@ -159,10 +159,10 @@ components:
     queryStatus:
       name: 'status'
       in: 'query'
-      description: "List all of the trips with status."
+      description: 'List all of the trips with status.'
       schema:
         type: 'string'
-        enum: ['draft', 'published', 'completed', 'cancelled']
+        enum: ['draft', 'published', 'completed', 'canceled']
     queryTripId:
       name: 'tripId'
       in: 'query'

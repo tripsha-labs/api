@@ -12,13 +12,12 @@ import {
   MemberModel,
   validateTripLength,
   UserModel,
-  ConversationModel,
-  MessageModel,
+  TopicModel,
+  LinkModel,
   BookingModel,
   AssetModel,
   AssetLinkModel,
   UserPermissionModel,
-  TopicModel,
 } from '../../models';
 import {
   ERROR_KEYS,
@@ -30,7 +29,10 @@ import {
 import {
   checkPermission,
   getTripsByPermissions,
+  sendNotifications,
 } from '../../helpers/db-helper';
+import { TopicController } from '../topics/topic.ctrl';
+import { PermissionsController } from '../permissions/permissions.ctrl';
 
 export class TripController {
   static async markForRemove(params, remove_requested) {
@@ -38,7 +40,7 @@ export class TripController {
       removeRequested: remove_requested,
     });
   }
-  static async listTrips(filter, memberId) {
+  static async listTrips(filter, currenUser) {
     try {
       let currentDate = parseInt(
         moment()
@@ -46,12 +48,10 @@ export class TripController {
           .format('YYYYMMDD')
       );
       const filterParams = {
-        // isArchived: false,
         isActive: true,
         isPublic: true,
         status: { $in: ['published', 'completed'] },
         endDate: { $gte: currentDate },
-        // isFull: false, // TBD: do we need to show or not, currently full trips not visible
       };
       if (filter.pastTrips) {
         currentDate = parseInt(moment().format('YYYYMMDD'));
@@ -180,148 +180,97 @@ export class TripController {
       throw error;
     }
   }
-
-  static async createTrip(params) {
+  static async createProject(createPayload, data) {
     try {
-      // Validate trip fields against the strict schema
-      const tripLength = validateTripLength(
-        params['startDate'],
-        params['endDate']
-      );
+      const resTrip = await TripModel.create(createPayload);
+      const payload = {};
+      if (data.hasOwnProperty('tripId')) {
+        const trip = await TripModel.getById(data.tripId);
+        if (!trip) throw 'Unable to find trip';
+        if (data.hasOwnProperty('content')) {
+          data.content?.forEach(async content => {
+            switch (content) {
+              case 'trip_page':
+                // trip part
+                payload['pictureUrls'] = trip.pictureUrls;
+                payload['title'] = trip.title;
+                if (trip.location) payload['location'] = trip.location;
+                if (trip.maxGroupSize)
+                  payload['maxGroupSize'] = trip.maxGroupSize;
+                if (trip.description) payload['description'] = trip.description;
+                payload['draft'] = trip?.draft;
+                break;
+              case 'topics':
+                // insert topics
+                const topics = await TopicModel.find({
+                  tripId: Types.ObjectId(data.tripId),
+                }).lean();
 
-      if (
-        tripLength <= 0 ||
-        tripLength > APP_CONSTANTS.MAX_TRIP_LENGTH ||
-        isNaN(tripLength)
-      )
-        throw ERROR_KEYS.INVALID_DATES;
-      params['tripLength'] = tripLength + 1;
+                const topicsPayload = topics?.map(topic => {
+                  topic['tripId'] = resTrip._id;
+                  delete topic['_id'];
+                  return topic;
+                });
+                await TopicModel.insertMany(topicsPayload);
+                if (trip.topics) payload['topics'] = trip.topics;
+                break;
+              case 'attendee_views':
+                if (trip?.travelerViews) {
+                  payload['travelerViews'] = trip.travelerViews;
+                  payload['travelerViewName'] = trip?.travelerViewName;
+                }
+                break;
+              // case 'resources':
+              //   // insert resource
+              //   payload['resources'] = trip.resources;
+              //   break;
+              case 'questions':
+                // trip part
+                if (trip.questions) payload['questions'] = trip.questions;
+                if (trip?.questionsView)
+                  payload['questionsView'] = trip.questionsView;
+                break;
+              case 'budget':
+                // trip part
+                if (trip.budget) payload['budget'] = trip.budget;
+                break;
+              case 'links':
+                // insert links
+                const links = await LinkModel.find({
+                  tripId: Types.ObjectId(data.tripId),
+                }).lean();
 
-      const user = await UserModel.get({ awsUserId: params.ownerId });
-      params['ownerId'] = user;
-      const trip = await TripModel.create(params);
-      try {
-        const topics = [
-          { title: 'Accommodation' },
-          { title: 'Flights' },
-          { title: 'Ground transport' },
-          { title: 'Activities' },
-          { title: 'Food & Beverage' },
-          { title: 'Meeting/Work Space' },
-          { title: 'Technology' },
-          { title: 'Attendees & Guests' },
-          { title: 'Swag' },
-          { title: 'Travel Insurance' },
-        ];
-        const topicsPayload = topics.map(t => {
-          t['tripId'] = trip._id;
-          t['updatedBy'] = user._id;
-          t['createdBy'] = user._id;
-          return t;
-        });
-        await TopicModel.insertMany(topicsPayload);
-        const urlList = [];
-        if (trip?.pictureUrls?.length > 0) {
-          urlList.concat(trip.pictureUrls);
-        }
-        if (trip?.rooms?.length > 0) {
-          trip.rooms.map(room => {
-            if (room?.pictureUrls?.length > 0) {
-              urlList.concat(room.pictureUrls.map(url => url.url));
-              return room;
+                const linksPayload = links?.map(link => {
+                  link['tripId'] = resTrip._id;
+                  delete link['_id'];
+                  return link;
+                });
+                await LinkModel.insertMany(linksPayload);
+                if (trip.linksView) payload['linksView'] = trip.linksView;
+                break;
             }
           });
+          if (Object.keys(payload)?.length > 0) {
+            await TripModel.update(resTrip._id, payload);
+          }
+          if (!data.content?.includes('topics')) {
+            await TopicController.addDefaultTopics(
+              resTrip._id,
+              payload.ownerId
+            );
+          }
         }
-        if (trip?.itineraries?.length > 0) {
-          urlList.concat(trip.itineraries.map(itr => itr.imageUrl));
-        }
-        const items = new Set(urlList);
-        const assets = await AssetModel.find({
-          filter: { url: { $in: [...items] } },
-          select: { _id: 1 },
-        });
-        const assetLinks = assets.map(ast => {
-          return {
-            asset_id: ast._id,
-            resource_id: trip._id,
-            user_id: user._id,
-            type: 'trip',
-          };
-        });
-        await AssetLinkModel.insertMany(assetLinks);
-      } catch (err) {
-        console.log('Failed to created links', err);
+      } else {
+        await TopicController.addDefaultTopics(resTrip._id, payload.ownerId);
       }
-      const addMemberParams = {
-        memberId: user._id.toString(),
-        tripId: trip._id,
-        isOwner: true,
-        isMember: true,
-        joinedOn: moment().unix(),
-      };
-      await MemberModel.create(addMemberParams);
-
-      const conversationParams = {
-        memberId: user._id.toString(),
-        tripId: trip._id.toString(),
-        joinedOn: moment().unix(),
-        message: params['title'] + ' created by ' + user['firstName'],
-        messageType: 'info',
-        isGroup: true,
-      };
-      await ConversationModel.create(conversationParams);
-
-      const messageParams = {
-        tripId: trip._id.toString(),
-        message: params['title'] + ' created by ' + user['firstName'],
-        messageType: 'info',
-        isGroupMessage: true,
-        fromMemberId: user._id.toString(),
-      };
-      await MessageModel.create(messageParams);
-      const tripMessage =
-        params['status'] == 'draft'
-          ? LogMessages.CREATE_DRAFT_TRIP_HOST
-          : LogMessages.CREATE_TRIP_HOST;
-      await logActivity({
-        ...tripMessage(params['title']),
-        tripId: trip._id.toString(),
-        audienceIds: [user._id.toString()],
-        userId: user._id.toString(),
-      });
-      // if (params['status'] === 'published') {
-      //   try {
-      //     await EmailSender(user, EmailMessages.TRIP_PUBLISHED, [
-      //       trip['_id'],
-      //       params['title'],
-      //     ]);
-      //   } catch (err) {
-      //     console.log(err);
-      //   }
-      // }
-      const memberCount = await MemberModel.count({
-        tripId: trip._id,
-        isMember: true,
-        isOwner: { $ne: true },
-      });
-
-      const totalMemberCount = params['externalCount'] + memberCount;
-      const updateTrip = {
-        spotsFilled: totalMemberCount,
-        spotsAvailable: params['maxGroupSize'] - totalMemberCount,
-        groupSize: totalMemberCount,
-        isFull: totalMemberCount >= params['maxGroupSize'],
-        spotFilledRank: Math.round(
-          (totalMemberCount / params['maxGroupSize']) *
-            APP_CONSTANTS.SPOTSFILLED_PERCEENT
-        ),
-      };
-      await TripModel.update(trip._id, updateTrip);
-      return trip;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
+      return resTrip;
+    } catch (err) {}
+  }
+  static async editProject(id, payload) {
+    try {
+      const resTrip = await TripModel.update(Types.ObjectId(id), payload);
+      return resTrip;
+    } catch (err) {}
   }
 
   static async updateTrip(tripId, trip, user) {
@@ -334,10 +283,12 @@ export class TripController {
       if (trip.hasOwnProperty('questions')) module = 'questions';
       if (trip.hasOwnProperty('travelerViewName')) module = 'atteendees';
       if (trip.hasOwnProperty('travelerViews')) module = 'atteendees';
-      if (!checkPermission(user, tripDetails, module, 'edit')) {
+      if (!(await checkPermission(user, tripDetails, module, 'edit'))) {
         throw ERROR_KEYS.UNAUTHORIZED;
       }
-      const exustingMemberCount = await MemberModel.count({ tripId });
+      const exustingMemberCount = await MemberModel.count({
+        tripId: Types.ObjectId(tripId),
+      });
       if (exustingMemberCount > 1 && trip.status === 'draft') {
         throw ERROR_KEYS.CANNOT_CHANGE_TO_DRAFT;
       }
@@ -392,7 +343,7 @@ export class TripController {
       }
 
       const memberCount = await MemberModel.count({
-        tripId: tripId,
+        tripId: Types.ObjectId(tripId),
         isMember: true,
         isOwner: { $ne: true },
       });
@@ -472,17 +423,17 @@ export class TripController {
       } catch (err) {
         console.log('Failed to create links', err);
       }
-      const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
-      const logMessage =
-        tripDetails['status'] == 'draft' && trip['status'] == 'published'
-          ? LogMessages.TRIP_PUBLISHED
-          : LogMessages.UPDATE_TRIP_HOST;
-      await logActivity({
-        ...logMessage(tripName),
-        tripId: tripId,
-        audienceIds: [user._id.toString()],
-        userId: user._id.toString(),
-      });
+      // const tripName = trip['title'] ? trip['title'] : tripDetails['title'];
+      // const logMessage =
+      //   tripDetails['status'] == 'draft' && trip['status'] == 'published'
+      //     ? LogMessages.TRIP_PUBLISHED
+      //     : LogMessages.UPDATE_TRIP_HOST;
+      // await logActivity({
+      //   ...logMessage(tripName),
+      //   tripId: tripId,
+      //   audienceIds: [user._id.toString()],
+      //   userId: user._id.toString(),
+      // });
       // if (
       //   trip['status'] == 'published' &&
       //   tripDetails['status'] !== trip['status']
@@ -503,6 +454,46 @@ export class TripController {
     }
   }
 
+  static async updateDraftTrip(tripId, trip, user) {
+    try {
+      if (!user) throw ERROR_KEYS.UNAUTHORIZED;
+      const payload = {};
+      Object.keys(trip).forEach(k => {
+        payload[`draft.${k}`] = trip[k];
+      });
+      payload['lastSavedDate'] = moment().unix();
+      payload['updatedBy'] = user._id;
+      await TripModel.update(Types.ObjectId(tripId), payload);
+      return 'success';
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async publishTrip(tripId, payload, user) {
+    try {
+      if (!user) throw ERROR_KEYS.UNAUTHORIZED;
+      payload['lastPublishedDate'] = moment().unix();
+      payload['status'] = 'published';
+      payload['lastSavedDate'] = payload['lastPublishedDate'];
+      payload['updatedBy'] = user._id;
+      await TripModel.update(Types.ObjectId(tripId), payload);
+    } catch (err) {
+      throw err;
+    }
+  }
+  static async unPublishTrip(tripId, user) {
+    try {
+      if (!user) throw ERROR_KEYS.UNAUTHORIZED;
+      const payload = {};
+      payload['lastPublishedDate'] = null;
+      payload['status'] = 'draft';
+      payload['updatedBy'] = user._id;
+      await TripModel.update(Types.ObjectId(tripId), payload);
+    } catch (err) {
+      throw err;
+    }
+  }
   static async getTrip(
     tripId,
     memberId,
@@ -512,28 +503,28 @@ export class TripController {
   ) {
     try {
       let trip = await TripModel.getById(tripId);
-      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+      if (!trip || !trip?.isActive) throw ERROR_KEYS.TRIP_NOT_FOUND;
       trip = JSON.parse(JSON.stringify(trip));
       trip['ownerDetails'] = await UserModel.getById(trip.ownerId);
       if (memberId) {
         if (includeStat) {
           trip['awaitingCount'] = await BookingModel.count({
-            tripId: tripId,
+            tripId: Types.ObjectId(tripId),
             status: 'invited',
           });
         }
         const user = await UserModel.get({ awsUserId: memberId });
         if (user) {
           const memberParams = {
-            tripId: tripId,
+            tripId: Types.ObjectId(tripId),
             memberId: user._id,
             isFavorite: true,
           };
           const member = await MemberModel.get(memberParams);
           trip['isFavorite'] = member && member.isFavorite ? true : false;
           const booking = await BookingModel.get({
-            memberId: user._id.toString(),
-            tripId: tripId,
+            memberId: user._id,
+            tripId: Types.ObjectId(tripId),
             status: { $in: ['pending', 'approved'] },
           });
           if (booking) {
@@ -543,10 +534,16 @@ export class TripController {
         }
       }
       if (includePermissions) {
-        trip['permissions'] = await UserPermissionModel.findOne({
-          tripId: trip._id,
-          email: currentUser.email,
-        });
+        trip[
+          'permissions'
+        ] = await PermissionsController.generateInheritedPermissionsByUser(
+          tripId,
+          currentUser
+        );
+        // trip['permissions'] = await UserPermissionModel.findOne({
+        //   tripId: trip._id,
+        //   email: currentUser.email,
+        // });
       }
       return trip;
     } catch (error) {
@@ -560,53 +557,120 @@ export class TripController {
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      const members = await MemberModel.list({
-        filter: { tripId: tripId },
-      });
-      const bookings = await BookingModel.list({
-        filter: {
-          tripId: tripId,
-          status: { $in: ['pending', 'approved'] },
-        },
-      });
+      if (await checkPermission(user, trip, 'trip', 'edit')) {
+        await TripModel.update(tripId, {
+          isActive: false,
+        });
+        // await logActivity({
+        //   ...LogMessages.DELETE_TRIP_HOST(trip['title']),
+        //   tripId: trip._id.toString(),
+        //   audienceIds: [user._id.toString()],
+        //   userId: user._id.toString(),
+        // });
+        // try {
+        //   await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
+        //     trip['title'],
+        //   ]);
+        //   console.log('Email sent');
+        // } catch (err) {
+        //   console.log(err);
+        // }
+      } else {
+        throw ERROR_KEYS.UNAUTHORIZED;
+      }
+      return 'success';
+    } catch (error) {
+      throw error;
+    }
+  }
 
-      if (checkPermission(user, trip, 'trip', 'edit')) {
-        if (
-          trip.status == 'draft' ||
-          members.length <= 1 ||
-          bookings.length == 0
-        ) {
-          await TripModel.update(tripId, {
-            isArchived: true,
-            status: 'deleted',
-          });
-          await logActivity({
-            ...LogMessages.DELETE_TRIP_HOST(trip['title']),
-            tripId: trip._id.toString(),
-            audienceIds: [user._id.toString()],
-            userId: user._id.toString(),
-          });
-          // try {
-          //   await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
-          //     trip['title'],
-          //   ]);
-          //   console.log('Email sent');
-          // } catch (err) {
-          //   console.log(err);
-          // }
-        } else {
-          throw ERROR_KEYS.CANNOT_DELETE_TRIP;
-        }
-      } else if (user.isAdmin) {
+  static async cancelTrip(tripId, user) {
+    try {
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      const trip = await TripModel.getById(tripId);
+      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+
+      if (await checkPermission(user, trip, 'trip', 'edit')) {
         await TripModel.update(tripId, {
           isArchived: true,
-          status: 'deleted',
+          status: 'canceled',
         });
-        await logActivity({
-          ...LogMessages.DELETE_TRIP_HOST(trip['title']),
-          tripId: trip._id.toString(),
-          audienceIds: [trip.owner_id],
-          userId: user._id.toString(),
+        const members = await MemberModel.aggregate([
+          { $match: { tripId: trip._id, isMember: true, isActive: true } },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'memberId',
+              foreignField: '_id',
+              as: 'memberDetails',
+            },
+          },
+          { $unwind: '$memberDetails' },
+          {
+            $replaceRoot: {
+              newRoot: {
+                $mergeObjects: ['$memberDetails', '$$ROOT'],
+              },
+            },
+          },
+        ]);
+        const trip_url = `${
+          process.env.CLIENT_BASE_URL
+        }/trip/${trip._id.toString()}`;
+        const tripName = `<a href="${trip_url}">${trip['title']}</a>`;
+        const promises = members.map(async member => {
+          return new Promise(async (resolve, reject) => {
+            await sendNotifications(
+              'trip_canceled_by_host_traveler',
+              member,
+              [member?._id],
+              trip._id,
+              {
+                emailParams: {
+                  TripName: tripName,
+                },
+                messageParams: {
+                  TripName: tripName,
+                },
+              }
+            );
+            return resolve();
+          });
+        });
+        await Promise.all(promises);
+        // await logActivity({
+        //   ...LogMessages.DELETE_TRIP_HOST(trip['title']),
+        //   tripId: trip._id.toString(),
+        //   audienceIds: [user._id.toString()],
+        //   userId: user._id.toString(),
+        // });
+        // try {
+        //   await EmailSender(user, EmailMessages.DRAFT_TRIP_DELETED, [
+        //     trip['title'],
+        //   ]);
+        //   console.log('Email sent');
+        // } catch (err) {
+        //   console.log(err);
+        // }
+      } else {
+        throw ERROR_KEYS.UNAUTHORIZED;
+      }
+      return 'success';
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async restoreTrip(tripId, user) {
+    try {
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      const trip = await TripModel.getById(tripId);
+      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
+
+      if (await checkPermission(user, trip, 'trip', 'edit')) {
+        await TripModel.update(tripId, {
+          isArchived: false,
+          status: 'draft',
         });
       } else {
         throw ERROR_KEYS.UNAUTHORIZED;
@@ -638,7 +702,7 @@ export class TripController {
 
       tripParams['$and'] = [
         { endDate: { $gte: currentDate } },
-        { status: { $nin: ['completed', 'cancelled'] } },
+        { status: { $nin: ['completed', 'canceled'] } },
         { isArchived: false },
       ];
       const params = [];
@@ -689,11 +753,67 @@ export class TripController {
     }
   }
 
+  static async activeTrips(filter, user) {
+    try {
+      if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      // Filter trips
+      const trips = await getTripsByPermissions(user);
+      const tripParams = {
+        isActive: true,
+        $or: [{ ownerId: user._id }, { _id: { $in: trips } }],
+      };
+      const params = [];
+      params.push({
+        $match: tripParams,
+      });
+
+      params.push({
+        $sort: prepareSortFilter(
+          filter,
+          ['updatedAt', 'startDate', 'spotsFilled'],
+          'updatedAt'
+        ),
+      });
+
+      const page = filter.page ? parseInt(filter.page) : APP_CONSTANTS.PAGE;
+      const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;
+      params.push({ $skip: limit * page });
+      params.push({ $limit: limit });
+      params.push({
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'ownerDetails',
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$ownerDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      });
+      params.push({
+        $project: {
+          trip: 0,
+          memberId: 0,
+          tripId: 0,
+        },
+      });
+      const resTrips = await TripModel.aggregate(params);
+      return {
+        data: resTrips,
+        count: resTrips.length,
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+  // Travelers trips
   static async myTrips(filter, user) {
     try {
-      const filterParams = {
-        isMember: true,
-      };
+      const filterParams = { isActive: true };
       if (filter.memberId) {
         if (!Types.ObjectId.isValid(filter.memberId)) {
           throw 'Invalid memberID';
@@ -702,18 +822,6 @@ export class TripController {
       } else {
         filterParams['memberId'] = user._id;
       }
-      // Active trips and draft trips
-      if (
-        (filter.isHost || filter.status == 'draft') &&
-        filterParams['memberId'] == user._id
-      )
-        filterParams['isOwner'] = true;
-      // Favorite trips
-      else if (filter.isFavorite) {
-        delete filterParams['isMember'];
-        filterParams['isFavorite'] = true;
-      }
-
       const params = [
         {
           $match: filterParams,
@@ -731,7 +839,7 @@ export class TripController {
       params.push({
         $unwind: {
           path: '$trip',
-          preserveNullAndEmptyArrays: true,
+          preserveNullAndEmptyArrays: false,
         },
       });
       params.push({
@@ -739,32 +847,7 @@ export class TripController {
           newRoot: { $mergeObjects: ['$$ROOT', '$trip'] },
         },
       });
-
-      // Filter trips
-      const currentDate = parseInt(moment().format('YYYYMMDD'));
-      const tripParams = {
-        isActive: true,
-      };
-      if (filter.isPublic) tripParams['isPublic'] = filter.isPublic;
-      if (filter.status) tripParams['status'] = filter.status;
-      if (filter.status !== 'draft') tripParams['status'] = { $nin: ['draft'] };
-      if (filter.includeDraft) {
-        delete tripParams['status'];
-      }
-      if (filter.pastTrips || filter.isArchived) {
-        tripParams['$or'] = [
-          { endDate: { $lt: currentDate } },
-          { status: { $in: ['completed', 'cancelled'] } },
-          { isArchived: true },
-        ];
-      } else {
-        tripParams['$and'] = [
-          { endDate: { $gte: currentDate } },
-          { status: { $nin: ['completed', 'cancelled'] } },
-          { isArchived: false },
-        ];
-      }
-
+      const tripParams = { isActive: true };
       params.push({
         $match: tripParams,
       });
@@ -805,6 +888,27 @@ export class TripController {
           trip: 0,
           memberId: 0,
           tripId: 0,
+        },
+      });
+      params.push({
+        $lookup: {
+          from: 'bookings',
+          localField: 'bookingId',
+          foreignField: '_id',
+          as: 'booking',
+          pipeline: [
+            {
+              $project: {
+                status: 1,
+              },
+            },
+          ],
+        },
+      });
+      params.push({
+        $unwind: {
+          path: '$booking',
+          preserveNullAndEmptyArrays: true,
         },
       });
       const resTrips = await MemberModel.aggregate(params);
@@ -860,9 +964,7 @@ export class TripController {
           awsUserId: 1,
           isMember: 1,
           isOwner: 1,
-          bookingId: {
-            $toObjectId: '$bookingId',
-          },
+          bookingId: 1,
           tripId: 1,
           joinedOn: 1,
           memberId: 1,
@@ -902,6 +1004,7 @@ export class TripController {
       throw error;
     }
   }
+
   static async tripBookings(tripId, awsUserId) {
     try {
       const trip = await TripModel.getById(tripId).select({
@@ -928,21 +1031,17 @@ export class TripController {
         isBookingEnabled: 1,
       });
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      // const user = await UserModel.get({ awsUserId: awsUserId });
-      // if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
 
       const params = [
         {
           $match: {
-            tripId: tripId,
+            tripId: Types.ObjectId(tripId),
             status: 'approved',
           },
         },
         {
           $project: {
-            memberId: {
-              $toObjectId: '$memberId',
-            },
+            memberId: 1,
             guests: 1,
             addOns: 1,
             rooms: 1,
@@ -1046,148 +1145,40 @@ export class TripController {
       throw error;
     }
   }
-  static async deleteCoHost(tripId, hostId, user) {
-    try {
-      const trip = await TripModel.getById(tripId);
-      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      if (!(trip?.ownerId == user._id.toString() || user.isAdmin))
-        throw ERROR_KEYS.UNAUTHORIZED;
-      const hosts = trip.coHosts.filter(host => host.id !== hostId);
-      await TripModel.update(trip._id, { coHosts: hosts });
-      return 'success';
-    } catch (err) {
-      throw err;
-    }
-  }
+
   static async transferHost(tripId, params, user) {
     try {
       const userFound = await UserModel.getById(params.hostId);
       if (!userFound) throw ERROR_KEYS.USER_NOT_FOUND;
-      if (!userFound.isHost) throw ERROR_KEYS.UNAUTHORIZED;
       const trip = await TripModel.getById(tripId);
       if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
       if (!(trip?.ownerId == user._id.toString() || user.isAdmin))
         throw ERROR_KEYS.UNAUTHORIZED;
       await TripModel.update(trip._id, { ownerId: userFound._id });
-      await MemberModel.update(
-        { tripId: trip._id, isOwner: true },
-        { memberId: userFound._id }
+      await UserPermissionModel.updateOne(
+        {
+          email: user.email,
+          tripId: trip._id,
+        },
+        {
+          $set: {
+            email: user.email,
+            coHost: true,
+            directPermissions: {
+              tabPermissions: {},
+              viewPermissions: {},
+              topicPermissions: {},
+            },
+          },
+        },
+        { upsert: true }
       );
+
+      await UserPermissionModel.deleteMany({
+        email: userFound.email,
+        tripId: trip._id,
+      });
       return 'success';
-    } catch (err) {
-      throw err;
-    }
-  }
-  static async addCoHost(tripId, params, user) {
-    try {
-      const trip = await TripModel.getById(tripId);
-      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      if (!(trip?.ownerId == user._id.toString() || user.isAdmin))
-        throw ERROR_KEYS.UNAUTHORIZED;
-      const userFound = await UserModel.get({
-        $or: [{ email: params?.email }, { username: params?.email }],
-      });
-      if (!userFound) throw ERROR_KEYS.USER_NOT_FOUND;
-      const ids = trip?.coHosts?.map(host => host.id);
-      if (!ids.includes(userFound._id.toString()))
-        if (trip.coHosts && Array.isArray(trip.coHosts))
-          trip.coHosts.push({
-            id: userFound._id.toString(),
-            addedBy: user._id.toString(),
-            addedAt: moment().unix(),
-          });
-        else
-          trip.coHosts = [
-            {
-              id: userFound._id.toString(),
-              addedBy: user._id.toString(),
-              addedAt: moment().unix(),
-            },
-          ];
-      await TripModel.update(trip._id, { coHosts: trip.coHosts });
-      return trip;
-    } catch (err) {
-      throw err;
-    }
-  }
-  static async getCoHosts(tripId, user) {
-    try {
-      const trip = await TripModel.getById(tripId);
-      if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-      if (!checkPermission(user, trip, 'permissions', 'view'))
-        throw ERROR_KEYS.UNAUTHORIZED;
-
-      const ids = trip?.coHosts?.map(host => Types.ObjectId(host.id));
-      return await UserModel.list({
-        filter: {
-          _id: { $in: ids },
-        },
-        select: {
-          username: 1,
-          email: 1,
-          awsUserId: 1,
-          firstName: 1,
-          lastName: 1,
-          avatarUrl: 1,
-        },
-      });
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  static async getInviteList(user) {
-    const currentDate = parseInt(moment().format('YYYYMMDD'));
-    try {
-      const query = [
-        {
-          $match: {
-            memberId: user._id.toString(),
-            status: { $in: ['invited', 'invite-accepted', 'invite-declined'] },
-          },
-        },
-        {
-          $project: {
-            ...bookingProjection,
-            tripId: {
-              $toObjectId: '$tripId',
-            },
-          },
-        },
-        {
-          $lookup: {
-            from: 'trips',
-            localField: 'tripId',
-            foreignField: '_id',
-            as: 'trip',
-          },
-        },
-        {
-          $unwind: {
-            path: '$trip',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $match: { 'trip.endDate': { $gte: currentDate } },
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'trip.ownerId',
-            foreignField: '_id',
-            as: 'ownerDetails',
-          },
-        },
-        {
-          $unwind: {
-            path: '$ownerDetails',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-      ];
-
-      return await BookingModel.aggregate(query);
     } catch (err) {
       throw err;
     }
@@ -1195,9 +1186,11 @@ export class TripController {
 
   static async listAdminTrips(filter) {
     try {
-      const filterParams = {};
+      const filterParams = { isActive: true };
       if (filter.status) {
-        filterParams['status'] = filter.status;
+        if (['published', 'unpublished'].includes(filter.status))
+          filterParams['isPublished'] = filter.status == 'published';
+        else filterParams['status'] = filter.status;
       }
       const params = [{ $match: filterParams }];
       const limit = filter.limit ? parseInt(filter.limit) : APP_CONSTANTS.LIMIT;

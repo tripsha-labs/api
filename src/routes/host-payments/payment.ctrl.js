@@ -23,7 +23,7 @@ export class PaymentController {
     if (!filters.tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'tripId' };
     const trip = await TripModel.getById(filters.tripId);
     if (!trip) throw ERROR_KEYS.TRIP_NOT_FOUND;
-    if (!checkPermission(user, trip, 'vendorPayments')) {
+    if (!(await checkPermission(user, trip, 'vendorPayments'))) {
       throw ERROR_KEYS.UNAUTHORIZED;
     }
     return await PaymentModel.list({

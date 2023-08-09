@@ -124,7 +124,7 @@ components:
             - draft
             - published
             - completed
-            - cancelled
+            - canceled
         tripPaymentType:
           type: string
           enum:

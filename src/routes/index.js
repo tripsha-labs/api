@@ -25,6 +25,7 @@ import Schedules from './schedules';
 import EmailNotifications from './email-notifications';
 import Assets from './assets';
 import UserExists from './user-exists';
+import PublicProfile from './public-profile';
 import HostPayment from './host-payments';
 import DirectoryMembers from './member-directory';
 import Resources from './resources';
@@ -32,6 +33,7 @@ import Links from './links';
 import Billing from './billing';
 import Permissions from './permissions';
 import Topics from './topics';
+import Properties from './properties';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -53,6 +55,7 @@ const noAuth = () => {
   app.use('/public/trip-tags', TripTags);
   app.use('/public/trips', NoAuthTrips);
   app.use('/public/check-user-exists', UserExists);
+  app.use('/public/profile', PublicProfile);
   return app;
 };
 
@@ -65,7 +68,7 @@ const auth = () => {
   app.use(async (req, res, next) => {
     if (process.env.IS_OFFLINE) {
       req.requestContext.identity.cognitoIdentityId =
-        'us-east-1:b80a7272-8cd5-4299-8e36-1baa709e3867';
+        'us-east-1:1570527a-efa7-46b3-a317-b4b8c4108494';
     }
     await dbConnect(res);
     next();
@@ -73,9 +76,7 @@ const auth = () => {
   const verifyToken = async (req, res, next) => {
     try {
       const awsUserId = req.requestContext.identity.cognitoIdentityId;
-      console.log(awsUserId);
       req.currentUser = await UserModel.get({ awsUserId: awsUserId });
-      console.log(req.currentUser);
       if (req.currentUser) req.currentUser['awsUserId'] = awsUserId;
       return next();
     } catch (err) {
@@ -102,6 +103,7 @@ const auth = () => {
   app.use('/billing', verifyToken, Billing);
   app.use('/permissions', verifyToken, Permissions);
   app.use('/topics', verifyToken, Topics);
+  app.use('/properties', verifyToken, Properties);
   return app;
 };
 
