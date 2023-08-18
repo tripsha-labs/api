@@ -34,6 +34,7 @@ import Billing from './billing';
 import Permissions from './permissions';
 import Topics from './topics';
 import Properties from './properties';
+import Organizations from './organizations';
 import { UserModel } from '../models';
 
 const noAuth = () => {
@@ -68,7 +69,7 @@ const auth = () => {
   app.use(async (req, res, next) => {
     if (process.env.IS_OFFLINE) {
       req.requestContext.identity.cognitoIdentityId =
-        'us-east-1:1570527a-efa7-46b3-a317-b4b8c4108494';
+        'us-east-1:0bebdab2-18eb-4e72-9261-a3dcaed47602';
     }
     await dbConnect(res);
     next();
@@ -104,6 +105,7 @@ const auth = () => {
   app.use('/permissions', verifyToken, Permissions);
   app.use('/topics', verifyToken, Topics);
   app.use('/properties', verifyToken, Properties);
+  app.use('/organizations', verifyToken, Organizations);
   return app;
 };
 

@@ -11,6 +11,7 @@ import {
   updateTripsForReservedCount,
   updateVariableNames,
   updateObjectIds,
+  createOrganization,
 } from '../../migrations';
 
 /**
@@ -25,7 +26,8 @@ export const runMigrations = async (req, res) => {
     // await updateBookingOptions();
     // await updateTripsForReservedCount();
     // await updateVariableNames();
-    await updateObjectIds();
+    // await updateObjectIds();
+    await createOrganization();
     console.log('Migrations completed');
     return successResponse(res, 'success');
   } catch (error) {

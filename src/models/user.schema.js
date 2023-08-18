@@ -66,6 +66,7 @@ const userSchema = new mongoose.Schema(
     mobilityRestrictions: String,
     paymentMethod: { type: String },
     isConcierge: { type: Boolean, default: true },
+    isHostView: { type: Boolean, default: false },
   },
   {
     timestamps: true,

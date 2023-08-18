@@ -6,6 +6,7 @@ import {
   BookingModel,
   HostRequestModel,
   TopicModel,
+  OrganizationModel,
 } from '../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../constants';
 import uuid from 'uuid/v4';
@@ -401,5 +402,28 @@ export const updateObjectIds = async () => {
     // );
   } catch (err) {
     console.log(err);
+  }
+};
+export const createOrganization = async () => {
+  try {
+    const users = await UserModel.get(
+      { firstName: { $exists: true }, isHost: true },
+      { firstName: 1 }
+    );
+    const promises = users?.map(user => {
+      return new Promise(async resolve => {
+        // Create organization
+        await OrganizationModel.create({});
+        // Add permission
+        // Migrate assets
+        // Migrate members
+        // Migrate trips
+        // Migrate messages
+      });
+    });
+  } catch (err) {
+    console.log(err);
+  } finally {
+    console.log('Organization create completed.');
   }
 };

@@ -175,6 +175,10 @@ const updateUserSchema = {
     type: 'string',
     optional: true,
   },
+  isHostView: {
+    type: 'boolean',
+    optional: true,
+  },
   $$strict: true,
 };
 
@@ -247,6 +251,7 @@ const adminUpdateUserSchema = {
       },
     },
   },
+
   $$strict: true,
 };
 export const createUserValidation = new Validator().compile(createUserSchema);

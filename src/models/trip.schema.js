@@ -42,6 +42,7 @@ const tripSchema = new mongoose.Schema(
     tripPaymentType: {
       type: String,
       enum: ['pay', 'payasyougo', 'free'],
+      default: 'pay',
     },
     priceIncludes: { type: String, optional: true },
     priceExcludes: { type: String, optional: true },
@@ -53,7 +54,11 @@ const tripSchema = new mongoose.Schema(
     autoRegisterRSVP: { type: Boolean, default: false },
     isBookingEnabled: { type: Boolean, default: false },
     autoAcceptBookingRequest: { type: Boolean, default: false },
-
+    organizationId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organizations',
+      index: true,
+    },
     // Trip fields handled from backend
     status: {
       type: String,

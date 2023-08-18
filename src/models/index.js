@@ -102,3 +102,10 @@ export * from './properties.validation';
 
 export * from './notifications.model';
 export * from './notifications.schema';
+
+export * from './organization.model';
+export * from './organization.schema';
+export * from './organization.validation';
+
+export * from './organization-permission.model';
+export * from './organization-permission.schema';

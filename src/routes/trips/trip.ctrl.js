@@ -182,6 +182,10 @@ export class TripController {
   }
   static async createProject(createPayload, data) {
     try {
+      if (data.hasOwnProperty('organizationId'))
+        createPayload['organizationId'] = Types.ObjectId(
+          data['organizationId']
+        );
       const resTrip = await TripModel.create(createPayload);
       const payload = {};
       if (data.hasOwnProperty('tripId')) {
@@ -753,15 +757,23 @@ export class TripController {
     }
   }
 
-  static async activeTrips(filter, user) {
+  static async activeTrips(filter, user, organizationId = null) {
     try {
       if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
+      let tripParams = {};
       // Filter trips
-      const trips = await getTripsByPermissions(user);
-      const tripParams = {
-        isActive: true,
-        $or: [{ ownerId: user._id }, { _id: { $in: trips } }],
-      };
+      if (organizationId) {
+        tripParams = {
+          isActive: true,
+          organizationId: Types.ObjectId(organizationId),
+        };
+      } else {
+        const trips = await getTripsByPermissions(user);
+        tripParams = {
+          isActive: true,
+          $or: [{ ownerId: user._id }, { _id: { $in: trips } }],
+        };
+      }
       const params = [];
       params.push({
         $match: tripParams,

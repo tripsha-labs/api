@@ -490,6 +490,7 @@ const createProjectSchema = {
   name: { type: 'string', empty: false },
   content: { type: 'array', optional: true },
   tripId: { type: 'string', optional: true },
+  organizationId: { type: 'string', empty: false },
 };
 const editProjectSchema = {
   name: { type: 'string', empty: false },
