@@ -11,6 +11,8 @@ const tripSchema = {
   description: { type: 'string', optional: true },
   startDate: { type: 'number', empty: false },
   endDate: { type: 'number', empty: false },
+  tripLength: { type: 'number', optional: true },
+  location: { type: 'string', optional: true },
   focus: {
     type: 'string',
     optional: true,
@@ -72,49 +74,140 @@ const tripSchema = {
   },
   itineraries: {
     type: 'array',
-    optional: true,
     items: {
       type: 'object',
-      optional: true,
       props: {
         id: { type: 'string' },
-        title: { type: 'string', optional: true },
-        description: { type: 'string', optional: true },
-        imageUrl: { type: 'string', optional: true },
+        title: { type: 'string', empty: false },
+        events: {
+          type: 'array',
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              title: {
+                type: 'string',
+                empty: false,
+                label: 'Title',
+              },
+              description: { type: 'string', optional: true },
+              duration: { type: 'number', optional: true },
+              durationUnit: { type: 'string', enum: ['Min', 'Hrs'] },
+              location: {
+                type: 'string',
+                optional: true,
+                label: 'Location',
+              },
+              startTime: {
+                type: 'string',
+                optional: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  venues: {
+    type: 'array',
+    items: {
+      type: 'object',
+      props: {
+        id: { type: 'string' },
+        title: { type: 'string', empty: false },
+        variants: {
+          type: 'array',
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              title: {
+                type: 'string',
+                empty: false,
+                label: 'Title',
+              },
+              description: {
+                type: 'string',
+                optional: true,
+                label: 'Description',
+              },
+              location: {
+                type: 'string',
+                optional: true,
+                label: 'Location',
+              },
+              images: {
+                type: 'array',
+                optional: true,
+                items: {
+                  type: 'object',
+                  props: {
+                    id: { type: 'string' },
+                    url: {
+                      type: 'string',
+                      label: 'Url',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
   },
   rooms: {
     type: 'array',
-    optional: true,
     items: {
       type: 'object',
       props: {
         id: { type: 'string' },
-        name: { type: 'string' },
-        primaryPictureId: { type: 'string' },
+        name: { type: 'string', empty: false },
         variants: {
           type: 'array',
-          optional: true,
           items: {
             type: 'object',
             props: {
               id: { type: 'string' },
-              name: { type: 'string' },
-              cost: { type: 'number' },
-              available: { type: 'number' },
-            },
-          },
-        },
-        pictureUrls: {
-          type: 'array',
-          optional: true,
-          items: {
-            type: 'object',
-            props: {
-              id: { type: 'string' },
-              caption: { type: 'string' },
-              url: { type: 'string' },
+              name: {
+                type: 'string',
+                empty: false,
+                label: 'Title',
+              },
+              cost: {
+                type: 'number',
+                optional: true,
+                label: 'Cost',
+              },
+              available: {
+                type: 'number',
+                empty: false,
+                label: 'Maximum that can be booked',
+              },
+              location: {
+                type: 'string',
+                optional: true,
+                label: 'Location',
+              },
+              images: {
+                type: 'array',
+                optional: true,
+                items: {
+                  type: 'object',
+                  props: {
+                    id: { type: 'string' },
+                    url: {
+                      type: 'string',
+                      label: 'Photos',
+                    },
+                  },
+                },
+              },
+              description: {
+                type: 'string',
+                optional: true,
+                label: 'Description',
+              },
             },
           },
         },
@@ -123,15 +216,59 @@ const tripSchema = {
   },
   addOns: {
     type: 'array',
-    optional: true,
     items: {
       type: 'object',
       props: {
         id: { type: 'string' },
-        name: { type: 'string' },
-        cost: { type: 'number' },
-        available: { type: 'number' },
-        restrictPerTraveler: { type: 'boolean' },
+        name: { type: 'string', empty: false, label: 'Title' },
+        variants: {
+          type: 'array',
+          items: {
+            type: 'object',
+            props: {
+              id: { type: 'string' },
+              name: {
+                type: 'string',
+                empty: false,
+                label: 'Title',
+              },
+              cost: {
+                type: 'number',
+                optional: true,
+                label: 'Cost',
+              },
+              available: {
+                type: 'number',
+                empty: false,
+                label: 'Maximum that can be booked',
+              },
+              restrictPerTraveler: {
+                type: 'boolean',
+                optional: true,
+                label: 'Restrict add-on to a maximum of one per traveler',
+              },
+              images: {
+                type: 'array',
+                optional: true,
+                items: {
+                  type: 'object',
+                  props: {
+                    id: { type: 'string' },
+                    url: {
+                      type: 'string',
+                      label: 'Url',
+                    },
+                  },
+                },
+              },
+              description: {
+                type: 'string',
+                optional: true,
+                label: 'Description',
+              },
+            },
+          },
+        },
       },
     },
   },
@@ -144,9 +281,9 @@ const tripSchema = {
     optional: true,
     type: 'object',
     props: {
-      amount: { type: 'number', positive: true },
-      expirationDate: { type: 'number' },
-      includeAddOns: { type: 'boolean' },
+      amount: { type: 'number', positive: true, optional: true },
+      expirationDate: { type: 'number', optional: true },
+      includeAddOns: { type: 'boolean', optional: true },
     },
   },
   isDiscountApplicable: {
@@ -187,6 +324,8 @@ const tripSchema = {
             'Url',
             'Date',
             'DateRange',
+            'Time',
+            'DateTime',
             'Consent',
             'YesNo',
           ],
@@ -220,6 +359,7 @@ const tripSchema = {
   lastBookingDate: { type: 'number', optional: true },
   status: { type: 'string', optional: true },
   showAttendees: { type: 'boolean', optional: true },
+  showAttendeesCount: { type: 'boolean', optional: true },
   allowExpressCheckout: { type: 'boolean', optional: true },
   isAutoPayEnabled: { type: 'boolean', optional: true },
   bookingExpiryDays: { type: 'number', optional: true },
@@ -235,19 +375,7 @@ const tripSchema = {
       amount: { type: 'number', optional: true },
     },
   },
-  coHosts: {
-    type: 'array',
-    optional: true,
-    items: {
-      type: 'object',
-      optional: true,
-      props: {
-        id: { type: 'string' },
-        addedBy: { type: 'number' },
-        addedAt: { type: 'number' },
-      },
-    },
-  },
+  allowMultipleOptions: { type: 'boolean', optional: true },
   $$strict: 'remove',
 };
 
@@ -271,6 +399,18 @@ const tripUpdateSchema = {
   },
   rooms: {
     ...tripSchema.rooms,
+    optional: true,
+  },
+  addOns: {
+    ...tripSchema.addOns,
+    optional: true,
+  },
+  venues: {
+    ...tripSchema.venues,
+    optional: true,
+  },
+  itineraries: {
+    ...tripSchema.itineraries,
     optional: true,
   },
   isDiscountApplicable: {
@@ -305,13 +445,22 @@ const tripUpdateSchema = {
     type: 'array',
     optional: true,
   },
+  travelerNotifications: {
+    type: 'array',
+    optional: true,
+  },
+  hostNotifications: {
+    type: 'array',
+    optional: true,
+  },
   linksView: { type: 'array', optional: true },
   userPermissionsView: { type: 'array', optional: true },
   hiddenAttendees: { type: 'object', optional: true },
+  location: { type: 'string', optional: true },
 };
 
 const draftpSchema = {
-  title: { type: 'string', empty: false },
+  title: { type: 'string', optional: true },
   pictureUrls: {
     type: 'array',
     optional: true,
@@ -322,6 +471,30 @@ const draftpSchema = {
     optional: true,
     items: 'string',
   },
+  isDepositApplicable: {
+    ...tripSchema.isDepositApplicable,
+    optional: true,
+  },
+  minGroupSize: {
+    ...tripSchema.minGroupSize,
+    optional: true,
+  },
+  maxGroupSize: {
+    ...tripSchema.maxGroupSize,
+    optional: true,
+  },
+  location: { type: 'string', optional: true },
+};
+
+const createProjectSchema = {
+  name: { type: 'string', empty: false },
+  content: { type: 'array', optional: true },
+  tripId: { type: 'string', optional: true },
+};
+const editProjectSchema = {
+  name: { type: 'string', empty: false },
+  content: { type: 'array', optional: true },
+  tripId: { type: 'string', optional: true },
 };
 export const validateTripLength = (startDate, endDate) => {
   try {
@@ -332,7 +505,10 @@ export const validateTripLength = (startDate, endDate) => {
     return -1;
   }
 };
-
+export const createProjectValidation = new Validator().compile(
+  createProjectSchema
+);
+export const editProjectValidation = new Validator().compile(editProjectSchema);
 export const draftTripValidation = new Validator().compile(draftpSchema);
 export const createTripValidation = new Validator().compile(tripSchema);
 export const updateTripValidation = new Validator().compile(tripUpdateSchema);

@@ -48,23 +48,23 @@ const applyCharge = booking => {
               bookingUpdate['currentDue'] = 0;
               bookingUpdate['paymentStatus'] = 'full';
               await BookingModel.update(booking._id, bookingUpdate);
-              await logActivity({
-                ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST(
-                  `${memberInfo.firstName} ${memberInfo.lastName}`,
-                  trip['title']
-                ),
-                tripId: trip._id.toString(),
-                audienceIds: [ownerInfo._id.toString()],
-                userId: memberInfo._id.toString(),
-              });
-              await logActivity({
-                ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELER(
-                  trip['title']
-                ),
-                tripId: trip._id.toString(),
-                audienceIds: [memberInfo._id.toString()],
-                userId: memberInfo._id.toString(),
-              });
+              // await logActivity({
+              //   ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_HOST(
+              //     `${memberInfo.firstName} ${memberInfo.lastName}`,
+              //     trip['title']
+              //   ),
+              //   tripId: trip._id.toString(),
+              //   audienceIds: [ownerInfo._id.toString()],
+              //   userId: memberInfo._id.toString(),
+              // });
+              // await logActivity({
+              //   ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_SUCCESS_TRAVELER(
+              //     trip['title']
+              //   ),
+              //   tripId: trip._id.toString(),
+              //   audienceIds: [memberInfo._id.toString()],
+              //   userId: memberInfo._id.toString(),
+              // });
             }
           } catch (err) {
             console.log(err);
@@ -78,14 +78,14 @@ const applyCharge = booking => {
                 paymentError: paymentError,
               };
               await BookingModel.update(booking._id, bookingUpdate);
-              await logActivity({
-                ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELER(
-                  trip['title']
-                ),
-                tripId: trip._id.toString(),
-                audienceIds: [memberInfo._id.toString()],
-                userId: memberInfo._id.toString(),
-              });
+              // await logActivity({
+              //   ...LogMessages.BOOKING_REQUEST_BALANCE_PAYMENT_FAILED_TRAVELER(
+              //     trip['title']
+              //   ),
+              //   tripId: trip._id.toString(),
+              //   audienceIds: [memberInfo._id.toString()],
+              //   userId: memberInfo._id.toString(),
+              // });
             }
           }
         } else {
@@ -117,9 +117,10 @@ const chargePayment = async () => {
       limit: 100,
     });
     const promises = [];
-    bookings.map(booking => {
-      promises.push(applyCharge(booking));
-      return booking;
+    bookings.forEach(booking => {
+      if (!booking.cryptoPaymentMethod) {
+        promises.push(applyCharge(booking));
+      }
     });
     await Promise.all(promises);
     if (bookings.length == 100) {

@@ -38,12 +38,19 @@ const bookingSchema = {
     items: {
       type: 'object',
       props: {
-        id: { type: 'string' },
-        name: { type: 'string' },
-        cost: { type: 'number' },
-        available: { type: 'number' },
+        variant: {
+          type: 'object',
+          props: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            cost: { type: 'number' },
+            available: { type: 'number' },
+          },
+        },
+        addOn: {
+          type: 'object',
+        },
         attendees: { type: 'number' },
-        restrictPerTraveler: { type: 'boolean' },
       },
     },
   },
@@ -81,6 +88,8 @@ const bookingSchema = {
             'Url',
             'Date',
             'DateRange',
+            'DateTime',
+            'Time',
             'Consent',
             'YesNo',
           ],
@@ -204,5 +213,6 @@ export const hostBookingActionValidation = new Validator().compile({
   paymentMethod: { type: 'string', empty: false, optional: true },
   forceAddTraveler: { type: 'boolean', empty: true, optional: true },
   reason: { type: 'string', empty: true, optional: true },
+  comments: { type: 'array', items: 'string', empty: true, optional: true },
   $$strict: 'remove',
 });

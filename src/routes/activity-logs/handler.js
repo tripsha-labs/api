@@ -13,7 +13,24 @@ export const listActivities = async (req, res) => {
     const params = req.query ? req.query : {};
     const result = await ActivityLosController.listActivites(
       params,
-      req.requestContext.identity.cognitoIdentityId
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Update activities
+ */
+export const updateActivities = async (req, res) => {
+  try {
+    const params = req.body ? req.body : {};
+    const result = await ActivityLosController.updateActivities(
+      params,
+      req.currentUser
     );
     return successResponse(res, result);
   } catch (error) {

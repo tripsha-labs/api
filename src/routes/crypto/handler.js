@@ -1,6 +1,10 @@
 import { CryptoPriceConversionController } from './controllers/converter.ctrl';
-import { successResponse } from '../../utils';
+import { successResponse, failureResponse } from '../../utils';
+import { WalletController } from './controllers/wallet.ctrl';
 
+/**
+ * Convert USD to token units given the current market price.
+ */
 export const convertTokenUnits = async (req, res) => {
   try {
     const data = req.body || {};
@@ -13,10 +17,33 @@ export const convertTokenUnits = async (req, res) => {
       usd: +data.usd,
     });
 
-    return successResponse(res, { units });
+    return successResponse(res, { units: units.toString() });
   } catch (error) {
     console.log(error);
     return failureResponse(res, error);
+  }
+};
+
+/**
+ * Get the next available signing nonce for a chain/token/wallet
+ */
+export const getNextSpendAllowanceNonce = async (req, res) => {
+  try {
+    const data = req.params || {};
+    if (!data.chainId) {
+      throw new Error('Missing chainId in request');
+    }
+    if (!data.address) {
+      throw new Error('Missing address in request');
+    }
+    if (!data.token) {
+      throw new Error('Missing token address in request');
+    }
+    const r = await WalletController.getNextSpendAllowanceNonce(data);
+    return successResponse(res, { nextNonce: r });
+  } catch (e) {
+    console.log(e);
+    return failureResponse(res, e);
   }
 };
 

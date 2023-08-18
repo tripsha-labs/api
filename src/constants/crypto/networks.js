@@ -7,6 +7,15 @@ const getAlchemyUrlFor = network =>
     ? `https://${network}.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`
     : undefined;
 
+const getLocalNetwork = () =>
+  process.env.LOCAL_RPC_URL ? process.env.LOCAL_RPC_URL : undefined;
+
+/**
+ * All supported networks by Tripsha.
+ */
+
+const MCALL = '0xca11bde05977b3631167028862be2a173976ca112';
+
 export const EthereumMainnet = {
   chainId: 1,
   name: 'Ethereum',
@@ -17,7 +26,9 @@ export const EthereumMainnet = {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   },
   geckoId: 'ethereum',
+  multiCallAddress: MCALL,
   rpcEndpoints: [
+    getLocalNetwork('mainnet'),
     getInfuraUrlFor('mainnet'),
     getAlchemyUrlFor('eth-mainnet'),
     'https://cloudflare-eth.com',
@@ -34,7 +45,9 @@ export const Polygon = {
     decimals: 18,
     address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
   },
+  multiCallAddress: MCALL,
   rpcEndpoints: [
+    getLocalNetwork('polygon-mainnet'),
     getInfuraUrlFor('polygon-mainnet'),
     'https://polygon-rpc.com',
   ].filter(Boolean),
@@ -50,7 +63,9 @@ export const Optimism = {
     decimals: 18,
     address: '0x4200000000000000000000000000000000000006',
   },
+  multiCallAddress: MCALL,
   rpcEndpoints: [
+    getLocalNetwork('optimism-mainnet'),
     getInfuraUrlFor('optimism-mainnet'),
     'https://mainnet.optimism.io',
   ].filter(Boolean),
@@ -66,10 +81,28 @@ export const Arbitrum = {
     decimals: 18,
     address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
   },
+  multiCallAddress: MCALL,
   rpcEndpoints: [
+    getLocalNetwork('arbitrum-mainnet'),
     getInfuraUrlFor('arbitrum-mainnet'),
     'https://arb1.arbitrum.io/rpc',
   ].filter(Boolean),
+};
+
+export const Goerli = {
+  chainId: 5,
+  name: 'Goerli Testnet',
+  currency: 'ETH',
+  geckoId: 'goerli',
+  wrappedCurrency: {
+    symbol: 'WETH',
+    decimals: 18,
+    address: '0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6',
+  },
+  rpcEndpoints: [
+    getInfuraUrlFor('goerli'),
+    'https://rpc.goerli.eth.gateway.fm',
+  ],
 };
 
 export const Networks = {
@@ -77,4 +110,5 @@ export const Networks = {
   [Polygon.chainId]: Polygon,
   [Optimism.chainId]: Optimism,
   [Arbitrum.chainId]: Arbitrum,
+  [Goerli.chainId]: Goerli,
 };

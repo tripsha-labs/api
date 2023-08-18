@@ -12,6 +12,7 @@ import {
   BookingModel,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
+
 /***
  * createInvite
  */
@@ -33,7 +34,7 @@ export const removeInvite = async (req, res) => {
     if (data?.booking_id) {
       const result = await BookingController.removeInvite(
         data,
-        req.requestContext.identity.cognitoIdentityId
+        req.currentUser
       );
       return successResponse(res, result);
     } else
@@ -56,25 +57,12 @@ export const sendCustomEmail = async (req, res) => {
     return failureResponse(res, error);
   }
 };
-export const sendReminder = async (req, res) => {
-  try {
-    const data = req.body || {};
-    const result = await BookingController.sendReminder(
-      data,
-      req.requestContext.identity.cognitoIdentityId
-    );
-    return successResponse(res, result);
-  } catch (error) {
-    console.log(error);
-    return failureResponse(res, error);
-  }
-};
 export const sendCustomReminderMessage = async (req, res) => {
   try {
     const data = req.body || {};
     const result = await BookingController.sendCustomMessage(
       data,
-      req.requestContext.identity.cognitoIdentityId
+      req.currentUser
     );
     return successResponse(res, result);
   } catch (error) {
@@ -93,13 +81,6 @@ export const createBooking = async (req, res) => {
     if (validation != true) throw validation.shift();
     // Create booking
     const result = await BookingController.createBooking(data, req.currentUser);
-
-    const trip = result?.trip;
-    let awsUserId = result?.awsUserId;
-    if (awsUserId && Array.isArray(awsUserId) && awsUserId.length > 0) {
-      awsUserId = awsUserId[0];
-    }
-
     return successResponse(res, result);
   } catch (error) {
     logError(error);
@@ -152,7 +133,7 @@ export const doPartPayment = async (req, res) => {
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const result = await BookingController.doPartPayment(
       req.params.id,
-      req.requestContext.identity.cognitoIdentityId
+      req.currentUser
     );
     return successResponse(res, result);
   } catch (error) {
@@ -174,7 +155,7 @@ export const bookingsAction = async (req, res) => {
     const result = await BookingController.bookingsAction(
       data,
       bookingId,
-      req.requestContext.identity.cognitoIdentityId
+      req.currentUser
     );
     return successResponse(res, result);
   } catch (error) {
@@ -194,7 +175,11 @@ export const updateBooking = async (req, res) => {
     const data = req.body || {};
     const validation = updateBookingValidation(data);
     if (validation != true) throw validation.shift();
-    const result = await BookingController.updateBooking(bookingId, data);
+    const result = await BookingController.updateBooking(
+      bookingId,
+      data,
+      req.currentUser
+    );
     return successResponse(res, result);
   } catch (error) {
     logError(error);
@@ -363,6 +348,40 @@ export const respondInvite = async (req, res) => {
     } else {
       throw ERROR_KEYS.BAD_REQUEST;
     }
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const addGuests = async (req, res) => {
+  try {
+    const tripId = req?.params?.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = req.body || {};
+    const result = await BookingController.addGuests(
+      tripId,
+      data,
+      req.currentUser
+    );
+    return successResponse(res, result);
+  } catch (error) {
+    logError(error);
+    return failureResponse(res, error);
+  }
+};
+
+export const removeGuests = async (req, res) => {
+  try {
+    const tripId = req?.params?.id;
+    if (!tripId) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const data = req.body || {};
+    const result = await BookingController.removeGuests(
+      tripId,
+      data,
+      req.currentUser
+    );
+    return successResponse(res, result);
   } catch (error) {
     logError(error);
     return failureResponse(res, error);

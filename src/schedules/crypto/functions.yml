@@ -1,0 +1,6 @@
+autoCryptoPayment:
+  handler: src/schedules/crypto/handler.chargeWallets
+  events:
+    # set to something reasonable. Note that crypto payments on some networks take up to 12s to complete
+    # so setting this too low may cause the scheduler to call the function again.
+    - schedule: rate(1 minute)

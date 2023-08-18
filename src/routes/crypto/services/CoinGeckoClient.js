@@ -5,12 +5,21 @@ import { Networks } from '../../../constants/crypto/networks';
 export class CoinGeckoClient {
   static async lookupUSD(token) {
     const chainId = token.chainId;
+    /**
+     * NOTE: If requests exceed a 10/second, you will need a pro API key from Coingecko or
+     * find another price source.
+     */
     const apiKey = process.env.COINGECKO_KEY;
     let url = 'https://api.coingecko.com/api/v3/simple/token_price/';
     if (apiKey) {
       url = 'https://pro-api.coingecko.com/api/v3/simple/token_price/';
     }
 
+    /**
+     * NOTE: this is an assumption that none of these tokens depeg against $1 value. The prices
+     * do vary, however, but usually by 1-2 cents. If this is an issue, comment this out and
+     * get the actual price from coingecko service.
+     */
     if (
       [
         USDC[chainId].address,

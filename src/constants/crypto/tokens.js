@@ -1,10 +1,16 @@
 import {
   Arbitrum,
   EthereumMainnet,
+  Goerli,
   Networks,
   Optimism,
   Polygon,
 } from './networks';
+
+/**
+ * This is the set of all tokens Tripsha can support on each network. Additionally, wrapped native
+ * assets are supported. See networks.js
+ */
 
 const BASE_USDC = {
   decimals: 6,
@@ -32,6 +38,11 @@ export const WETH = {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     chainId: EthereumMainnet.chainId,
   },
+  [Polygon.chainId]: {
+    ...BASE_WETH,
+    address: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+    chainId: Polygon.chainId,
+  },
   [Optimism.chainId]: {
     ...BASE_WETH,
     address: '0x4200000000000000000000000000000000000006',
@@ -41,6 +52,11 @@ export const WETH = {
     ...BASE_WETH,
     address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
     chainId: Arbitrum.chainId,
+  },
+  [Goerli.chainId]: {
+    ...BASE_WETH,
+    address: '0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6',
+    chainId: Goerli.chainId,
   },
 };
 
@@ -64,6 +80,11 @@ export const USDC = {
     ...BASE_USDC,
     address: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
     chainId: Arbitrum.chainId,
+  },
+  [Goerli.chainId]: {
+    ...BASE_USDC,
+    address: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
+    chainId: Goerli.chainId,
   },
 };
 
@@ -114,14 +135,16 @@ export const DAI = {
 };
 
 export const findToken = (chainId, address) => {
-  const match = [USDC, USDT, DAI, WETH].filter(
-    t =>
-      t.chainId == chainId && t.address.toLowerCase() === address.toLowerCase()
-  )[0];
+  const match = [
+    USDC[chainId],
+    USDT[chainId],
+    DAI[chainId],
+    WETH[chainId],
+  ].filter(t => t && t.address.toLowerCase() === address.toLowerCase())[0];
   if (match) {
     return match;
   }
-  const net = Networks[chainId];
+  const net = Networks[+chainId];
   if (net.wrappedCurrency.address.toLowerCase() === address.toLowerCase()) {
     return net.wrappedCurrency;
   }
@@ -135,7 +158,9 @@ export const getTokens = chainId => {
     DAI[chainId],
     Networks[chainId].wrappedCurrency,
   ].reduce((o, t) => {
-    o[t.symbol] = t;
+    if (t) {
+      o[t.symbol] = t;
+    }
     return o;
   }, {});
 };
