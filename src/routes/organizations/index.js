@@ -24,5 +24,4 @@ router.get('/:id/projects', listProjects);
 router.get('/:id/permissions', listOrganizationPermissions);
 router.post('/:id/permissions', createUpdateOrganizationPermission);
 router.delete('/:id/permissions', deleteOrganizationPermissions);
-
 export default router;

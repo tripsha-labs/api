@@ -3,7 +3,7 @@
  * @description - Mongouse schema for HostRequest.
  */
 
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const couponSchema = new mongoose.Schema(
   {
@@ -18,10 +18,8 @@ const couponSchema = new mongoose.Schema(
       type: String,
       index: true,
     },
-    userId: {
-      type: String,
-      index: true,
-    },
+    organizationId: { type: Schema.Types.ObjectId, index: true },
+    userId: { type: Schema.Types.ObjectId, index: true },
     isActive: {
       type: Boolean,
       default: true,

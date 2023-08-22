@@ -2,10 +2,11 @@
  * @name - Coupons API Handler
  * @description - This handles API requests
  */
-import { successResponse, failureResponse } from '../../utils';
-import { CouponController } from './coupon.ctrl';
-import { couponSchemaValidation } from '../../models';
+import { Types } from 'mongoose';
 import { ERROR_KEYS } from '../../constants';
+import { couponSchemaValidation } from '../../models';
+import { failureResponse, successResponse } from '../../utils';
+import { CouponController } from './coupon.ctrl';
 /**
  * List coupons
  */
@@ -13,6 +14,7 @@ export const listCoupons = async (req, res) => {
   try {
     // Get search string from queryparams
     const params = req.query ? req.query : {};
+    params.organizationId = Types.ObjectId(params?.id);
     const result = await CouponController.listCoupons(
       params,
       req.requestContext.identity.cognitoIdentityId
@@ -31,7 +33,8 @@ export const createCoupon = async (req, res) => {
     if (errors != true) throw errors.shift();
     const result = await CouponController.createCoupon(
       params,
-      req.requestContext.identity.cognitoIdentityId
+      req.requestContext.identity.cognitoIdentityId,
+      { organizationId: Types.ObjectId(req.params?.id) }
     );
     return successResponse(res, result);
   } catch (error) {
@@ -56,6 +59,7 @@ export const updateCoupon = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+
 export const deleteCoupon = async (req, res) => {
   try {
     if (!(req.params && req.params.id))
@@ -68,6 +72,7 @@ export const deleteCoupon = async (req, res) => {
     return failureResponse(res, error);
   }
 };
+
 export const applyCoupon = async (req, res) => {
   try {
     const params = req.body || {};
