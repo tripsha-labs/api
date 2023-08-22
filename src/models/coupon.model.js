@@ -2,7 +2,7 @@
  * @name - CouponModel model
  * @description - CouponModel DB model.
  */
-import { Coupon } from '.';
+import { Coupon } from './coupon.schema';
 
 export class CouponModel {
   static list(params = {}) {

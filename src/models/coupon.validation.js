@@ -8,6 +8,7 @@ const couponSchema = {
   name: { type: 'string', optional: true },
   description: { type: 'string', optional: true },
   couponCode: { type: 'string', required: true, min: 4, max: 12 },
+  organizationId: { type: 'string', optional: true },
   discType: {
     type: 'string',
     required: true,
