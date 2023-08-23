@@ -3,13 +3,14 @@
  * @description - Mongouse schema for Asset links.
  */
 
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const assetSchema = new mongoose.Schema(
   {
     type: { type: String, default: 'image' },
     url: { type: String },
     thumbnailUrl: { type: String },
+    organizationId: { type: Schema.Types.ObjectId, index: true },
     userId: { type: String, index: true },
     caption: { type: String },
     isArchived: { type: Boolean, index: true, default: false },

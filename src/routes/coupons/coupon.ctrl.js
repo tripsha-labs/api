@@ -120,6 +120,7 @@ export class CouponController {
         discType: validCoupon.discType,
         amount: validCoupon.amount,
         couponCode: validCoupon.couponCode,
+        organizationId: validCoupon.organizationId,
       };
     else throw ERROR_KEYS.INVALID_COUPON_CODE;
   }
