@@ -4,6 +4,7 @@ import { ERROR_KEYS } from '../../constants';
 import { Types } from 'mongoose';
 import {
   UserModel,
+  adminUpdateOrganizationsValidation,
   createOrganizationsValidation,
   updateOrganizationsValidation,
 } from '../../models';
@@ -229,6 +230,47 @@ export const deleteOrganizationPermissions = async (req, res) => {
       organizationId: Types.ObjectId(req.params.id),
     });
     return successResponse(res, 'success');
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * Update organization methods
+ */
+export const updateOrganizationAdmin = async (req, res) => {
+  try {
+    if (!req?.currentUser?.isAdmin) throw ERROR_KEYS.UNAUTHORIZED;
+    if (!req.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
+    const body = req.body || {};
+    const validation = adminUpdateOrganizationsValidation(body);
+    if (validation != true) throw validation.shift();
+    body['updatedBy'] = req.currentUser._id;
+    await OrganizationController.updateOrganization(
+      {
+        _id: Types.ObjectId(req.params.id),
+      },
+      body
+    );
+    return successResponse(res, 'success');
+  } catch (error) {
+    console.log(error);
+    return failureResponse(res, error);
+  }
+};
+
+/**
+ * List admin organizations methods
+ */
+export const listAdminOrganizations = async (req, res) => {
+  try {
+    if (!req?.currentUser?.isAdmin) throw ERROR_KEYS.UNAUTHORIZED;
+    const organizations = await OrganizationController.listOrganizations(
+      req.currentUser,
+      true
+    );
+    return successResponse(res, organizations);
   } catch (error) {
     console.log(error);
     return failureResponse(res, error);

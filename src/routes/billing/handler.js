@@ -2,6 +2,7 @@
  * @name - Biilings handlar
  * @description - This will handle all billing related API requests
  */
+import { Types } from 'mongoose';
 import { BillingController } from './billing.ctrl';
 import { successResponse, failureResponse } from '../../utils';
 
@@ -10,7 +11,10 @@ import { successResponse, failureResponse } from '../../utils';
  */
 export const unbilledPayment = async (req, res) => {
   try {
-    const payload = {};
+    const payload = req?.query || {};
+    if (!(payload && payload.organization_id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'organization_id' };
+    payload['organization_id'] = Types.ObjectId(payload.organization_id);
     const result = await BillingController.unbilledPayment(
       payload,
       req.currentUser
@@ -24,7 +28,10 @@ export const unbilledPayment = async (req, res) => {
 
 export const listInvoices = async (req, res) => {
   try {
-    const payload = {};
+    const payload = req?.query || {};
+    if (!(payload && payload.organization_id))
+      throw { ...ERROR_KEYS.MISSING_FIELD, field: 'organization_id' };
+    payload['organization_id'] = Types.ObjectId(payload.organization_id);
     const result = await BillingController.listInvoices(
       payload,
       req.currentUser

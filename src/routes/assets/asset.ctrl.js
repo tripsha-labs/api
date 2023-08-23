@@ -7,7 +7,6 @@ import { AssetLinkModel, AssetModel, UserModel } from '../../models';
 import { prepareCommonFilter } from '../../helpers';
 import { ERROR_KEYS } from '../../constants';
 
-  
 export class AssetController {
   static async listAssets(filter, awsUserId) {
     const user = await UserModel.get({ awsUserId: awsUserId });

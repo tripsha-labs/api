@@ -10,6 +10,11 @@ const invoiceItemSchema = new mongoose.Schema(
     memberId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     invoiceId: { type: Schema.Types.ObjectId, ref: 'Invoice', index: true },
     tripOwnerId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    organizationId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+      index: true,
+    },
     travelerCount: { type: Number, default: 0 },
     guestCount: { type: Number, default: 0 },
   },
@@ -27,6 +32,11 @@ export const InvoiceItem =
 const invoiceSchema = new mongoose.Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    organizationId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Organization',
+      index: true,
+    },
     invoiceNumber: { type: String, index: true },
     paymentMethodId: { type: String },
     customerId: { type: String }, // stripe customer id

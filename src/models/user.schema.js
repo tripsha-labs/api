@@ -46,17 +46,17 @@ const userSchema = new mongoose.Schema(
     isPhoneVerified: { type: Boolean, default: false },
     isIdentityVerified: { type: Boolean, default: false },
     stripeCustomerId: String,
-    stripeAccountId: String,
+    stripeAccountId: String, // Need to move to organization
     travelStyle: String,
     travelWithHostReason: String,
     itemsTravelWith: String,
     isTripAgreed: { type: Boolean, default: false },
-    isStripeAccountConnected: { type: Boolean, default: false },
+    isStripeAccountConnected: { type: Boolean, default: false }, // Need to move to organization
     showDashboardTutorial: { type: Boolean, default: true },
     hasFirstBooking: { type: Boolean, default: false },
     isHostFirstLogin: { type: Boolean, default: false },
-    isHost: { type: Boolean, default: false },
-    hostShare: { type: Number, default: 94 },
+    isHost: { type: Boolean, default: false }, // Remove dependency
+    hostShare: { type: Number, default: 94 }, // Need to move to organization
     hostRequestSent: { type: Boolean, default: false },
     showUpcomingTrips: { type: Boolean, default: false },
     showPastTrips: { type: Boolean, default: false },
@@ -64,8 +64,8 @@ const userSchema = new mongoose.Schema(
     dietaryRequirements: String,
     emergencyContact: String,
     mobilityRestrictions: String,
-    paymentMethod: { type: String },
-    isConcierge: { type: Boolean, default: true },
+    paymentMethod: { type: String }, // add for organization also
+    isConcierge: { type: Boolean, default: true }, // Need to move to organization
     isHostView: { type: Boolean, default: false },
   },
   {

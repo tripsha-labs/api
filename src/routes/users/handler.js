@@ -95,59 +95,56 @@ export const inviteUser = async (req, res) => {
 export const updateUserAdmin = async (req, res) => {
   try {
     const currentUser = req?.currentUser || {};
-    if (currentUser && currentUser.isAdmin) {
-      const params = req.body;
-      const errors = adminUpdateUserValidation(params);
-      if (errors != true) throw errors.shift();
-      const user = await UserController.get({
-        _id: Types.ObjectId(req.params.id),
-      });
-      if (params.username) {
-        const exists = await _check_username_exists(
-          user['email'],
-          params['username']
+    if (currentUser?.isAdmin) throw ERROR_KEYS.UNAUTHORIZED;
+    const params = req.body;
+    const errors = adminUpdateUserValidation(params);
+    if (errors != true) throw errors.shift();
+    const user = await UserController.get({
+      _id: Types.ObjectId(req.params.id),
+    });
+    if (params.username) {
+      const exists = await _check_username_exists(
+        user['email'],
+        params['username']
+      );
+      if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
+    }
+    console.log('=========check email');
+    if (params.email && user.email !== params.email) {
+      const exists = await _check_email_exists(params.email, user?._id);
+      if (exists) throw ERROR_KEYS.EMAIL_ALREADY_EXISTS;
+      try {
+        await setUserEmail(
+          req,
+          user.email.toLowerCase(),
+          params.email.toLowerCase()
         );
-        if (exists) throw ERROR_KEYS.USERNAME_ALREADY_EXISTS;
-      }
-      console.log('=========check email');
-      if (params.email && user.email !== params.email) {
-        const exists = await _check_email_exists(params.email, user?._id);
-        if (exists) throw ERROR_KEYS.EMAIL_ALREADY_EXISTS;
+      } catch (err) {
+        console.log(err.name);
+        const createUserInfo = {
+          email: params.email.toLowerCase(),
+          password: params.password || '',
+          firstName: params.firstName || '',
+          lastName: params.lastName || '',
+        };
         try {
-          await setUserEmail(
-            req,
-            user.email.toLowerCase(),
-            params.email.toLowerCase()
-          );
+          await createCognitoUser(req, createUserInfo);
         } catch (err) {
-          console.log(err.name);
-          const createUserInfo = {
-            email: params.email.toLowerCase(),
-            password: params.password || '',
-            firstName: params.firstName || '',
-            lastName: params.lastName || '',
-          }
-          try {
-            await createCognitoUser(req, createUserInfo);
-          } catch (err) { 
-            console.log(err);
-          }
+          console.log(err);
         }
       }
-      console.log('=========set password');
-      if (params['password'] && params['password'] != '') {
-        await setUserPassword(req, {
-          password: params['password'],
-          email: user.email.toLowerCase(),
-        });
-        delete params['password'];
-      }
-      console.log('=========update user');
-      await UserController.updateUserAdmin(req.params.id, params);
-      return successResponse(res, 'success');
-    } else {
-      throw ERROR_KEYS.UNAUTHORIZED;
     }
+    console.log('=========set password');
+    if (params['password'] && params['password'] != '') {
+      await setUserPassword(req, {
+        password: params['password'],
+        email: user.email.toLowerCase(),
+      });
+      delete params['password'];
+    }
+    console.log('=========update user');
+    await UserController.updateUserAdmin(req.params.id, params);
+    return successResponse(res, 'success');
   } catch (error) {
     console.log(error);
     return failureResponse(res, error);
@@ -344,20 +341,17 @@ export const getUser = async (req, res) => {
 const _check_username_exists = async (email, username, userId = null) => {
   const payload = {
     username: username,
-    email: { $ne: email },    
-  }
-  if (userId)
-      payload['_id'] = { $ne: Types.ObjectId(userId) }  
+    email: { $ne: email },
+  };
+  if (userId) payload['_id'] = { $ne: Types.ObjectId(userId) };
   return await UserController.isExists(payload);
 };
 
-const _check_email_exists = async (email, userId=null) => {
+const _check_email_exists = async (email, userId = null) => {
   const payload = {
     email: email,
-    
-  }
-  if (userId)
-    payload['_id'] = { $ne: Types.ObjectId(userId) }
+  };
+  if (userId) payload['_id'] = { $ne: Types.ObjectId(userId) };
   return await UserController.isExists(payload);
 };
 
@@ -524,34 +518,29 @@ export const unsubscribeUser = async (req, res) => {
 
 export const adminUserAction = async (req, res) => {
   try {
-    const currentUser = await UserController.getCurrentUser({
-      awsUserId: req.requestContext.identity.cognitoIdentityId,
-    });
+    const currentUser = req?.currentUser;
     const params = req.body || {};
     if (!params.email || !params.action) {
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'email or action' };
     }
-    if (currentUser && currentUser.isAdmin) {
-      switch (params.action) {
-        case 'enable':
-          // await enableUser(req, params);
-          await UserController.updateUserByEmail(params.email, {
-            isBlocked: false,
-          });
-          break;
-        case 'disable':
-          // await disableUser(req, params);
-          await UserController.updateUserByEmail(params.email, {
-            isBlocked: true,
-          });
-          break;
-        default:
-          console.log('invalid action');
-      }
-      return successResponse(res, 'success');
-    } else {
-      throw ERROR_KEYS.UNAUTHORIZED;
+    if (!currentUser?.isAdmin) throw ERROR_KEYS.UNAUTHORIZED;
+    switch (params.action) {
+      case 'enable':
+        // await enableUser(req, params);
+        await UserController.updateUserByEmail(params.email, {
+          isBlocked: false,
+        });
+        break;
+      case 'disable':
+        // await disableUser(req, params);
+        await UserController.updateUserByEmail(params.email, {
+          isBlocked: true,
+        });
+        break;
+      default:
+        console.log('invalid action');
     }
+    return successResponse(res, 'success');
   } catch (error) {
     console.log(error);
     return failureResponse(res, error);
@@ -564,16 +553,11 @@ export const adminUserAction = async (req, res) => {
 
 export const adminTrips = async (req, res) => {
   try {
-    const currentUser = await UserController.getCurrentUser({
-      awsUserId: req.requestContext.identity.cognitoIdentityId,
-    });
-    if (currentUser?.isAdmin) {
-      const params = req.query ? req.query : {};
-      const result = await TripController.listAdminTrips(params);
-      return successResponse(res, result);
-    } else {
-      throw ERROR_KEYS.UNAUTHORIZED;
-    }
+    const currentUser = req?.currentUser;
+    if (!currentUser?.isAdmin) throw ERROR_KEYS.UNAUTHORIZED;
+    const params = req.query ? req.query : {};
+    const result = await TripController.listAdminTrips(params);
+    return successResponse(res, result);
   } catch (error) {
     console.log(error);
     return failureResponse(res, error);

@@ -211,4 +211,9 @@ export const ERROR_KEYS = {
     message: `The selected asset can't be deleted because its in use in one of your trip or chat. Please remove connected trip or clear chat before performing this operation.`,
     code: 400,
   },
+  ORGANIZATION_ALREADY_EXISTS: {
+    type: 'ORGANIZATION_ALREADY_EXISTS',
+    message: `The organization with name already exists.`,
+    code: 400,
+  },
 };

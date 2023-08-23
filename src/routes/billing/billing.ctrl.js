@@ -3,7 +3,7 @@ import { InvoiceItemModel, InvoiceModel } from '../../models';
 export class BillingController {
   static async unbilledPayment(payload, user) {
     const invoice = await InvoiceModel.findOne({
-      userId: user._id,
+      organizationId: payload.organization_id,
       status: 'draft',
     });
     if (invoice?._id) {

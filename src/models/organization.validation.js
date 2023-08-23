@@ -13,6 +13,8 @@ const organizationShema = {
   websiteUrl: { type: 'string', optional: true },
   discordUrl: { type: 'string', optional: true },
   instagramUrl: { type: 'string', optional: true },
+  isConcierge: { type: 'boolean', optional: true },
+  stripeAccountId: { type: 'string', optional: true },
 };
 export const createOrganizationsValidation = new Validator().compile({
   ...organizationShema,
@@ -21,5 +23,14 @@ export const createOrganizationsValidation = new Validator().compile({
 export const updateOrganizationsValidation = new Validator().compile({
   ...organizationShema,
   name: { ...organizationShema?.name, optional: true },
+  $$strict: 'remove',
+});
+export const adminUpdateOrganizationsValidation = new Validator().compile({
+  ...organizationShema,
+  isConcierge: { type: 'boolean', optional: true },
+  hostShare: {
+    type: 'number',
+    optional: true,
+  },
   $$strict: 'remove',
 });

@@ -1,15 +1,16 @@
+import { ERROR_KEYS } from '../../constants';
 import {
   OrganizationModel,
   OrganizationPermissionModel,
   TripModel,
 } from '../../models';
 export class OrganizationController {
-  static async listOrganizations(user) {
+  static async listOrganizations(user, isAdmin = false) {
+    const filter = {};
+    if (!isAdmin) filter['userId'] = user._id;
     return await OrganizationPermissionModel.aggregate([
       {
-        $match: {
-          userId: user._id,
-        },
+        $match: filter,
       },
       {
         $lookup: {
@@ -38,6 +39,8 @@ export class OrganizationController {
     return await OrganizationModel.findOne(query);
   }
   static async createOrganization(body, user) {
+    const foundOrg = await OrganizationModel.findOne({ name: body['name'] });
+    if (foundOrg) throw { ...ERROR_KEYS.ORGANIZATION_ALREADY_EXISTS };
     const organization = await OrganizationModel.create(body);
     const permissionPayload = {
       organizationId: organization._id,
