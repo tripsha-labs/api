@@ -33,8 +33,7 @@ export const createCoupon = async (req, res) => {
     if (errors != true) throw errors.shift();
     const result = await CouponController.createCoupon(
       params,
-      req.requestContext.identity.cognitoIdentityId,
-      { organizationId: Types.ObjectId(req.params?.id) }
+      req.requestContext.identity.cognitoIdentityId
     );
     return successResponse(res, result);
   } catch (error) {
