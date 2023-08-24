@@ -9,7 +9,7 @@ import { MemberDirectoryModel, UserModel } from '../../models';
 export class MemberDirectoryController {
   static async listMembers(filter) {
     const params = [
-      { $match: filter },
+      { $match: { organizationId: filter.organizationId } },
       {
         $lookup: {
           from: 'users',
@@ -45,6 +45,7 @@ export class MemberDirectoryController {
           emergencyContact: 1,
           mobilityRestrictions: 1,
           user: 1,
+          organizationId: 1,
         },
       },
     ];
@@ -68,9 +69,15 @@ export class MemberDirectoryController {
           record.tripshaId = userMap[record.email];
         }
         record.hostId = user._id.toString();
+        record.organizationId = Types.ObjectId(record.organizationId);
+
         return resolve({
           updateOne: {
-            filter: { email: record.email, hostId: user._id.toString() },
+            filter: {
+              email: record.email,
+              hostId: user._id.toString(),
+              organizationId: record.organizationId,
+            },
             update: record,
             upsert: true,
           },
