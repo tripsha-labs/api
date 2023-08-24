@@ -9,6 +9,7 @@ const memberDirectorySchema = new mongoose.Schema(
   {
     tripshaId: { type: Schema.Types.ObjectId, index: true },
     hostId: { type: String, index: true },
+    organizationId: { type: Schema.Types.ObjectId, index: true },
     email: { type: String },
     name: { type: String },
     company: { type: String },

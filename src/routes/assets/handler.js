@@ -9,6 +9,7 @@ import {
   assetUpdateSchemaValidation,
 } from '../../models';
 import { ERROR_KEYS } from '../../constants';
+import { Types } from 'mongoose';
 /**
  * List assets
  */
@@ -16,6 +17,7 @@ export const listAssets = async (req, res) => {
   try {
     // Get search string from queryparams
     const params = req.query ? req.query : {};
+    params.organizationId = Types.ObjectId(params?.organizationId);
     const result = await AssetController.listAssets(
       params,
       req.requestContext.identity.cognitoIdentityId
