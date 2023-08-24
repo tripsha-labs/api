@@ -13,6 +13,7 @@ export class AssetController {
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
     const searchParams = {
       userId: user._id.toString(),
+      organizationId: filter.organizationId,
       isArchived: false,
     };
     if (filter && filter.isArchived) delete searchParams.isArchived;
@@ -34,17 +35,21 @@ export class AssetController {
       count: assets.length,
     };
   }
+
   static async createAsset(params, awsUserId) {
     const user = await UserModel.get({
       awsUserId: awsUserId,
     });
     params['userId'] = user._id.toString();
+    params['organizationId'] = Types.ObjectId(params.organizationId);
     return await AssetModel.create(params);
   }
+
   static async updateAsset(params, assetId) {
     await AssetModel.update({ _id: Types.ObjectId(assetId) }, params);
     return 'success';
   }
+
   static async updateMultiple(params, awsUserId) {
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;
@@ -64,6 +69,7 @@ export class AssetController {
       );
     }
   }
+
   static async deleteAsset(assetIds, awsUserId) {
     const user = await UserModel.get({ awsUserId: awsUserId });
     if (!user) throw ERROR_KEYS.USER_NOT_FOUND;

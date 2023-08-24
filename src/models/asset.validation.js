@@ -5,6 +5,7 @@
 import Validator from 'fastest-validator';
 
 const updateAssetSchema = {
+  organizationId: { type: 'string', optional: true },
   type: { type: 'string', optional: true },
   url: { type: 'string', optional: true },
   thumbnailUrl: { type: 'string', optional: true },

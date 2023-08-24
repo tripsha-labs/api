@@ -2,6 +2,7 @@
  * @name - Members API Handler
  * @description - This handles API requests
  */
+import { Types } from 'mongoose';
 import { successResponse, failureResponse } from '../../utils';
 import { MemberDirectoryController } from './member-directory.ctrl';
 
@@ -13,6 +14,7 @@ export const listMembers = async (req, res) => {
     // Get search string from queryparams
     const params = req.query ? req.query : {};
     params.hostId = req.currentUser._id.toString();
+    params.organizationId = Types.ObjectId(params?.id);
     const result = await MemberDirectoryController.listMembers(params);
     return successResponse(res, result);
   } catch (error) {

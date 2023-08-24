@@ -69,7 +69,9 @@ const auth = () => {
   app.use(async (req, res, next) => {
     if (process.env.IS_OFFLINE) {
       req.requestContext.identity.cognitoIdentityId =
-        'us-east-1:0bebdab2-18eb-4e72-9261-a3dcaed47602';
+        // Hard coded user ID for local development
+        'us-east-1:0bebdab2-18eb-4e72-9261-a3dcaed47602'; // Sanjay
+      // 'us-east-1:7c704a91-129a-4971-8a7f-0733b267303d'; // second user;
     }
     await dbConnect(res);
     next();
