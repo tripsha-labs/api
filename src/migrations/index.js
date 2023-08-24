@@ -413,14 +413,17 @@ export const createOrganization = async () => {
     const promises = users?.map(user => {
       return new Promise(async resolve => {
         // Create organization
-        const userName = `${user?.firstName || user?.username || ''}`;
+        const userName = `${user?.firstName || user?.username || 'Your'}`;
         const organization_payload = {
           name: `${userName}'s organization`,
           isConcierge: user?.isConcierge || false,
           isStripeAccountConnected: user?.isStripeAccountConnected || false,
           hostShare: user?.hostShare || 95,
           ownerId: user._id,
+          paymentMethod: user?.paymentMethod || null,
         };
+        if (user?.paymentMethod)
+          organization_payload['paymentMethod'] = user?.paymentMethod;
         const organization = await OrganizationModel.create(
           organization_payload
         );
