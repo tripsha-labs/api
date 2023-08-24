@@ -1,6 +1,6 @@
 /**
- * @name - Asset links schema
- * @description - Mongouse schema for Asset links.
+ * @name - Asset schema
+ * @description - Mongouse schema for Asset.
  */
 
 import mongoose from 'mongoose';

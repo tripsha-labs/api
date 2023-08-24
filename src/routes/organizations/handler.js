@@ -54,6 +54,7 @@ export const getOrganization = async (req, res) => {
     if (!req.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
     const organization = await OrganizationController.getOrganization({
       _id: Types.ObjectId(req.params?.id),
+      isActive: true,
     });
     return successResponse(res, organization);
   } catch (error) {
@@ -90,9 +91,12 @@ export const updateOrganization = async (req, res) => {
 export const deleteOrganization = async (req, res) => {
   try {
     if (!req.params?.id) throw { ...ERROR_KEYS.MISSING_FIELD, field: 'id' };
-    await OrganizationController.deleteOrganization({
-      _id: Types.ObjectId(req.params.id),
-    });
+    await OrganizationController.updateOrganization(
+      {
+        _id: Types.ObjectId(req.params.id),
+      },
+      { isActive: false }
+    );
     return successResponse(res, 'success');
   } catch (error) {
     console.log(error);

@@ -33,6 +33,7 @@ export class OrganizationController {
           },
         },
       },
+      { $match: { isActive: true } },
     ]);
   }
   static async getOrganization(query) {
@@ -58,7 +59,7 @@ export class OrganizationController {
     return organization;
   }
   static async deleteOrganization(query) {
-    return await OrganizationModel.updateOne(query);
+    return await OrganizationModel.deleteOne(query);
   }
   static async updateOrganization(query, update) {
     return await OrganizationModel.updateOne(query, update);

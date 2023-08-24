@@ -1,6 +1,6 @@
 /**
- * @name - Approval schema
- * @description - Mongouse schema for HostRequest.
+ * @name - Asset link schema
+ * @description - Mongouse schema for Asset link.
  */
 
 import mongoose, { Schema } from 'mongoose';

@@ -7,6 +7,7 @@ import {
   HostRequestModel,
   TopicModel,
   OrganizationModel,
+  OrganizationPermissionModel,
 } from '../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../constants';
 import uuid from 'uuid/v4';
@@ -406,21 +407,42 @@ export const updateObjectIds = async () => {
 };
 export const createOrganization = async () => {
   try {
-    const users = await UserModel.get(
-      { firstName: { $exists: true }, isHost: true },
-      { firstName: 1 }
-    );
+    const users = await UserModel.list({
+      filter: { isHost: true },
+    });
     const promises = users?.map(user => {
       return new Promise(async resolve => {
         // Create organization
-        await OrganizationModel.create({});
+        const userName = `${user?.firstName || user?.username || ''}`;
+        const organization_payload = {
+          name: `${userName}'s organization`,
+          isConcierge: user?.isConcierge || false,
+          isStripeAccountConnected: user?.isStripeAccountConnected || false,
+          hostShare: user?.hostShare || 95,
+          ownerId: user._id,
+        };
+        const organization = await OrganizationModel.create(
+          organization_payload
+        );
         // Add permission
+        await OrganizationPermissionModel.create({
+          organizationId: organization._id,
+          userId: user._id,
+          permissions: ['owner'],
+        });
+
         // Migrate assets
         // Migrate members
+        // Migrate discounts
         // Migrate trips
-        // Migrate messages
+        await TripModel.updateMany(
+          { ownerId: user._id },
+          { organizationId: organization._id }
+        );
       });
     });
+    await Promise.all(promises);
+    console.log('Successfully added organizations.');
   } catch (err) {
     console.log(err);
   } finally {
