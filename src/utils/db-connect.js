@@ -9,6 +9,8 @@ export const dbConnect = async res => {
     console.log('Re-using existing database connection');
     return Promise.resolve();
   }
+
+  console.log(process.env.DB_CONN);
   await mongoose.connect(process.env.DB_CONN, {
     ssl: true,
     useNewUrlParser: true,

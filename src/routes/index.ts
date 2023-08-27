@@ -1,7 +1,11 @@
-const serverless = require('serverless-http');
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
+// @ts-nocheck
+// const serverless = require('serverless-http');
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
 import { dbConnect } from '../utils';
 import Countries from './countries';
 import Tags from './tags';
@@ -114,5 +118,11 @@ const auth = () => {
   return app;
 };
 
-export const PublicAPI = serverless(noAuth());
-export const API = serverless(auth());
+// export const PublicAPI = serverless(noAuth());
+// export const API = serverless(auth());
+
+try {
+  noAuth().listen(3000, () =>
+    console.log('Public API listening on port 3000!')
+  );
+} catch (error) {}
