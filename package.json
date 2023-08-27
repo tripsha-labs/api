@@ -2,14 +2,14 @@
   "name": "tripsha-app-api",
   "version": "2.0.0",
   "description": "A Node.js starter for the Serverless Framework with async/await and unit test support",
-  "main": "handler.js",
+  "main": "dist/main.js",
   "package": {
     "individually": false
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/routes/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "build": "tsc",
-    "start": "node dist/routes/index.js",
+    "start": "node dist/main.js",
     "start:staging": "sls offline start --stage=staging",
     "start:prod": "sls offline start --stage=prod-api",
     "start:demo": "sls offline start --stage=demo",
@@ -49,8 +49,10 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
+    "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.4",
+    "@types/morgan": "^1.9.5",
     "@types/node": "^20.5.6",
     "@types/supertest": "^2.0.12",
     "aws-sdk": "^2.958.0",

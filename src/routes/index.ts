@@ -1,12 +1,5 @@
-// @ts-nocheck
-// const serverless = require('serverless-http');
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
-import express from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
-import { dbConnect } from '../utils';
+import { NextFunction, Request, Response, Application } from 'express';
+import { failureResponse } from '../utils';
 import Countries from './countries';
 import Tags from './tags';
 import Currency from './currency';
@@ -40,17 +33,37 @@ import Topics from './topics';
 import Crypto from './crypto';
 import Properties from './properties';
 import { UserModel } from '../models';
+import { ERROR_KEYS } from '../constants/error-codes';
 
-const noAuth = () => {
-  const app = express();
-  app.use(cors());
-  app.use(morgan('tiny'));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(async (req, res, next) => {
-    await dbConnect(res);
-    next();
-  });
+interface RequestWithUser extends Request {
+  currentUser: any; // Replace 'any' with the type of your user object
+  requestContext: RequestContext;
+}
+
+interface RequestContext {
+  identity: {
+    cognitoIdentityId: string;
+  };
+}
+
+const verifyAuth = async (req: Request, res: Response, next: NextFunction) => {
+  const requestWithUser = req as RequestWithUser;
+  try {
+    const awsUserId =
+      requestWithUser?.requestContext?.identity?.cognitoIdentityId;
+    if (!awsUserId) return failureResponse(res, ERROR_KEYS.UNAUTHENTICATED);
+    requestWithUser.currentUser = await UserModel.get({ awsUserId: awsUserId });
+    console.log('CURRENT USER', requestWithUser.currentUser);
+    if (requestWithUser.currentUser)
+      requestWithUser.currentUser['awsUserId'] = awsUserId;
+    return next();
+  } catch (err) {
+    return failureResponse(res, ERROR_KEYS.UNAUTHORIZED);
+  }
+};
+
+export const attachRoutes = (app: Application) => {
+  // Public Routes
   app.use('/public/tags', Tags);
   app.use('/public/currency-exchange', Currency);
   app.use('/public/schedules', Schedules);
@@ -61,68 +74,28 @@ const noAuth = () => {
   app.use('/public/trips', NoAuthTrips);
   app.use('/public/check-user-exists', UserExists);
   app.use('/public/profile', PublicProfile);
+  // Protected Routes
+  app.use('/trips', verifyAuth, Trips);
+  app.use('/activities', verifyAuth, Activities);
+  app.use('/host-requests', verifyAuth, HostRequests);
+  app.use('/approvals', verifyAuth, Approvals);
+  app.use('/bookings', verifyAuth, Bookings);
+  app.use('/members', verifyAuth, Members);
+  app.use('/conversations', verifyAuth, Messages);
+  app.use('/payments', verifyAuth, Payments);
+  app.use('/users', verifyAuth, Users);
+  app.use('/admin', verifyAuth, AdminApi);
+  app.use('/coupons', verifyAuth, Coupons);
+  app.use('/email-notifications', verifyAuth, EmailNotifications);
+  app.use('/assets', verifyAuth, Assets);
+  app.use('/host-payments', verifyAuth, HostPayment);
+  app.use('/directory-members', verifyAuth, DirectoryMembers);
+  app.use('/resources', verifyAuth, Resources);
+  app.use('/links', verifyAuth, Links);
+  app.use('/billing', verifyAuth, Billing);
+  app.use('/permissions', verifyAuth, Permissions);
+  app.use('/topics', verifyAuth, Topics);
+  app.use('/crypto', verifyAuth, Crypto);
+  app.use('/properties', verifyAuth, Properties);
   return app;
 };
-
-const auth = () => {
-  const app = express();
-  app.use(cors());
-  app.use(morgan('tiny'));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(async (req, res, next) => {
-    if (process.env.IS_OFFLINE) {
-      req.requestContext.identity.cognitoIdentityId =
-        //sanjay
-        //'us-east-1:1570527a-efa7-46b3-a317-b4b8c4108494';
-
-        //mike@thorium
-        'us-east-1:87671c41-aa70-4a80-aa2b-2bccbc49bb32';
-    }
-    await dbConnect(res);
-    next();
-  });
-  const verifyToken = async (req, res, next) => {
-    try {
-      const awsUserId = req.requestContext.identity.cognitoIdentityId;
-      req.currentUser = await UserModel.get({ awsUserId: awsUserId });
-      console.log('CURRENT USER', req.currentUser);
-      if (req.currentUser) req.currentUser['awsUserId'] = awsUserId;
-      return next();
-    } catch (err) {
-      return failureResponse(res, ERROR_KEYS.INVALID_TOKEN);
-    }
-  };
-  app.use('/trips', verifyToken, Trips);
-  app.use('/activities', verifyToken, Activities);
-  app.use('/host-requests', verifyToken, HostRequests);
-  app.use('/approvals', verifyToken, Approvals);
-  app.use('/bookings', verifyToken, Bookings);
-  app.use('/members', verifyToken, Members);
-  app.use('/conversations', verifyToken, Messages);
-  app.use('/payments', verifyToken, Payments);
-  app.use('/users', verifyToken, Users);
-  app.use('/admin', verifyToken, AdminApi);
-  app.use('/coupons', verifyToken, Coupons);
-  app.use('/email-notifications', verifyToken, EmailNotifications);
-  app.use('/assets', verifyToken, Assets);
-  app.use('/host-payments', verifyToken, HostPayment);
-  app.use('/directory-members', verifyToken, DirectoryMembers);
-  app.use('/resources', verifyToken, Resources);
-  app.use('/links', verifyToken, Links);
-  app.use('/billing', verifyToken, Billing);
-  app.use('/permissions', verifyToken, Permissions);
-  app.use('/topics', verifyToken, Topics);
-  app.use('/crypto', verifyToken, Crypto);
-  app.use('/properties', verifyToken, Properties);
-  return app;
-};
-
-// export const PublicAPI = serverless(noAuth());
-// export const API = serverless(auth());
-
-try {
-  noAuth().listen(3000, () =>
-    console.log('Public API listening on port 3000!')
-  );
-} catch (error) {}

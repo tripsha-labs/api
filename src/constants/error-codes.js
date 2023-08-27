@@ -99,6 +99,11 @@ export const ERROR_KEYS = {
     message: 'You are not a group member.',
     code: 400,
   },
+  UNAUTHENTICATED: {
+    type: 'Unauthenticated',
+    message: 'You are not signed in.',
+    code: 401,
+  },
   UNAUTHORIZED: {
     type: 'Unauthorized',
     message: 'You do not have permission to perform this operation.',
