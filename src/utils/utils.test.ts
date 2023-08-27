@@ -8,7 +8,7 @@ import { success, failure } from './response';
 describe('apigwManagementApi', () => {
   test('With valid input', async () => {
     const res = apigwManagementApi('endpoint');
-    expect(res).toBe('object');
+    expect(typeof res).toBe('object');
   });
 });
 

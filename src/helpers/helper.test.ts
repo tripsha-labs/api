@@ -7,8 +7,8 @@ import { queryBuilder, keyPrefixAlterer } from '.';
 
 describe('errorSanitizer', () => {
   test('With valid input', async () => {
-    const error = errorSanitizer({ code: 'ERROR', message: 'error message' });
-    expect(error).toBe('array');
+    const errors = errorSanitizer({ code: 'ERROR', message: 'error message' });
+    expect(Array.isArray(errors)).toBe(true);
   });
   test('With invalid input', async () => {
     const error = errorSanitizer('error message');
@@ -19,12 +19,12 @@ describe('errorSanitizer', () => {
 describe('keyPrefixAlterer', () => {
   test('With valid input', async () => {
     const key = keyPrefixAlterer({ username: 'test' });
-    expect(key).toBe('object');
+    expect(typeof key).toBe('object');
     expect(key).toHaveProperty(':username');
   });
   test('With invalid input', async () => {
     const key = keyPrefixAlterer('');
-    expect(key).toBe('object');
+    expect(typeof key).toBe('object');
     expect(key).not.toHaveProperty(':username');
   });
 });

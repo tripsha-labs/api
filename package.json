@@ -25,7 +25,7 @@
     "doc-gen": "node ./api-doc-dist/doc-gen.js",
     "doc-deploy": "node ./api-doc-dist/doc-gen.js && aws s3 sync ./api-doc-dist/ s3://tripsha.api-doc",
     "doc-deploy-staging": "node ./api-doc-dist/doc-gen.js && aws s3 sync ./api-doc-dist/ s3://staging-apidoc",
-    "test": "jest",
+    "test:unit": "jest --testMatch \"<rootDir>/src/**/*.test.ts\"",
     "test:e2e": "jest --testMatch \"<rootDir>/tests/e2e/**/*.test.ts\"",
     "test:integration": "jest --testMatch \"<rootDir>/tests/integration/**/*.test.ts\"",
     "test:all": "jest --watchAll",
