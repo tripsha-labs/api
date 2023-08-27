@@ -21,10 +21,7 @@ import moment from 'moment';
 export const listTrips = async (req, res) => {
   try {
     const params = req.query ? req.query : {};
-    const result = await TripController.listTrips(
-      params,
-      req.requestContext.identity.cognitoIdentityId
-    );
+    const result = await TripController.listTrips(params);
     return successResponse(res, result);
   } catch (error) {
     console.log(error);

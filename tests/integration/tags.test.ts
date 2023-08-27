@@ -26,7 +26,6 @@ afterAll(async () => {
 describe('/tags route', () => {
   it('should list tags', async () => {
     const res = await request(app).get('/public/tags');
-    console.log(res.body);
     expect(res.statusCode).toEqual(200);
     expect(res.body.result).toEqual({ data: [], count: 0 });
   });
