@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/routes/index.ts",
-    "buiild": "tsc && cp -R src/**/*.js dist",
-    "start": "ts-node -O '{\"module\":\"commonjs\"}'  src/routes/index.ts",
+    "build": "tsc",
+    "start": "node dist/routes/index.js",
     "start:staging": "sls offline start --stage=staging",
     "start:prod": "sls offline start --stage=prod-api",
     "start:demo": "sls offline start --stage=demo",
