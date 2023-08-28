@@ -19,8 +19,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: yarn install --frozen-lockfile
-    - run: yarn build
     - run: yarn test:unit
+    - run: yarn build
     - run: yarn test:integration
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
