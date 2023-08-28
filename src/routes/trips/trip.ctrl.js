@@ -40,7 +40,8 @@ export class TripController {
       removeRequested: remove_requested,
     });
   }
-  static async listTrips(filter, currenUser) {
+
+  static async listTrips(filter) {
     try {
       let currentDate = parseInt(
         moment()

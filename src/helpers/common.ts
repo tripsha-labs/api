@@ -5,12 +5,12 @@
 import _ from 'lodash';
 import { APP_CONSTANTS } from '../constants';
 
-export const errorSanitizer = error => {
+export const errorSanitizer = (error: any) => {
   if (!error.code) return error;
   return [{ type: _.camelCase(error.code), message: error.message }];
 };
 
-export const prepareCommonFilter = (params, allowedFields = []) => {
+export const prepareCommonFilter = (params: any, allowedFields = []) => {
   const limit = params.limit ? parseInt(params.limit) : APP_CONSTANTS.LIMIT;
   const page = params.page ? parseInt(params.page) : APP_CONSTANTS.PAGE;
 
@@ -22,12 +22,13 @@ export const prepareCommonFilter = (params, allowedFields = []) => {
   };
   if (params.sortBy && _.indexOf(allowedFields, params.sortBy) != -1) {
     const sortOrder = params.sortOrder ? params.sortOrder : 1;
+    // @ts-ignore
     filter['sort'] = { [params.sortBy]: sortOrder };
   }
   return filter;
 };
 
-export const prepareCommonPagination = params => {
+export const prepareCommonPagination = (params: any) => {
   const limit = params.limit ? parseInt(params.limit) : APP_CONSTANTS.LIMIT;
   const page = params.page ? parseInt(params.page) : APP_CONSTANTS.PAGE;
   const pagination = [];
@@ -40,9 +41,9 @@ export const prepareCommonPagination = params => {
  * This will prepare a sort object for mongodb query
  */
 export const prepareSortFilter = (
-  params,
+  params: any,
   allowedFields = [],
-  defaultSort,
+  defaultSort: any,
   defaultSortOrder = 1
 ) => {
   const sortOrder = params.sortOrder
