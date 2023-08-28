@@ -52,3 +52,6 @@ env.yml
 
 # Jetbrains IDEs
 .idea
+
+# Build folder
+dist

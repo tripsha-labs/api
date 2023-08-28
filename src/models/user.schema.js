@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema(
     emergencyContact: String,
     mobilityRestrictions: String,
     paymentMethod: { type: String },
-    isConcierge: { type: Boolean, default: false },
+    isConcierge: { type: Boolean, default: true },
   },
   {
     timestamps: true,

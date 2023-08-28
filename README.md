@@ -122,12 +122,45 @@ To add environment variables to your project
 3. Uncomment `environment: ${file(env.yml):${self:provider.stage}}` in the `serverless.yml`.
 4. Make sure to not commit your `env.yml`.
 
-### Support
+## Testing
 
-- Send us an [email](mailto:contact@anoma.ly) if you have any questions
-- Open a [new issue](https://github.com/AnomalyInnovations/serverless-nodejs-starter/issues/new) if you've found a bug or have some suggestions.
-- Or submit a pull request!
+Our testing strategy involves a combination of end-to-end, integration tests, and unit tests, following an Outside-In Testing approach. This approach, also known as Top-Down Testing, starts with higher-level tests (end-to-end tests), then moves to integration tests, and finally to unit tests. 
 
-### Maintainers
+This strategy is often used in conjunction with Behavior-Driven Development (BDD), a software development methodology that emphasizes collaboration and drives development by meaningful interactions with the end product. BDD encourages the use of scenarios and user-focused narratives to describe application behavior.
 
-Serverless Node.js Starter is maintained by Frank Wang ([@fanjiewang](https://twitter.com/fanjiewang)) & Jay V ([@jayair](https://twitter.com/jayair)). [**Subscribe to our newsletter**](http://eepurl.com/cEaBlf) for updates. Send us an [email](mailto:contact@anoma.ly) if you have any questions.
+### Why Outside-In Testing?
+
+Outside-In Testing allows us to understand the system's behavior from the user's perspective before focusing on individual components. This approach can be more time-efficient as it helps to identify major issues that may require architectural changes early in the development process, thus reducing the risk of having to perform significant rework.
+
+Moreover, it aligns well with the principles of BDD, ensuring that all development work contributes towards delivering value to the user and meeting business requirements.
+### End-to-End Tests
+
+End-to-end tests simulate user interactions and test the entire system as a whole. They are located in a top-level `tests/e2e` directory.
+
+We use an in-memory MongoDB database and a live server to simulate a real-world environment for these tests. This allows us to ensure that our system behaves as expected under realistic conditions.
+
+To run the end-to-end tests, use the command:
+
+```bash
+npm run test:e2e
+```
+
+### Integration Tests
+
+Integration tests focus on the interaction between different parts of the application, such as routes and middleware. They are located in a top-level `tests/integration` directory.
+
+To run the integration tests, use the command:
+
+```bash
+npm run test:integration
+```
+
+### Unit Tests
+
+Unit tests focus on individual functions or components in isolation. They are colocated in the same file or in the directory as the code they are testing, either as a `.test.ts` file with the same name like `someFunction.test.ts` or in a subdirectory named `__tests__`.
+
+To run the unit tests, use the command:
+
+```bash
+npm run test
+```

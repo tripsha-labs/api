@@ -24,8 +24,6 @@ export class AssetController {
       searchParams['type'] = {
         $regex: new RegExp(/^image/, 'i'),
       };
-    console.log(filter);
-    console.log(searchParams);
     const params = {
       filter: searchParams,
       ...prepareCommonFilter(filter, ['createdAt']),

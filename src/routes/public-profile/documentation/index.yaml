@@ -1,0 +1,249 @@
+paths:
+  /users:
+    get:
+      description: Returns list of users
+      operationId: listUsers
+      tags:
+        - Users
+      parameters:
+        - $ref: '#/components/parameters/querySearch'
+        - $ref: '#/components/parameters/querySortByUser'
+        - $ref: '#/components/parameters/querySortOrder'
+        - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/queryLimit'
+      responses:
+        '200':
+          description: User response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: object
+                    required:
+                      - total
+                      - data
+                    properties:
+                      count:
+                        type: number
+                        description: Current page count.
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            username:
+                              type: string
+                            email:
+                              type: string
+                            firstName:
+                              type: string
+                            lastName:
+                              type: string
+                            avatarUrl:
+                              type: string
+                            isActive:
+                              type: boolean
+                            isAdmin:
+                              type: boolean
+                            isOnline:
+                              type: boolean
+                            spokenLanguages:
+                              type: array
+                            interests:
+                              type: array
+                            isEmailVerified:
+                              type: boolean
+                            isPhoneVerified:
+                              type: boolean
+                            isIdentityVerified:
+                              type: boolean
+                            isStripeAccountConnected:
+                              type: boolean
+                            showDashboardTutorial:
+                              type: boolean
+                            hasFirstBooking:
+                              type: boolean
+                            isHostFirstLogin:
+                              type: boolean
+                            dob:
+                              type: string
+                            awsUserId:
+                              type: string
+                            createdAt:
+                              type: string
+                            updatedAt:
+                              type: string
+                            gender:
+                              type: string
+                            livesIn:
+                              type: string
+                            awsUsername:
+                              type: string
+                            travelStyle:
+                              type: string
+                            travelWithHostReason:
+                              type: string
+                            bio:
+                              type: string
+                            itemsTravelWith:
+                              type: string
+                            isTripAgreed:
+                              type: boolean
+                            isHost:
+                              type: boolean
+                            isBlocked:
+                              type: boolean
+                            facebook_url:
+                              type: string
+                            instagram_url:
+                              type: string
+                            twitter_url:
+                              type: string
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+    post:
+      description: Creates a user
+      operationId: createUser
+      tags:
+        - Users
+      requestBody:
+        $ref: '#/components/requestBodies/createUser'
+      responses:
+        '200':
+          description: Create User response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    type: string
+                    default: User id
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+  /users/check-user-exists:
+    post:
+      description: Check username exists
+      operationId: checkExists
+      tags:
+        - Users
+      requestBody:
+        $ref: '#/components/requestBodies/checkUserExists'
+      responses:
+        '200':
+          description: User status
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                  result:
+                    type: object
+                    properties:
+                      userExists:
+                        type: boolean
+                        description: User exists
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+
+  /users/{userId}:
+    get:
+      description: Returns a user based on a user ID
+      operationId: findUserById
+      tags:
+        - Users
+      parameters:
+        - $ref: '#/components/parameters/pathUserId'
+      responses:
+        '200':
+          description: User response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - result
+                properties:
+                  status:
+                    type: string
+                    default: 'success'
+                  result:
+                    $ref: '#/components/schemas/UserModel'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+    put:
+      description: Updates a single user based on the ID supplied and data
+      operationId: updateUser
+      tags:
+        - Users
+      parameters:
+        - $ref: '#/components/parameters/pathUserId'
+      requestBody:
+        $ref: '#/components/requestBodies/updateUser'
+      responses:
+        '204':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonSuccessFormat'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'
+    delete:
+      description: Deletes a single user based on the ID supplied
+      operationId: deleteUser
+      tags:
+        - Users
+      parameters:
+        - $ref: '#/components/parameters/pathUserId'
+      responses:
+        '204':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonSuccessFormat'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorFormat'

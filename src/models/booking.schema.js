@@ -2,26 +2,34 @@
  * @name - Booking schema
  * @description - This is the mongoose booking schema.
  */
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const bookingSchema = new mongoose.Schema(
   {
-    tripId: { type: String, index: true },
-    onwerId: { type: String, index: true },
-    memberId: { type: String, index: true },
+    // First two required for create booking
+    tripId: { type: Schema.Types.ObjectId, index: true },
+    memberId: { type: Schema.Types.ObjectId, index: true },
+    onwerId: { type: Schema.Types.ObjectId, index: true },
     stripePaymentMethod: { type: Object },
+    /**
+     * Adding crypto payment info here
+     */
+    cryptoPaymentMethod: { type: Object },
+    cryptoPaymentOptions: { type: Object },
+    lastCryptoFailReason: { type: String },
     paymentMethod: { type: String },
     onwerStripeId: { type: String },
     memberStripeId: { type: String },
     // booking details
     currency: { type: String, default: 'US' },
-    attendees: { type: Number },
-    rooms: { type: Array },
-    questions: { type: Array },
-    addOns: { type: Array },
-    guests: { type: Array },
+    attendees: { type: Number, default: 1 },
+    rooms: { type: Array, default: [] },
+    questions: { type: Array, default: [] },
+    addOns: { type: Array, default: [] },
+    guests: { type: Array, default: [] },
     message: { type: String },
     reason: { type: String },
+    comments: { type: Array, default: [] },
     paymentStatus: {
       type: String,
       enum: ['full', 'deposit', 'payasyougo', 'free'],
@@ -38,14 +46,16 @@ const bookingSchema = new mongoose.Schema(
         'invite-declined',
         'invite-maybe',
         'pending',
+        //this is status for crypto bookings that are accepted but not yet charged
+        'paymentPending',
         'approved',
         'declined',
         'withdrawn',
         'expired',
-        'cancelled',
+        'canceled',
         'removed',
       ],
-      default: 'pending',
+      default: 'invite-pending',
       index: true,
     },
     // Payment details
@@ -57,7 +67,7 @@ const bookingSchema = new mongoose.Schema(
     currentDue: { type: Number, default: 0 },
     paidAmout: { type: Number, default: 0 },
     pendingAmount: { type: Number, default: 0 },
-    paymentHistory: { type: Array },
+    paymentHistory: { type: Array, default: [] },
     addedByHost: { type: Boolean, default: false },
     tripPaymentType: { type: String },
     is48hEmailSent: { type: Boolean, default: false },
@@ -68,7 +78,6 @@ const bookingSchema = new mongoose.Schema(
     isAutoPayEnabled: { type: Boolean, default: true },
     bookingExpireOn: { type: Number, default: 3 },
     customFields: { type: Object },
-    invited: { type: Boolean, default: false, index: true },
   },
   {
     timestamps: true,

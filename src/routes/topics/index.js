@@ -19,5 +19,4 @@ router.get('/:topicId/messages', listMessages);
 router.post('/:topicId/messages', createMessage);
 router.put('/:topicId/messages/:id', updateMessage);
 router.delete('/:topicId/messages/:id', deleteMessage);
-
 export default router;

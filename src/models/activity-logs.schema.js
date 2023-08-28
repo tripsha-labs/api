@@ -12,6 +12,8 @@ const activityLogsSchema = new mongoose.Schema(
     tripId: { type: String, index: true },
     bookingId: { type: String, index: true },
     userId: { type: String, index: true },
+    unread: { type: Boolean, default: true },
+    cleared: { type: Boolean, default: false },
   },
   {
     timestamps: true,

@@ -1,9 +1,11 @@
+import { Types, isValidObjectId } from 'mongoose';
 import {
   UserModel,
   TripModel,
   MemberModel,
   BookingModel,
   HostRequestModel,
+  TopicModel,
 } from '../models';
 import { ERROR_KEYS, APP_CONSTANTS } from '../constants';
 import uuid from 'uuid/v4';
@@ -330,4 +332,74 @@ export const updateVariableNames = async () => {
     );
     resolve();
   });
+};
+
+export const updateObjectIds = async () => {
+  try {
+    // const bookings = await BookingModel.list({});
+    // let payload = bookings.map(booking => {
+    //   return {
+    //     updateOne: {
+    //       filter: {
+    //         _id: booking._id,
+    //       },
+    //       update: {
+    //         $set: {
+    //           tripId: Types.ObjectId(booking.tripId),
+    //           memberId: Types.ObjectId(booking.memberId),
+    //           onwerId: Types.ObjectId(booking.onwerId),
+    //         },
+    //       },
+    //       upsert: false,
+    //     },
+    //   };
+    // });
+    // await BookingModel.bulkWrite(payload);
+    // const members = await MemberModel.list({});
+    // payload = members.map(member => {
+    //   if (
+    //     member.bookingId &&
+    //     typeof member.bookingId == 'string' &&
+    //     isValidObjectId(member.bookingId)
+    //   )
+    //     return {
+    //       updateOne: {
+    //         filter: {
+    //           _id: member._id,
+    //         },
+    //         update: {
+    //           $set: {
+    //             bookingId: Types.ObjectId(member.bookingId),
+    //           },
+    //         },
+    //         upsert: false,
+    //       },
+    //     };
+    //   else
+    //     return {
+    //       updateOne: {
+    //         filter: {
+    //           _id: member._id,
+    //         },
+    //         update: {
+    //           $set: { isInvite: false },
+    //         },
+    //         upsert: false,
+    //       },
+    //     };
+    // });
+    // await MemberModel.bulkUpdate(payload);
+    // await UserModel.updateMany({}, { $set: { isConcierge: true } });
+    // // await TripModel.delete({ _id: Types.ObjectId('6487565a854493000850ac16') });
+    // // await TopicModel.deleteMany({
+    // //   tripId: Types.ObjectId('6487565a854493000850ac16'),
+    // // });
+    // await MemberModel.deleteMany({ isOwner: true });
+    // await MemberModel.updateMany(
+    //   { isActive: { $exists: false } },
+    //   { isActive: true }
+    // );
+  } catch (err) {
+    console.log(err);
+  }
 };

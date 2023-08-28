@@ -111,13 +111,28 @@ export const updateUserAdmin = async (req, res) => {
       }
       console.log('=========check email');
       if (params.email && user.email !== params.email) {
-        const exists = await _check_email_exists(params.email);
+        const exists = await _check_email_exists(params.email, user?._id);
         if (exists) throw ERROR_KEYS.EMAIL_ALREADY_EXISTS;
-        await setUserEmail(
-          req,
-          user.email.toLowerCase(),
-          params.email.toLowerCase()
-        );
+        try {
+          await setUserEmail(
+            req,
+            user.email.toLowerCase(),
+            params.email.toLowerCase()
+          );
+        } catch (err) {
+          console.log(err.name);
+          const createUserInfo = {
+            email: params.email.toLowerCase(),
+            password: params.password || '',
+            firstName: params.firstName || '',
+            lastName: params.lastName || '',
+          };
+          try {
+            await createCognitoUser(req, createUserInfo);
+          } catch (err) {
+            console.log(err);
+          }
+        }
       }
       console.log('=========set password');
       if (params['password'] && params['password'] != '') {
@@ -326,18 +341,21 @@ export const getUser = async (req, res) => {
   }
 };
 
-const _check_username_exists = async (email, username) => {
-  let userExists = await UserController.isExists({
+const _check_username_exists = async (email, username, userId = null) => {
+  const payload = {
     username: username,
     email: { $ne: email },
-  });
-  return userExists;
+  };
+  if (userId) payload['_id'] = { $ne: Types.ObjectId(userId) };
+  return await UserController.isExists(payload);
 };
 
-const _check_email_exists = async email => {
-  return await UserController.isExists({
+const _check_email_exists = async (email, userId = null) => {
+  const payload = {
     email: email,
-  });
+  };
+  if (userId) payload['_id'] = { $ne: Types.ObjectId(userId) };
+  return await UserController.isExists(payload);
 };
 
 const _get_unique_username = async (email, username) => {
@@ -436,7 +454,8 @@ export const isUserExists = async (req, res) => {
       throw { ...ERROR_KEYS.MISSING_FIELD, field: 'username' };
     const exists = await _check_username_exists(
       data['email'],
-      data['username']
+      data['username'],
+      data['userId']
     );
     return successResponse(res, exists);
   } catch (error) {

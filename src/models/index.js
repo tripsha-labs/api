@@ -88,6 +88,21 @@ export * from './user-permission.model';
 export * from './user-permission.schema';
 export * from './user-permission.validation';
 
+export * from './group-permission.model';
+export * from './group-permission.schema';
+export * from './group-permission.validation';
+
 export * from './topics.model';
 export * from './topics.schema';
 export * from './topics.validation';
+
+export * from './properties.model';
+export * from './properties.schema';
+export * from './properties.validation';
+
+export * from './notifications.model';
+export * from './notifications.schema';
+
+export * from './crypto-wallet.model';
+export * from './crypto-wallet.schema';
+export * from './crypto-wallet.validation';
