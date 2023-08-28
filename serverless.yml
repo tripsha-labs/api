@@ -109,7 +109,7 @@ package:
     - 'test-api-call.sh'
 
 functions:
-  - ${file(src/routes/index.yml)}
+  - ${file(src/index.yml)}
   - ${file(src/routes/messages/functions.yml)}
   - ${file(src/schedules/trips/functions.yml)}
   - ${file(src/schedules/crypto/functions.yml)}

@@ -55,3 +55,6 @@ env.yml
 
 # Build folder
 dist
+
+# Local Wallets
+.Wallets
