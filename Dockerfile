@@ -14,6 +14,7 @@ COPY . .
 # Build the TypeScript code
 RUN yarn build
 
-EXPOSE 3000
+# Expose port 80 to the outside world
+EXPOSE 80
 
 CMD ["yarn", "start"]
